@@ -2883,7 +2883,7 @@
         </div>
 
         <!-- Modal Body -->
-        <div class="p-3 sm:p-5 overflow-y-auto min-h-0 overscroll-contain flex-1 text-slate-700 dark:text-slate-300 text-xs sm:text-sm bg-slate-100/50 dark:bg-[#070b14]/70">
+        <div class="p-3 sm:p-4 overflow-hidden min-h-0 flex-1 flex flex-col text-slate-700 dark:text-slate-300 text-xs sm:text-sm bg-slate-100/50 dark:bg-[#070b14]/70">
           
           <!-- TRẠNG THÁI 1: ĐANG PHÂN TÍCH BẰNG AI (LIVE SCANNING RADAR) -->
           <div v-if="isGeneratingBlueprint" class="h-full flex flex-col items-center justify-center p-8 text-center my-auto">
@@ -2944,15 +2944,15 @@
           </div>
 
           <!-- TRẠNG THÁI 3: HIỂN THỊ ĐẦY ĐỦ BẢN KỊCH BẢN CHUYÊN NGHIỆP (ENTERPRISE BLUEPRINT) -->
-          <div v-else class="grid grid-cols-1 gap-5" :class="{ 'lg:grid-cols-12': modalTab === 'split' }">
+          <div v-else class="h-full min-h-0 flex-1 grid grid-cols-1 gap-4" :class="{ 'lg:grid-cols-12': modalTab === 'split' }">
 
             <!-- ============================================================= -->
-            <!-- CỘT TRÁI: BẢN KỊCH BẢN CHI TIẾT (BLUEPRINT STUDIO)             -->
+            <!-- CỘT TRÁI: BẢN KỊCH BẢN CHI TIẾT (LĂN CHUỘT ĐỘC LẬP)           -->
             <!-- ============================================================= -->
             <div 
               v-show="modalTab === 'script' || modalTab === 'split'" 
               :class="modalTab === 'split' ? 'lg:col-span-7' : 'col-span-1'"
-              class="space-y-4"
+              class="h-full overflow-y-auto min-h-0 pr-1.5 sm:pr-2.5 pb-8 space-y-4 overscroll-contain"
             >
               
               <!-- Thẻ Trạng Thái & Nhanh -->
@@ -3225,12 +3225,12 @@
             </div>
 
             <!-- ============================================================= -->
-            <!-- CỘT PHẢI: TRỢ LÝ AI CO-PILOT (CHAT & TINH CHỈNH KỊCH BẢN)    -->
+            <!-- CỘT PHẢI: TRỢ LÝ AI CO-PILOT (KHUNG CỐ ĐỊNH, KHÔNG BỊ TRÀN)  -->
             <!-- ============================================================= -->
             <div 
               v-show="modalTab === 'chat' || modalTab === 'split'" 
               :class="modalTab === 'split' ? 'lg:col-span-5' : 'col-span-1'"
-              class="flex flex-col bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden h-[75vh] lg:h-[calc(92vh-7.5rem)] sticky top-0"
+              class="h-full flex flex-col min-h-0 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden"
             >
               <!-- Co-Pilot Header -->
               <div class="p-3 px-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-800/50 flex-shrink-0">
@@ -3340,21 +3340,22 @@
               </div>
 
               <!-- Chat Input Box -->
-              <div class="p-3 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/80 flex-shrink-0">
+              <div class="p-2.5 sm:p-3 border-t border-slate-200 dark:border-slate-800 bg-slate-50/95 dark:bg-slate-950/90 flex-shrink-0">
                 <form @submit.prevent="submitChatMessage" class="flex items-center space-x-2">
                   <input 
                     type="text" 
                     v-model="chatInput"
                     :disabled="isAiChatLoading"
                     placeholder="Hỏi AI hoặc yêu cầu chỉnh sửa kịch bản..."
-                    class="flex-1 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500/30 transition disabled:opacity-50"
+                    class="flex-1 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500/30 transition disabled:opacity-50 shadow-inner"
                   >
                   <button 
                     type="submit"
                     :disabled="isAiChatLoading || !chatInput.trim()"
-                    class="px-3.5 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:opacity-95 text-white font-bold rounded-xl text-xs shadow-md transition flex items-center space-x-1 cursor-pointer disabled:opacity-40"
+                    class="px-3.5 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:opacity-95 text-white font-bold rounded-xl text-xs shadow-md transition flex items-center space-x-1 cursor-pointer disabled:opacity-40"
+                    title="Gửi tin nhắn"
                   >
-                    <i class="ph-bold ph-paper-plane-right"></i>
+                    <i class="ph-bold ph-paper-plane-right text-sm"></i>
                   </button>
                 </form>
               </div>
