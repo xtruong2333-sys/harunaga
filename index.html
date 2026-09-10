@@ -161,7 +161,7 @@
     .float-badge {
       animation: subtle-float 2.5s ease-in-out infinite;
     }
-    /* 7. Luxury RGB Wave Running Animation for Top Overview Cards */
+    /* 7. Luxury RGB Wave Running Animation on Hover */
     @keyframes rgb-wave-stream {
       0% {
         background-position: 0% 50%;
@@ -180,6 +180,7 @@
     .card-rgb-wave {
       position: relative;
       isolation: isolate;
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     /* Running RGB Wave Perimeter Border */
@@ -206,31 +207,31 @@
       -webkit-mask-composite: xor;
       mask-composite: exclude;
       opacity: 0;
-      transition: opacity 0.35s ease;
+      transition: opacity 0.3s ease;
       pointer-events: none;
-      z-index: 10;
+      z-index: 20;
     }
 
     /* Ambient Running RGB Wave Neon Aura Glow */
     .card-rgb-wave::after {
       content: '';
       position: absolute;
-      inset: -4px;
+      inset: -3px;
       border-radius: inherit;
       background: linear-gradient(
         90deg,
-        rgba(255, 0, 119, 0.6) 0%,
-        rgba(121, 40, 202, 0.6) 16.6%,
-        rgba(0, 112, 243, 0.6) 33.3%,
-        rgba(0, 223, 216, 0.6) 50%,
-        rgba(67, 233, 123, 0.6) 66.6%,
-        rgba(245, 166, 35, 0.6) 83.3%,
-        rgba(255, 0, 119, 0.6) 100%
+        rgba(255, 0, 119, 0.75) 0%,
+        rgba(121, 40, 202, 0.75) 16.6%,
+        rgba(0, 112, 243, 0.75) 33.3%,
+        rgba(0, 223, 216, 0.75) 50%,
+        rgba(67, 233, 123, 0.75) 66.6%,
+        rgba(245, 166, 35, 0.75) 83.3%,
+        rgba(255, 0, 119, 0.75) 100%
       );
       background-size: 300% 100%;
       filter: blur(14px);
       opacity: 0;
-      transition: opacity 0.35s ease;
+      transition: opacity 0.3s ease;
       pointer-events: none;
       z-index: -1;
     }
@@ -250,20 +251,24 @@
       );
       background-size: 250% 250%;
       opacity: 0;
-      transition: opacity 0.35s ease;
+      transition: opacity 0.3s ease;
       pointer-events: none;
       z-index: 1;
     }
 
     /* Hover Activation: Run RGB Waves smoothly */
+    .card-rgb-wave:hover {
+      transform: translateY(-4px);
+    }
+
     .card-rgb-wave:hover::before {
       opacity: 1;
-      animation: rgb-wave-stream 2.6s linear infinite;
+      animation: rgb-wave-stream 2.2s linear infinite;
     }
 
     .card-rgb-wave:hover::after {
-      opacity: 0.6;
-      animation: rgb-wave-stream 2.6s linear infinite;
+      opacity: 0.8;
+      animation: rgb-wave-stream 2.2s linear infinite;
     }
 
     .card-rgb-wave:hover .rgb-wave-sheen {
@@ -950,11 +955,25 @@
         <!-- Right Utility Controls -->
         <div class="flex items-center space-x-2 sm:space-x-2.5 flex-shrink-0">
           
-          <!-- Cloud Status Pill -->
-          <div class="hidden sm:flex items-center space-x-1.5 bg-slate-100 dark:bg-slate-900/90 border border-emerald-500/40 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 shadow-sm cursor-default">
+          <!-- Cloud Status Pill (Click to open Firebase Cloud Config) -->
+          <button 
+            @click="userMgmtTab = 'cloud'; showUserManagementModal = true"
+            title="Cấu hình Đám Mây Firebase & Đồng Bộ"
+            class="hidden sm:flex items-center space-x-1.5 bg-slate-100 dark:bg-slate-900/90 hover:bg-emerald-500/10 border border-emerald-500/40 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 shadow-sm cursor-pointer transition"
+          >
             <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
             <span class="text-[11px]">Cloud 24/7</span>
-          </div>
+          </button>
+
+          <!-- Admin Control Center Trigger (Chỉ hiển thị cho Admin) -->
+          <button 
+            v-if="userRole === 'admin'"
+            @click="openAdminModal"
+            title="Bảng Điều Khiển Bot & Quản Lý Kênh (Admin)"
+            class="w-9 h-9 rounded-xl bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/40 text-purple-600 dark:text-purple-300 flex items-center justify-center transition cursor-pointer"
+          >
+            <i class="ph-bold ph-sliders text-sm"></i>
+          </button>
 
           <!-- Quick Reload Button -->
           <button 
@@ -1147,11 +1166,15 @@
         </div>
       </div>
 
-      <!-- 4 Bento Intelligence Metric Cards -->
+      <!-- 4 Bento Intelligence Metric Cards (Hào quang RGB Wave khi rê chuột) -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         
         <!-- Bento 1: #1 Kỷ Lục Tốc Độ Đỉnh -->
-        <div class="card-luxury bg-white dark:bg-[#0c1222] border border-indigo-200 dark:border-indigo-900/50 hover:border-indigo-500 rounded-3xl p-5 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between relative overflow-hidden">
+        <div 
+          @click="topSpeedChannel && viewChannelVideos(topSpeedChannel.channel_id)"
+          class="card-rgb-wave cursor-pointer bg-white dark:bg-[#0c1222] border border-indigo-200 dark:border-indigo-900/50 rounded-3xl p-5 shadow-sm transition-all duration-300 flex flex-col justify-between relative select-none group"
+          title="Bấm để xem video của kênh này trên Radar"
+        >
           <div class="absolute top-0 right-0 w-28 h-28 bg-indigo-500/10 rounded-full blur-2xl pointer-events-none"></div>
           <div>
             <div class="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800/60">
@@ -1162,7 +1185,7 @@
               <span class="text-[10px] font-black px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400">Top Speed</span>
             </div>
             <div v-if="topSpeedChannel" class="mt-3">
-              <h4 class="text-sm sm:text-base font-black text-slate-900 dark:text-white truncate" :title="topSpeedChannel.name">{{ topSpeedChannel.name }}</h4>
+              <h4 class="text-sm sm:text-base font-black text-slate-900 dark:text-white truncate group-hover:text-indigo-500 transition" :title="topSpeedChannel.name">{{ topSpeedChannel.name }}</h4>
               <div class="text-[11px] text-slate-400 font-mono truncate">{{ topSpeedChannel.handle }}</div>
               <div class="mt-3 flex items-baseline space-x-1.5">
                 <span class="text-2xl font-black text-rose-600 dark:text-rose-400">+{{ formatNumber(topSpeedChannel.peak_vph) }}</span>
@@ -1170,13 +1193,18 @@
               </div>
             </div>
           </div>
-          <div class="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800/60 text-[11px] text-slate-500 dark:text-slate-400 truncate" v-if="topSpeedChannel && topSpeedChannel.best_video">
-            🎬 <em>{{ topSpeedChannel.best_video.title }}</em>
+          <div class="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800/60 text-[11px] text-slate-500 dark:text-slate-400 truncate flex items-center justify-between" v-if="topSpeedChannel && topSpeedChannel.best_video">
+            <span class="truncate">🎬 <em>{{ topSpeedChannel.best_video.title }}</em></span>
+            <i class="ph-bold ph-arrow-right text-xs text-indigo-500 ml-1 flex-shrink-0 group-hover:translate-x-0.5 transition"></i>
           </div>
         </div>
 
         <!-- Bento 2: #1 Gom Traffic Khủng Nhất -->
-        <div class="card-luxury bg-white dark:bg-[#0c1222] border border-blue-200 dark:border-blue-900/50 hover:border-blue-500 rounded-3xl p-5 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between relative overflow-hidden">
+        <div 
+          @click="topInflowChannel && viewChannelVideos(topInflowChannel.channel_id)"
+          class="card-rgb-wave cursor-pointer bg-white dark:bg-[#0c1222] border border-blue-200 dark:border-blue-900/50 rounded-3xl p-5 shadow-sm transition-all duration-300 flex flex-col justify-between relative select-none group"
+          title="Bấm để xem toàn bộ video của kênh này"
+        >
           <div class="absolute top-0 right-0 w-28 h-28 bg-blue-500/10 rounded-full blur-2xl pointer-events-none"></div>
           <div>
             <div class="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800/60">
@@ -1187,7 +1215,7 @@
               <span class="text-[10px] font-black px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400">Top Traffic</span>
             </div>
             <div v-if="topInflowChannel" class="mt-3">
-              <h4 class="text-sm sm:text-base font-black text-slate-900 dark:text-white truncate" :title="topInflowChannel.name">{{ topInflowChannel.name }}</h4>
+              <h4 class="text-sm sm:text-base font-black text-slate-900 dark:text-white truncate group-hover:text-blue-500 transition" :title="topInflowChannel.name">{{ topInflowChannel.name }}</h4>
               <div class="text-[11px] text-slate-400 font-mono truncate">{{ topInflowChannel.handle }}</div>
               <div class="mt-3 flex items-baseline space-x-1.5">
                 <span class="text-2xl font-black text-blue-600 dark:text-blue-400">+{{ formatNumber(topInflowChannel.total_channel_vph) }}</span>
@@ -1195,13 +1223,18 @@
               </div>
             </div>
           </div>
-          <div class="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800/60 text-[11px] text-slate-500 dark:text-slate-400 truncate" v-if="topInflowChannel">
-            👀 Tổng 15 video: <strong class="text-slate-700 dark:text-slate-300">{{ formatNumber(topInflowChannel.total_views) }}</strong> view
+          <div class="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800/60 text-[11px] text-slate-500 dark:text-slate-400 truncate flex items-center justify-between" v-if="topInflowChannel">
+            <span>👀 Tổng: <strong class="text-slate-700 dark:text-slate-300">{{ formatNumber(topInflowChannel.total_views) }}</strong> view</span>
+            <i class="ph-bold ph-arrow-right text-xs text-blue-500 ml-1 flex-shrink-0 group-hover:translate-x-0.5 transition"></i>
           </div>
         </div>
 
         <!-- Bento 3: #1 Tỷ Lệ Bùng Nổ (Hit Rate) -->
-        <div class="card-luxury bg-white dark:bg-[#0c1222] border border-amber-200 dark:border-amber-900/50 hover:border-amber-500 rounded-3xl p-5 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between relative overflow-hidden">
+        <div 
+          @click="topHitRateChannel && viewChannelVideos(topHitRateChannel.channel_id)"
+          class="card-rgb-wave cursor-pointer bg-white dark:bg-[#0c1222] border border-amber-200 dark:border-amber-900/50 rounded-3xl p-5 shadow-sm transition-all duration-300 flex flex-col justify-between relative select-none group"
+          title="Bấm để lọc video bão view của kênh này"
+        >
           <div class="absolute top-0 right-0 w-28 h-28 bg-amber-500/10 rounded-full blur-2xl pointer-events-none"></div>
           <div>
             <div class="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800/60">
@@ -1212,7 +1245,7 @@
               <span class="text-[10px] font-black px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950 text-amber-600 dark:text-amber-400">Hit Rate</span>
             </div>
             <div v-if="topHitRateChannel" class="mt-3">
-              <h4 class="text-sm sm:text-base font-black text-slate-900 dark:text-white truncate" :title="topHitRateChannel.name">{{ topHitRateChannel.name }}</h4>
+              <h4 class="text-sm sm:text-base font-black text-slate-900 dark:text-white truncate group-hover:text-amber-500 transition" :title="topHitRateChannel.name">{{ topHitRateChannel.name }}</h4>
               <div class="text-[11px] text-slate-400 font-mono truncate">{{ topHitRateChannel.handle }}</div>
               <div class="mt-3 flex items-baseline space-x-1.5">
                 <span class="text-2xl font-black text-amber-500">{{ topHitRateChannel.viral_rate }}%</span>
@@ -1220,13 +1253,18 @@
               </div>
             </div>
           </div>
-          <div class="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800/60 text-[11px] text-slate-500 dark:text-slate-400 truncate" v-if="topHitRateChannel">
-            ⚡ Kèm <strong class="text-slate-700 dark:text-slate-300">{{ topHitRateChannel.fast_count }}</strong> video tăng tốc (&ge;1k/h)
+          <div class="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800/60 text-[11px] text-slate-500 dark:text-slate-400 truncate flex items-center justify-between" v-if="topHitRateChannel">
+            <span>⚡ Kèm <strong class="text-slate-700 dark:text-slate-300">{{ topHitRateChannel.fast_count }}</strong> video tăng tốc</span>
+            <i class="ph-bold ph-arrow-right text-xs text-amber-500 ml-1 flex-shrink-0 group-hover:translate-x-0.5 transition"></i>
           </div>
         </div>
 
         <!-- Bento 4: Quy Mô Thị Trường (Market Pulse) -->
-        <div class="card-luxury bg-white dark:bg-[#0c1222] border border-emerald-200 dark:border-emerald-900/50 hover:border-emerald-500 rounded-3xl p-5 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between relative overflow-hidden">
+        <div 
+          @click="navigateFromSidebar('videos')"
+          class="card-rgb-wave cursor-pointer bg-white dark:bg-[#0c1222] border border-emerald-200 dark:border-emerald-900/50 rounded-3xl p-5 shadow-sm transition-all duration-300 flex flex-col justify-between relative select-none group"
+          title="Bấm để mở Radar Video toàn thị trường"
+        >
           <div class="absolute top-0 right-0 w-28 h-28 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none"></div>
           <div>
             <div class="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800/60">
@@ -1237,7 +1275,7 @@
               <span class="text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400">{{ stats.total_channels }} Kênh</span>
             </div>
             <div class="mt-3">
-              <h4 class="text-sm sm:text-base font-black text-slate-900 dark:text-white truncate">Lưu Lượng Thị Trường</h4>
+              <h4 class="text-sm sm:text-base font-black text-slate-900 dark:text-white truncate group-hover:text-emerald-500 transition">Lưu Lượng Thị Trường</h4>
               <div class="text-[11px] text-slate-400 font-mono truncate">DIY & Inventions Global</div>
               <div class="mt-3 flex items-baseline space-x-1.5">
                 <span class="text-2xl font-black text-emerald-600 dark:text-emerald-400">+{{ formatNumber(marketStats.total_vph) }}</span>
@@ -1245,8 +1283,9 @@
               </div>
             </div>
           </div>
-          <div class="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800/60 text-[11px] text-slate-500 dark:text-slate-400 truncate">
-            👀 Tích lũy <strong class="text-slate-700 dark:text-slate-300">{{ formatNumber(marketStats.total_views) }}</strong> view
+          <div class="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800/60 text-[11px] text-slate-500 dark:text-slate-400 truncate flex items-center justify-between">
+            <span>👀 Tích lũy <strong class="text-slate-700 dark:text-slate-300">{{ formatNumber(marketStats.total_views) }}</strong> view</span>
+            <i class="ph-bold ph-arrow-right text-xs text-emerald-500 ml-1 flex-shrink-0 group-hover:translate-x-0.5 transition"></i>
           </div>
         </div>
 
@@ -1279,7 +1318,7 @@
               <div 
                 v-for="(v, idx) in top5FastestVideos" 
                 :key="'fast-' + v.video_id"
-                class="group flex items-center gap-3 p-3 rounded-2xl bg-slate-50 dark:bg-slate-900/60 hover:bg-purple-50/50 dark:hover:bg-purple-950/20 border border-slate-200/80 dark:border-slate-800 hover:border-purple-500/50 transition-all duration-200"
+                class="card-rgb-wave group flex items-center gap-3 p-3 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800 transition-all duration-200"
               >
                 <!-- Rank Medal -->
                 <div 
@@ -1370,7 +1409,9 @@
               <div 
                 v-for="(ch, idx) in top5TrafficChannels" 
                 :key="'traffic-' + ch.channel_id"
-                class="group flex items-center gap-3 p-3 rounded-2xl bg-slate-50 dark:bg-slate-900/60 hover:bg-blue-50/50 dark:hover:bg-blue-950/20 border border-slate-200/80 dark:border-slate-800 hover:border-blue-500/50 transition-all duration-200"
+                @click="viewChannelVideos(ch.channel_id)"
+                class="card-rgb-wave cursor-pointer group flex items-center gap-3 p-3 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800 transition-all duration-200"
+                title="Bấm để xem video của kênh này trên Radar"
               >
                 <!-- Rank Medal -->
                 <div 
@@ -1574,14 +1615,14 @@
         <div 
           v-for="v in filteredVideos" 
           :key="v.video_id"
-          class="card-luxury group bg-white dark:bg-[#0c1222] border rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl dark:hover:shadow-purple-950/30 transition-all duration-300 flex flex-col justify-between"
+          class="card-rgb-wave group bg-white dark:bg-[#0c1222] border rounded-3xl shadow-sm transition-all duration-300 flex flex-col justify-between"
           :class="v.is_viral 
-            ? 'border-rose-400 dark:border-rose-700/80 ring-1 ring-rose-400/40 shadow-rose-900/20' 
-            : 'border-slate-200 dark:border-slate-800 hover:border-purple-400 dark:hover:border-purple-600/70'"
+            ? 'border-rose-400 dark:border-rose-700/80' 
+            : 'border-slate-200 dark:border-slate-800'"
         >
           <div>
             <!-- 16:9 Thumbnail Container -->
-            <div class="relative aspect-video w-full overflow-hidden bg-slate-900">
+            <div class="relative aspect-video w-full overflow-hidden bg-slate-900 rounded-t-[22px]">
               <img 
                 :src="v.thumbnail" 
                 :alt="v.title" 
@@ -1869,10 +1910,10 @@
         <div 
           v-for="(ch, cIdx) in sortedAndFilteredChannels" 
           :key="ch.channel_id"
-          class="card-luxury bg-white dark:bg-[#0c1222] border rounded-3xl p-5 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
+          class="card-rgb-wave bg-white dark:bg-[#0c1222] border rounded-3xl p-5 shadow-sm transition-all duration-300 flex flex-col justify-between"
           :class="cIdx === 0 
-            ? 'border-amber-400/80 dark:border-amber-400/60 ring-1 ring-amber-400/30' 
-            : 'border-slate-200 dark:border-slate-800 hover:border-indigo-400 dark:hover:border-indigo-600/70'"
+            ? 'border-amber-400/80 dark:border-amber-400/60' 
+            : 'border-slate-200 dark:border-slate-800'"
         >
           <div>
             <div class="flex items-start justify-between gap-3">
@@ -2037,13 +2078,13 @@
         <div 
           v-for="(v, index) in top15TrendingVideos" 
           :key="'trend-' + v.video_id"
-          class="card-luxury group bg-white dark:bg-[#0c1222] border rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between relative"
+          class="card-rgb-wave group bg-white dark:bg-[#0c1222] border rounded-3xl shadow-sm transition-all duration-300 flex flex-col justify-between relative"
           :class="index === 0 
-            ? 'border-amber-400/80 ring-2 ring-amber-400/30' 
+            ? 'border-amber-400/80' 
             : (index === 1 
-              ? 'border-slate-300 dark:border-slate-500 ring-2 ring-slate-400/20' 
+              ? 'border-slate-300 dark:border-slate-500' 
               : (index === 2 
-                ? 'border-orange-500/70 ring-2 ring-orange-500/20' 
+                ? 'border-orange-500/70' 
                 : 'border-slate-200 dark:border-slate-800'))"
         >
           <!-- Rank Badge -->
@@ -2168,7 +2209,7 @@
         <div 
           v-for="v in aiVideosList" 
           :key="'ai-' + v.video_id"
-          class="card-luxury group bg-white dark:bg-[#0c1222] border border-purple-500/30 dark:border-purple-800/50 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
+          class="card-rgb-wave group bg-white dark:bg-[#0c1222] border border-purple-500/30 dark:border-purple-800/50 rounded-3xl shadow-sm transition-all duration-300 flex flex-col justify-between"
         >
           <div>
             <!-- Thumbnail -->
@@ -2294,7 +2335,7 @@
         <div 
           v-for="v in savedVideosList" 
           :key="'saved-' + v.video_id"
-          class="card-luxury group bg-white dark:bg-[#0c1222] border border-amber-400/40 dark:border-amber-500/40 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
+          class="card-rgb-wave group bg-white dark:bg-[#0c1222] border border-amber-400/40 dark:border-amber-500/40 rounded-3xl shadow-sm transition-all duration-300 flex flex-col justify-between"
         >
           <div>
             <!-- Thumbnail -->
@@ -3735,8 +3776,19 @@
 
                 </div>
 
-                <!-- Nút Mở Quản Lý Thành Viên (Chỉ dành cho Admin Master) -->
-                <div v-if="userRole === 'admin'" class="pt-0.5">
+                <!-- Cụm Nút Quyền Quản Trị (Chỉ dành cho Admin Master) -->
+                <div v-if="userRole === 'admin'" class="space-y-1.5 pt-0.5">
+                  <button 
+                    type="button"
+                    @click="openAdminModal"
+                    class="w-full py-2 px-3 rounded-xl bg-gradient-to-r from-purple-600/25 via-indigo-600/25 to-blue-600/25 hover:from-purple-600/40 hover:to-blue-600/40 border border-purple-500/50 text-purple-200 font-bold text-xs flex items-center justify-between transition cursor-pointer shadow-sm"
+                  >
+                    <div class="flex items-center space-x-2">
+                      <i class="ph-fill ph-sliders text-sm text-purple-400"></i>
+                      <span>Bảng Điều Khiển Bot & Quản Lý Kênh</span>
+                    </div>
+                    <span class="text-[9px] bg-purple-500/40 text-white px-2 py-0.5 rounded font-bold">Admin</span>
+                  </button>
                   <button 
                     type="button"
                     @click="showUserManagementModal = true"
@@ -3744,7 +3796,7 @@
                   >
                     <div class="flex items-center space-x-2">
                       <i class="ph-fill ph-users-three text-sm text-purple-400"></i>
-                      <span>Quản Lý Thành Viên ({{ localAccounts.length }})</span>
+                      <span>Quản Lý Thành Viên & Cloud ({{ localAccounts.length }})</span>
                     </div>
                     <span class="text-[9px] bg-purple-500/30 text-purple-200 px-2 py-0.5 rounded font-semibold">Mở</span>
                   </button>
@@ -5211,6 +5263,8 @@
           return list;
         });
 
+        const sortedAndFilteredChannels = filteredChannels;
+
         const setChannelSort = (sortKey) => {
           if (channelSortBy.value === sortKey) {
             channelSortOrder.value = channelSortOrder.value === 'desc' ? 'asc' : 'desc';
@@ -5983,6 +6037,9 @@ Nhiệm vụ: Trả lời hoặc viết lại/tinh chỉnh kịch bản theo yê
           isTriggering,
           saveStatus,
           filteredVideos,
+          sortedAndFilteredChannels,
+          loadData,
+          showToast,
           formatNumber,
           resetFilters,
           copyText,
