@@ -13,6 +13,7 @@ if sys.stderr and hasattr(sys.stderr, "reconfigure"):
     sys.stderr.reconfigure(encoding="utf-8")
 
 from discord_notifier import send_discord_alert
+from ai_analyst import analyze_viral_video
 
 # Đường dẫn file
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -188,6 +189,12 @@ def run():
     if not discord_webhook:
         print("ℹ️ [DISCORD] Biến môi trường DISCORD_WEBHOOK_URL chưa được truyền (chế độ Test / Quét dữ liệu).")
 
+    gh_repo = os.environ.get("GITHUB_REPOSITORY", "").strip()
+    dashboard_url = os.environ.get("DASHBOARD_URL", "")
+    if not dashboard_url and "/" in gh_repo:
+        owner, repo = gh_repo.split("/", 1)
+        dashboard_url = f"https://{owner}.github.io/{repo}/"
+
     now = datetime.now(timezone.utc)
     now_iso = now.isoformat()
 
@@ -267,12 +274,23 @@ def run():
             if is_viral:
                 viral_videos_count += 1
 
+            # Giữ lại phân tích AI nếu đã có từ lần quét trước
+            existing_ai = prev_info.get("ai_analysis") if prev_info else None
+            if existing_ai:
+                v_entry["ai_analysis"] = existing_ai
+
             # Kiểm tra và gửi cảnh báo Discord
             already_alerted = prev_info.get("alerted", False) if prev_info else False
             
             if is_viral and is_recent and not already_alerted:
                 print(f"🔥 PHÁT HIỆN VIDEO VIRAL: [{v['title'][:40]}] - Tốc độ: +{effective_vph:,} view/h")
-                alert_sent = send_discord_alert(discord_webhook, v_entry, ch_name, threshold)
+                
+                # Gọi Bot AI Phân Tích Chuyên Sâu & Lên Kịch Bản Remake Quốc Tế
+                ai_result = analyze_viral_video(vid, v["title"], ch_name, views, effective_vph)
+                if ai_result:
+                    v_entry["ai_analysis"] = ai_result
+
+                alert_sent = send_discord_alert(discord_webhook, v_entry, ch_name, threshold, dashboard_url)
                 
                 # Cập nhật lịch sử cảnh báo
                 video_history[vid] = {
@@ -280,7 +298,8 @@ def run():
                     "last_checked": now_iso,
                     "alerted": True if alert_sent or discord_webhook else False,
                     "alerted_at": now_iso,
-                    "alerted_vph": effective_vph
+                    "alerted_vph": effective_vph,
+                    "ai_analysis": ai_result or existing_ai
                 }
             else:
                 # Cập nhật chỉ số kiểm tra lần này
@@ -288,11 +307,14 @@ def run():
                     video_history[vid] = {
                         "last_views": views,
                         "last_checked": now_iso,
-                        "alerted": False
+                        "alerted": False,
+                        "ai_analysis": existing_ai
                     }
                 else:
                     video_history[vid]["last_views"] = views
                     video_history[vid]["last_checked"] = now_iso
+                    if existing_ai:
+                        video_history[vid]["ai_analysis"] = existing_ai
 
         # Sắp xếp video theo thời gian xuất bản mới nhất
         all_channels_data.append({
