@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Competitor Video Tracker & AI Content Strategist 24/7</title>
+  <title>Competitor Tracker & Channel Growth Analytics 24/7</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔥</text></svg>">
   
   <!-- Tailwind CSS CDN -->
@@ -59,11 +59,11 @@
                 Competitor Tracker
               </h1>
               <span class="bg-gradient-to-r from-purple-500 to-indigo-500 text-[10px] uppercase font-black px-2 py-0.5 rounded-full text-white tracking-widest shadow-sm">
-                AI Strategist
+                AI Strategist & Analytics
               </span>
             </div>
             <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-              Giám sát 15 video mới nhất đối thủ & AI bóc tách kịch bản Remake kênh quốc tế 24/7
+              Giám sát video đối thủ, AI Remake kịch bản & phân tích tăng trưởng 47 kênh 24/7
             </p>
           </div>
         </div>
@@ -100,6 +100,35 @@
       </div>
     </header>
 
+    <!-- Main Navigation Menu (Menu chọn giữa 2 phần) -->
+    <nav class="flex items-center space-x-3 my-6 border-b border-slate-300 dark:border-slate-800 pb-4">
+      <!-- Tab 1: Video & AI Remake -->
+      <button 
+        @click="activeMainTab = 'videos'"
+        :class="activeMainTab === 'videos' 
+          ? 'bg-gradient-to-r from-rose-600 to-indigo-600 text-white font-black shadow-lg shadow-rose-900/20' 
+          : 'bg-white dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-slate-400'"
+        class="px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-bold flex items-center space-x-2 transition duration-200"
+      >
+        <i class="ph ph-film-strip text-lg"></i>
+        <span>1. Giám Sát Video & AI Remake</span>
+        <span class="text-[11px] px-2 py-0.5 rounded-full bg-black/20 text-white font-semibold">{{ stats.total_videos }}</span>
+      </button>
+
+      <!-- Tab 2: Phân Tích Kênh & Leaderboard -->
+      <button 
+        @click="activeMainTab = 'channels'"
+        :class="activeMainTab === 'channels' 
+          ? 'bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white font-black shadow-lg shadow-purple-900/20' 
+          : 'bg-white dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-slate-400'"
+        class="px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-bold flex items-center space-x-2 transition duration-200"
+      >
+        <i class="ph ph-chart-line-up text-lg"></i>
+        <span>2. Bảng Xếp Hạng & Tăng Trưởng Kênh</span>
+        <span class="text-[11px] px-2 py-0.5 rounded-full bg-black/20 text-white font-semibold">{{ stats.total_channels }} kênh</span>
+      </button>
+    </nav>
+
     <!-- Notification Toast (1-click copy feedback) -->
     <div 
       v-if="toastMsg" 
@@ -109,344 +138,610 @@
       <span>{{ toastMsg }}</span>
     </div>
 
-    <!-- Stats Overview Cards -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 my-6">
-      <div class="bg-white dark:bg-cardBg border border-slate-200 dark:border-borderDark rounded-2xl p-4 shadow-sm">
-        <span class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Kênh theo dõi</span>
-        <div class="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white mt-1">{{ stats.total_channels }}</div>
-        <div class="text-xs text-slate-500 dark:text-slate-500 mt-1 flex items-center">
-          <i class="ph ph-broadcast mr-1 text-indigo-500"></i> Quét tự động mỗi 1 giờ
+    <!-- ========================================================================================= -->
+    <!-- PHẦN 1: GIÁM SÁT VIDEO & AI REMAKE (ACTIVE WHEN activeMainTab === 'videos')               -->
+    <!-- ========================================================================================= -->
+    <section v-if="activeMainTab === 'videos'">
+
+      <!-- Stats Overview Cards -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div class="bg-white dark:bg-cardBg border border-slate-200 dark:border-borderDark rounded-2xl p-4 shadow-sm">
+          <span class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Kênh theo dõi</span>
+          <div class="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white mt-1">{{ stats.total_channels }}</div>
+          <div class="text-xs text-slate-500 dark:text-slate-500 mt-1 flex items-center">
+            <i class="ph ph-broadcast mr-1 text-indigo-500"></i> Quét tự động mỗi 1 giờ
+          </div>
+        </div>
+
+        <div class="bg-white dark:bg-cardBg border border-slate-200 dark:border-borderDark rounded-2xl p-4 shadow-sm">
+          <span class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Video đã quét</span>
+          <div class="text-2xl sm:text-3xl font-black text-indigo-600 dark:text-indigo-400 mt-1">{{ stats.total_videos }}</div>
+          <div class="text-xs text-slate-500 dark:text-slate-500 mt-1 flex items-center">
+            <i class="ph ph-video mr-1 text-indigo-500"></i> 15 video mới nhất/kênh
+          </div>
+        </div>
+
+        <div class="bg-white dark:bg-cardBg border border-rose-300 dark:border-rose-900/40 bg-gradient-to-b from-rose-50/50 dark:from-cardBg to-rose-100/50 dark:to-rose-950/20 rounded-2xl p-4 shadow-sm">
+          <span class="text-xs font-bold text-rose-600 dark:text-rose-400 uppercase tracking-wider flex items-center">
+            <i class="ph-fill ph-fire text-rose-500 mr-1"></i> Video Đang Viral
+          </span>
+          <div class="text-2xl sm:text-3xl font-black text-rose-600 dark:text-rose-500 mt-1">{{ stats.viral_count }}</div>
+          <div class="text-xs text-rose-600/80 dark:text-rose-400/70 mt-1 flex items-center">
+            Tốc độ &ge; 5.000 view/h
+          </div>
+        </div>
+
+        <div class="bg-white dark:bg-cardBg border border-slate-200 dark:border-borderDark rounded-2xl p-4 shadow-sm">
+          <span class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Cập nhật lần cuối</span>
+          <div class="text-sm sm:text-base font-bold text-slate-900 dark:text-slate-200 mt-2 truncate">
+            {{ lastUpdatedFormatted || 'Đang tải...' }}
+          </div>
+          <div class="text-xs text-slate-500 dark:text-slate-500 mt-1 flex items-center">
+            <i class="ph ph-clock mr-1 text-indigo-500"></i> {{ timeSinceUpdate }}
+          </div>
         </div>
       </div>
 
-      <div class="bg-white dark:bg-cardBg border border-slate-200 dark:border-borderDark rounded-2xl p-4 shadow-sm">
-        <span class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Video đã quét</span>
-        <div class="text-2xl sm:text-3xl font-black text-indigo-600 dark:text-indigo-400 mt-1">{{ stats.total_videos }}</div>
-        <div class="text-xs text-slate-500 dark:text-slate-500 mt-1 flex items-center">
-          <i class="ph ph-video mr-1 text-indigo-500"></i> 15 video mới nhất/kênh
-        </div>
-      </div>
-
-      <div class="bg-white dark:bg-cardBg border border-rose-300 dark:border-rose-900/40 bg-gradient-to-b from-rose-50/50 dark:from-cardBg to-rose-100/50 dark:to-rose-950/20 rounded-2xl p-4 shadow-sm">
-        <span class="text-xs font-bold text-rose-600 dark:text-rose-400 uppercase tracking-wider flex items-center">
-          <i class="ph-fill ph-fire text-rose-500 mr-1"></i> Video Đang Viral
-        </span>
-        <div class="text-2xl sm:text-3xl font-black text-rose-600 dark:text-rose-500 mt-1">{{ stats.viral_count }}</div>
-        <div class="text-xs text-rose-600/80 dark:text-rose-400/70 mt-1 flex items-center">
-          Tốc độ &ge; 5.000 view/h
-        </div>
-      </div>
-
-      <div class="bg-white dark:bg-cardBg border border-slate-200 dark:border-borderDark rounded-2xl p-4 shadow-sm">
-        <span class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Cập nhật lần cuối</span>
-        <div class="text-sm sm:text-base font-bold text-slate-900 dark:text-slate-200 mt-2 truncate">
-          {{ lastUpdatedFormatted || 'Đang tải...' }}
-        </div>
-        <div class="text-xs text-slate-500 dark:text-slate-500 mt-1 flex items-center">
-          <i class="ph ph-clock mr-1 text-indigo-500"></i> {{ timeSinceUpdate }}
-        </div>
-      </div>
-    </div>
-
-    <!-- Quick Filter Pills (Các tab lọc nhanh theo trạng thái) -->
-    <div class="flex items-center space-x-2 overflow-x-auto pb-2 mb-4">
-      <button 
-        @click="filterTab = 'all'" 
-        :class="filterTab === 'all' 
-          ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black shadow-md' 
-          : 'bg-white dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-slate-400'"
-        class="px-4 py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5 whitespace-nowrap transition"
-      >
-        <span>Tất cả video</span>
-        <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200">{{ stats.total_videos }}</span>
-      </button>
-
-      <!-- Tab Chỉ Video Viral -->
-      <button 
-        @click="filterTab = 'viral'" 
-        :class="filterTab === 'viral' 
-          ? 'bg-rose-600 text-white font-black shadow-lg shadow-rose-900/30' 
-          : 'bg-white dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-rose-500/50'"
-        class="px-4 py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5 whitespace-nowrap transition"
-      >
-        <i class="ph-fill ph-fire text-amber-400"></i>
-        <span>Chỉ Video Viral (&ge; 5k/h)</span>
-        <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-rose-700 text-white">{{ stats.viral_count }}</span>
-      </button>
-
-      <!-- Tab Tăng Tốc Nhanh (>1k/h) -->
-      <button 
-        @click="filterTab = 'high_speed'" 
-        :class="filterTab === 'high_speed' 
-          ? 'bg-amber-500 text-white font-black shadow-md' 
-          : 'bg-white dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-amber-400'"
-        class="px-4 py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5 whitespace-nowrap transition"
-      >
-        <i class="ph ph-lightning text-amber-400"></i>
-        <span>Tăng Nhanh (&ge; 1k/h)</span>
-      </button>
-
-      <!-- Tab Đã Có Kịch Bản AI -->
-      <button 
-        @click="filterTab = 'ai'" 
-        :class="filterTab === 'ai' 
-          ? 'bg-purple-600 text-white font-black shadow-lg shadow-purple-900/30' 
-          : 'bg-white dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-purple-400'"
-        class="px-4 py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5 whitespace-nowrap transition"
-      >
-        <i class="ph ph-sparkle text-purple-300"></i>
-        <span>Có Kịch Bản AI</span>
-      </button>
-
-      <!-- Tab Dưới 48h -->
-      <button 
-        @click="filterTab = 'recent'" 
-        :class="filterTab === 'recent' 
-          ? 'bg-indigo-600 text-white font-black shadow-md' 
-          : 'bg-white dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-indigo-400'"
-        class="px-4 py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5 whitespace-nowrap transition"
-      >
-        <i class="ph ph-clock text-indigo-300"></i>
-        <span>Mới đăng (&le; 48 giờ)</span>
-      </button>
-    </div>
-
-    <!-- Filter & Search Toolbar (Thanh tìm kiếm & Tùy chỉnh sắp xếp từ cao xuống thấp) -->
-    <div class="bg-white dark:bg-cardBg border border-slate-200 dark:border-borderDark rounded-2xl p-4 mb-6 shadow-sm flex flex-col lg:flex-row gap-3 items-stretch lg:items-center justify-between">
-      
-      <!-- Search Input -->
-      <div class="relative flex-1">
-        <i class="ph ph-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></i>
-        <input 
-          type="text" 
-          v-model="searchQuery" 
-          placeholder="Tìm theo tiêu đề video hoặc tên kênh đối thủ..." 
-          class="w-full bg-slate-50 dark:bg-slate-900/90 border border-slate-300 dark:border-slate-700/80 rounded-xl pl-10 pr-10 py-2.5 text-xs sm:text-sm text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-purple-500 transition"
-        >
+      <!-- Quick Filter Pills -->
+      <div class="flex items-center space-x-2 overflow-x-auto pb-2 mb-4">
         <button 
-          v-if="searchQuery" 
-          @click="searchQuery = ''" 
-          class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-white transition"
+          @click="filterTab = 'all'" 
+          :class="filterTab === 'all' 
+            ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black shadow-md' 
+            : 'bg-white dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-slate-400'"
+          class="px-4 py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5 whitespace-nowrap transition"
         >
-          <i class="ph ph-x-circle text-base"></i>
+          <span>Tất cả video</span>
+          <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200">{{ stats.total_videos }}</span>
+        </button>
+
+        <button 
+          @click="filterTab = 'viral'" 
+          :class="filterTab === 'viral' 
+            ? 'bg-rose-600 text-white font-black shadow-lg shadow-rose-900/30' 
+            : 'bg-white dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-rose-500/50'"
+          class="px-4 py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5 whitespace-nowrap transition"
+        >
+          <i class="ph-fill ph-fire text-amber-400"></i>
+          <span>Chỉ Video Viral (&ge; 5k/h)</span>
+          <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-rose-700 text-white">{{ stats.viral_count }}</span>
+        </button>
+
+        <button 
+          @click="filterTab = 'high_speed'" 
+          :class="filterTab === 'high_speed' 
+            ? 'bg-amber-500 text-white font-black shadow-md' 
+            : 'bg-white dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-amber-400'"
+          class="px-4 py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5 whitespace-nowrap transition"
+        >
+          <i class="ph ph-lightning text-amber-400"></i>
+          <span>Tăng Nhanh (&ge; 1k/h)</span>
+        </button>
+
+        <button 
+          @click="filterTab = 'ai'" 
+          :class="filterTab === 'ai' 
+            ? 'bg-purple-600 text-white font-black shadow-lg shadow-purple-900/30' 
+            : 'bg-white dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-purple-400'"
+          class="px-4 py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5 whitespace-nowrap transition"
+        >
+          <i class="ph ph-sparkle text-purple-300"></i>
+          <span>Có Kịch Bản AI</span>
+        </button>
+
+        <button 
+          @click="filterTab = 'recent'" 
+          :class="filterTab === 'recent' 
+            ? 'bg-indigo-600 text-white font-black shadow-md' 
+            : 'bg-white dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-indigo-400'"
+          class="px-4 py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5 whitespace-nowrap transition"
+        >
+          <i class="ph ph-clock text-indigo-300"></i>
+          <span>Mới đăng (&le; 48 giờ)</span>
         </button>
       </div>
 
-      <!-- Controls: Chọn kênh & Sắp xếp -->
-      <div class="flex flex-wrap items-center gap-2">
+      <!-- Filter & Search Toolbar -->
+      <div class="bg-white dark:bg-cardBg border border-slate-200 dark:border-borderDark rounded-2xl p-4 mb-6 shadow-sm flex flex-col lg:flex-row gap-3 items-stretch lg:items-center justify-between">
         
-        <!-- Channel Select -->
-        <div class="flex items-center space-x-1.5 bg-slate-50 dark:bg-slate-900/90 border border-slate-300 dark:border-slate-700/80 rounded-xl px-2.5 py-1.5">
-          <i class="ph ph-youtube-logo text-rose-500 text-base"></i>
-          <select 
-            v-model="selectedChannel" 
-            class="bg-transparent text-xs sm:text-sm text-slate-800 dark:text-slate-200 focus:outline-none cursor-pointer pr-1"
+        <!-- Search Input -->
+        <div class="relative flex-1">
+          <i class="ph ph-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></i>
+          <input 
+            type="text" 
+            v-model="searchQuery" 
+            placeholder="Tìm theo tiêu đề video hoặc tên kênh đối thủ..." 
+            class="w-full bg-slate-50 dark:bg-slate-900/90 border border-slate-300 dark:border-slate-700/80 rounded-xl pl-10 pr-10 py-2.5 text-xs sm:text-sm text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-purple-500 transition"
           >
-            <option value="ALL">Tất cả kênh ({{ channels.length }})</option>
-            <option v-for="ch in channels" :key="ch.channel_id" :value="ch.channel_id">
-              {{ ch.name }}
-            </option>
-          </select>
+          <button 
+            v-if="searchQuery" 
+            @click="searchQuery = ''" 
+            class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-white transition"
+          >
+            <i class="ph ph-x-circle text-base"></i>
+          </button>
         </div>
 
-        <!-- Sort Criteria Select -->
-        <div class="flex items-center space-x-1.5 bg-slate-50 dark:bg-slate-900/90 border border-slate-300 dark:border-slate-700/80 rounded-xl px-2.5 py-1.5">
-          <i class="ph ph-sort-ascending text-indigo-500 text-base"></i>
-          <span class="text-xs text-slate-500 dark:text-slate-400">Xếp theo:</span>
-          <select 
-            v-model="sortBy" 
-            class="bg-transparent text-xs sm:text-sm text-slate-800 dark:text-slate-200 font-bold focus:outline-none cursor-pointer pr-1"
-          >
-            <option value="vph">🔥 Tốc độ view/h</option>
-            <option value="views">👀 Tổng lượt xem</option>
-            <option value="newest">⏱ Thời gian đăng</option>
-          </select>
-        </div>
-
-        <!-- Sort Direction Toggle (Từ Cao xuống Thấp / Thấp lên Cao) -->
-        <button 
-          @click="toggleSortOrder" 
-          :title="sortOrder === 'desc' ? 'Đang xếp: Từ Cao xuống Thấp' : 'Đang xếp: Từ Thấp lên Cao'"
-          class="flex items-center space-x-1 bg-slate-50 dark:bg-slate-900/90 hover:bg-slate-200 dark:hover:bg-slate-800 border border-slate-300 dark:border-slate-700/80 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 dark:text-slate-200 transition"
-        >
-          <span v-if="sortOrder === 'desc'" class="flex items-center space-x-1 text-rose-600 dark:text-rose-400">
-            <i class="ph ph-arrow-down font-black"></i>
-            <span>Cao &darr; Thấp</span>
-          </span>
-          <span v-else class="flex items-center space-x-1 text-emerald-600 dark:text-emerald-400">
-            <i class="ph ph-arrow-up font-black"></i>
-            <span>Thấp &uarr; Cao</span>
-          </span>
-        </button>
-
-      </div>
-
-    </div>
-
-    <!-- Active Filter Notice & Quick Reset -->
-    <div class="text-xs text-slate-500 dark:text-slate-400 mb-4 px-1 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-      <div class="flex items-center space-x-2">
-        <span>Hiển thị <strong>{{ filteredVideos.length }}</strong> / {{ allVideos.length }} video</span>
-        <span>•</span>
-        <span>Sắp xếp: <strong class="text-slate-800 dark:text-slate-200">{{ sortLabel }}</strong></span>
-      </div>
-      <button 
-        v-if="isFiltered" 
-        @click="resetFilters" 
-        class="text-rose-600 dark:text-rose-400 hover:underline font-bold flex items-center space-x-1"
-      >
-        <i class="ph ph-arrow-counter-clockwise"></i>
-        <span>Đặt lại toàn bộ bộ lọc</span>
-      </button>
-    </div>
-
-    <!-- Video Grid -->
-    <div v-if="filteredVideos.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      <div 
-        v-for="v in filteredVideos" 
-        :key="v.video_id"
-        :class="v.is_viral 
-          ? 'border-rose-400 dark:border-rose-900/50 shadow-rose-900/10 dark:shadow-rose-950/30' 
-          : 'border-slate-200 dark:border-borderDark'"
-        class="group bg-white dark:bg-cardBg border hover:border-slate-400 dark:hover:border-slate-600 rounded-2xl overflow-hidden shadow-md dark:shadow-xl transition duration-300 flex flex-col justify-between"
-      >
-        <div>
-          <!-- Thumbnail Container -->
-          <div class="relative aspect-video w-full overflow-hidden bg-slate-900">
-            <img 
-              :src="v.thumbnail" 
-              :alt="v.title" 
-              loading="lazy" 
-              class="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+        <!-- Controls -->
+        <div class="flex flex-wrap items-center gap-2">
+          
+          <!-- Channel Select -->
+          <div class="flex items-center space-x-1.5 bg-slate-50 dark:bg-slate-900/90 border border-slate-300 dark:border-slate-700/80 rounded-xl px-2.5 py-1.5">
+            <i class="ph ph-youtube-logo text-rose-500 text-base"></i>
+            <select 
+              v-model="selectedChannel" 
+              class="bg-transparent text-xs sm:text-sm text-slate-800 dark:text-slate-200 focus:outline-none cursor-pointer pr-1"
             >
+              <option value="ALL">Tất cả kênh ({{ channels.length }})</option>
+              <option v-for="ch in channels" :key="ch.channel_id" :value="ch.channel_id">
+                {{ ch.name }}
+              </option>
+            </select>
+          </div>
 
-            <!-- Gradient Overlay -->
-            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+          <!-- Sort Select -->
+          <div class="flex items-center space-x-1.5 bg-slate-50 dark:bg-slate-900/90 border border-slate-300 dark:border-slate-700/80 rounded-xl px-2.5 py-1.5">
+            <i class="ph ph-sort-ascending text-indigo-500 text-base"></i>
+            <span class="text-xs text-slate-500 dark:text-slate-400">Xếp:</span>
+            <select 
+              v-model="sortBy" 
+              class="bg-transparent text-xs sm:text-sm text-slate-800 dark:text-slate-200 font-bold focus:outline-none cursor-pointer pr-1"
+            >
+              <option value="vph">🔥 Tốc độ view/h</option>
+              <option value="views">👀 Tổng lượt xem</option>
+              <option value="newest">⏱ Thời gian đăng</option>
+            </select>
+          </div>
 
-            <!-- Viral Speed Badge Overlaid -->
-            <div class="absolute top-3 right-3">
-              <div 
-                v-if="v.is_viral" 
-                class="flex items-center space-x-1 bg-gradient-to-r from-rose-600 to-amber-600 text-white font-black text-xs px-2.5 py-1 rounded-full shadow-lg border border-rose-400/50 animate-pulse"
+          <!-- Sort Direction Toggle -->
+          <button 
+            @click="toggleSortOrder" 
+            class="flex items-center space-x-1 bg-slate-50 dark:bg-slate-900/90 hover:bg-slate-200 dark:hover:bg-slate-800 border border-slate-300 dark:border-slate-700/80 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 dark:text-slate-200 transition"
+          >
+            <span v-if="sortOrder === 'desc'" class="flex items-center space-x-1 text-rose-600 dark:text-rose-400">
+              <i class="ph ph-arrow-down font-black"></i>
+              <span>Cao &darr; Thấp</span>
+            </span>
+            <span v-else class="flex items-center space-x-1 text-emerald-600 dark:text-emerald-400">
+              <i class="ph ph-arrow-up font-black"></i>
+              <span>Thấp &uarr; Cao</span>
+            </span>
+          </button>
+
+        </div>
+
+      </div>
+
+      <!-- Active Filter Notice -->
+      <div class="text-xs text-slate-500 dark:text-slate-400 mb-4 px-1 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+        <div class="flex items-center space-x-2">
+          <span>Hiển thị <strong>{{ filteredVideos.length }}</strong> / {{ allVideos.length }} video</span>
+          <span>•</span>
+          <span>Sắp xếp: <strong class="text-slate-800 dark:text-slate-200">{{ sortLabel }}</strong></span>
+        </div>
+        <button 
+          v-if="isFiltered" 
+          @click="resetFilters" 
+          class="text-rose-600 dark:text-rose-400 hover:underline font-bold flex items-center space-x-1"
+        >
+          <i class="ph ph-arrow-counter-clockwise"></i>
+          <span>Đặt lại toàn bộ bộ lọc</span>
+        </button>
+      </div>
+
+      <!-- Video Grid -->
+      <div v-if="filteredVideos.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div 
+          v-for="v in filteredVideos" 
+          :key="v.video_id"
+          :class="v.is_viral 
+            ? 'border-rose-400 dark:border-rose-900/50 shadow-rose-900/10 dark:shadow-rose-950/30' 
+            : 'border-slate-200 dark:border-borderDark'"
+          class="group bg-white dark:bg-cardBg border hover:border-slate-400 dark:hover:border-slate-600 rounded-2xl overflow-hidden shadow-md dark:shadow-xl transition duration-300 flex flex-col justify-between"
+        >
+          <div>
+            <!-- Thumbnail Container -->
+            <div class="relative aspect-video w-full overflow-hidden bg-slate-900">
+              <img 
+                :src="v.thumbnail" 
+                :alt="v.title" 
+                loading="lazy" 
+                class="w-full h-full object-cover group-hover:scale-105 transition duration-500"
               >
-                <i class="ph-fill ph-fire text-amber-300"></i>
-                <span>+{{ formatNumber(v.effective_vph) }}/h</span>
+
+              <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+
+              <!-- Viral Speed Badge Overlaid -->
+              <div class="absolute top-3 right-3">
+                <div 
+                  v-if="v.is_viral" 
+                  class="flex items-center space-x-1 bg-gradient-to-r from-rose-600 to-amber-600 text-white font-black text-xs px-2.5 py-1 rounded-full shadow-lg border border-rose-400/50 animate-pulse"
+                >
+                  <i class="ph-fill ph-fire text-amber-300"></i>
+                  <span>+{{ formatNumber(v.effective_vph) }}/h</span>
+                </div>
+                <div 
+                  v-else-if="v.effective_vph >= 1000" 
+                  class="flex items-center space-x-1 bg-slate-900/80 backdrop-blur-md text-amber-400 font-bold text-xs px-2.5 py-1 rounded-full border border-amber-500/30"
+                >
+                  <i class="ph ph-lightning text-amber-400"></i>
+                  <span>+{{ formatNumber(v.effective_vph) }}/h</span>
+                </div>
+                <div 
+                  v-else 
+                  class="bg-slate-900/70 backdrop-blur-md text-slate-300 font-medium text-xs px-2 py-0.5 rounded-full border border-slate-700"
+                >
+                  +{{ formatNumber(v.effective_vph) }}/h
+                </div>
               </div>
-              <div 
-                v-else-if="v.effective_vph >= 1000" 
-                class="flex items-center space-x-1 bg-slate-900/80 backdrop-blur-md text-amber-400 font-bold text-xs px-2.5 py-1 rounded-full border border-amber-500/30"
-              >
-                <i class="ph ph-lightning text-amber-400"></i>
-                <span>+{{ formatNumber(v.effective_vph) }}/h</span>
+
+              <!-- Channel Tag -->
+              <div class="absolute bottom-3 left-3">
+                <span class="bg-black/60 backdrop-blur-md border border-white/10 text-white text-xs font-semibold px-2.5 py-1 rounded-lg flex items-center space-x-1">
+                  <i class="ph ph-youtube-logo text-rose-500"></i>
+                  <span class="truncate max-w-[170px]">{{ v.channel_name }}</span>
+                </span>
               </div>
-              <div 
-                v-else 
-                class="bg-slate-900/70 backdrop-blur-md text-slate-300 font-medium text-xs px-2 py-0.5 rounded-full border border-slate-700"
-              >
-                +{{ formatNumber(v.effective_vph) }}/h
+
+              <!-- Publish Time Badge -->
+              <div class="absolute bottom-3 right-3 text-[11px] font-medium text-slate-300 bg-black/60 backdrop-blur-md px-2 py-0.5 rounded">
+                {{ v.hours_ago_formatted }}
               </div>
             </div>
 
-            <!-- Channel Tag -->
-            <div class="absolute bottom-3 left-3">
-              <span class="bg-black/60 backdrop-blur-md border border-white/10 text-white text-xs font-semibold px-2.5 py-1 rounded-lg flex items-center space-x-1">
-                <i class="ph ph-youtube-logo text-rose-500"></i>
-                <span class="truncate max-w-[170px]">{{ v.channel_name }}</span>
-              </span>
-            </div>
+            <!-- Content Body -->
+            <div class="p-4">
+              <a 
+                :href="v.url" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                class="text-sm font-bold text-slate-900 dark:text-slate-100 hover:text-rose-600 dark:hover:text-rose-400 transition line-clamp-2 leading-snug group-hover:underline"
+                :title="v.title"
+              >
+                {{ v.title }}
+              </a>
 
-            <!-- Publish Time Badge -->
-            <div class="absolute bottom-3 right-3 text-[11px] font-medium text-slate-300 bg-black/60 backdrop-blur-md px-2 py-0.5 rounded">
-              {{ v.hours_ago_formatted }}
+              <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 grid grid-cols-2 gap-2 text-xs">
+                <div>
+                  <span class="text-slate-500 dark:text-slate-400 block text-[11px]">Tổng lượt xem</span>
+                  <span class="font-black text-slate-900 dark:text-slate-200 text-sm flex items-center mt-0.5">
+                    <i class="ph ph-eye text-slate-400 mr-1"></i>
+                    {{ formatNumber(v.views) }}
+                  </span>
+                </div>
+
+                <div class="text-right">
+                  <span class="text-slate-500 dark:text-slate-400 block text-[11px]">Tốc độ đo được</span>
+                  <span 
+                    :class="v.is_viral ? 'text-rose-600 dark:text-rose-400 font-black' : 'text-slate-700 dark:text-slate-300 font-bold'" 
+                    class="text-sm flex items-center justify-end mt-0.5"
+                  >
+                    <i v-if="v.is_viral" class="ph-fill ph-trend-up text-rose-500 mr-1"></i>
+                    +{{ formatNumber(v.effective_vph) }}/h
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
 
-          <!-- Content Body -->
-          <div class="p-4">
+          <!-- Action Buttons Footer -->
+          <div class="px-4 pb-4 space-y-2">
+            <button 
+              v-if="v.ai_analysis"
+              @click="openAiModal(v)"
+              class="w-full flex items-center justify-center space-x-2 py-2.5 bg-gradient-to-r from-purple-600 via-indigo-600 to-pink-600 hover:opacity-90 text-white rounded-xl text-xs font-black shadow-lg shadow-purple-900/30 transition duration-200"
+            >
+              <i class="ph ph-sparkle text-sm"></i>
+              <span>Xem Kịch Bản Remake Quốc Tế</span>
+            </button>
+
+            <button 
+              v-else-if="v.is_viral"
+              @click="openAiModal(v)"
+              class="w-full flex items-center justify-center space-x-2 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-purple-50 dark:hover:bg-purple-900/40 text-purple-700 dark:text-purple-300 border border-purple-300 dark:border-purple-800/50 rounded-xl text-xs font-bold transition duration-200"
+            >
+              <i class="ph ph-sparkle text-sm"></i>
+              <span>Xem Kịch Bản AI</span>
+            </button>
+
             <a 
               :href="v.url" 
               target="_blank" 
               rel="noopener noreferrer"
-              class="text-sm font-bold text-slate-900 dark:text-slate-100 hover:text-rose-600 dark:hover:text-rose-400 transition line-clamp-2 leading-snug group-hover:underline"
-              :title="v.title"
+              class="w-full flex items-center justify-center space-x-1.5 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white rounded-xl text-xs font-semibold transition"
             >
-              {{ v.title }}
+              <i class="ph ph-arrow-square-out text-sm"></i>
+              <span>Xem video trên YouTube</span>
             </a>
+          </div>
 
-            <!-- Metrics Row -->
-            <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 grid grid-cols-2 gap-2 text-xs">
-              <div>
-                <span class="text-slate-500 dark:text-slate-400 block text-[11px]">Tổng lượt xem</span>
-                <span class="font-black text-slate-900 dark:text-slate-200 text-sm flex items-center mt-0.5">
-                  <i class="ph ph-eye text-slate-400 mr-1"></i>
-                  {{ formatNumber(v.views) }}
-                </span>
-              </div>
+        </div>
+      </div>
 
-              <div class="text-right">
-                <span class="text-slate-500 dark:text-slate-400 block text-[11px]">Tốc độ đo được</span>
-                <span 
-                  :class="v.is_viral ? 'text-rose-600 dark:text-rose-400 font-black' : 'text-slate-700 dark:text-slate-300 font-bold'" 
-                  class="text-sm flex items-center justify-end mt-0.5"
-                >
-                  <i v-if="v.is_viral" class="ph-fill ph-trend-up text-rose-500 mr-1"></i>
-                  +{{ formatNumber(v.effective_vph) }}/h
-                </span>
-              </div>
+      <!-- Empty State -->
+      <div v-else class="bg-white dark:bg-cardBg border border-slate-200 dark:border-borderDark rounded-2xl p-12 text-center my-8 shadow-sm">
+        <div class="w-16 h-16 mx-auto bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center text-3xl text-slate-400 mb-3">
+          <i class="ph ph-video-camera-slash"></i>
+        </div>
+        <h3 class="text-lg font-bold text-slate-800 dark:text-slate-200">Không tìm thấy video nào phù hợp</h3>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-md mx-auto">
+          Hãy thử bỏ bớt bộ lọc hoặc chọn một kênh khác.
+        </p>
+        <button @click="resetFilters" class="mt-4 px-4 py-2 bg-slate-800 text-white dark:bg-slate-700 dark:text-slate-200 text-xs font-semibold rounded-lg hover:opacity-90 transition">
+          Đặt lại bộ lọc
+        </button>
+      </div>
+
+    </section>
+
+    <!-- ========================================================================================= -->
+    <!-- PHẦN 2: BẢNG XẾP HẠNG & TĂNG TRƯỞNG KÊNH (ACTIVE WHEN activeMainTab === 'channels')        -->
+    <!-- ========================================================================================= -->
+    <section v-if="activeMainTab === 'channels'">
+      
+      <!-- Top Highlights for Channels -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        
+        <!-- Top Performer -->
+        <div class="bg-gradient-to-br from-indigo-900/40 via-purple-900/20 to-cardBg bg-white dark:bg-cardBg border border-indigo-300 dark:border-indigo-800/60 rounded-2xl p-5 shadow-sm">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 flex items-center space-x-1">
+              <i class="ph-fill ph-trophy text-amber-400 text-base"></i>
+              <span>Kênh Tốc Độ Đỉnh Nhất</span>
+            </span>
+            <span class="text-[11px] font-black px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300">#1 Speed</span>
+          </div>
+          <div v-if="topSpeedChannel" class="mt-3">
+            <h4 class="text-lg font-black text-slate-900 dark:text-white truncate">{{ topSpeedChannel.name }}</h4>
+            <div class="text-xs text-slate-500 dark:text-slate-400 font-mono mt-0.5">{{ topSpeedChannel.handle }}</div>
+            <div class="mt-3 flex items-baseline space-x-2">
+              <span class="text-2xl font-black text-rose-600 dark:text-rose-400">+{{ formatNumber(topSpeedChannel.peak_vph) }}</span>
+              <span class="text-xs text-slate-500 dark:text-slate-400">view/h (Kỷ lục)</span>
             </div>
           </div>
         </div>
 
-        <!-- Action Buttons Footer -->
-        <div class="px-4 pb-4 space-y-2">
-          
-          <!-- AI Analysis Button (Nổi bật cho video có AI hoặc Viral) -->
-          <button 
-            v-if="v.ai_analysis"
-            @click="openAiModal(v)"
-            class="w-full flex items-center justify-center space-x-2 py-2.5 bg-gradient-to-r from-purple-600 via-indigo-600 to-pink-600 hover:opacity-90 text-white rounded-xl text-xs font-black shadow-lg shadow-purple-900/30 transition duration-200"
-          >
-            <i class="ph ph-sparkle text-sm"></i>
-            <span>Xem Kịch Bản Remake Quốc Tế</span>
-          </button>
+        <!-- Top Viral Rate -->
+        <div class="bg-gradient-to-br from-rose-900/40 via-amber-900/20 to-cardBg bg-white dark:bg-cardBg border border-rose-300 dark:border-rose-800/60 rounded-2xl p-5 shadow-sm">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-rose-600 dark:text-rose-400 flex items-center space-x-1">
+              <i class="ph-fill ph-fire text-rose-500 text-base"></i>
+              <span>Kênh Tỷ Lệ Viral Cao Nhất</span>
+            </span>
+            <span class="text-[11px] font-black px-2 py-0.5 rounded-full bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300">#1 Hit Rate</span>
+          </div>
+          <div v-if="topHitRateChannel" class="mt-3">
+            <h4 class="text-lg font-black text-slate-900 dark:text-white truncate">{{ topHitRateChannel.name }}</h4>
+            <div class="text-xs text-slate-500 dark:text-slate-400 font-mono mt-0.5">{{ topHitRateChannel.handle }}</div>
+            <div class="mt-3 flex items-baseline space-x-2">
+              <span class="text-2xl font-black text-amber-500">{{ topHitRateChannel.viral_rate }}%</span>
+              <span class="text-xs text-slate-500 dark:text-slate-400">({{ topHitRateChannel.viral_count }} / {{ topHitRateChannel.video_count }} video viral)</span>
+            </div>
+          </div>
+        </div>
 
-          <button 
-            v-else-if="v.is_viral"
-            @click="openAiModal(v)"
-            class="w-full flex items-center justify-center space-x-2 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-purple-50 dark:hover:bg-purple-900/40 text-purple-700 dark:text-purple-300 border border-purple-300 dark:border-purple-800/50 rounded-xl text-xs font-bold transition duration-200"
-          >
-            <i class="ph ph-sparkle text-sm"></i>
-            <span>Xem Kịch Bản AI</span>
-          </button>
-
-          <!-- Xem trên YouTube Button -->
-          <a 
-            :href="v.url" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            class="w-full flex items-center justify-center space-x-1.5 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white rounded-xl text-xs font-semibold transition"
-          >
-            <i class="ph ph-arrow-square-out text-sm"></i>
-            <span>Xem video trên YouTube</span>
-          </a>
+        <!-- Most Active / Upload Frequency -->
+        <div class="bg-gradient-to-br from-emerald-900/40 via-teal-900/20 to-cardBg bg-white dark:bg-cardBg border border-emerald-300 dark:border-emerald-800/60 rounded-2xl p-5 shadow-sm">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center space-x-1">
+              <i class="ph-fill ph-clock text-emerald-500 text-base"></i>
+              <span>Kênh Tần Suất Đăng Đều Nhất</span>
+            </span>
+            <span class="text-[11px] font-black px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300">Active</span>
+          </div>
+          <div v-if="mostConsistentChannel" class="mt-3">
+            <h4 class="text-lg font-black text-slate-900 dark:text-white truncate">{{ mostConsistentChannel.name }}</h4>
+            <div class="text-xs text-slate-500 dark:text-slate-400 font-mono mt-0.5">{{ mostConsistentChannel.handle }}</div>
+            <div class="mt-3 flex items-baseline space-x-2">
+              <span class="text-2xl font-black text-emerald-600 dark:text-emerald-400">~{{ mostConsistentChannel.avg_upload_interval_days }}</span>
+              <span class="text-xs text-slate-500 dark:text-slate-400">ngày / 1 video</span>
+            </div>
+          </div>
         </div>
 
       </div>
-    </div>
 
-    <!-- Empty State -->
-    <div v-else class="bg-white dark:bg-cardBg border border-slate-200 dark:border-borderDark rounded-2xl p-12 text-center my-8 shadow-sm">
-      <div class="w-16 h-16 mx-auto bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center text-3xl text-slate-400 mb-3">
-        <i class="ph ph-video-camera-slash"></i>
+      <!-- Channel Leaderboard Filters & Sorting -->
+      <div class="bg-white dark:bg-cardBg border border-slate-200 dark:border-borderDark rounded-2xl p-4 mb-6 shadow-sm flex flex-col lg:flex-row gap-3 items-stretch lg:items-center justify-between">
+        
+        <!-- Search Channel -->
+        <div class="relative flex-1">
+          <i class="ph ph-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></i>
+          <input 
+            type="text" 
+            v-model="channelSearchQuery" 
+            placeholder="Tìm theo tên kênh hoặc handle (@...)" 
+            class="w-full bg-slate-50 dark:bg-slate-900/90 border border-slate-300 dark:border-slate-700/80 rounded-xl pl-10 pr-10 py-2.5 text-xs sm:text-sm text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition"
+          >
+          <button 
+            v-if="channelSearchQuery" 
+            @click="channelSearchQuery = ''" 
+            class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-white transition"
+          >
+            <i class="ph ph-x-circle text-base"></i>
+          </button>
+        </div>
+
+        <!-- Channel Sort Options -->
+        <div class="flex flex-wrap items-center gap-2">
+          
+          <!-- Filter by Status Pill -->
+          <div class="flex items-center space-x-1.5 bg-slate-50 dark:bg-slate-900/90 border border-slate-300 dark:border-slate-700/80 rounded-xl px-2.5 py-1.5">
+            <span class="text-xs text-slate-500 dark:text-slate-400">Phong độ:</span>
+            <select 
+              v-model="channelStatusFilter" 
+              class="bg-transparent text-xs sm:text-sm text-slate-800 dark:text-slate-200 font-bold focus:outline-none cursor-pointer"
+            >
+              <option value="ALL">Tất cả phong độ</option>
+              <option value="hot">🔥 Tăng Trưởng Nóng</option>
+              <option value="high">⚡ Phong Độ Cao</option>
+              <option value="viral_only">🎬 Có Video Viral (&ge;1)</option>
+            </select>
+          </div>
+
+          <!-- Channel Sort Criteria -->
+          <div class="flex items-center space-x-1.5 bg-slate-50 dark:bg-slate-900/90 border border-slate-300 dark:border-slate-700/80 rounded-xl px-2.5 py-1.5">
+            <i class="ph ph-sort-ascending text-purple-500 text-base"></i>
+            <span class="text-xs text-slate-500 dark:text-slate-400">Xếp:</span>
+            <select 
+              v-model="channelSortBy" 
+              class="bg-transparent text-xs sm:text-sm text-slate-800 dark:text-slate-200 font-bold focus:outline-none cursor-pointer"
+            >
+              <option value="peak_vph">🚀 Tốc độ đỉnh (Peak VPH)</option>
+              <option value="viral_rate">🏆 Tỷ lệ Viral (%)</option>
+              <option value="avg_vph">📈 Tốc độ TB (Avg VPH)</option>
+              <option value="total_views">👀 Tổng lượt xem</option>
+              <option value="newest">⏱ Mới đăng gần nhất</option>
+            </select>
+          </div>
+
+          <!-- Sort Direction Toggle -->
+          <button 
+            @click="channelSortOrder = (channelSortOrder === 'desc' ? 'asc' : 'desc')" 
+            class="flex items-center space-x-1 bg-slate-50 dark:bg-slate-900/90 hover:bg-slate-200 dark:hover:bg-slate-800 border border-slate-300 dark:border-slate-700/80 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 dark:text-slate-200 transition"
+          >
+            <span v-if="channelSortOrder === 'desc'" class="flex items-center space-x-1 text-rose-600 dark:text-rose-400">
+              <i class="ph ph-arrow-down font-black"></i>
+              <span>Cao &darr; Thấp</span>
+            </span>
+            <span v-else class="flex items-center space-x-1 text-emerald-600 dark:text-emerald-400">
+              <i class="ph ph-arrow-up font-black"></i>
+              <span>Thấp &uarr; Cao</span>
+            </span>
+          </button>
+
+        </div>
+
       </div>
-      <h3 class="text-lg font-bold text-slate-800 dark:text-slate-200">Không tìm thấy video nào phù hợp</h3>
-      <p class="text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-md mx-auto">
-        Hãy thử bỏ bớt bộ lọc hoặc chọn một kênh khác.
-      </p>
-      <button @click="resetFilters" class="mt-4 px-4 py-2 bg-slate-800 text-white dark:bg-slate-700 dark:text-slate-200 text-xs font-semibold rounded-lg hover:opacity-90 transition">
-        Đặt lại bộ lọc
-      </button>
-    </div>
+
+      <!-- Channel Leaderboard Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div 
+          v-for="(ch, index) in filteredChannels" 
+          :key="ch.channel_id"
+          class="bg-white dark:bg-cardBg border border-slate-200 dark:border-borderDark hover:border-slate-400 dark:hover:border-slate-600 rounded-2xl p-5 shadow-sm hover:shadow-md transition flex flex-col justify-between"
+        >
+          <div>
+            <!-- Header: Rank & Badge -->
+            <div class="flex items-start justify-between">
+              <div class="flex items-center space-x-2.5">
+                <!-- Rank Medal / Number -->
+                <div 
+                  :class="{
+                    'bg-amber-400 text-slate-900 font-black shadow-md': index === 0,
+                    'bg-slate-300 text-slate-900 font-black shadow-sm': index === 1,
+                    'bg-amber-700 text-white font-black shadow-sm': index === 2,
+                    'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-bold': index > 2
+                  }"
+                  class="w-7 h-7 rounded-xl flex items-center justify-center text-xs"
+                >
+                  {{ index === 0 ? '🥇' : (index === 1 ? '🥈' : (index === 2 ? '🥉' : '#' + (index + 1))) }}
+                </div>
+
+                <div>
+                  <h4 class="font-black text-slate-900 dark:text-white text-base leading-tight">
+                    {{ ch.name }}
+                  </h4>
+                  <a 
+                    :href="'https://www.youtube.com/' + ch.handle" 
+                    target="_blank" 
+                    class="text-[11px] text-slate-500 dark:text-slate-400 font-mono hover:text-indigo-500 transition flex items-center space-x-1 mt-0.5"
+                  >
+                    <span>{{ ch.handle }}</span>
+                    <i class="ph ph-arrow-square-out text-xs"></i>
+                  </a>
+                </div>
+              </div>
+
+              <!-- Phong độ Tier Badge -->
+              <span 
+                v-if="ch.performance_tier === 'hot'" 
+                class="px-2 py-0.5 rounded-full text-[10px] font-black bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-400 border border-rose-300 dark:border-rose-800 flex items-center space-x-1"
+              >
+                <i class="ph-fill ph-fire text-amber-400"></i>
+                <span>TĂNG NÓNG</span>
+              </span>
+              <span 
+                v-else-if="ch.performance_tier === 'high'" 
+                class="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-400 border border-amber-300 dark:border-amber-800"
+              >
+                PHONG ĐỘ CAO
+              </span>
+              <span 
+                v-else 
+                class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400"
+              >
+                ỔN ĐỊNH
+              </span>
+            </div>
+
+            <!-- Stats Matrix -->
+            <div class="grid grid-cols-2 gap-2.5 my-4 pt-3 border-t border-slate-100 dark:border-slate-800 text-xs">
+              <div class="bg-slate-50 dark:bg-slate-900/60 p-2.5 rounded-xl">
+                <span class="text-[11px] text-slate-500 dark:text-slate-400 block">Tốc độ đỉnh</span>
+                <span class="font-black text-rose-600 dark:text-rose-400 text-sm mt-0.5 block">
+                  +{{ formatNumber(ch.peak_vph) }}/h
+                </span>
+              </div>
+
+              <div class="bg-slate-50 dark:bg-slate-900/60 p-2.5 rounded-xl">
+                <span class="text-[11px] text-slate-500 dark:text-slate-400 block">Tỷ lệ Viral</span>
+                <div class="flex items-center space-x-1.5 mt-0.5">
+                  <span class="font-black text-amber-600 dark:text-amber-400 text-sm">
+                    {{ ch.viral_rate }}%
+                  </span>
+                  <span class="text-[10px] text-slate-400">({{ ch.viral_count }} video)</span>
+                </div>
+              </div>
+
+              <div class="bg-slate-50 dark:bg-slate-900/60 p-2.5 rounded-xl">
+                <span class="text-[11px] text-slate-500 dark:text-slate-400 block">Tốc độ TB kênh</span>
+                <span class="font-bold text-slate-800 dark:text-slate-200 text-xs mt-0.5 block">
+                  +{{ formatNumber(ch.avg_vph) }}/h
+                </span>
+              </div>
+
+              <div class="bg-slate-50 dark:bg-slate-900/60 p-2.5 rounded-xl">
+                <span class="text-[11px] text-slate-500 dark:text-slate-400 block">Tần suất đăng</span>
+                <span class="font-bold text-slate-800 dark:text-slate-200 text-xs mt-0.5 block">
+                  ~{{ ch.avg_upload_interval_days }} ngày/video
+                </span>
+              </div>
+            </div>
+
+            <!-- Best Video Preview -->
+            <div v-if="ch.best_video" class="p-2.5 bg-slate-50 dark:bg-slate-900/40 rounded-xl border border-slate-200 dark:border-slate-800/80 mb-3">
+              <div class="flex items-center justify-between text-[11px] mb-1">
+                <span class="text-slate-500 dark:text-slate-400 font-medium">Video đỉnh nhất gần đây:</span>
+                <span class="font-black text-rose-500">+{{ formatNumber(ch.best_video.effective_vph) }}/h</span>
+              </div>
+              <a 
+                :href="ch.best_video.url" 
+                target="_blank" 
+                class="text-xs font-bold text-slate-800 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-400 line-clamp-1 block"
+                :title="ch.best_video.title"
+              >
+                {{ ch.best_video.title }}
+              </a>
+            </div>
+          </div>
+
+          <!-- Card Action Button: Xem 15 video kênh này -->
+          <button 
+            @click="viewChannelVideos(ch.channel_id)" 
+            class="w-full py-2 bg-slate-100 dark:bg-slate-800 hover:bg-indigo-600 dark:hover:bg-indigo-600 text-slate-700 dark:text-slate-200 hover:text-white rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1"
+          >
+            <i class="ph ph-video"></i>
+            <span>Xem 15 video của kênh này</span>
+          </button>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ========================================================================================= -->
+    <!-- MODALS                                                                                    -->
+    <!-- ========================================================================================= -->
 
     <!-- MODAL 1: AI Analysis & International Remake Blueprint -->
     <div v-if="activeAiVideo" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md overflow-y-auto">
@@ -480,7 +775,7 @@
           </button>
         </div>
 
-        <!-- Modal Body (Scrollable) -->
+        <!-- Modal Body -->
         <div class="p-5 sm:p-6 overflow-y-auto space-y-6 text-slate-700 dark:text-slate-300 text-xs sm:text-sm">
           
           <div v-if="!activeAiVideo.ai_analysis" class="p-8 text-center bg-slate-50 dark:bg-slate-800/40 rounded-2xl border border-slate-200 dark:border-slate-700/50">
@@ -497,7 +792,6 @@
 
             <!-- Phân Tích Viral & Góc Nhìn Remake (Tiếng Việt) -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <!-- Cột 1: Lý do viral -->
               <div class="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700/60">
                 <h4 class="font-black text-rose-600 dark:text-rose-400 text-sm flex items-center space-x-1.5 mb-2">
                   <i class="ph-fill ph-fire"></i>
@@ -510,7 +804,6 @@
                 </ul>
               </div>
 
-              <!-- Cột 2: Góc nhìn Remake -->
               <div class="p-4 bg-purple-50/50 dark:bg-slate-800/50 rounded-2xl border border-purple-200 dark:border-purple-800/40">
                 <h4 class="font-black text-purple-600 dark:text-purple-400 text-sm flex items-center space-x-1.5 mb-2">
                   <i class="ph ph-lightbulb"></i>
@@ -522,7 +815,7 @@
               </div>
             </div>
 
-            <!-- Dàn Ý Kịch Bản 3 Hồi & Hook 15s Tiếng Anh -->
+            <!-- Dàn Ý Kịch Bản & Hook 15s Tiếng Anh -->
             <div class="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700/60">
               <div class="flex items-center justify-between mb-2">
                 <h4 class="font-black text-indigo-600 dark:text-indigo-400 text-sm flex items-center space-x-1.5">
@@ -538,15 +831,13 @@
                 </button>
               </div>
 
-              <!-- English Hook -->
               <div class="p-3 bg-white dark:bg-black/50 rounded-xl border border-indigo-200 dark:border-indigo-900/50 mb-3 shadow-sm">
-                <span class="text-[11px] font-bold text-indigo-600 dark:text-indigo-300 uppercase block mb-1">🎙️ English Hook 15s (Lồng tiếng hoặc đọc vào AI):</span>
+                <span class="text-[11px] font-bold text-indigo-600 dark:text-indigo-300 uppercase block mb-1">🎙️ English Hook 15s:</span>
                 <p class="italic text-slate-800 dark:text-slate-100 font-medium leading-relaxed">
                   "{{ activeAiVideo.ai_analysis.english_hook_script }}"
                 </p>
               </div>
 
-              <!-- 3 Hồi -->
               <div class="space-y-1.5 text-xs text-slate-700 dark:text-slate-300">
                 <div v-for="(part, idx) in activeAiVideo.ai_analysis.script_outline_vi" :key="idx" class="p-2 bg-white dark:bg-slate-900/60 rounded-lg border border-slate-200 dark:border-transparent">
                   {{ part }}
@@ -554,7 +845,7 @@
               </div>
             </div>
 
-            <!-- 5 Tiêu Đề Tiếng Anh (High CTR English Titles) -->
+            <!-- 5 Tiêu Đề Tiếng Anh -->
             <div class="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700/60">
               <div class="flex items-center justify-between mb-2">
                 <h4 class="font-black text-amber-600 dark:text-amber-400 text-sm flex items-center space-x-1.5">
@@ -587,7 +878,6 @@
                   <button 
                     @click="copyText(t.title, 'Đã copy tiêu đề!')" 
                     class="text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 p-1 transition"
-                    title="Copy tiêu đề này"
                   >
                     <i class="ph ph-copy text-base"></i>
                   </button>
@@ -618,7 +908,7 @@
 
                 <div class="p-2.5 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/40 rounded-xl flex items-center justify-between">
                   <div>
-                    <span class="text-[11px] text-rose-600 dark:text-rose-300 font-bold uppercase block">Chữ in to trên Thumbnail (English Text Overlay):</span>
+                    <span class="text-[11px] text-rose-600 dark:text-rose-300 font-bold uppercase block">Chữ in to trên Thumbnail:</span>
                     <span class="text-lg font-black text-slate-900 dark:text-white tracking-wide">"{{ activeAiVideo.ai_analysis.thumbnail_design.text_overlay_en }}"</span>
                   </div>
                   <button 
@@ -630,7 +920,7 @@
                 </div>
 
                 <div class="p-3 bg-slate-900 dark:bg-black/60 rounded-xl border border-slate-700 dark:border-slate-800">
-                  <span class="text-[11px] text-slate-400 font-bold uppercase block mb-1">Midjourney / DALL-E 3 Prompt (Tiếng Anh):</span>
+                  <span class="text-[11px] text-slate-400 font-bold uppercase block mb-1">Midjourney / DALL-E 3 Prompt:</span>
                   <p class="font-mono text-xs text-emerald-400 break-words">
                     {{ activeAiVideo.ai_analysis.thumbnail_design.image_prompt_en }}
                   </p>
@@ -638,9 +928,8 @@
               </div>
             </div>
 
-            <!-- SEO Description & Tags (Tiếng Anh) -->
+            <!-- SEO Description & Tags -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <!-- Description -->
               <div class="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700/60">
                 <div class="flex items-center justify-between mb-2">
                   <span class="font-bold text-slate-800 dark:text-white text-xs uppercase">Mô Tả Chuẩn SEO (English)</span>
@@ -657,7 +946,6 @@
                 </div>
               </div>
 
-              <!-- Tags -->
               <div class="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700/60">
                 <div class="flex items-center justify-between mb-2">
                   <span class="font-bold text-slate-800 dark:text-white text-xs uppercase">Thẻ Tags (Comma-separated)</span>
@@ -698,7 +986,7 @@
       </div>
     </div>
 
-    <!-- MODAL 2: Admin Panel (Quản Lý Kênh & Kích Hoạt Quét Trực Tiếp Trên Web) -->
+    <!-- MODAL 2: Admin Panel (Quản Lý Kênh & Kích Hoạt Quét) -->
     <div v-if="showAdminModal" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md overflow-y-auto">
       <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-indigo-800/60 rounded-3xl max-w-2xl w-full max-h-[92vh] flex flex-col shadow-2xl relative my-auto">
         
@@ -721,7 +1009,7 @@
         <!-- Body -->
         <div class="p-5 space-y-5 overflow-y-auto text-xs sm:text-sm text-slate-700 dark:text-slate-300">
           
-          <!-- GitHub Token Input (Cần thiết để lưu thay đổi thẳng vào repo) -->
+          <!-- GitHub Token Input -->
           <div class="p-4 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200 dark:border-slate-700">
             <label class="font-bold text-slate-900 dark:text-white text-xs block mb-1 flex items-center justify-between">
               <span>Mã GitHub Token (PAT)</span>
@@ -741,9 +1029,6 @@
                 Ghi nhớ
               </button>
             </div>
-            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1.5">
-              💡 Token dùng để lưu trực tiếp vào file <code>channels.json</code> trên GitHub của bạn và bấm Quét ngay.
-            </p>
           </div>
 
           <!-- Nút kích hoạt quét ngay -->
@@ -781,7 +1066,6 @@
                 <button 
                   @click="removeChannel(idx)" 
                   class="text-slate-400 hover:text-rose-500 p-1.5 transition"
-                  title="Xóa kênh này"
                 >
                   <i class="ph ph-trash text-base"></i>
                 </button>
@@ -852,7 +1136,7 @@
     <!-- Footer -->
     <footer class="mt-12 pt-6 border-t border-slate-300 dark:border-slate-800/80 text-center text-xs text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-2">
       <div>
-        Hệ thống giám sát video đối thủ & AI Content Strategist 24/7 • Chạy tự động trên GitHub Cloud
+        Hệ thống giám sát video đối thủ & Phân tích tăng trưởng kênh 24/7 • Chạy tự động trên GitHub Cloud
       </div>
       <div>
         Cảnh báo gửi qua <span class="text-indigo-600 dark:text-indigo-400 font-semibold">Discord Webhook</span> • AI bởi <span class="text-purple-600 dark:text-purple-400 font-semibold">Gemini 3.5 Flash (0đ)</span>
@@ -876,15 +1160,24 @@
         const lastUpdatedFormatted = ref('');
         const lastUpdatedIso = ref('');
         
+        // Navigation Tab State: 'videos' hoặc 'channels'
+        const activeMainTab = ref('videos');
+
         // Theme State (Dark / Light)
         const isDark = ref(localStorage.getItem('APP_THEME') !== 'light');
 
-        // Filter & Sort State
+        // Tab 1 (Video) Filter & Sort State
         const searchQuery = ref('');
         const selectedChannel = ref('ALL');
         const filterTab = ref('all'); // 'all', 'viral', 'high_speed', 'ai', 'recent'
         const sortBy = ref('vph'); // 'vph', 'views', 'newest'
-        const sortOrder = ref('desc'); // 'desc' (Cao xuống Thấp) hoặc 'asc' (Thấp lên Cao)
+        const sortOrder = ref('desc'); // 'desc' hoặc 'asc'
+
+        // Tab 2 (Channel) Filter & Sort State
+        const channelSearchQuery = ref('');
+        const channelStatusFilter = ref('ALL'); // 'ALL', 'hot', 'high', 'viral_only'
+        const channelSortBy = ref('peak_vph'); // 'peak_vph', 'viral_rate', 'avg_vph', 'total_views', 'newest'
+        const channelSortOrder = ref('desc');
 
         const toastMsg = ref('');
         const activeAiVideo = ref(null);
@@ -1007,15 +1300,14 @@
           }
         };
 
+        // Tab 1: Video filtering and sorting
         const filteredVideos = computed(() => {
           let list = [...allVideos.value];
 
-          // 1. Lọc theo kênh
           if (selectedChannel.value !== 'ALL') {
             list = list.filter(v => v.channel_id === selectedChannel.value);
           }
 
-          // 2. Lọc theo từ khóa tìm kiếm
           if (searchQuery.value.trim()) {
             const q = searchQuery.value.toLowerCase().trim();
             list = list.filter(v => 
@@ -1024,7 +1316,6 @@
             );
           }
 
-          // 3. Lọc theo Tab trạng thái
           if (filterTab.value === 'viral') {
             list = list.filter(v => v.is_viral);
           } else if (filterTab.value === 'high_speed') {
@@ -1035,7 +1326,6 @@
             list = list.filter(v => (v.hours_since_pub || 999) <= 48);
           }
 
-          // 4. Sắp xếp (Cao xuống Thấp hoặc Thấp lên Cao)
           list.sort((a, b) => {
             let diff = 0;
             if (sortBy.value === 'vph') {
@@ -1046,12 +1336,129 @@
               diff = new Date(b.published_at) - new Date(a.published_at);
             }
 
-            // Đảo chiều nếu là 'asc' (Thấp lên Cao)
             return sortOrder.value === 'asc' ? -diff : diff;
           });
 
           return list;
         });
+
+        // Tab 2: Channel Metrics Computation & Leaderboard
+        const channelMetrics = computed(() => {
+          return (channels.value || []).map(ch => {
+            const vids = ch.videos || [];
+            const totalViews = vids.reduce((sum, v) => sum + (v.views || 0), 0);
+            const avgViews = vids.length ? Math.round(totalViews / vids.length) : 0;
+            const avgVph = vids.length ? Math.round(vids.reduce((sum, v) => sum + (v.effective_vph || 0), 0) / vids.length) : 0;
+            const peakVph = vids.reduce((max, v) => Math.max(max, v.effective_vph || 0), 0);
+            const viralCount = vids.filter(v => v.is_viral).length;
+            const viralRate = vids.length ? Math.round((viralCount / vids.length) * 100) : 0;
+
+            const sortedBySpeed = [...vids].sort((a, b) => (b.effective_vph || 0) - (a.effective_vph || 0));
+            const bestVideo = sortedBySpeed.length ? sortedBySpeed[0] : null;
+
+            const sortedByDate = [...vids].sort((a, b) => new Date(b.published_at) - new Date(a.published_at));
+            const newestVideo = sortedByDate.length ? sortedByDate[0] : null;
+            const lastPublishedText = newestVideo ? newestVideo.hours_ago_formatted : 'Chưa có';
+
+            let avgDaysBetweenUploads = 0;
+            if (vids.length > 1) {
+              const dates = vids.map(v => new Date(v.published_at).getTime()).sort((a, b) => b - a);
+              const spanDays = (dates[0] - dates[dates.length - 1]) / (1000 * 3600 * 24);
+              avgDaysBetweenUploads = Math.max(0.5, Math.round((spanDays / (vids.length - 1)) * 10) / 10);
+            }
+
+            let performanceTier = 'steady';
+            if (viralCount >= 2 || avgVph >= 3000) {
+              performanceTier = 'hot';
+            } else if (viralCount >= 1 || avgVph >= 1000) {
+              performanceTier = 'high';
+            } else if (avgVph < 300) {
+              performanceTier = 'slow';
+            }
+
+            return {
+              name: ch.name,
+              handle: ch.handle_or_url,
+              channel_id: ch.channel_id,
+              threshold: ch.threshold,
+              video_count: vids.length,
+              total_views: totalViews,
+              avg_views: avgViews,
+              avg_vph: avgVph,
+              peak_vph: peakVph,
+              viral_count: viralCount,
+              viral_rate: viralRate,
+              best_video: bestVideo,
+              newest_video: newestVideo,
+              last_published: lastPublishedText,
+              avg_upload_interval_days: avgDaysBetweenUploads,
+              performance_tier: performanceTier
+            };
+          });
+        });
+
+        // Highlights
+        const topSpeedChannel = computed(() => {
+          if (!channelMetrics.value.length) return null;
+          return [...channelMetrics.value].sort((a, b) => b.peak_vph - a.peak_vph)[0];
+        });
+
+        const topHitRateChannel = computed(() => {
+          if (!channelMetrics.value.length) return null;
+          return [...channelMetrics.value].sort((a, b) => b.viral_rate - a.viral_rate || b.peak_vph - a.peak_vph)[0];
+        });
+
+        const mostConsistentChannel = computed(() => {
+          if (!channelMetrics.value.length) return null;
+          const withInterval = channelMetrics.value.filter(c => c.avg_upload_interval_days > 0);
+          return withInterval.sort((a, b) => a.avg_upload_interval_days - b.avg_upload_interval_days)[0];
+        });
+
+        // Filtered & Sorted Channels
+        const filteredChannels = computed(() => {
+          let list = [...channelMetrics.value];
+
+          if (channelSearchQuery.value.trim()) {
+            const q = channelSearchQuery.value.toLowerCase().trim();
+            list = list.filter(c => c.name.toLowerCase().includes(q) || c.handle.toLowerCase().includes(q));
+          }
+
+          if (channelStatusFilter.value === 'hot') {
+            list = list.filter(c => c.performance_tier === 'hot');
+          } else if (channelStatusFilter.value === 'high') {
+            list = list.filter(c => c.performance_tier === 'high' || c.performance_tier === 'hot');
+          } else if (channelStatusFilter.value === 'viral_only') {
+            list = list.filter(c => c.viral_count > 0);
+          }
+
+          list.sort((a, b) => {
+            let diff = 0;
+            if (channelSortBy.value === 'peak_vph') {
+              diff = (b.peak_vph || 0) - (a.peak_vph || 0);
+            } else if (channelSortBy.value === 'viral_rate') {
+              diff = (b.viral_rate || 0) - (a.viral_rate || 0);
+            } else if (channelSortBy.value === 'avg_vph') {
+              diff = (b.avg_vph || 0) - (a.avg_vph || 0);
+            } else if (channelSortBy.value === 'total_views') {
+              diff = (b.total_views || 0) - (a.total_views || 0);
+            } else if (channelSortBy.value === 'newest') {
+              const timeA = a.newest_video ? new Date(a.newest_video.published_at).getTime() : 0;
+              const timeB = b.newest_video ? new Date(b.newest_video.published_at).getTime() : 0;
+              diff = timeB - timeA;
+            }
+
+            return channelSortOrder.value === 'asc' ? -diff : diff;
+          });
+
+          return list;
+        });
+
+        const viewChannelVideos = (channelId) => {
+          selectedChannel.value = channelId;
+          activeMainTab.value = 'videos';
+          filterTab.value = 'all';
+          window.scrollTo({ top: 300, behavior: 'smooth' });
+        };
 
         const resetFilters = () => {
           searchQuery.value = '';
@@ -1204,6 +1611,7 @@
           allVideos,
           lastUpdatedFormatted,
           timeSinceUpdate,
+          activeMainTab,
           isDark,
           toggleTheme,
           searchQuery,
@@ -1214,6 +1622,16 @@
           sortLabel,
           isFiltered,
           toggleSortOrder,
+          channelSearchQuery,
+          channelStatusFilter,
+          channelSortBy,
+          channelSortOrder,
+          channelMetrics,
+          topSpeedChannel,
+          topHitRateChannel,
+          mostConsistentChannel,
+          filteredChannels,
+          viewChannelVideos,
           toastMsg,
           activeAiVideo,
           showAdminModal,
