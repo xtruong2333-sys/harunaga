@@ -633,7 +633,7 @@
                   Mã xác thực OTP (6 số) <span class="text-rose-500">*</span>
                 </label>
                 <span v-if="otpSent" class="text-[10px] text-emerald-400 font-medium">
-                  {{ otpCountdown > 0 ? `Gửi lại sau ${otpCountdown}s` : 'Có thể gửi lại' }}
+                  {{ otpCountdown > 0 ? ('Gửi lại sau ' + otpCountdown + 's') : 'Có thể gửi lại' }}
                 </span>
               </div>
               <div class="flex items-center space-x-2">
@@ -658,7 +658,7 @@
                 >
                   <i v-if="isSendingOtp" class="ph ph-spinner animate-spin text-sm"></i>
                   <i v-else class="ph-fill ph-paper-plane-tilt text-sm"></i>
-                  <span>{{ otpCountdown > 0 ? `${otpCountdown}s` : (otpSent ? 'Gửi lại mã' : 'Nhận mã OTP') }}</span>
+                  <span>{{ otpCountdown > 0 ? (otpCountdown + 's') : (otpSent ? 'Gửi lại mã' : 'Nhận mã OTP') }}</span>
                 </button>
               </div>
               <!-- Hint if demo code available -->
@@ -3602,7 +3602,7 @@
 
               <div class="flex items-center justify-between pt-1">
                 <div class="text-[10px] text-slate-400">
-                  <span class="font-bold">Biến Template:</span> <code class="text-rose-400 font-mono">{{ '{{to_email}}' }}</code>, <code class="text-rose-400 font-mono">{{ '{{otp_code}}' }}</code>
+                  <span class="font-bold">Biến Template:</span> <code v-pre class="text-rose-400 font-mono">{{to_email}}</code>, <code v-pre class="text-rose-400 font-mono">{{otp_code}}</code>
                 </div>
                 <button 
                   type="button"
