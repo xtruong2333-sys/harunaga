@@ -3528,177 +3528,186 @@
     </footer>
     
     <!-- ========================================================================================= -->
-    <!-- MODAL HỒ SƠ TÀI KHOẢN CÁ NHÂN & QUẢN LÝ AVATAR (ACTIVE WHEN showAccountModal)              -->
+    <!-- PANEL HỒ SƠ TÀI KHOẢN CÁ NHÂN (GÓC TRÊN BÊN PHẢI / TOP-RIGHT CORNER PANEL)                -->
     <!-- ========================================================================================= -->
-    <div v-if="showAccountModal" class="fixed inset-0 z-[99999] flex items-center justify-center p-3 sm:p-4 bg-slate-950/85 backdrop-blur-md overflow-y-auto">
-      <div class="bg-white dark:bg-[#0b101e] border border-slate-200 dark:border-slate-800 rounded-3xl max-w-lg w-full shadow-2xl shadow-black/80 overflow-hidden relative my-auto">
+    <!-- Backdrop to close when clicking outside -->
+    <div 
+      v-if="showAccountModal" 
+      @click="showAccountModal = false" 
+      class="fixed inset-0 z-[99998] bg-black/25 dark:bg-black/45 backdrop-blur-[1px] transition-opacity"
+    ></div>
+
+    <!-- Top-Right Flyout Panel (Neo-Glassmorphism anchored in top-right corner) -->
+    <div 
+      v-if="showAccountModal" 
+      class="fixed top-16 sm:top-20 right-3 sm:right-6 lg:right-8 z-[99999] w-[92vw] sm:w-[410px] max-w-[430px] bg-white dark:bg-[#0b101e] border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl shadow-black/80 flex flex-col max-h-[86vh] overflow-hidden select-none"
+    >
+      <!-- Header -->
+      <div class="p-4 sm:p-5 border-b border-slate-200 dark:border-slate-800/80 flex items-center justify-between bg-gradient-to-r from-slate-50 via-slate-100 to-indigo-50/40 dark:from-slate-900 dark:via-slate-900 dark:to-indigo-950/40 flex-shrink-0">
+        <div class="flex items-center space-x-2.5">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 flex items-center justify-center text-white text-lg shadow-md shadow-rose-900/30">
+            <i class="ph-fill ph-user-gear"></i>
+          </div>
+          <div>
+            <h3 class="text-sm sm:text-base font-black text-slate-900 dark:text-white leading-tight">
+              Hồ Sơ Tài Khoản Cá Nhân
+            </h3>
+            <p class="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+              Quản lý ảnh đại diện, mật khẩu & bảo mật
+            </p>
+          </div>
+        </div>
+        <button 
+          @click="showAccountModal = false" 
+          class="w-7 h-7 rounded-full bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center transition cursor-pointer"
+          title="Đóng"
+        >
+          <i class="ph-bold ph-x text-xs"></i>
+        </button>
+      </div>
+
+      <!-- Scrollable Body -->
+      <div class="p-4 sm:p-5 space-y-4 overflow-y-auto flex-1 text-xs">
         
-        <!-- Header -->
-        <div class="p-5 sm:p-6 border-b border-slate-200 dark:border-slate-800/80 flex items-center justify-between bg-gradient-to-r from-slate-50 via-slate-100 to-indigo-50/30 dark:from-slate-900 dark:via-slate-900 dark:to-indigo-950/30">
-          <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 flex items-center justify-center text-white text-xl shadow-lg shadow-rose-900/30">
-              <i class="ph-fill ph-user-gear"></i>
+        <!-- Phần 1: Ảnh Đại Diện (Avatar Management) -->
+        <div class="p-3 sm:p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 flex items-center gap-3.5">
+          <!-- Avatar Display -->
+          <div class="relative flex-shrink-0">
+            <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full overflow-hidden border-2 border-amber-400 p-0.5 shadow-md shadow-amber-500/20 bg-slate-950 flex items-center justify-center">
+              <img 
+                v-if="userAvatar" 
+                :src="userAvatar" 
+                alt="Avatar" 
+                class="w-full h-full object-cover rounded-full"
+              >
+              <div v-else class="w-full h-full rounded-full bg-gradient-to-tr from-slate-800 to-slate-900 flex items-center justify-center text-slate-400 text-2xl">
+                <i class="ph-fill ph-user"></i>
+              </div>
             </div>
-            <div>
-              <h3 class="text-base sm:text-lg font-black text-slate-900 dark:text-white">
-                Hồ Sơ Tài Khoản Cá Nhân
-              </h3>
-              <p class="text-xs text-slate-500 dark:text-slate-400">
-                Quản lý ảnh đại diện, mật khẩu & bảo mật hệ thống
-              </p>
+            <span class="absolute bottom-0 right-0 w-4 h-4 rounded-full bg-emerald-500 border-2 border-white dark:border-slate-900 flex items-center justify-center text-white text-[8px]" title="Đang trực tuyến">
+              <i class="ph-bold ph-check"></i>
+            </span>
+          </div>
+
+          <!-- Avatar Controls -->
+          <div class="flex-1 min-w-0">
+            <div class="text-xs font-black text-slate-900 dark:text-white truncate">Ảnh đại diện của bạn</div>
+            <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1">
+              Hiển thị ở góc trên cùng bên phải.
+            </p>
+            
+            <div class="flex items-center gap-2 mt-2 flex-wrap">
+              <!-- Upload File Button -->
+              <label class="px-2.5 py-1 rounded-lg bg-gradient-to-r from-amber-500 to-rose-500 hover:from-amber-400 hover:to-rose-400 text-slate-950 font-black text-[11px] cursor-pointer shadow-sm flex items-center space-x-1 transition">
+                <i class="ph-bold ph-upload-simple"></i>
+                <span>Tải ảnh từ máy</span>
+                <input type="file" accept="image/*" @change="handleAvatarUpload" class="hidden">
+              </label>
+
+              <!-- Delete Avatar Button -->
+              <button 
+                v-if="userAvatar" 
+                @click="removeAvatar"
+                class="px-2.5 py-1 rounded-lg bg-slate-200 dark:bg-slate-800 hover:bg-rose-500 hover:text-white text-slate-600 dark:text-slate-300 text-[11px] font-bold transition flex items-center space-x-1 cursor-pointer"
+              >
+                <i class="ph ph-trash"></i>
+                <span>Gỡ ảnh</span>
+              </button>
             </div>
           </div>
-          <button 
-            @click="showAccountModal = false" 
-            class="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center transition cursor-pointer"
-          >
-            <i class="ph-bold ph-x text-sm"></i>
-          </button>
         </div>
 
-        <!-- Body -->
-        <div class="p-5 sm:p-6 space-y-5 max-h-[75vh] overflow-y-auto">
-          
-          <!-- Phần 1: Ảnh Đại Diện (Avatar Management) -->
-          <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center gap-4">
-            <!-- Avatar Display -->
-            <div class="relative flex-shrink-0">
-              <div class="w-20 h-20 sm:w-22 sm:h-22 rounded-full overflow-hidden border-2 border-amber-400 p-0.5 shadow-xl shadow-amber-500/20 bg-slate-950 flex items-center justify-center">
-                <img 
-                  v-if="userAvatar" 
-                  :src="userAvatar" 
-                  alt="Avatar" 
-                  class="w-full h-full object-cover rounded-full"
-                >
-                <div v-else class="w-full h-full rounded-full bg-gradient-to-tr from-slate-800 to-slate-900 flex items-center justify-center text-slate-400 text-3xl">
-                  <i class="ph-fill ph-user"></i>
-                </div>
-              </div>
-              <span class="absolute bottom-0 right-0 w-6 h-6 rounded-full bg-emerald-500 border-2 border-white dark:border-slate-900 flex items-center justify-center text-white text-[10px]" title="Đang trực tuyến">
-                <i class="ph-bold ph-check"></i>
-              </span>
-            </div>
+        <!-- Phần 2: Thông Tin Tài Khoản & Đổi Mật Khẩu -->
+        <div class="space-y-3">
+          <h4 class="text-[11px] font-black uppercase text-slate-500 dark:text-slate-400 tracking-wider flex items-center space-x-1.5">
+            <i class="ph-fill ph-shield-check text-indigo-500"></i>
+            <span>Thông tin tài khoản & Mật khẩu</span>
+          </h4>
 
-            <!-- Avatar Controls -->
-            <div class="flex-1 text-center sm:text-left">
-              <div class="text-sm font-black text-slate-900 dark:text-white">Ảnh đại diện của bạn</div>
-              <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-                Thay thế biểu tượng người ở góc trên cùng bên phải bằng hình ảnh này.
-              </p>
-              
-              <div class="flex flex-wrap gap-2 mt-3 justify-center sm:justify-start">
-                <!-- Upload File Button -->
-                <label class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-rose-500 hover:from-amber-400 hover:to-rose-400 text-slate-950 font-black text-xs cursor-pointer shadow-md flex items-center space-x-1.5 transition">
-                  <i class="ph-bold ph-upload-simple"></i>
-                  <span>Tải ảnh từ máy</span>
-                  <input type="file" accept="image/*" @change="handleAvatarUpload" class="hidden">
-                </label>
-
-                <!-- Delete Avatar Button -->
-                <button 
-                  v-if="userAvatar" 
-                  @click="removeAvatar"
-                  class="px-3 py-1.5 rounded-xl bg-slate-200 dark:bg-slate-800 hover:bg-rose-500 hover:text-white text-slate-600 dark:text-slate-300 text-xs font-bold transition flex items-center space-x-1 cursor-pointer"
-                >
-                  <i class="ph ph-trash"></i>
-                  <span>Gỡ ảnh</span>
-                </button>
-              </div>
-            </div>
+          <div>
+            <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
+              Tên tài khoản
+            </label>
+            <input 
+              type="text" 
+              v-model="accountFormUsername" 
+              class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-purple-500"
+            >
           </div>
 
-          <!-- Phần 2: Thông Tin Tài Khoản & Đổi Mật Khẩu -->
-          <div class="space-y-4">
-            <h4 class="text-xs font-black uppercase text-slate-500 dark:text-slate-400 tracking-wider flex items-center space-x-1.5">
-              <i class="ph-fill ph-shield-check text-indigo-500"></i>
-              <span>Thông tin tài khoản & Đổi mật khẩu</span>
-            </h4>
-
+          <div class="pt-2 border-t border-slate-200 dark:border-slate-800 space-y-2">
+            <div class="text-[11px] font-bold text-slate-700 dark:text-slate-300">Đổi mật khẩu mới (Bỏ trống nếu không đổi):</div>
+            
             <div>
-              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                Tên tài khoản
-              </label>
+              <label class="block text-[10px] text-slate-500 dark:text-slate-400 mb-0.5">Mật khẩu hiện tại</label>
               <input 
-                type="text" 
-                v-model="accountFormUsername" 
-                class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3.5 py-2 text-xs sm:text-sm text-slate-900 dark:text-white focus:outline-none focus:border-purple-500"
+                type="password" 
+                v-model="accountFormCurrentPass" 
+                placeholder="Nhập mật khẩu hiện tại..."
+                class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-purple-500"
               >
             </div>
 
-            <div class="pt-2 border-t border-slate-200 dark:border-slate-800 space-y-3">
-              <div class="text-xs font-bold text-slate-700 dark:text-slate-300">Đổi mật khẩu mới (Bỏ trống nếu không muốn đổi):</div>
-              
+            <div class="grid grid-cols-2 gap-2">
               <div>
-                <label class="block text-[11px] text-slate-500 dark:text-slate-400 mb-1">Mật khẩu hiện tại</label>
+                <label class="block text-[10px] text-slate-500 dark:text-slate-400 mb-0.5">Mật khẩu mới</label>
                 <input 
                   type="password" 
-                  v-model="accountFormCurrentPass" 
-                  placeholder="Nhập mật khẩu hiện tại..."
-                  class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-purple-500"
+                  v-model="accountFormNewPass" 
+                  placeholder="Mới..."
+                  class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-purple-500"
                 >
               </div>
-
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label class="block text-[11px] text-slate-500 dark:text-slate-400 mb-1">Mật khẩu mới</label>
-                  <input 
-                    type="password" 
-                    v-model="accountFormNewPass" 
-                    placeholder="Mật khẩu mới..."
-                    class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-purple-500"
-                  >
-                </div>
-                <div>
-                  <label class="block text-[11px] text-slate-500 dark:text-slate-400 mb-1">Xác nhận mật khẩu mới</label>
-                  <input 
-                    type="password" 
-                    v-model="accountFormConfirmPass" 
-                    placeholder="Nhập lại mật khẩu..."
-                    class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-purple-500"
-                  >
-                </div>
+              <div>
+                <label class="block text-[10px] text-slate-500 dark:text-slate-400 mb-0.5">Xác nhận</label>
+                <input 
+                  type="password" 
+                  v-model="accountFormConfirmPass" 
+                  placeholder="Xác nhận..."
+                  class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-purple-500"
+                >
               </div>
             </div>
-
-            <button 
-              @click="saveAccountSettings"
-              class="w-full py-2.5 bg-gradient-to-r from-indigo-600 via-purple-600 to-rose-600 hover:opacity-95 text-white font-bold rounded-xl text-xs sm:text-sm shadow-md transition flex items-center justify-center space-x-1.5 cursor-pointer"
-            >
-              <i class="ph-fill ph-floppy-disk"></i>
-              <span>Lưu Cập Nhật Tài Khoản</span>
-            </button>
           </div>
 
-          <!-- Phần 3: Trạng Thái Phiên & Đăng Xuất -->
-          <div class="pt-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
-            <div class="text-xs text-slate-500 dark:text-slate-400">
-              <span>Vai trò: <strong class="text-emerald-400 font-bold">Admin Master</strong></span>
-            </div>
-            <button 
-              @click="handleLogout"
-              class="px-3.5 py-1.5 bg-rose-500/15 hover:bg-rose-500 hover:text-white text-rose-500 border border-rose-500/30 rounded-xl text-xs font-bold transition flex items-center space-x-1 cursor-pointer"
-            >
-              <i class="ph-fill ph-sign-out"></i>
-              <span>Đăng Xuất (Khóa Chờ)</span>
-            </button>
-          </div>
-
+          <button 
+            @click="saveAccountSettings"
+            class="w-full py-2 bg-gradient-to-r from-indigo-600 via-purple-600 to-rose-600 hover:opacity-95 text-white font-bold rounded-xl text-xs shadow-md transition flex items-center justify-center space-x-1.5 cursor-pointer mt-1"
+          >
+            <i class="ph-fill ph-floppy-disk"></i>
+            <span>Lưu Cập Nhật Tài Khoản</span>
+          </button>
         </div>
 
-        <!-- Footer -->
-        <div class="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 flex items-center justify-between">
-          <div class="text-[11px] text-slate-400">
-            Dữ liệu tài khoản lưu trữ bảo mật trên trình duyệt này.
+        <!-- Phần 3: Trạng Thái Phiên & Đăng Xuất -->
+        <div class="pt-2.5 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
+          <div class="text-[11px] text-slate-500 dark:text-slate-400">
+            <span>Vai trò: <strong class="text-emerald-400 font-bold">Admin Master</strong></span>
           </div>
           <button 
-            @click="showAccountModal = false"
-            class="px-4 py-1.5 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-xl transition cursor-pointer"
+            @click="handleLogout"
+            class="px-2.5 py-1 bg-rose-500/15 hover:bg-rose-500 hover:text-white text-rose-500 border border-rose-500/30 rounded-lg text-[11px] font-bold transition flex items-center space-x-1 cursor-pointer"
           >
-            Đóng
+            <i class="ph-fill ph-sign-out"></i>
+            <span>Đăng Xuất (Khóa Chờ)</span>
           </button>
         </div>
 
       </div>
+
+      <!-- Footer -->
+      <div class="p-3 px-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 flex items-center justify-between flex-shrink-0">
+        <div class="text-[10px] text-slate-400">
+          Lưu trữ an toàn trên thiết bị này.
+        </div>
+        <button 
+          @click="showAccountModal = false"
+          class="px-3 py-1 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-lg transition cursor-pointer"
+        >
+          Đóng
+        </button>
+      </div>
+
     </div>
 
     </div> <!-- End Authenticated v-else Dashboard -->
