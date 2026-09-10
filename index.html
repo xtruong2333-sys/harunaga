@@ -18,6 +18,11 @@
   <!-- Phosphor Icons -->
   <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
+  <!-- Google Firebase SDK (Compat Version for Web & GitHub Pages) -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
   <script>
     tailwind.config = {
       darkMode: 'class',
@@ -475,17 +480,39 @@
           </p>
         </div>
 
-        <!-- Luxury Glassmorphism Login Card (Giữ nguyên toàn bộ phần đăng nhập) -->
+        <!-- Luxury Glassmorphism Auth Card (Hỗ trợ Đăng Nhập & Đăng Ký Đa Tài Khoản Cloud/Local) -->
         <div class="w-full bg-white/95 dark:bg-[#0b101d]/95 backdrop-blur-xl border border-white/20 dark:border-slate-800/80 rounded-2xl sm:rounded-3xl p-5 sm:p-6 shadow-2xl shadow-black/60 relative">
           
-          <form @submit.prevent="handleLogin" class="space-y-3 sm:space-y-3.5">
-            
-            <!-- Error Alert -->
-            <div v-if="authErrorMsg" class="p-2.5 bg-rose-500/15 border border-rose-500/40 rounded-xl flex items-center space-x-2 text-rose-500 text-xs font-bold animate-shake">
-              <i class="ph-fill ph-warning-circle text-base flex-shrink-0"></i>
-              <span>{{ authErrorMsg }}</span>
-            </div>
+          <!-- Tab Chuyển Đổi: Đăng Nhập / Đăng Ký Mới -->
+          <div class="grid grid-cols-2 gap-1 p-1 bg-slate-100 dark:bg-slate-900/90 rounded-xl mb-3.5 border border-slate-200 dark:border-slate-800">
+            <button 
+              type="button" 
+              @click="authTab = 'login'; authErrorMsg = ''"
+              class="py-1.5 rounded-lg text-xs font-black transition cursor-pointer flex items-center justify-center space-x-1.5"
+              :class="authTab === 'login' ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'"
+            >
+              <i class="ph-bold ph-key text-indigo-500"></i>
+              <span>Đăng Nhập</span>
+            </button>
+            <button 
+              type="button" 
+              @click="authTab = 'register'; authErrorMsg = ''"
+              class="py-1.5 rounded-lg text-xs font-black transition cursor-pointer flex items-center justify-center space-x-1.5"
+              :class="authTab === 'register' ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'"
+            >
+              <i class="ph-bold ph-user-plus text-rose-500"></i>
+              <span>Đăng Ký Mới</span>
+            </button>
+          </div>
 
+          <!-- Error Alert -->
+          <div v-if="authErrorMsg" class="mb-3 p-2.5 bg-rose-500/15 border border-rose-500/40 rounded-xl flex items-center space-x-2 text-rose-500 text-xs font-bold animate-shake">
+            <i class="ph-fill ph-warning-circle text-base flex-shrink-0"></i>
+            <span>{{ authErrorMsg }}</span>
+          </div>
+
+          <!-- FORM 1: ĐĂNG NHẬP (LOGIN) -->
+          <form v-if="authTab === 'login'" @submit.prevent="handleLogin" class="space-y-3 sm:space-y-3.5">
             <!-- Username Input -->
             <div>
               <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
@@ -555,17 +582,84 @@
               <i class="ph-fill ph-rocket-launch text-base"></i>
               <span>XÁC THỰC & MỞ KHÓA HỆ THỐNG</span>
             </button>
+          </form>
 
+          <!-- FORM 2: ĐĂNG KÝ TÀI KHOẢN MỚI (SIGN UP) -->
+          <form v-else @submit.prevent="handleRegister" class="space-y-3 sm:space-y-3.5">
+            <!-- Register Username -->
+            <div>
+              <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
+                Tên tài khoản mới
+              </label>
+              <div class="relative">
+                <i class="ph-fill ph-user-plus absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                <input 
+                  type="text" 
+                  v-model="registerUsername"
+                  placeholder="Ví dụ: thanhvien1, gamingvip..." 
+                  class="w-full bg-slate-50 dark:bg-slate-900/90 border border-slate-300 dark:border-slate-700/80 rounded-xl pl-9 pr-3 py-2 text-xs sm:text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 transition"
+                >
+              </div>
+            </div>
+
+            <!-- Register Password -->
+            <div>
+              <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
+                Mật khẩu tạo mới
+              </label>
+              <div class="relative">
+                <i class="ph-fill ph-lock-key absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                <input 
+                  :type="showRegisterPassword ? 'text' : 'password'" 
+                  v-model="registerPassword"
+                  placeholder="Tối thiểu 3 ký tự..." 
+                  class="w-full bg-slate-50 dark:bg-slate-900/90 border border-slate-300 dark:border-slate-700/80 rounded-xl pl-9 pr-9 py-2 text-xs sm:text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 transition"
+                >
+                <button 
+                  type="button"
+                  @click="showRegisterPassword = !showRegisterPassword"
+                  class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 transition"
+                >
+                  <i :class="showRegisterPassword ? 'ph ph-eye-slash' : 'ph ph-eye'" class="text-sm"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Confirm Register Password -->
+            <div>
+              <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
+                Xác nhận mật khẩu
+              </label>
+              <div class="relative">
+                <i class="ph-fill ph-shield-check absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                <input 
+                  :type="showRegisterPassword ? 'text' : 'password'" 
+                  v-model="registerConfirmPassword"
+                  placeholder="Nhập lại mật khẩu vừa tạo..." 
+                  class="w-full bg-slate-50 dark:bg-slate-900/90 border border-slate-300 dark:border-slate-700/80 rounded-xl pl-9 pr-3 py-2 text-xs sm:text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 transition"
+                >
+              </div>
+            </div>
+
+            <!-- Submit Register Button -->
+            <button 
+              type="submit"
+              @click="handleRegister"
+              class="w-full py-2.5 px-4 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 text-white font-black rounded-xl text-xs sm:text-sm shadow-lg shadow-teal-900/30 hover:shadow-xl hover:shadow-teal-900/50 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 flex items-center justify-center space-x-2 cursor-pointer mt-1"
+            >
+              <i class="ph-fill ph-user-plus text-base"></i>
+              <span>HOÀN TẤT ĐĂNG KÝ TÀI KHOẢN</span>
+            </button>
           </form>
 
           <!-- Default credentials hint -->
           <div class="mt-3.5 pt-2.5 border-t border-slate-200 dark:border-slate-800 text-center">
             <div class="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 text-[11px] text-slate-500 dark:text-slate-400">
               <i class="ph-fill ph-info text-amber-400 text-xs"></i>
-              <span>Mặc định: <strong class="text-slate-800 dark:text-slate-200">truongday</strong> / <strong class="text-slate-800 dark:text-slate-200">123</strong></span>
+              <span>Admin: <strong class="text-slate-800 dark:text-slate-200">truongday</strong> / <strong class="text-slate-800 dark:text-slate-200">123</strong></span>
             </div>
             <p class="text-[10px] text-slate-400 dark:text-slate-500 mt-1">
-              (Bạn có thể thay đổi tài khoản & avatar ở góc phải sau khi đăng nhập)
+              (Tài khoản mới tạo sẽ được lưu trữ đồng bộ trên Cloud & bộ nhớ hệ thống)
             </p>
           </div>
 
@@ -3859,6 +3953,23 @@
             </p>
           </div>
 
+          <!-- Nút Mở Quản Lý Thành Viên & Cloud (Dành riêng cho Admin Master) -->
+          <div v-if="userRole === 'admin'" class="mt-3 pt-3 border-t border-slate-200/70 dark:border-slate-800/70">
+            <button 
+              type="button"
+              @click="showUserManagementModal = true"
+              class="w-full py-2 px-3 rounded-xl bg-gradient-to-r from-indigo-600/20 via-purple-600/20 to-rose-600/20 hover:from-indigo-600/30 hover:to-rose-600/30 border border-purple-500/40 text-purple-300 font-bold text-xs flex items-center justify-between transition cursor-pointer shadow-sm"
+            >
+              <div class="flex items-center space-x-2">
+                <i class="ph-fill ph-users-three text-sm text-purple-400"></i>
+                <span>Quản Lý Thành Viên ({{ localAccounts.length }})</span>
+              </div>
+              <span class="text-[9px] px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 font-black border border-purple-500/30">
+                {{ isFirebaseConfigured ? '🟢 Cloud' : '⚪ Local' }}
+              </span>
+            </button>
+          </div>
+
           <!-- Avatar Actions (Đổi ảnh / Gỡ ảnh) -->
           <div class="flex items-center justify-center gap-2 mt-3 pt-3 border-t border-slate-200/70 dark:border-slate-800/70">
             <label class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 via-rose-500 to-purple-600 hover:opacity-90 text-slate-950 font-black text-[11px] cursor-pointer shadow-md flex items-center space-x-1.5 transition">
@@ -4091,6 +4202,271 @@
 
     </div>
 
+    <!-- ========================================================================================= -->
+    <!-- MODAL QUẢN LÝ THÀNH VIÊN & CẤU HÌNH CLOUD FIREBASE (DÀNH CHO ADMIN MASTER)                 -->
+    <!-- ========================================================================================= -->
+    <transition
+      enter-active-class="transition-opacity duration-200 ease-out"
+      enter-from-class="opacity-0"
+      enter-to-class="opacity-100"
+      leave-active-class="transition-opacity duration-150 ease-in"
+      leave-from-class="opacity-100"
+      leave-to-class="opacity-0"
+    >
+      <div 
+        v-if="showUserManagementModal" 
+        @click="showUserManagementModal = false" 
+        class="fixed inset-0 z-[100000] bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6"
+      >
+        <div 
+          @click.stop
+          class="w-full max-w-xl bg-white dark:bg-[#0c1120] border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl shadow-black/90 flex flex-col max-h-[90vh] overflow-hidden select-none"
+        >
+          <!-- Header -->
+          <div class="p-4 sm:p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-gradient-to-r from-slate-50 via-slate-100 to-indigo-50/40 dark:from-slate-900 dark:via-slate-900 dark:to-indigo-950/40 flex-shrink-0">
+            <div class="flex items-center space-x-3">
+              <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center text-white text-xl shadow-lg shadow-purple-900/40">
+                <i class="ph-fill ph-users-four"></i>
+              </div>
+              <div>
+                <h3 class="text-base font-black text-slate-900 dark:text-white leading-tight">
+                  Quản Trị Thành Viên & Đám Mây Firebase
+                </h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  Xem danh sách, phân quyền cấp bậc và kết nối Cloud
+                </p>
+              </div>
+            </div>
+            <button 
+              @click="showUserManagementModal = false" 
+              class="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center transition cursor-pointer"
+            >
+              <i class="ph-bold ph-x text-sm"></i>
+            </button>
+          </div>
+
+          <!-- Tab Navigation inside Modal -->
+          <div class="flex items-center px-4 sm:px-6 pt-3 border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 space-x-4">
+            <button 
+              type="button" 
+              @click="userMgmtTab = 'users'"
+              class="pb-2.5 text-xs font-black transition-all cursor-pointer border-b-2 flex items-center space-x-1.5"
+              :class="userMgmtTab === 'users' ? 'border-purple-500 text-purple-600 dark:text-purple-400' : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'"
+            >
+              <i class="ph-fill ph-user-list"></i>
+              <span>Danh Sách Thành Viên ({{ localAccounts.length }})</span>
+            </button>
+            <button 
+              type="button" 
+              @click="userMgmtTab = 'cloud'"
+              class="pb-2.5 text-xs font-black transition-all cursor-pointer border-b-2 flex items-center space-x-1.5"
+              :class="userMgmtTab === 'cloud' ? 'border-purple-500 text-purple-600 dark:text-purple-400' : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-300'"
+            >
+              <i class="ph-fill ph-cloud-check"></i>
+              <span>Cấu Hình Firebase Cloud</span>
+              <span class="w-2 h-2 rounded-full" :class="isFirebaseConfigured ? 'bg-emerald-500' : 'bg-slate-400'"></span>
+            </button>
+          </div>
+
+          <!-- Body -->
+          <div class="p-4 sm:p-6 overflow-y-auto flex-1 space-y-4 text-xs">
+            
+            <!-- TAB 1: DANH SÁCH THÀNH VIÊN -->
+            <div v-if="userMgmtTab === 'users'" class="space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="text-slate-400">Toàn bộ tài khoản có quyền truy cập hệ thống:</span>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-black" :class="isFirebaseConfigured ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-slate-800 text-slate-400'">
+                  {{ isFirebaseConfigured ? '🟢 Đồng bộ Đám mây Firebase' : '⚪ Đang lưu Cục bộ (Trình duyệt)' }}
+                </span>
+              </div>
+
+              <!-- List of Users -->
+              <div class="space-y-2 max-h-[50vh] overflow-y-auto pr-1">
+                <div 
+                  v-for="user in localAccounts" 
+                  :key="user.username"
+                  class="p-3 rounded-2xl bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800/80 flex items-center justify-between gap-3"
+                >
+                  <div class="flex items-center space-x-3 min-w-0">
+                    <!-- Avatar Thumbnail with frame indicator -->
+                    <div class="w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center overflow-hidden"
+                         :class="user.role === 'admin' ? 'p-0.5 bg-gradient-to-tr from-rose-500 via-purple-500 to-amber-400' : user.role === 'member' ? 'p-0.5 bg-gradient-to-tr from-cyan-400 to-blue-500' : 'border border-slate-700 bg-slate-800'">
+                      <div class="w-full h-full rounded-full bg-slate-950 flex items-center justify-center overflow-hidden">
+                        <img v-if="user.avatar" :src="user.avatar" class="w-full h-full object-cover">
+                        <i v-else class="ph-fill ph-user text-slate-400"></i>
+                      </div>
+                    </div>
+                    
+                    <div class="min-w-0">
+                      <div class="flex items-center space-x-1.5">
+                        <span class="font-black text-slate-900 dark:text-white truncate">{{ user.username }}</span>
+                        <span v-if="user.username === currentAccount.username" class="text-[9px] px-1.5 py-0.2 rounded bg-indigo-500/20 text-indigo-400 font-bold border border-indigo-500/30">Bạn</span>
+                      </div>
+                      <div class="text-[10px] text-slate-400 flex items-center space-x-1 mt-0.5">
+                        <span class="capitalize font-semibold" :class="user.role === 'admin' ? 'text-amber-400' : user.role === 'member' ? 'text-cyan-400' : 'text-slate-400'">
+                          {{ user.role === 'admin' ? '👑 Admin Master' : user.role === 'member' ? '💎 Thành Viên VIP' : '👤 Bình Thường' }}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Role Changer Quick Buttons for Admin -->
+                  <div class="flex items-center space-x-1.5 flex-shrink-0">
+                    <button 
+                      v-if="user.role !== 'admin'"
+                      @click="changeUserRole(user.username, 'admin')"
+                      class="px-2 py-1 rounded-lg bg-amber-500/15 hover:bg-amber-500 hover:text-slate-950 text-amber-400 text-[10px] font-black border border-amber-500/30 transition cursor-pointer"
+                      title="Sét quyền Admin Master (Khung RGB)"
+                    >
+                      👑 Admin
+                    </button>
+                    <button 
+                      v-if="user.role !== 'member'"
+                      @click="changeUserRole(user.username, 'member')"
+                      class="px-2 py-1 rounded-lg bg-cyan-500/15 hover:bg-cyan-500 hover:text-slate-950 text-cyan-400 text-[10px] font-bold border border-cyan-500/30 transition cursor-pointer"
+                      title="Sét quyền Thành Viên VIP (Khung Lam Ngọc)"
+                    >
+                      💎 VIP
+                    </button>
+                    <button 
+                      v-if="user.role !== 'normal'"
+                      @click="changeUserRole(user.username, 'normal')"
+                      class="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 text-[10px] font-medium border border-slate-700 transition cursor-pointer"
+                      title="Sét quyền Bình Thường (Không khung)"
+                    >
+                      👤 Chuẩn
+                    </button>
+                    <!-- Delete account (cannot delete truongday) -->
+                    <button 
+                      v-if="user.username !== 'truongday' && user.username !== currentAccount.username"
+                      @click="deleteUserAccount(user.username)"
+                      class="w-7 h-7 rounded-lg bg-rose-500/15 hover:bg-rose-500 hover:text-white text-rose-400 flex items-center justify-center transition cursor-pointer ml-1"
+                      title="Xóa tài khoản này"
+                    >
+                      <i class="ph ph-trash text-xs"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- TAB 2: CẤU HÌNH CLOUD FIREBASE -->
+            <div v-else class="space-y-3.5">
+              <div class="p-3.5 rounded-2xl bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-200/60 dark:border-indigo-900/40 space-y-2">
+                <div class="flex items-center space-x-2 text-indigo-600 dark:text-indigo-400 font-black">
+                  <i class="ph-fill ph-lightning text-base"></i>
+                  <span>Kết Nối Google Firebase Đám Mây Toàn Cầu</span>
+                </div>
+                <p class="text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed">
+                  Khi kết nối Firebase, toàn bộ tài khoản đăng ký mới và quyền hạn Admin/Thành viên sẽ được lưu vĩnh viễn trên đám mây của Google, đồng bộ tức thì cho tất cả mọi người dùng ở khắp mọi nơi!
+                </p>
+              </div>
+
+              <!-- Firebase Config Inputs -->
+              <div class="space-y-2.5">
+                <div>
+                  <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
+                    API Key (apiKey)
+                  </label>
+                  <input 
+                    type="text" 
+                    v-model="firebaseConfigForm.apiKey"
+                    placeholder="AIzaSy..." 
+                    class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-purple-500 font-mono"
+                  >
+                </div>
+
+                <div class="grid grid-cols-2 gap-2">
+                  <div>
+                    <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
+                      Project ID (projectId)
+                    </label>
+                    <input 
+                      type="text" 
+                      v-model="firebaseConfigForm.projectId"
+                      placeholder="my-harunaga-app" 
+                      class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-purple-500 font-mono"
+                    >
+                  </div>
+                  <div>
+                    <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
+                      Auth Domain (authDomain)
+                    </label>
+                    <input 
+                      type="text" 
+                      v-model="firebaseConfigForm.authDomain"
+                      placeholder="app.firebaseapp.com" 
+                      class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-purple-500 font-mono"
+                    >
+                  </div>
+                </div>
+
+                <div>
+                  <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
+                    App ID (appId)
+                  </label>
+                  <input 
+                    type="text" 
+                    v-model="firebaseConfigForm.appId"
+                    placeholder="1:123456789:web:abcdef..." 
+                    class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-purple-500 font-mono"
+                  >
+                </div>
+
+                <!-- Action Button -->
+                <div class="flex items-center gap-2 pt-2">
+                  <button 
+                    type="button" 
+                    @click="saveFirebaseConfig"
+                    class="flex-1 py-2 bg-gradient-to-r from-purple-600 via-indigo-600 to-cyan-600 hover:opacity-95 text-white font-black rounded-xl text-xs shadow-md transition flex items-center justify-center space-x-1.5 cursor-pointer"
+                  >
+                    <i class="ph-fill ph-cloud-arrow-up"></i>
+                    <span>Lưu Cấu Hình & Kích Hoạt Đám Mây</span>
+                  </button>
+                  <button 
+                    v-if="isFirebaseConfigured"
+                    type="button" 
+                    @click="clearFirebaseConfig"
+                    class="px-3 py-2 bg-slate-800 hover:bg-rose-600 hover:text-white text-slate-400 font-bold rounded-xl text-xs transition cursor-pointer"
+                    title="Gỡ cấu hình và quay về bộ nhớ cục bộ"
+                  >
+                    Gỡ Cloud
+                  </button>
+                </div>
+              </div>
+
+              <!-- Quick 3-Step Guide -->
+              <div class="p-3 rounded-2xl bg-slate-100 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 text-[11px] space-y-1 text-slate-400">
+                <div class="font-bold text-slate-300 mb-1 flex items-center space-x-1">
+                  <i class="ph-fill ph-info text-amber-400"></i>
+                  <span>Cách lấy mã Firebase hoàn toàn miễn phí trong 3 phút:</span>
+                </div>
+                <p>1. Truy cập <a href="https://console.firebase.google.com/" target="_blank" class="text-indigo-400 underline font-bold">console.firebase.google.com</a>, bấm "Add project".</p>
+                <p>2. Chọn biểu tượng Web (&lt;/&gt;) để tạo ứng dụng web, copy các dòng thông tin cấu hình.</p>
+                <p>3. Dán vào các ô trên và bấm "Lưu Cấu Hình & Kích Hoạt Đám Mây".</p>
+              </div>
+
+            </div>
+
+          </div>
+
+          <!-- Footer -->
+          <div class="p-3 px-5 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 flex items-center justify-between flex-shrink-0">
+            <span class="text-[10px] text-slate-400">
+              Quyền quản trị viên Master • Harunaga Studio
+            </span>
+            <button 
+              @click="showUserManagementModal = false" 
+              class="px-4 py-1.5 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-xl transition cursor-pointer"
+            >
+              Đóng Bảng Quản Trị
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </transition>
+
     </div> <!-- End Authenticated v-else Dashboard -->
 
   </div> <!-- End #app -->
@@ -4100,19 +4476,101 @@
 
     createApp({
       setup() {
-        // Authentication & Waiting Screen State
+        // Authentication & Waiting Screen State (Hybrid Cloud Firebase & Local Multi-Account)
         const isLoggedIn = ref(localStorage.getItem('AUTH_LOGGED_IN') === 'true');
+        const authTab = ref('login'); // 'login' | 'register'
+        const registerUsername = ref('');
+        const registerPassword = ref('');
+        const registerConfirmPassword = ref('');
+        const showRegisterPassword = ref(false);
+
+        // Firebase Cloud Configuration State
+        const defaultFirebaseConfig = {
+          apiKey: '',
+          projectId: '',
+          authDomain: '',
+          appId: ''
+        };
+        const firebaseConfigForm = ref(JSON.parse(
+          localStorage.getItem('FIREBASE_CONFIG') || JSON.stringify(defaultFirebaseConfig)
+        ));
+        const isFirebaseConfigured = computed(() => {
+          return !!(firebaseConfigForm.value.apiKey && firebaseConfigForm.value.projectId);
+        });
+
+        // Initialize Firebase if configured
+        let firebaseApp = null;
+        let firestoreDb = null;
+        const initFirebase = () => {
+          if (typeof firebase !== 'undefined' && isFirebaseConfigured.value) {
+            try {
+              if (!firebase.apps.length) {
+                firebaseApp = firebase.initializeApp(firebaseConfigForm.value);
+              } else {
+                firebaseApp = firebase.app();
+              }
+              firestoreDb = firebase.firestore();
+              console.log('🔥 Firebase Cloud Connected successfully!');
+            } catch (err) {
+              console.warn('Firebase Initialization Error:', err);
+            }
+          }
+        };
+        initFirebase();
+
+        // Multi-Account Database (Local & Cloud sync)
+        const localAccounts = ref(JSON.parse(
+          localStorage.getItem('AUTH_ACCOUNTS_LIST') || JSON.stringify([
+            { username: 'truongday', password: '123', role: 'admin', createdAt: new Date().toISOString() }
+          ])
+        ));
+
+        // Sync users from Firebase Cloud if connected
+        const syncUsersFromCloud = async () => {
+          if (!firestoreDb) return;
+          try {
+            const snapshot = await firestoreDb.collection('users').get();
+            if (!snapshot.empty) {
+              const cloudUsers = [];
+              snapshot.forEach(doc => {
+                cloudUsers.push(doc.data());
+              });
+              // Merge cloud users with local accounts
+              cloudUsers.forEach(cu => {
+                const idx = localAccounts.value.findIndex(la => la.username.toLowerCase() === cu.username.toLowerCase());
+                if (idx !== -1) {
+                  localAccounts.value[idx] = { ...localAccounts.value[idx], ...cu };
+                } else {
+                  localAccounts.value.push(cu);
+                }
+              });
+              localStorage.setItem('AUTH_ACCOUNTS_LIST', JSON.stringify(localAccounts.value));
+            }
+          } catch (e) {
+            console.warn('Sync users error:', e);
+          }
+        };
+        syncUsersFromCloud();
+
         const currentAccount = ref(JSON.parse(
           localStorage.getItem('AUTH_ACCOUNT') || 
-          JSON.stringify({ username: 'truongday', password: '123' })
+          JSON.stringify({ username: 'truongday', password: '123', role: 'admin' })
         ));
+        if (!currentAccount.value.role) {
+          currentAccount.value.role = 'admin';
+        }
+
         const authUsername = ref(currentAccount.value.username || 'truongday');
         const authPassword = ref(currentAccount.value.password || '123');
         const showPassword = ref(false);
         const authErrorMsg = ref('');
         const authRemember = ref(true);
 
-        const handleLogin = () => {
+        // Modals for User Management & Cloud
+        const showUserManagementModal = ref(false);
+        const userMgmtTab = ref('users'); // 'users' | 'cloud'
+
+        const handleLogin = async () => {
           authErrorMsg.value = '';
           const u = (authUsername.value || '').trim();
           const p = authPassword.value || '';
@@ -4120,7 +4578,46 @@
             authErrorMsg.value = 'Vui lòng nhập đầy đủ tài khoản và mật khẩu!';
             return;
           }
-          if (u.toLowerCase() === currentAccount.value.username.toLowerCase() && p === currentAccount.value.password) {
+
+          let matchedAccount = null;
+
+          // 1. Query Firebase Cloud Firestore if active
+          if (firestoreDb) {
+            try {
+              const docSnap = await firestoreDb.collection('users').doc(u.toLowerCase()).get();
+              if (docSnap.exists) {
+                const data = docSnap.data();
+                if (data.password === p) {
+                  matchedAccount = data;
+                }
+              }
+            } catch (err) {
+              console.warn('Cloud login query error:', err);
+            }
+          }
+
+          // 2. Query Local Multi-Account list
+          if (!matchedAccount) {
+            matchedAccount = localAccounts.value.find(
+              acc => acc.username.toLowerCase() === u.toLowerCase() && acc.password === p
+            );
+          }
+
+          // 3. Fallback default check
+          if (!matchedAccount && u.toLowerCase() === 'truongday' && p === '123') {
+            matchedAccount = { username: 'truongday', password: '123', role: 'admin' };
+          }
+
+          if (matchedAccount) {
+            currentAccount.value = {
+              username: matchedAccount.username,
+              password: matchedAccount.password,
+              role: matchedAccount.role || (matchedAccount.username.toLowerCase() === 'truongday' ? 'admin' : 'normal')
+            };
+            userRole.value = currentAccount.value.role;
+            localStorage.setItem('AUTH_ACCOUNT', JSON.stringify(currentAccount.value));
+            localStorage.setItem('USER_ROLE', currentAccount.value.role);
+
             isLoggedIn.value = true;
             if (authRemember.value) {
               localStorage.setItem('AUTH_LOGGED_IN', 'true');
@@ -4128,7 +4625,151 @@
             showToast(`Chào mừng ${currentAccount.value.username} đã mở khóa hệ thống!`);
             authPassword.value = '';
           } else {
-            authErrorMsg.value = 'Tài khoản hoặc mật khẩu không chính xác! Vui lòng thử lại.';
+            authErrorMsg.value = 'Tài khoản hoặc mật khẩu không chính xác! Vui lòng kiểm tra lại.';
+          }
+        };
+
+        const handleRegister = async () => {
+          authErrorMsg.value = '';
+          const u = (registerUsername.value || '').trim();
+          const p = registerPassword.value || '';
+          const cp = registerConfirmPassword.value || '';
+
+          if (!u || !p) {
+            authErrorMsg.value = 'Vui lòng điền đầy đủ tài khoản và mật khẩu!';
+            return;
+          }
+          if (u.length < 3) {
+            authErrorMsg.value = 'Tên tài khoản phải có ít nhất 3 ký tự!';
+            return;
+          }
+          if (p.length < 3) {
+            authErrorMsg.value = 'Mật khẩu phải có ít nhất 3 ký tự!';
+            return;
+          }
+          if (p !== cp) {
+            authErrorMsg.value = 'Xác nhận mật khẩu không trùng khớp!';
+            return;
+          }
+
+          // Check if username already exists locally
+          const existsLocal = localAccounts.value.some(acc => acc.username.toLowerCase() === u.toLowerCase());
+          if (existsLocal) {
+            authErrorMsg.value = 'Tên tài khoản này đã được sử dụng! Vui lòng chọn tên khác.';
+            return;
+          }
+
+          // Save to Firebase Cloud Firestore if connected
+          if (firestoreDb) {
+            try {
+              const docRef = firestoreDb.collection('users').doc(u.toLowerCase());
+              const docCheck = await docRef.get();
+              if (docCheck.exists) {
+                authErrorMsg.value = 'Tên tài khoản đã tồn tại trên Đám mây Firebase!';
+                return;
+              }
+              await docRef.set({
+                username: u,
+                password: p,
+                role: 'normal',
+                createdAt: new Date().toISOString()
+              });
+            } catch (err) {
+              console.warn('Firebase Cloud create user error:', err);
+            }
+          }
+
+          // Save to Local Multi-Account list
+          const newAcc = {
+            username: u,
+            password: p,
+            role: 'normal',
+            createdAt: new Date().toISOString()
+          };
+          localAccounts.value.push(newAcc);
+          localStorage.setItem('AUTH_ACCOUNTS_LIST', JSON.stringify(localAccounts.value));
+
+          showToast(`🎉 Đăng ký thành công tài khoản "${u}"! Vui lòng đăng nhập.`);
+          authUsername.value = u;
+          authPassword.value = p;
+          authTab.value = 'login';
+          registerUsername.value = '';
+          registerPassword.value = '';
+          registerConfirmPassword.value = '';
+        };
+
+        // Admin Role Setting for Any User
+        const changeUserRole = async (targetUsername, newRole) => {
+          const idx = localAccounts.value.findIndex(acc => acc.username.toLowerCase() === targetUsername.toLowerCase());
+          if (idx !== -1) {
+            localAccounts.value[idx].role = newRole;
+            localStorage.setItem('AUTH_ACCOUNTS_LIST', JSON.stringify(localAccounts.value));
+          }
+
+          if (currentAccount.value.username.toLowerCase() === targetUsername.toLowerCase()) {
+            currentAccount.value.role = newRole;
+            userRole.value = newRole;
+            localStorage.setItem('AUTH_ACCOUNT', JSON.stringify(currentAccount.value));
+            localStorage.setItem('USER_ROLE', newRole);
+          }
+
+          // Sync with Firebase Cloud if available
+          if (firestoreDb) {
+            try {
+              await firestoreDb.collection('users').doc(targetUsername.toLowerCase()).update({
+                role: newRole
+              });
+            } catch (e) {
+              console.warn('Firebase role update error:', e);
+            }
+          }
+
+          showToast(`👑 Đã cập nhật cấp bậc của "${targetUsername}" thành "${newRole.toUpperCase()}"!`);
+        };
+
+        // Admin Delete User Account
+        const deleteUserAccount = async (targetUsername) => {
+          if (targetUsername.toLowerCase() === 'truongday') {
+            showToast('Không thể xóa tài khoản Admin Master!');
+            return;
+          }
+          if (!confirm(`Bạn có chắc chắn muốn xóa tài khoản "${targetUsername}" khỏi hệ thống?`)) {
+            return;
+          }
+
+          localAccounts.value = localAccounts.value.filter(acc => acc.username.toLowerCase() !== targetUsername.toLowerCase());
+          localStorage.setItem('AUTH_ACCOUNTS_LIST', JSON.stringify(localAccounts.value));
+
+          if (firestoreDb) {
+            try {
+              await firestoreDb.collection('users').doc(targetUsername.toLowerCase()).delete();
+            } catch (e) {
+              console.warn('Firebase delete user error:', e);
+            }
+          }
+
+          showToast(`Đã xóa tài khoản "${targetUsername}" thành công!`);
+        };
+
+        // Save & Connect Firebase Cloud Config
+        const saveFirebaseConfig = () => {
+          if (!firebaseConfigForm.value.apiKey || !firebaseConfigForm.value.projectId) {
+            showToast('Vui lòng nhập tối thiểu API Key và Project ID!');
+            return;
+          }
+          localStorage.setItem('FIREBASE_CONFIG', JSON.stringify(firebaseConfigForm.value));
+          initFirebase();
+          syncUsersFromCloud();
+          showToast('☁️ Đã lưu cấu hình Firebase! Hệ thống đang đồng bộ đám mây.');
+        };
+
+        const clearFirebaseConfig = () => {
+          if (confirm('Bạn có chắc chắn muốn ngắt kết nối Firebase Cloud và quay về bộ nhớ cục bộ?')) {
+            firebaseConfigForm.value = { apiKey: '', projectId: '', authDomain: '', appId: '' };
+            localStorage.removeItem('FIREBASE_CONFIG');
+            firestoreDb = null;
+            firebaseApp = null;
+            showToast('Đã ngắt kết nối Firebase Cloud. Hệ thống trở về chế độ Cục bộ.');
           }
         };
 
@@ -5203,7 +5844,7 @@ Nhiệm vụ: Trả lời hoặc viết lại/tinh chỉnh kịch bản theo yê
 
         // Khóa cuộn trang chính khi mở bất kỳ modal / tab nào
         const isAnyModalOpen = computed(() => {
-          return !!showAccountModal.value || !!showAdminModal.value || !!activeAiVideo.value || !!showKeyPrompt.value;
+          return !!showAccountModal.value || !!showAdminModal.value || !!activeAiVideo.value || !!showKeyPrompt.value || !!showUserManagementModal.value;
         });
 
         watch(isAnyModalOpen, (isOpen) => {
@@ -5220,6 +5861,21 @@ Nhiệm vụ: Trả lời hoặc viết lại/tinh chỉnh kịch bản theo yê
           userRole,
           setUserRole,
           userAvatar,
+          authTab,
+          registerUsername,
+          registerPassword,
+          registerConfirmPassword,
+          showRegisterPassword,
+          handleRegister,
+          localAccounts,
+          showUserManagementModal,
+          userMgmtTab,
+          changeUserRole,
+          deleteUserAccount,
+          firebaseConfigForm,
+          isFirebaseConfigured,
+          saveFirebaseConfig,
+          clearFirebaseConfig,
           accountFormUsername,
           accountFormCurrentPass,
           accountFormNewPass,
