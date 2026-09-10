@@ -297,109 +297,113 @@
 
     <!-- ========================================================================================= -->
     <!-- GIAO DIỆN CHỜ / TRẠM XÁC THỰC BẢO MẬT (ACTIVE WHEN !isLoggedIn)                          -->
+    <!-- Thiết kế cố định vừa vặn 100% khung màn hình (Single-frame zero scroll)                    -->
     <!-- ========================================================================================= -->
-    <div v-if="!isLoggedIn" class="min-h-[88vh] flex items-center justify-center py-10 px-4 relative">
+    <div 
+      v-if="!isLoggedIn" 
+      class="fixed inset-0 z-50 flex flex-col justify-between items-center py-3 sm:py-5 px-4 bg-slate-100 dark:bg-darkBg overflow-hidden select-none"
+    >
       <!-- Ambient Glow Auras -->
-      <div class="absolute w-[500px] h-[500px] bg-rose-600/10 rounded-full blur-[120px] pointer-events-none -top-20 -left-20"></div>
-      <div class="absolute w-[500px] h-[500px] bg-purple-600/10 rounded-full blur-[120px] pointer-events-none -bottom-20 -right-20"></div>
-      <div class="absolute w-[400px] h-[400px] bg-amber-500/10 rounded-full blur-[100px] pointer-events-none top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
+      <div class="absolute w-[450px] h-[450px] bg-rose-600/10 rounded-full blur-[100px] pointer-events-none -top-16 -left-16"></div>
+      <div class="absolute w-[450px] h-[450px] bg-purple-600/10 rounded-full blur-[100px] pointer-events-none -bottom-16 -right-16"></div>
+      <div class="absolute w-[350px] h-[350px] bg-amber-500/10 rounded-full blur-[90px] pointer-events-none top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
 
-      <div class="max-w-md w-full relative z-10 flex flex-col items-center">
+      <!-- Center Box: Perfectly centered vertically in the available frame -->
+      <div class="my-auto w-full max-w-sm sm:max-w-md flex flex-col items-center relative z-10">
         
-        <!-- Radar Target Emblem -->
-        <div class="relative mb-6">
-          <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-gradient-to-tr from-rose-600 via-purple-600 to-amber-500 p-[3px] shadow-2xl shadow-purple-900/40 glow-gold">
-            <div class="w-full h-full bg-[#050811] rounded-[21px] flex items-center justify-center relative overflow-hidden">
+        <!-- Radar Target Emblem (Compact & Sleek) -->
+        <div class="relative mb-2.5 sm:mb-3 flex-shrink-0">
+          <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-tr from-rose-600 via-purple-600 to-amber-500 p-[2.5px] shadow-xl shadow-purple-900/30 glow-gold">
+            <div class="w-full h-full bg-[#050811] rounded-[13px] flex items-center justify-center relative overflow-hidden">
               <div class="absolute inset-0 bg-gradient-to-tr from-rose-500/20 via-purple-500/20 to-amber-500/20 animate-pulse"></div>
-              <i class="ph-fill ph-radar text-4xl sm:text-5xl bg-gradient-to-tr from-rose-400 via-purple-300 to-amber-300 bg-clip-text text-transparent animate-spin-slow"></i>
+              <i class="ph-fill ph-radar text-2xl sm:text-3xl bg-gradient-to-tr from-rose-400 via-purple-300 to-amber-300 bg-clip-text text-transparent animate-spin-slow"></i>
             </div>
           </div>
           <!-- Ping Dot -->
-          <span class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-emerald-500 border-2 border-white dark:border-darkBg flex items-center justify-center shadow-md">
-            <span class="w-2 h-2 rounded-full bg-white animate-ping opacity-75"></span>
+          <span class="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-emerald-500 border-2 border-white dark:border-darkBg flex items-center justify-center shadow-md">
+            <span class="w-1.5 h-1.5 rounded-full bg-white animate-ping opacity-75"></span>
           </span>
         </div>
 
         <!-- Title & Subtitle -->
-        <div class="text-center mb-6">
-          <div class="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-rose-500/15 border border-rose-500/40 text-rose-400 text-xs font-black uppercase tracking-wider mb-2.5">
+        <div class="text-center mb-3 sm:mb-4">
+          <div class="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full bg-rose-500/15 border border-rose-500/40 text-rose-400 text-[10px] sm:text-[11px] font-black uppercase tracking-wider mb-1">
             <i class="ph-fill ph-lock-key"></i>
             <span>TRẠM CHỜ XÁC THỰC QUYỀN TRUY CẬP</span>
           </div>
-          <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-slate-900 dark:text-white">
+          <h1 class="text-xl sm:text-2xl font-black tracking-tight text-slate-900 dark:text-white">
             Bắt Bài Đối Thủ <span class="bg-gradient-to-r from-rose-500 via-purple-500 to-amber-400 bg-clip-text text-transparent">24/7</span>
           </h1>
-          <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-2 max-w-sm mx-auto leading-relaxed">
-            Hệ thống Radar tình báo 46 kênh đối thủ & kịch bản AI Remake đang ở chế độ bảo vệ. Vui lòng đăng nhập để mở khóa dữ liệu.
+          <p class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-xs sm:max-w-sm mx-auto leading-relaxed line-clamp-2">
+            Hệ thống Radar 46 kênh đối thủ & AI Remake kịch bản được bảo vệ. Vui lòng đăng nhập để mở khóa.
           </p>
         </div>
 
         <!-- Luxury Glassmorphism Login Card -->
-        <div class="w-full bg-white dark:bg-[#0b101d]/90 backdrop-blur-xl border border-slate-200 dark:border-slate-800/80 rounded-3xl p-6 sm:p-7 shadow-2xl shadow-black/60 relative">
+        <div class="w-full bg-white dark:bg-[#0b101d]/95 backdrop-blur-xl border border-slate-200 dark:border-slate-800/80 rounded-2xl sm:rounded-3xl p-5 sm:p-6 shadow-2xl shadow-black/40 relative">
           
-          <form @submit.prevent="handleLogin" class="space-y-4">
+          <form @submit.prevent="handleLogin" class="space-y-3 sm:space-y-3.5">
             
             <!-- Error Alert -->
-            <div v-if="authErrorMsg" class="p-3 bg-rose-500/15 border border-rose-500/40 rounded-2xl flex items-center space-x-2 text-rose-500 text-xs font-bold animate-shake">
+            <div v-if="authErrorMsg" class="p-2.5 bg-rose-500/15 border border-rose-500/40 rounded-xl flex items-center space-x-2 text-rose-500 text-xs font-bold animate-shake">
               <i class="ph-fill ph-warning-circle text-base flex-shrink-0"></i>
               <span>{{ authErrorMsg }}</span>
             </div>
 
             <!-- Username Input -->
             <div>
-              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+              <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
                 Tài khoản đăng nhập
               </label>
               <div class="relative">
-                <i class="ph-fill ph-user absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-base"></i>
+                <i class="ph-fill ph-user absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
                 <input 
                   type="text" 
                   v-model="authUsername"
                   placeholder="Nhập tên tài khoản..." 
-                  class="w-full bg-slate-50 dark:bg-slate-900/90 border border-slate-300 dark:border-slate-700/80 rounded-xl pl-10 pr-4 py-2.5 text-xs sm:text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition"
-                  autofocus
+                  class="w-full bg-slate-50 dark:bg-slate-900/90 border border-slate-300 dark:border-slate-700/80 rounded-xl pl-9 pr-3 py-2 text-xs sm:text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition"
                 >
               </div>
             </div>
 
             <!-- Password Input -->
             <div>
-              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+              <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
                 Mật khẩu truy cập
               </label>
               <div class="relative">
-                <i class="ph-fill ph-lock-key absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-base"></i>
+                <i class="ph-fill ph-lock-key absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
                 <input 
                   :type="showPassword ? 'text' : 'password'" 
                   v-model="authPassword"
                   placeholder="Nhập mật khẩu bảo mật..." 
-                  class="w-full bg-slate-50 dark:bg-slate-900/90 border border-slate-300 dark:border-slate-700/80 rounded-xl pl-10 pr-10 py-2.5 text-xs sm:text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition"
+                  class="w-full bg-slate-50 dark:bg-slate-900/90 border border-slate-300 dark:border-slate-700/80 rounded-xl pl-9 pr-9 py-2 text-xs sm:text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition"
                 >
                 <button 
                   type="button"
                   @click="showPassword = !showPassword"
-                  class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 transition"
+                  class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 transition"
                 >
-                  <i :class="showPassword ? 'ph ph-eye-slash' : 'ph ph-eye'" class="text-base"></i>
+                  <i :class="showPassword ? 'ph ph-eye-slash' : 'ph ph-eye'" class="text-sm"></i>
                 </button>
               </div>
             </div>
 
             <!-- Remember Me & Theme -->
-            <div class="flex items-center justify-between pt-1 text-xs">
-              <label class="flex items-center space-x-2 cursor-pointer select-none">
+            <div class="flex items-center justify-between pt-0.5 text-xs">
+              <label class="flex items-center space-x-1.5 cursor-pointer select-none">
                 <input 
                   type="checkbox" 
                   v-model="authRemember" 
-                  class="rounded border-slate-700 text-purple-600 focus:ring-purple-500 w-4 h-4 bg-slate-900 cursor-pointer"
+                  class="rounded border-slate-700 text-purple-600 focus:ring-purple-500 w-3.5 h-3.5 bg-slate-900 cursor-pointer"
                 >
-                <span class="text-slate-600 dark:text-slate-400 font-medium">Ghi nhớ đăng nhập</span>
+                <span class="text-[11px] text-slate-600 dark:text-slate-400 font-medium">Ghi nhớ đăng nhập</span>
               </label>
 
               <button 
                 type="button" 
                 @click="toggleTheme" 
-                class="text-slate-500 hover:text-purple-400 text-xs font-bold flex items-center space-x-1"
+                class="text-slate-500 hover:text-purple-400 text-[11px] font-bold flex items-center space-x-1 cursor-pointer"
               >
                 <i :class="isDark ? 'ph ph-sun text-amber-400' : 'ph ph-moon text-indigo-600'"></i>
                 <span>{{ isDark ? 'Chế độ Sáng' : 'Chế độ Tối' }}</span>
@@ -410,39 +414,46 @@
             <button 
               type="submit"
               @click="handleLogin"
-              class="w-full py-3 px-4 bg-gradient-to-r from-rose-600 via-purple-600 to-indigo-600 hover:from-rose-500 hover:to-indigo-500 text-white font-black rounded-xl text-xs sm:text-sm shadow-xl shadow-purple-900/40 hover:shadow-2xl hover:shadow-purple-900/60 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 flex items-center justify-center space-x-2 cursor-pointer mt-2"
+              class="w-full py-2.5 px-4 bg-gradient-to-r from-rose-600 via-purple-600 to-indigo-600 hover:from-rose-500 hover:to-indigo-500 text-white font-black rounded-xl text-xs sm:text-sm shadow-lg shadow-purple-900/30 hover:shadow-xl hover:shadow-purple-900/50 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 flex items-center justify-center space-x-2 cursor-pointer mt-1"
             >
-              <i class="ph-fill ph-rocket-launch text-lg"></i>
+              <i class="ph-fill ph-rocket-launch text-base"></i>
               <span>XÁC THỰC & MỞ KHÓA HỆ THỐNG</span>
             </button>
 
           </form>
 
           <!-- Default credentials hint -->
-          <div class="mt-5 pt-4 border-t border-slate-200 dark:border-slate-800 text-center">
-            <div class="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 text-[11px] text-slate-500 dark:text-slate-400">
+          <div class="mt-3.5 pt-2.5 border-t border-slate-200 dark:border-slate-800 text-center">
+            <div class="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 text-[11px] text-slate-500 dark:text-slate-400">
               <i class="ph-fill ph-info text-amber-400 text-xs"></i>
               <span>Mặc định: <strong class="text-slate-800 dark:text-slate-200">truongday</strong> / <strong class="text-slate-800 dark:text-slate-200">123</strong></span>
             </div>
             <p class="text-[10px] text-slate-400 dark:text-slate-500 mt-1">
-              (Bạn có thể thay đổi tài khoản & mật khẩu trong Cài đặt sau khi đăng nhập)
+              (Bạn có thể thay đổi tài khoản & avatar ở góc phải sau khi đăng nhập)
             </p>
           </div>
 
         </div>
 
-        <!-- Footer watermark -->
-        <div class="mt-6 text-center text-xs text-slate-500 dark:text-slate-500 flex items-center space-x-1.5">
-          <span>⚡ Bắt Bài Đối Thủ</span>
-          <span>•</span>
-          <span>Created by <strong class="text-rose-500 font-bold">Truongday</strong></span>
-          <span>•</span>
-          <span>Cloud 24/7</span>
-        </div>
-
       </div>
-    </div>
 
+      <!-- TỐI ƯU DÒNG CHỮ DƯỚI ĐÁY: Hiển thị đầy đủ, sắc nét, không bị khuất, căn giữa khung hình -->
+      <div class="w-full relative z-10 py-1 flex items-center justify-center text-center">
+        <div class="inline-flex items-center justify-center flex-wrap gap-x-2 gap-y-1 px-3.5 py-1.5 rounded-full bg-white/70 dark:bg-slate-900/80 backdrop-blur-md border border-slate-200/90 dark:border-slate-800/90 text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 shadow-sm">
+          <span class="font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1">
+            <i class="ph-fill ph-fire text-amber-500"></i> Bắt Bài Đối Thủ 24/7
+          </span>
+          <span class="text-slate-300 dark:text-slate-700">•</span>
+          <span>Nền tảng thiết kế & phát triển bởi <strong class="text-rose-500 font-bold">Truongday</strong></span>
+          <span class="text-slate-300 dark:text-slate-700">•</span>
+          <span class="inline-flex items-center gap-1 text-emerald-500 font-semibold">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            Cloud 24/7
+          </span>
+        </div>
+      </div>
+
+    </div>
     <!-- ========================================================================================= -->
     <!-- DASHBOARD CHÍNH 7 MỤC (ACTIVE WHEN isLoggedIn)                                          -->
     <!-- ========================================================================================= -->
@@ -2528,8 +2539,6 @@
 
     <!-- ========================================================================================= -->
     
-    </div>
-
     <!-- MODALS                                                                                    -->
     <!-- ========================================================================================= -->
 
@@ -3518,6 +3527,7 @@
         <span class="text-slate-400">•</span>
         <span>Tự động hóa 100% trên Cloud</span>
       </div>
+    </footer>
     
     <!-- ========================================================================================= -->
     <!-- MODAL HỒ SƠ TÀI KHOẢN CÁ NHÂN & QUẢN LÝ AVATAR (ACTIVE WHEN showAccountModal)              -->
@@ -3693,9 +3703,9 @@
       </div>
     </div>
 
-    </footer>
+    </div> <!-- End Authenticated v-else Dashboard -->
 
-  </div>
+  </div> <!-- End #app -->
 
   <script>
     const { createApp, ref, computed, onMounted } = Vue;
