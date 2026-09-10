@@ -4113,30 +4113,38 @@
 
                   <!-- Role Changer Quick Buttons for Admin -->
                   <div class="flex items-center space-x-1.5 flex-shrink-0">
-                    <button 
-                      v-if="user.role !== 'admin'"
-                      @click="changeUserRole(user.username, 'admin')"
-                      class="px-2 py-1 rounded-lg bg-amber-500/15 hover:bg-amber-500 hover:text-slate-950 text-amber-400 text-[10px] font-black border border-amber-500/30 transition cursor-pointer"
-                      title="Sét quyền Admin Master (Khung RGB)"
+                    <span 
+                      v-if="user.username.toLowerCase() === 'truongday'"
+                      class="px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-300 text-[10px] font-black border border-amber-400/40 shadow-sm flex items-center gap-1"
                     >
-                      👑 Admin
-                    </button>
-                    <button 
-                      v-if="user.role !== 'member'"
-                      @click="changeUserRole(user.username, 'member')"
-                      class="px-2 py-1 rounded-lg bg-cyan-500/15 hover:bg-cyan-500 hover:text-slate-950 text-cyan-400 text-[10px] font-bold border border-cyan-500/30 transition cursor-pointer"
-                      title="Sét quyền Thành Viên VIP (Khung Lam Ngọc)"
-                    >
-                      💎 VIP
-                    </button>
-                    <button 
-                      v-if="user.role !== 'normal'"
-                      @click="changeUserRole(user.username, 'normal')"
-                      class="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 text-[10px] font-medium border border-slate-700 transition cursor-pointer"
-                      title="Sét quyền Bình Thường (Không khung)"
-                    >
-                      👤 Chuẩn
-                    </button>
+                      👑 Admin Master (Tối Cao)
+                    </span>
+                    <template v-else>
+                      <button 
+                        v-if="user.role !== 'admin'"
+                        @click="changeUserRole(user.username, 'admin')"
+                        class="px-2 py-1 rounded-lg bg-amber-500/15 hover:bg-amber-500 hover:text-slate-950 text-amber-400 text-[10px] font-black border border-amber-500/30 transition cursor-pointer"
+                        title="Sét quyền Admin Master (Khung RGB)"
+                      >
+                        👑 Admin
+                      </button>
+                      <button 
+                        v-if="user.role !== 'member'"
+                        @click="changeUserRole(user.username, 'member')"
+                        class="px-2 py-1 rounded-lg bg-cyan-500/15 hover:bg-cyan-500 hover:text-slate-950 text-cyan-400 text-[10px] font-bold border border-cyan-500/30 transition cursor-pointer"
+                        title="Sét quyền Thành Viên VIP (Khung Lam Ngọc)"
+                      >
+                        💎 VIP
+                      </button>
+                      <button 
+                        v-if="user.role !== 'normal'"
+                        @click="changeUserRole(user.username, 'normal')"
+                        class="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 text-[10px] font-medium border border-slate-700 transition cursor-pointer"
+                        title="Sét quyền Bình Thường (Không khung)"
+                      >
+                        👤 Chuẩn
+                      </button>
+                    </template>
                     <!-- Delete account (cannot delete truongday) -->
                     <button 
                       v-if="user.username !== 'truongday' && user.username !== currentAccount.username"
@@ -4320,11 +4328,25 @@
         initFirebase();
 
         // Multi-Account Database (Local & Cloud sync)
-        const localAccounts = ref(JSON.parse(
-          localStorage.getItem('AUTH_ACCOUNTS_LIST') || JSON.stringify([
-            { username: 'truongday', password: '123', role: 'admin', createdAt: new Date().toISOString() }
-          ])
-        ));
+        let parsedAccountsList = [];
+        try {
+          const rawAccList = localStorage.getItem('AUTH_ACCOUNTS_LIST');
+          parsedAccountsList = rawAccList ? JSON.parse(rawAccList) : [];
+        } catch (e) {
+          parsedAccountsList = [];
+        }
+        if (!Array.isArray(parsedAccountsList) || parsedAccountsList.length === 0) {
+          parsedAccountsList = [{ username: 'truongday', password: '123', role: 'admin', createdAt: new Date().toISOString() }];
+        }
+        // Permanently ensure truongday is in localAccounts with role admin
+        const tdAccIdx = parsedAccountsList.findIndex(a => a.username && a.username.toLowerCase() === 'truongday');
+        if (tdAccIdx !== -1) {
+          parsedAccountsList[tdAccIdx].role = 'admin';
+        } else {
+          parsedAccountsList.unshift({ username: 'truongday', password: '123', role: 'admin', createdAt: new Date().toISOString() });
+        }
+        const localAccounts = ref(parsedAccountsList);
+        localStorage.setItem('AUTH_ACCOUNTS_LIST', JSON.stringify(localAccounts.value));
 
         // Sync users from Firebase Cloud if connected
         const syncUsersFromCloud = async () => {
@@ -4341,10 +4363,20 @@
                 const idx = localAccounts.value.findIndex(la => la.username.toLowerCase() === cu.username.toLowerCase());
                 if (idx !== -1) {
                   localAccounts.value[idx] = { ...localAccounts.value[idx], ...cu };
+                  if (localAccounts.value[idx].username && localAccounts.value[idx].username.toLowerCase() === 'truongday') {
+                    localAccounts.value[idx].role = 'admin';
+                  }
                 } else {
+                  if (cu.username && cu.username.toLowerCase() === 'truongday') {
+                    cu.role = 'admin';
+                  }
                   localAccounts.value.push(cu);
                 }
               });
+              if (currentAccount.value?.username?.toLowerCase() === 'truongday') {
+                currentAccount.value.role = 'admin';
+                localStorage.setItem('AUTH_ACCOUNT', JSON.stringify(currentAccount.value));
+              }
               localStorage.setItem('AUTH_ACCOUNTS_LIST', JSON.stringify(localAccounts.value));
             }
           } catch (e) {
@@ -4353,12 +4385,26 @@
         };
         syncUsersFromCloud();
 
-        const currentAccount = ref(JSON.parse(
-          localStorage.getItem('AUTH_ACCOUNT') || 
-          JSON.stringify({ username: 'truongday', password: '123', role: 'admin' })
-        ));
-        if (!currentAccount.value.role) {
-          currentAccount.value.role = currentAccount.value.username?.toLowerCase() === 'truongday' ? 'admin' : 'normal';
+        let parsedCurrentAcc = null;
+        try {
+          const rawCurrent = localStorage.getItem('AUTH_ACCOUNT');
+          parsedCurrentAcc = rawCurrent ? JSON.parse(rawCurrent) : null;
+        } catch (e) {
+          parsedCurrentAcc = null;
+        }
+        if (!parsedCurrentAcc) {
+          parsedCurrentAcc = { username: 'truongday', password: '123', role: 'admin' };
+        }
+        // Permanently guarantee truongday has admin role
+        if (parsedCurrentAcc.username && parsedCurrentAcc.username.toLowerCase() === 'truongday') {
+          parsedCurrentAcc.role = 'admin';
+        } else if (!parsedCurrentAcc.role) {
+          parsedCurrentAcc.role = 'normal';
+        }
+        const currentAccount = ref(parsedCurrentAcc);
+        localStorage.setItem('AUTH_ACCOUNT', JSON.stringify(currentAccount.value));
+        if (currentAccount.value.username?.toLowerCase() === 'truongday') {
+          localStorage.setItem('USER_ROLE', 'admin');
         }
 
         const authUsername = ref(currentAccount.value.username || 'truongday');
@@ -4410,11 +4456,13 @@
           }
 
           if (matchedAccount) {
+            const isTruongdayAcc = matchedAccount.username && matchedAccount.username.toLowerCase() === 'truongday';
+            const roleVal = isTruongdayAcc ? 'admin' : (matchedAccount.role || 'normal');
             const avatarVal = matchedAccount.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(matchedAccount.username)}`;
             currentAccount.value = {
               username: matchedAccount.username,
               password: matchedAccount.password,
-              role: matchedAccount.role || (matchedAccount.username.toLowerCase() === 'truongday' ? 'admin' : 'normal'),
+              role: roleVal,
               avatar: avatarVal
             };
             userAvatar.value = avatarVal;
@@ -4506,6 +4554,12 @@
 
         // Admin Role Setting for Any User
         const changeUserRole = async (targetUsername, newRole) => {
+          if (targetUsername.toLowerCase() === 'truongday') {
+            if (newRole !== 'admin') {
+              showToast('👑 Tài khoản truongday là Quản Trị Viên Tối Cao (Admin Master), không thể hạ quyền!');
+              return;
+            }
+          }
           const idx = localAccounts.value.findIndex(acc => acc.username.toLowerCase() === targetUsername.toLowerCase());
           if (idx !== -1) {
             localAccounts.value[idx].role = newRole;
@@ -4592,9 +4646,12 @@
         const showAccountModal = ref(false);
         const showEditCredentials = ref(false);
         const userRole = computed(() => {
+          if (currentAccount.value?.username?.toLowerCase() === 'truongday') {
+            return 'admin';
+          }
           const r = currentAccount.value?.role;
           if (r) return r;
-          return currentAccount.value?.username?.toLowerCase() === 'truongday' ? 'admin' : 'normal';
+          return 'normal';
         });
         const userAvatar = ref(currentAccount.value?.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(currentAccount.value?.username || 'user')}`);
 
@@ -4630,6 +4687,12 @@
         };
 
         const setUserRole = (role) => {
+          if (currentAccount.value?.username?.toLowerCase() === 'truongday') {
+            if (role !== 'admin') {
+              showToast('👑 Tài khoản truongday là Quản Trị Viên Tối Cao (Admin Master), luôn giữ quyền Quản Trị!');
+              return;
+            }
+          }
           currentAccount.value.role = role;
           localStorage.setItem('AUTH_ACCOUNT', JSON.stringify(currentAccount.value));
           
@@ -4733,7 +4796,8 @@
             showToast('Tên tài khoản không được để trống!');
             return;
           }
-          const oldRole = currentAccount.value.role || (currentAccount.value.username?.toLowerCase() === 'truongday' ? 'admin' : 'normal');
+          const isTruongdayAccount = (newU.toLowerCase() === 'truongday' || currentAccount.value.username?.toLowerCase() === 'truongday');
+          const oldRole = isTruongdayAccount ? 'admin' : (currentAccount.value.role || 'normal');
           const oldAvatar = currentAccount.value.avatar || userAvatar.value || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(newU)}`;
           const oldU = currentAccount.value.username;
 
