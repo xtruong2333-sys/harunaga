@@ -409,6 +409,7 @@
             <!-- Submit Button -->
             <button 
               type="submit"
+              @click="handleLogin"
               class="w-full py-3 px-4 bg-gradient-to-r from-rose-600 via-purple-600 to-indigo-600 hover:from-rose-500 hover:to-indigo-500 text-white font-black rounded-xl text-xs sm:text-sm shadow-xl shadow-purple-900/40 hover:shadow-2xl hover:shadow-purple-900/60 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 flex items-center justify-center space-x-2 cursor-pointer mt-2"
             >
               <i class="ph-fill ph-rocket-launch text-lg"></i>
@@ -3703,24 +3704,20 @@
       setup() {
         // Authentication & Waiting Screen State
         const isLoggedIn = ref(localStorage.getItem('AUTH_LOGGED_IN') === 'true');
-        const authUsername = ref('');
-        const authPassword = ref('');
-        const showPassword = ref(false);
-        const authErrorMsg = ref('');
-        const authRemember = ref(true);
-
         const currentAccount = ref(JSON.parse(
           localStorage.getItem('AUTH_ACCOUNT') || 
           JSON.stringify({ username: 'truongday', password: '123' })
         ));
-
-        const newAccountUsername = ref(currentAccount.value.username);
-        const newAccountPassword = ref('');
+        const authUsername = ref(currentAccount.value.username || 'truongday');
+        const authPassword = ref(currentAccount.value.password || '123');
+        const showPassword = ref(false);
+        const authErrorMsg = ref('');
+        const authRemember = ref(true);
 
         const handleLogin = () => {
           authErrorMsg.value = '';
-          const u = authUsername.value.trim();
-          const p = authPassword.value;
+          const u = (authUsername.value || '').trim();
+          const p = authPassword.value || '';
           if (!u || !p) {
             authErrorMsg.value = 'Vui lòng nhập đầy đủ tài khoản và mật khẩu!';
             return;
@@ -3732,7 +3729,6 @@
             }
             showToast(`Chào mừng ${currentAccount.value.username} đã mở khóa hệ thống!`);
             authPassword.value = '';
-            newAccountUsername.value = currentAccount.value.username;
           } else {
             authErrorMsg.value = 'Tài khoản hoặc mật khẩu không chính xác! Vui lòng thử lại.';
           }
@@ -3742,19 +3738,12 @@
           if (confirm('Bạn có chắc chắn muốn đăng xuất và khóa màn hình chờ?')) {
             isLoggedIn.value = false;
             showAdminModal.value = false;
+            showAccountModal.value = false;
             localStorage.removeItem('AUTH_LOGGED_IN');
             showToast('Đã đăng xuất. Hệ thống đã trở về Giao diện chờ!');
           }
         };
 
-        const updateAccountCredentials = () => {
-          const u = newAccountUsername.value.trim();
-          const p = newAccountPassword.value.trim();
-          if (!u || !p) {
-            showToast('Tài khoản và mật khẩu mới không được để trống!');
-            return;
-          }
-          currentAccount.value = { username: u, password: p };
         // Personal Account & Avatar State
         const showAccountModal = ref(false);
         const userAvatar = ref(localStorage.getItem('USER_AVATAR') || '');
@@ -3825,11 +3814,6 @@
             showToast('Đã lưu tên tài khoản mới thành công!');
             showAccountModal.value = false;
           }
-        };
-
-          localStorage.setItem('AUTH_ACCOUNT', JSON.stringify(currentAccount.value));
-          showToast('Đã lưu thông tin tài khoản và mật khẩu mới thành công!');
-          newAccountPassword.value = '';
         };
 
         const stats = ref({
@@ -4809,11 +4793,8 @@ Nhiệm vụ: Trả lời hoặc viết lại/tinh chỉnh kịch bản theo yê
           authErrorMsg,
           authRemember,
           currentAccount,
-          newAccountUsername,
-          newAccountPassword,
           handleLogin,
           handleLogout,
-          updateAccountCredentials,
           currentView,
           savedIdeaIds,
           isSaved,
