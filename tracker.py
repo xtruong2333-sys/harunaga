@@ -279,17 +279,17 @@ def run():
             if existing_ai:
                 v_entry["ai_analysis"] = existing_ai
 
-            # Kiểm tra và gửi cảnh báo Discord
-            already_alerted = prev_info.get("alerted", False) if prev_info else False
-            
-            if is_viral and is_recent and not already_alerted:
-                print(f"🔥 PHÁT HIỆN VIDEO VIRAL: [{v['title'][:40]}] - Tốc độ: +{effective_vph:,} view/h")
-                
-                # Gọi Bot AI Phân Tích Chuyên Sâu & Lên Kịch Bản Remake Quốc Tế
+            # Tự động phân tích AI kịch bản Remake cho mọi video nổ (Viral) chưa có phân tích
+            if is_viral and not v_entry.get("ai_analysis"):
+                print(f"🔥 VIDEO BÁO NỔ CHƯA CÓ KỊCH BẢN: [{v['title'][:40]}] - Tốc độ: +{effective_vph:,} view/h -> Đang gọi AI...")
                 ai_result = analyze_viral_video(vid, v["title"], ch_name, views, effective_vph)
                 if ai_result:
                     v_entry["ai_analysis"] = ai_result
 
+            # Kiểm tra và gửi cảnh báo Discord nếu chưa gửi
+            already_alerted = prev_info.get("alerted", False) if prev_info else False
+            
+            if is_viral and is_recent and not already_alerted:
                 alert_sent = send_discord_alert(discord_webhook, v_entry, ch_name, threshold, dashboard_url)
                 
                 # Cập nhật lịch sử cảnh báo
@@ -299,7 +299,7 @@ def run():
                     "alerted": True if alert_sent or discord_webhook else False,
                     "alerted_at": now_iso,
                     "alerted_vph": effective_vph,
-                    "ai_analysis": ai_result or existing_ai
+                    "ai_analysis": v_entry.get("ai_analysis")
                 }
             else:
                 # Cập nhật chỉ số kiểm tra lần này
@@ -308,13 +308,13 @@ def run():
                         "last_views": views,
                         "last_checked": now_iso,
                         "alerted": False,
-                        "ai_analysis": existing_ai
+                        "ai_analysis": v_entry.get("ai_analysis")
                     }
                 else:
                     video_history[vid]["last_views"] = views
                     video_history[vid]["last_checked"] = now_iso
-                    if existing_ai:
-                        video_history[vid]["ai_analysis"] = existing_ai
+                    if v_entry.get("ai_analysis"):
+                        video_history[vid]["ai_analysis"] = v_entry.get("ai_analysis")
 
         # Sắp xếp video theo thời gian xuất bản mới nhất
         all_channels_data.append({
