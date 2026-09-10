@@ -649,139 +649,72 @@
     <!-- ========================================================================================= -->
     <section v-if="activeMainTab === 'videos'" class="mt-4 sm:mt-6">
 
-      <!-- Unified Filter & Search Toolbar (Đã gộp Lọc Nhanh Ảnh 2 & Giữ nguyên Bộ Lọc Ảnh 1) -->
-      <div class="bg-white dark:bg-cardBg border border-slate-200 dark:border-borderDark rounded-2xl p-3.5 sm:p-4 mb-6 shadow-sm flex flex-col gap-3.5">
+            <!-- Search & Filter Toolbar -->
+      <div class="bg-white dark:bg-cardBg border border-slate-200 dark:border-borderDark rounded-2xl p-3.5 sm:p-4 mb-6 shadow-sm flex flex-col lg:flex-row gap-3 items-stretch lg:items-center justify-between">
         
-        <!-- Hàng 1: Dãy nút Lọc Nhanh (Ảnh 2) -->
-        <div class="flex items-center space-x-2 overflow-x-auto pb-0.5 no-scrollbar">
-          <button 
-            @click="filterTab = 'all'" 
-            :class="filterTab === 'all' 
-              ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black shadow-md' 
-              : 'bg-slate-50 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-slate-400'"
-            class="flex-shrink-0 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5 whitespace-nowrap transition"
+        <!-- Search Input -->
+        <div class="relative flex-1">
+          <i class="ph ph-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></i>
+          <input 
+            type="text" 
+            v-model="searchQuery" 
+            placeholder="Tìm theo tiêu đề video hoặc tên kênh đối thủ..." 
+            class="w-full bg-slate-50 dark:bg-slate-900/90 border border-slate-300 dark:border-slate-700/80 rounded-xl pl-10 pr-10 py-2.5 text-xs sm:text-sm text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-purple-500 transition"
           >
-            <span>Tất cả video</span>
-            <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200">{ stats.total_videos }</span>
-          </button>
-
           <button 
-            @click="filterTab = 'viral'" 
-            :class="filterTab === 'viral' 
-              ? 'bg-rose-600 text-white font-black shadow-lg shadow-rose-900/30' 
-              : 'bg-slate-50 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-rose-500/50'"
-            class="flex-shrink-0 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5 whitespace-nowrap transition"
+            v-if="searchQuery" 
+            @click="searchQuery = ''" 
+            class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-white transition"
           >
-            <i class="ph-fill ph-fire text-amber-400"></i>
-            <span>Chỉ Video Viral (&ge; 5k/h)</span>
-            <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-rose-700 text-white">{ stats.viral_count }</span>
-          </button>
-
-          <button 
-            @click="filterTab = 'high_speed'" 
-            :class="filterTab === 'high_speed' 
-              ? 'bg-amber-500 text-white font-black shadow-md' 
-              : 'bg-slate-50 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-amber-400'"
-            class="flex-shrink-0 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5 whitespace-nowrap transition"
-          >
-            <i class="ph ph-lightning text-amber-400"></i>
-            <span>Tăng Nhanh (&ge; 1k/h)</span>
-          </button>
-
-          <button 
-            @click="filterTab = 'ai'" 
-            :class="filterTab === 'ai' 
-              ? 'bg-purple-600 text-white font-black shadow-lg shadow-purple-900/30' 
-              : 'bg-slate-50 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-purple-400'"
-            class="flex-shrink-0 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5 whitespace-nowrap transition"
-          >
-            <i class="ph ph-sparkle text-purple-300"></i>
-            <span>Có Kịch Bản AI</span>
-          </button>
-
-          <button 
-            @click="filterTab = 'recent'" 
-            :class="filterTab === 'recent' 
-              ? 'bg-indigo-600 text-white font-black shadow-md' 
-              : 'bg-slate-50 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-indigo-400'"
-            class="flex-shrink-0 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5 whitespace-nowrap transition"
-          >
-            <i class="ph ph-clock text-indigo-300"></i>
-            <span>Mới đăng (&le; 48 giờ)</span>
+            <i class="ph ph-x-circle text-base"></i>
           </button>
         </div>
 
-        <!-- Đường kẻ phân cách tinh tế -->
-        <div class="border-t border-slate-200/70 dark:border-slate-800"></div>
-
-        <!-- Hàng 2: Thanh Tìm Kiếm & Các Dropdown (Ảnh 1 Nguyên Vẹn Không Thay Đổi Gì) -->
-        <div class="flex flex-col lg:flex-row gap-3 items-stretch lg:items-center justify-between">
+        <!-- Controls -->
+        <div class="flex flex-wrap items-center gap-2">
           
-          <!-- Search Input -->
-          <div class="relative flex-1">
-            <i class="ph ph-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></i>
-            <input 
-              type="text" 
-              v-model="searchQuery" 
-              placeholder="Tìm theo tiêu đề video hoặc tên kênh đối thủ..." 
-              class="w-full bg-slate-50 dark:bg-slate-900/90 border border-slate-300 dark:border-slate-700/80 rounded-xl pl-10 pr-10 py-2.5 text-xs sm:text-sm text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-purple-500 transition"
+          <!-- Channel Select -->
+          <div class="flex items-center space-x-1.5 bg-slate-50 dark:bg-slate-900/90 border border-slate-300 dark:border-slate-700/80 rounded-xl px-2.5 py-1.5">
+            <i class="ph ph-youtube-logo text-rose-500 text-base"></i>
+            <select 
+              v-model="selectedChannel" 
+              class="bg-transparent text-xs sm:text-sm text-slate-800 dark:text-slate-200 focus:outline-none cursor-pointer pr-1"
             >
-            <button 
-              v-if="searchQuery" 
-              @click="searchQuery = ''" 
-              class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-white transition"
-            >
-              <i class="ph ph-x-circle text-base"></i>
-            </button>
+              <option value="ALL">Tất cả kênh ({{ channels.length }})</option>
+              <option v-for="ch in channels" :key="ch.channel_id" :value="ch.channel_id">
+                {{ ch.name }}
+              </option>
+            </select>
           </div>
 
-          <!-- Controls -->
-          <div class="flex flex-wrap items-center gap-2">
-            
-            <!-- Channel Select -->
-            <div class="flex items-center space-x-1.5 bg-slate-50 dark:bg-slate-900/90 border border-slate-300 dark:border-slate-700/80 rounded-xl px-2.5 py-1.5">
-              <i class="ph ph-youtube-logo text-rose-500 text-base"></i>
-              <select 
-                v-model="selectedChannel" 
-                class="bg-transparent text-xs sm:text-sm text-slate-800 dark:text-slate-200 focus:outline-none cursor-pointer pr-1"
-              >
-                <option value="ALL">Tất cả kênh ({ channels.length })</option>
-                <option v-for="ch in channels" :key="ch.channel_id" :value="ch.channel_id">
-                  { ch.name }
-                </option>
-              </select>
-            </div>
-
-            <!-- Sort Select -->
-            <div class="flex items-center space-x-1.5 bg-slate-50 dark:bg-slate-900/90 border border-slate-300 dark:border-slate-700/80 rounded-xl px-2.5 py-1.5">
-              <i class="ph ph-sort-ascending text-indigo-500 text-base"></i>
-              <span class="text-xs text-slate-500 dark:text-slate-400">Xếp:</span>
-              <select 
-                v-model="sortBy" 
-                class="bg-transparent text-xs sm:text-sm text-slate-800 dark:text-slate-200 font-bold focus:outline-none cursor-pointer pr-1"
-              >
-                <option value="vph">🔥 Tốc độ view/h</option>
-                <option value="views">👀 Tổng lượt xem</option>
-                <option value="newest">⏱ Thời gian đăng</option>
-              </select>
-            </div>
-
-            <!-- Sort Direction Toggle -->
-            <button 
-              @click="toggleSortOrder" 
-              class="flex items-center space-x-1 bg-slate-50 dark:bg-slate-900/90 hover:bg-slate-200 dark:hover:bg-slate-800 border border-slate-300 dark:border-slate-700/80 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 dark:text-slate-200 transition"
+          <!-- Sort Select -->
+          <div class="flex items-center space-x-1.5 bg-slate-50 dark:bg-slate-900/90 border border-slate-300 dark:border-slate-700/80 rounded-xl px-2.5 py-1.5">
+            <i class="ph ph-sort-ascending text-indigo-500 text-base"></i>
+            <span class="text-xs text-slate-500 dark:text-slate-400">Xếp:</span>
+            <select 
+              v-model="sortBy" 
+              class="bg-transparent text-xs sm:text-sm text-slate-800 dark:text-slate-200 font-bold focus:outline-none cursor-pointer pr-1"
             >
-              <span v-if="sortOrder === 'desc'" class="flex items-center space-x-1 text-rose-600 dark:text-rose-400">
-                <i class="ph ph-arrow-down font-black"></i>
-                <span>Cao &darr; Thấp</span>
-              </span>
-              <span v-else class="flex items-center space-x-1 text-emerald-600 dark:text-emerald-400">
-                <i class="ph ph-arrow-up font-black"></i>
-                <span>Thấp &uarr; Cao</span>
-              </span>
-            </button>
+              <option value="vph">🔥 Tốc độ view/h</option>
+              <option value="views">👀 Tổng lượt xem</option>
+              <option value="newest">⏱ Thời gian đăng</option>
+            </select>
           </div>
 
+          <!-- Sort Direction Toggle -->
+          <button 
+            @click="toggleSortOrder" 
+            class="flex items-center space-x-1 bg-slate-50 dark:bg-slate-900/90 hover:bg-slate-200 dark:hover:bg-slate-800 border border-slate-300 dark:border-slate-700/80 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 dark:text-slate-200 transition"
+          >
+            <span v-if="sortOrder === 'desc'" class="flex items-center space-x-1 text-rose-600 dark:text-rose-400">
+              <i class="ph ph-arrow-down font-black"></i>
+              <span>Cao &darr; Thấp</span>
+            </span>
+            <span v-else class="flex items-center space-x-1 text-emerald-600 dark:text-emerald-400">
+              <i class="ph ph-arrow-up font-black"></i>
+              <span>Thấp &uarr; Cao</span>
+            </span>
+          </button>
         </div>
 
       </div>
