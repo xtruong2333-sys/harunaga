@@ -494,48 +494,28 @@
             <i class="ph ph-x text-lg"></i>
           </button>
 
-          <!-- Circular Neon Target Crosshair with YouTube Play Icon -->
+          <!-- Brand Logo in Sidebar Drawer (Image 708426ae-e5bf-49e5-867c-3a58efd90655) -->
           <div 
-            class="relative w-24 h-24 flex items-center justify-center cursor-pointer group"
+            class="relative w-20 h-20 sm:w-22 sm:h-22 flex items-center justify-center cursor-pointer group"
             @click="navigateFromSidebar('overview')"
             title="Bắt Bài Đối Thủ - Trở về Tổng quan"
           >
             <!-- Background Neon Aurora Aura -->
-            <div class="absolute inset-0 rounded-full bg-gradient-to-tr from-cyan-500 via-purple-600 to-rose-500 opacity-60 blur-lg animate-pulse"></div>
+            <div class="absolute inset-0 rounded-3xl bg-gradient-to-tr from-cyan-500 via-purple-600 to-rose-500 opacity-60 blur-lg group-hover:opacity-100 transition-opacity duration-300"></div>
 
-            <!-- SVG Neon Target Crosshair Rings -->
-            <svg class="w-24 h-24 relative z-10 drop-shadow-[0_0_12px_rgba(168,85,247,0.7)]" viewBox="0 0 100 100" fill="none">
-              <!-- Outer gradient ring -->
-              <circle cx="50" cy="50" r="44" stroke="url(#sidebar-radar-grad)" stroke-width="3" />
-              <!-- Inner rotating dashed ring -->
-              <circle cx="50" cy="50" r="33" stroke="url(#sidebar-radar-inner)" stroke-width="2" stroke-dasharray="8 4" class="animate-spin-slow origin-center" />
-              <!-- Crosshair tick marks -->
-              <line x1="50" y1="2" x2="50" y2="15" stroke="#c084fc" stroke-width="2.5" stroke-linecap="round" />
-              <line x1="50" y1="85" x2="50" y2="98" stroke="#f43f5e" stroke-width="2.5" stroke-linecap="round" />
-              <line x1="2" y1="50" x2="15" y2="50" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round" />
-              <line x1="85" y1="50" x2="98" y2="50" stroke="#fb7185" stroke-width="2.5" stroke-linecap="round" />
-
-              <defs>
-                <linearGradient id="sidebar-radar-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#38bdf8" />
-                  <stop offset="40%" stop-color="#818cf8" />
-                  <stop offset="70%" stop-color="#c084fc" />
-                  <stop offset="100%" stop-color="#f43f5e" />
-                </linearGradient>
-                <linearGradient id="sidebar-radar-inner" x1="100%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" stop-color="#f43f5e" />
-                  <stop offset="50%" stop-color="#a855f7" />
-                  <stop offset="100%" stop-color="#06b6d4" />
-                </linearGradient>
-              </defs>
-            </svg>
-
-            <!-- Center Bright Red YouTube Play Button -->
-            <div class="absolute inset-0 m-auto w-12 h-8 bg-gradient-to-br from-red-500 to-red-700 rounded-xl flex items-center justify-center shadow-xl shadow-red-600/60 z-20 group-hover:scale-110 transition-transform duration-200">
-              <svg class="w-4 h-4 fill-white ml-0.5" viewBox="0 0 24 24">
-                <path d="M8 5v14l11-7z"/>
-              </svg>
+            <!-- Emblem Box with Gradient Border & 708426ae Image -->
+            <div class="relative w-full h-full rounded-2xl sm:rounded-3xl bg-gradient-to-tr from-rose-600 via-purple-600 to-amber-500 p-[2.5px] shadow-2xl shadow-purple-900/60 glow-gold group-hover:scale-105 group-hover:rotate-2 transition-transform duration-300 overflow-hidden z-10">
+              <img 
+                src="708426ae-e5bf-49e5-867c-3a58efd90655.png" 
+                alt="Logo" 
+                class="w-full h-full object-cover rounded-[13px] sm:rounded-[21px]"
+              >
             </div>
+
+            <!-- Live Active Indicator Dot -->
+            <span class="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-emerald-500 border-2 border-slate-900 flex items-center justify-center z-20 shadow-md">
+              <span class="w-1.5 h-1.5 rounded-full bg-white animate-ping opacity-75"></span>
+            </span>
           </div>
 
           <div class="mt-2.5 text-center">
