@@ -819,7 +819,8 @@
 
         <!-- 4. Avatar / Logo hình người (Mở Hồ Sơ Tài Khoản Cá Nhân) -->
         <button 
-          @click="openAccountModal" 
+          id="header-avatar-btn"
+          @click.stop="openAccountModal" 
           :title="'Hồ sơ cá nhân: ' + currentAccount.username + ' (Bấm để quản lý tài khoản & đổi avatar)'"
           class="w-8 h-8 rounded-full overflow-hidden border flex items-center justify-center shadow-sm hover:shadow-md transition-all duration-200 active:scale-95 flex-shrink-0 cursor-pointer relative group"
           :class="userAvatar ? 'border-amber-400/90 ring-1 ring-amber-400/50 hover:ring-2' : 'bg-[#090e1a] dark:bg-[#070b14] border-blue-900/80 hover:border-blue-500 text-blue-300 hover:text-white'"
@@ -2614,7 +2615,7 @@
         </div>
 
         <!-- Modal Body: Split or Single Column -->
-        <div class="p-4 sm:p-5 overflow-y-auto flex-1 text-slate-700 dark:text-slate-300 text-xs sm:text-sm">
+        <div class="p-4 sm:p-5 overflow-y-auto min-h-0 overscroll-contain flex-1 text-slate-700 dark:text-slate-300 text-xs sm:text-sm">
           
           <div v-if="!activeBlueprint" class="p-8 text-center bg-slate-50 dark:bg-slate-800/40 rounded-2xl border border-slate-200 dark:border-slate-700/50 my-auto">
             <div class="text-3xl text-purple-600 dark:text-purple-400 inline-block mb-2">
@@ -3146,7 +3147,7 @@
         </div>
 
         <!-- Body -->
-        <div class="p-4 sm:p-5 space-y-4 overflow-y-auto text-xs sm:text-sm text-slate-700 dark:text-slate-300 flex-1">
+        <div class="p-4 sm:p-5 space-y-4 overflow-y-auto min-h-0 overscroll-contain text-xs sm:text-sm text-slate-700 dark:text-slate-300 flex-1">
           
           <!-- ============================================================================== -->
           <!-- MỤC 1: TÌNH TRẠNG QUÉT & ĐIỀU KHIỂN BOT (active when adminTab === 'status')    -->
@@ -3528,19 +3529,14 @@
     </footer>
     
     <!-- ========================================================================================= -->
-    <!-- PANEL HỒ SƠ TÀI KHOẢN CÁ NHÂN (GÓC TRÊN BÊN PHẢI / TOP-RIGHT CORNER PANEL)                -->
+    <!-- PANEL HỒ SƠ TÀI KHOẢN CÁ NHÂN (GÓC TRÊN BÊN PHẢI - KHÔNG CHẶN CUỘN TRANG / ZERO-BLOCK SCROLL) -->
     <!-- ========================================================================================= -->
-    <!-- Backdrop to close when clicking outside -->
+    <!-- Top-Right Flyout Panel (Neo-Glassmorphism anchored in top-right corner, non-blocking page scroll) -->
     <div 
       v-if="showAccountModal" 
-      @click="showAccountModal = false" 
-      class="fixed inset-0 z-[99998] bg-black/25 dark:bg-black/45 backdrop-blur-[1px] transition-opacity"
-    ></div>
-
-    <!-- Top-Right Flyout Panel (Neo-Glassmorphism anchored in top-right corner) -->
-    <div 
-      v-if="showAccountModal" 
-      class="fixed top-16 sm:top-20 right-3 sm:right-6 lg:right-8 z-[99999] w-[92vw] sm:w-[410px] max-w-[430px] bg-white dark:bg-[#0b101e] border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl shadow-black/80 flex flex-col max-h-[86vh] overflow-hidden select-none"
+      id="account-flyout-panel"
+      @click.stop
+      class="fixed top-16 sm:top-20 right-3 sm:right-6 lg:right-8 z-[99999] w-[92vw] sm:w-[410px] max-w-[430px] bg-white/95 dark:bg-[#0b101e]/98 backdrop-blur-2xl border border-slate-200/90 dark:border-slate-800/90 rounded-3xl shadow-2xl shadow-black/80 flex flex-col max-h-[84vh] overflow-hidden transition-all duration-200"
     >
       <!-- Header -->
       <div class="p-4 sm:p-5 border-b border-slate-200 dark:border-slate-800/80 flex items-center justify-between bg-gradient-to-r from-slate-50 via-slate-100 to-indigo-50/40 dark:from-slate-900 dark:via-slate-900 dark:to-indigo-950/40 flex-shrink-0">
@@ -3566,8 +3562,8 @@
         </button>
       </div>
 
-      <!-- Scrollable Body -->
-      <div class="p-4 sm:p-5 space-y-4 overflow-y-auto flex-1 text-xs">
+      <!-- Scrollable Body (Smooth Mouse Wheel Scroll) -->
+      <div class="p-4 sm:p-5 space-y-4 overflow-y-auto min-h-0 flex-1 overscroll-contain text-xs">
         
         <!-- Phần 1: Ảnh Đại Diện (Avatar Management) -->
         <div class="p-3 sm:p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 flex items-center gap-3.5">
@@ -3770,6 +3766,10 @@
         const accountFormConfirmPass = ref('');
 
         const openAccountModal = () => {
+          if (showAccountModal.value) {
+            showAccountModal.value = false;
+            return;
+          }
           accountFormUsername.value = currentAccount.value.username;
           accountFormCurrentPass.value = '';
           accountFormNewPass.value = '';
@@ -4788,6 +4788,15 @@ Nhiệm vụ: Trả lời hoặc viết lại/tinh chỉnh kịch bản theo yê
             const container = document.getElementById('brand-nav-menu-container');
             if (container && !container.contains(e.target)) {
               isNavMenuOpen.value = false;
+            }
+
+            // Đóng Panel Hồ Sơ Cá Nhân khi click ra ngoài (Không cần backdrop che màn hình)
+            const accountPanel = document.getElementById('account-flyout-panel');
+            const avatarBtn = document.getElementById('header-avatar-btn');
+            if (showAccountModal.value && accountPanel) {
+              if (!accountPanel.contains(e.target) && !avatarBtn?.contains(e.target)) {
+                showAccountModal.value = false;
+              }
             }
           });
         });
