@@ -605,7 +605,7 @@
         </div>
       </div>
 
-      <!-- Bottom Status & Author -->
+            <!-- Bottom Status & Author & Logout -->
       <div class="p-4 border-t border-slate-800/60 bg-[#04070d]">
         <div class="flex items-center justify-between text-[11px] text-slate-500 mb-1.5">
           <span>Hệ thống:</span>
@@ -613,9 +613,18 @@
             <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Sẵn sàng 24/7
           </span>
         </div>
-        <div class="text-[11px] text-slate-400 font-medium">
-          👑 Created by <strong class="text-amber-400">Truongday</strong>
+        <div class="flex items-center justify-between text-[11px] text-slate-500 mb-2.5">
+          <span>Tài khoản:</span>
+          <span class="text-slate-300 font-bold font-mono">{{ currentAccount.username }}</span>
         </div>
+        <button 
+          @click="handleLogout" 
+          class="w-full py-2 px-3 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 hover:text-rose-300 border border-rose-500/30 text-xs font-bold transition flex items-center justify-center space-x-1.5 cursor-pointer"
+          title="Đăng xuất khỏi hệ thống và quay về giao diện chờ"
+        >
+          <i class="ph-fill ph-sign-out text-sm"></i>
+          <span>Đăng xuất (Khóa chờ)</span>
+        </button>
       </div>
     </aside>
 
@@ -3117,16 +3126,6 @@
             <span>3. Cấu Hình Mã Khóa</span>
             <i v-if="githubToken && geminiApiKey" class="ph-fill ph-check-circle text-emerald-500 text-xs flex-shrink-0"></i>
           </button>
-
-            <!-- Tab 4: Quản Lý Tài Khoản & Đăng Xuất -->
-            <button 
-              @click="adminTab = 'account'" 
-              class="flex items-center space-x-2 py-2 px-3 sm:px-4 rounded-xl text-xs font-bold transition whitespace-nowrap"
-              :class="adminTab === 'account' ? 'bg-gradient-to-r from-rose-500 to-amber-500 text-white shadow-md' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'"
-            >
-              <i class="ph-fill ph-user-circle text-sm"></i>
-              <span>Tài Khoản</span>
-            </button>
         </div>
 
         <!-- Body -->
