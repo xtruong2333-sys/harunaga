@@ -2762,7 +2762,7 @@
     <!-- ============================================================================ -->
     <!-- MODAL 1: ENTERPRISE AI CONTENT STUDIO & INTERNATIONAL REMAKE BLUEPRINT       -->
     <!-- ============================================================================ -->
-    <div v-if="activeAiVideo" class="fixed inset-0 z-[100000] flex items-center justify-center p-2 sm:p-4 bg-slate-950/85 backdrop-blur-2xl overflow-y-auto transition-opacity duration-300 select-none">
+    <div v-if="activeAiVideo" @click.self="activeAiVideo = null" class="fixed inset-0 z-[100000] flex items-center justify-center p-2 sm:p-4 bg-slate-900/40 dark:bg-slate-950/70 backdrop-blur-md overflow-y-auto transition-opacity duration-300 select-none">
       <div class="bg-white dark:bg-[#090d1a] border border-purple-500/30 dark:border-purple-500/30 ring-1 ring-white/10 rounded-[28px] max-w-7xl w-full h-[92vh] max-h-[96vh] flex flex-col shadow-2xl shadow-purple-950/40 relative my-auto overflow-hidden">
         
         <!-- Top Ambient Glow Ribbon -->
@@ -3403,7 +3403,7 @@
     </div>
 
     <!-- MODAL 2: Admin Panel (Quản Lý Kênh & Điều Khiển Bot - 3 TABS) -->
-    <div v-if="showAdminModal" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-xl overflow-y-auto transition-opacity duration-300">
+    <div v-if="showAdminModal" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/40 dark:bg-slate-950/70 backdrop-blur-md overflow-y-auto transition-opacity duration-300">
       <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-indigo-700/60 ring-1 ring-white/10 rounded-3xl max-w-2xl w-full h-[640px] max-h-[92vh] flex flex-col shadow-2xl shadow-black/90 relative my-auto">
         
         <!-- Header -->
@@ -3867,7 +3867,7 @@
       <div 
         v-if="showAccountModal" 
         @click="showAccountModal = false" 
-        class="fixed inset-0 z-[99998] bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 overflow-y-auto"
+        class="fixed inset-0 z-[99998] bg-slate-900/40 dark:bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 overflow-y-auto"
       >
         <!-- Modal Dialog Card (Cân đối 2 cột, nằm chính giữa màn hình, không bị nhảy ra ngoài) -->
         <div 
@@ -4282,7 +4282,7 @@
       <div 
         v-if="showUserManagementModal" 
         @click="showUserManagementModal = false" 
-        class="fixed inset-0 z-[100000] bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6"
+        class="fixed inset-0 z-[100000] bg-slate-900/40 dark:bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-3 sm:p-6"
       >
         <div 
           @click.stop
