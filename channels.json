@@ -1,17 +1,237 @@
 [
   {
-    "name": "MrBeast",
-    "handle_or_url": "@MrBeast",
-    "min_views_per_hour": 50000
+    "name": "DIY WELD",
+    "handle_or_url": "@Diywelder-e8t",
+    "min_views_per_hour": 5000
   },
   {
-    "name": "F8 Official (Học Lập Trình)",
-    "handle_or_url": "@F8VNOfficial",
-    "min_views_per_hour": 1000
+    "name": "Creation Clever",
+    "handle_or_url": "@CreationClever",
+    "min_views_per_hour": 5000
   },
   {
-    "name": "VTV24",
-    "handle_or_url": "@vtv24",
+    "name": "Unknowns Lab 101",
+    "handle_or_url": "@UnknownsLab101",
+    "min_views_per_hour": 5000
+  },
+  {
+    "name": "Inventor Hacks",
+    "handle_or_url": "@InventorHacks123",
+    "min_views_per_hour": 5000
+  },
+  {
+    "name": "Fixit Mr.K",
+    "handle_or_url": "@FixitMr.K",
+    "min_views_per_hour": 5000
+  },
+  {
+    "name": "Clever Maker",
+    "handle_or_url": "@CleverMaker-z9t",
+    "min_views_per_hour": 5000
+  },
+  {
+    "name": "Creative DIY365",
+    "handle_or_url": "@CreativeDIY365USA",
+    "min_views_per_hour": 5000
+  },
+  {
+    "name": "Creation Invention",
+    "handle_or_url": "@CreationInvention-268",
+    "min_views_per_hour": 5000
+  },
+  {
+    "name": "Holic Clever",
+    "handle_or_url": "@holicclever",
+    "min_views_per_hour": 5000
+  },
+  {
+    "name": "Creation Holic",
+    "handle_or_url": "@creationholic101",
+    "min_views_per_hour": 5000
+  },
+  {
+    "name": "Creation Secret",
+    "handle_or_url": "@CreationSecret1",
+    "min_views_per_hour": 5000
+  },
+  {
+    "name": "Inova ou inventa",
+    "handle_or_url": "@inovaouinventa",
+    "min_views_per_hour": 5000
+  },
+  {
+    "name": "Hack & Craft",
+    "handle_or_url": "@Hackcraft99",
+    "min_views_per_hour": 5000
+  },
+  {
+    "name": "Craft & Fix",
+    "handle_or_url": "@CraftFix1",
+    "min_views_per_hour": 5000
+  },
+  {
+    "name": "Inventor K",
+    "handle_or_url": "@inventorK20",
+    "min_views_per_hour": 5000
+  },
+  {
+    "name": "Linda Home",
+    "handle_or_url": "@LindaHome68",
+    "min_views_per_hour": 5000
+  },
+  {
+    "name": "Inventor Unknowns",
+    "handle_or_url": "@InventorUnknowns-268",
+    "min_views_per_hour": 5000
+  },
+  {
+    "name": "Amazing Smart",
+    "handle_or_url": "@AmazingSmart-ngth",
+    "min_views_per_hour": 5000
+  },
+  {
+    "name": "Mr. Trend DIY",
+    "handle_or_url": "@mrtrenddiy",
+    "min_views_per_hour": 5000
+  },
+  {
+    "name": "Handcraft",
+    "handle_or_url": "@Handcraft-o1j",
+    "min_views_per_hour": 5000
+  },
+  {
+    "name": "Holic Unknowns",
+    "handle_or_url": "@HolicUnknowns",
+    "min_views_per_hour": 5000
+  },
+  {
+    "name": "Holic Maker",
+    "handle_or_url": "@holicmaker101",
+    "min_views_per_hour": 5000
+  },
+  {
+    "name": "Creative Makers",
+    "handle_or_url": "@CreativeMakers-QTD",
+    "min_views_per_hour": 5000
+  },
+  {
+    "name": "King Homemade",
+    "handle_or_url": "@kinghomemade",
+    "min_views_per_hour": 5000
+  },
+  {
+    "name": "INVENTOR EYE",
+    "handle_or_url": "@InventorEye",
+    "min_views_per_hour": 5000
+  },
+  {
+    "name": "DIY INVENTOR",
+    "handle_or_url": "@DIYINVENTORk2589",
+    "min_views_per_hour": 5000
+  },
+  {
+    "name": "Inventor Secret",
+    "handle_or_url": "@Inventorsecret",
+    "min_views_per_hour": 5000
+  },
+  {
+    "name": "Tips Unknown",
+    "handle_or_url": "@tipsunknow",
+    "min_views_per_hour": 5000
+  },
+  {
+    "name": "DIY Hacks",
+    "handle_or_url": "@DIYHacks-t7n",
+    "min_views_per_hour": 5000
+  },
+  {
+    "name": "Holic Creation",
+    "handle_or_url": "@HolicCreation",
+    "min_views_per_hour": 5000
+  },
+  {
+    "name": "Tuyet RC",
+    "handle_or_url": "@TuyetRC",
+    "min_views_per_hour": 5000
+  },
+  {
+    "name": "HackWave",
+    "handle_or_url": "@HackWaveDIY",
+    "min_views_per_hour": 5000
+  },
+  {
+    "name": "Totally Hacks",
+    "handle_or_url": "@totallyhacksdaily",
+    "min_views_per_hour": 5000
+  },
+  {
+    "name": "DIYTechTrends",
+    "handle_or_url": "@DIYTechTrends",
+    "min_views_per_hour": 5000
+  },
+  {
+    "name": "Inventor New",
+    "handle_or_url": "@InventorNew88",
+    "min_views_per_hour": 5000
+  },
+  {
+    "name": "Creator Tips",
+    "handle_or_url": "@CreatorTips.007",
+    "min_views_per_hour": 5000
+  },
+  {
+    "name": "Trend DIY",
+    "handle_or_url": "@TrendDIY",
+    "min_views_per_hour": 5000
+  },
+  {
+    "name": "Creative Passion 88",
+    "handle_or_url": "@CreativePassion88",
+    "min_views_per_hour": 5000
+  },
+  {
+    "name": "Creation Simple",
+    "handle_or_url": "@CreationSimple3",
+    "min_views_per_hour": 5000
+  },
+  {
+    "name": "Clever DIY Tips",
+    "handle_or_url": "@CleverDIYTips01",
+    "min_views_per_hour": 5000
+  },
+  {
+    "name": "Creation Hack",
+    "handle_or_url": "@CreationHack-268",
+    "min_views_per_hour": 5000
+  },
+  {
+    "name": "Inventor J",
+    "handle_or_url": "@InventorJ88",
+    "min_views_per_hour": 5000
+  },
+  {
+    "name": "Inventor 247",
+    "handle_or_url": "@Inventor247",
+    "min_views_per_hour": 5000
+  },
+  {
+    "name": "Creation Daily",
+    "handle_or_url": "@CreationDaily8",
+    "min_views_per_hour": 5000
+  },
+  {
+    "name": "Tips Clever",
+    "handle_or_url": "@TipsClever",
+    "min_views_per_hour": 5000
+  },
+  {
+    "name": "Daily Smart Tips",
+    "handle_or_url": "@DailySmartTips-2",
+    "min_views_per_hour": 5000
+  },
+  {
+    "name": "Creative inventions LMTN",
+    "handle_or_url": "@lmtn",
     "min_views_per_hour": 5000
   }
 ]
