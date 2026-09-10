@@ -807,13 +807,22 @@
           </div>
         </button>
 
-        <!-- 4. Logo hình người (Quản lý kênh & Cài đặt - Khớp 100% Ảnh 1) -->
+        <!-- 4. Avatar / Logo hình người (Mở Hồ Sơ Tài Khoản Cá Nhân) -->
         <button 
-          @click="openAdminModal" 
-          title="Quản lý kênh & Cài đặt hệ thống"
-          class="w-8 h-8 rounded-full bg-[#090e1a] dark:bg-[#070b14] border border-blue-900/80 hover:border-blue-500 text-blue-300 hover:text-white flex items-center justify-center shadow-sm hover:shadow-md hover:shadow-blue-900/40 transition-all duration-200 active:scale-95 flex-shrink-0 cursor-pointer"
+          @click="openAccountModal" 
+          :title="'Hồ sơ cá nhân: ' + currentAccount.username + ' (Bấm để quản lý tài khoản & đổi avatar)'"
+          class="w-8 h-8 rounded-full overflow-hidden border flex items-center justify-center shadow-sm hover:shadow-md transition-all duration-200 active:scale-95 flex-shrink-0 cursor-pointer relative group"
+          :class="userAvatar ? 'border-amber-400/90 ring-1 ring-amber-400/50 hover:ring-2' : 'bg-[#090e1a] dark:bg-[#070b14] border-blue-900/80 hover:border-blue-500 text-blue-300 hover:text-white'"
         >
-          <i class="ph-fill ph-user text-base"></i>
+          <!-- Nếu có Avatar đã tải lên: Hiển thị ảnh Avatar -->
+          <img 
+            v-if="userAvatar" 
+            :src="userAvatar" 
+            alt="Avatar" 
+            class="w-full h-full object-cover group-hover:scale-110 transition duration-300"
+          >
+          <!-- Nếu chưa có Avatar: Hiển thị biểu tượng người chuẩn Ảnh 1 -->
+          <i v-else class="ph-fill ph-user text-base"></i>
         </button>
       </div>
     </header>
@@ -3508,6 +3517,181 @@
         <span class="text-slate-400">•</span>
         <span>Tự động hóa 100% trên Cloud</span>
       </div>
+    
+    <!-- ========================================================================================= -->
+    <!-- MODAL HỒ SƠ TÀI KHOẢN CÁ NHÂN & QUẢN LÝ AVATAR (ACTIVE WHEN showAccountModal)              -->
+    <!-- ========================================================================================= -->
+    <div v-if="showAccountModal" class="fixed inset-0 z-[99999] flex items-center justify-center p-3 sm:p-4 bg-slate-950/85 backdrop-blur-md overflow-y-auto">
+      <div class="bg-white dark:bg-[#0b101e] border border-slate-200 dark:border-slate-800 rounded-3xl max-w-lg w-full shadow-2xl shadow-black/80 overflow-hidden relative my-auto">
+        
+        <!-- Header -->
+        <div class="p-5 sm:p-6 border-b border-slate-200 dark:border-slate-800/80 flex items-center justify-between bg-gradient-to-r from-slate-50 via-slate-100 to-indigo-50/30 dark:from-slate-900 dark:via-slate-900 dark:to-indigo-950/30">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 flex items-center justify-center text-white text-xl shadow-lg shadow-rose-900/30">
+              <i class="ph-fill ph-user-gear"></i>
+            </div>
+            <div>
+              <h3 class="text-base sm:text-lg font-black text-slate-900 dark:text-white">
+                Hồ Sơ Tài Khoản Cá Nhân
+              </h3>
+              <p class="text-xs text-slate-500 dark:text-slate-400">
+                Quản lý ảnh đại diện, mật khẩu & bảo mật hệ thống
+              </p>
+            </div>
+          </div>
+          <button 
+            @click="showAccountModal = false" 
+            class="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center transition cursor-pointer"
+          >
+            <i class="ph-bold ph-x text-sm"></i>
+          </button>
+        </div>
+
+        <!-- Body -->
+        <div class="p-5 sm:p-6 space-y-5 max-h-[75vh] overflow-y-auto">
+          
+          <!-- Phần 1: Ảnh Đại Diện (Avatar Management) -->
+          <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center gap-4">
+            <!-- Avatar Display -->
+            <div class="relative flex-shrink-0">
+              <div class="w-20 h-20 sm:w-22 sm:h-22 rounded-full overflow-hidden border-2 border-amber-400 p-0.5 shadow-xl shadow-amber-500/20 bg-slate-950 flex items-center justify-center">
+                <img 
+                  v-if="userAvatar" 
+                  :src="userAvatar" 
+                  alt="Avatar" 
+                  class="w-full h-full object-cover rounded-full"
+                >
+                <div v-else class="w-full h-full rounded-full bg-gradient-to-tr from-slate-800 to-slate-900 flex items-center justify-center text-slate-400 text-3xl">
+                  <i class="ph-fill ph-user"></i>
+                </div>
+              </div>
+              <span class="absolute bottom-0 right-0 w-6 h-6 rounded-full bg-emerald-500 border-2 border-white dark:border-slate-900 flex items-center justify-center text-white text-[10px]" title="Đang trực tuyến">
+                <i class="ph-bold ph-check"></i>
+              </span>
+            </div>
+
+            <!-- Avatar Controls -->
+            <div class="flex-1 text-center sm:text-left">
+              <div class="text-sm font-black text-slate-900 dark:text-white">Ảnh đại diện của bạn</div>
+              <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                Thay thế biểu tượng người ở góc trên cùng bên phải bằng hình ảnh này.
+              </p>
+              
+              <div class="flex flex-wrap gap-2 mt-3 justify-center sm:justify-start">
+                <!-- Upload File Button -->
+                <label class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-rose-500 hover:from-amber-400 hover:to-rose-400 text-slate-950 font-black text-xs cursor-pointer shadow-md flex items-center space-x-1.5 transition">
+                  <i class="ph-bold ph-upload-simple"></i>
+                  <span>Tải ảnh từ máy</span>
+                  <input type="file" accept="image/*" @change="handleAvatarUpload" class="hidden">
+                </label>
+
+                <!-- Delete Avatar Button -->
+                <button 
+                  v-if="userAvatar" 
+                  @click="removeAvatar"
+                  class="px-3 py-1.5 rounded-xl bg-slate-200 dark:bg-slate-800 hover:bg-rose-500 hover:text-white text-slate-600 dark:text-slate-300 text-xs font-bold transition flex items-center space-x-1 cursor-pointer"
+                >
+                  <i class="ph ph-trash"></i>
+                  <span>Gỡ ảnh</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Phần 2: Thông Tin Tài Khoản & Đổi Mật Khẩu -->
+          <div class="space-y-4">
+            <h4 class="text-xs font-black uppercase text-slate-500 dark:text-slate-400 tracking-wider flex items-center space-x-1.5">
+              <i class="ph-fill ph-shield-check text-indigo-500"></i>
+              <span>Thông tin tài khoản & Đổi mật khẩu</span>
+            </h4>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                Tên tài khoản
+              </label>
+              <input 
+                type="text" 
+                v-model="accountFormUsername" 
+                class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3.5 py-2 text-xs sm:text-sm text-slate-900 dark:text-white focus:outline-none focus:border-purple-500"
+              >
+            </div>
+
+            <div class="pt-2 border-t border-slate-200 dark:border-slate-800 space-y-3">
+              <div class="text-xs font-bold text-slate-700 dark:text-slate-300">Đổi mật khẩu mới (Bỏ trống nếu không muốn đổi):</div>
+              
+              <div>
+                <label class="block text-[11px] text-slate-500 dark:text-slate-400 mb-1">Mật khẩu hiện tại</label>
+                <input 
+                  type="password" 
+                  v-model="accountFormCurrentPass" 
+                  placeholder="Nhập mật khẩu hiện tại..."
+                  class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-purple-500"
+                >
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-[11px] text-slate-500 dark:text-slate-400 mb-1">Mật khẩu mới</label>
+                  <input 
+                    type="password" 
+                    v-model="accountFormNewPass" 
+                    placeholder="Mật khẩu mới..."
+                    class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-purple-500"
+                  >
+                </div>
+                <div>
+                  <label class="block text-[11px] text-slate-500 dark:text-slate-400 mb-1">Xác nhận mật khẩu mới</label>
+                  <input 
+                    type="password" 
+                    v-model="accountFormConfirmPass" 
+                    placeholder="Nhập lại mật khẩu..."
+                    class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-purple-500"
+                  >
+                </div>
+              </div>
+            </div>
+
+            <button 
+              @click="saveAccountSettings"
+              class="w-full py-2.5 bg-gradient-to-r from-indigo-600 via-purple-600 to-rose-600 hover:opacity-95 text-white font-bold rounded-xl text-xs sm:text-sm shadow-md transition flex items-center justify-center space-x-1.5 cursor-pointer"
+            >
+              <i class="ph-fill ph-floppy-disk"></i>
+              <span>Lưu Cập Nhật Tài Khoản</span>
+            </button>
+          </div>
+
+          <!-- Phần 3: Trạng Thái Phiên & Đăng Xuất -->
+          <div class="pt-3 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
+            <div class="text-xs text-slate-500 dark:text-slate-400">
+              <span>Vai trò: <strong class="text-emerald-400 font-bold">Admin Master</strong></span>
+            </div>
+            <button 
+              @click="handleLogout"
+              class="px-3.5 py-1.5 bg-rose-500/15 hover:bg-rose-500 hover:text-white text-rose-500 border border-rose-500/30 rounded-xl text-xs font-bold transition flex items-center space-x-1 cursor-pointer"
+            >
+              <i class="ph-fill ph-sign-out"></i>
+              <span>Đăng Xuất (Khóa Chờ)</span>
+            </button>
+          </div>
+
+        </div>
+
+        <!-- Footer -->
+        <div class="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 flex items-center justify-between">
+          <div class="text-[11px] text-slate-400">
+            Dữ liệu tài khoản lưu trữ bảo mật trên trình duyệt này.
+          </div>
+          <button 
+            @click="showAccountModal = false"
+            class="px-4 py-1.5 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-xl transition cursor-pointer"
+          >
+            Đóng
+          </button>
+        </div>
+
+      </div>
+    </div>
+
     </footer>
 
   </div>
@@ -3571,6 +3755,78 @@
             return;
           }
           currentAccount.value = { username: u, password: p };
+        // Personal Account & Avatar State
+        const showAccountModal = ref(false);
+        const userAvatar = ref(localStorage.getItem('USER_AVATAR') || '');
+        const accountFormUsername = ref(currentAccount.value.username);
+        const accountFormCurrentPass = ref('');
+        const accountFormNewPass = ref('');
+        const accountFormConfirmPass = ref('');
+
+        const openAccountModal = () => {
+          accountFormUsername.value = currentAccount.value.username;
+          accountFormCurrentPass.value = '';
+          accountFormNewPass.value = '';
+          accountFormConfirmPass.value = '';
+          showAccountModal.value = true;
+        };
+
+        const handleAvatarUpload = (event) => {
+          const file = event.target.files && event.target.files[0];
+          if (!file) return;
+          if (file.size > 2 * 1024 * 1024) {
+            showToast('Kích thước ảnh không được vượt quá 2MB!');
+            return;
+          }
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const base64 = e.target.result;
+            userAvatar.value = base64;
+            localStorage.setItem('USER_AVATAR', base64);
+            showToast('⭐ Đã cập nhật ảnh đại diện thành công!');
+          };
+          reader.readAsDataURL(file);
+        };
+
+        const removeAvatar = () => {
+          userAvatar.value = '';
+          localStorage.removeItem('USER_AVATAR');
+          showToast('Đã gỡ ảnh đại diện về mặc định!');
+        };
+
+        const saveAccountSettings = () => {
+          const newU = accountFormUsername.value.trim();
+          if (!newU) {
+            showToast('Tên tài khoản không được để trống!');
+            return;
+          }
+          if (accountFormNewPass.value) {
+            if (accountFormCurrentPass.value !== currentAccount.value.password) {
+              showToast('Mật khẩu hiện tại không chính xác!');
+              return;
+            }
+            if (accountFormNewPass.value !== accountFormConfirmPass.value) {
+              showToast('Xác nhận mật khẩu mới không khớp!');
+              return;
+            }
+            currentAccount.value = {
+              username: newU,
+              password: accountFormNewPass.value
+            };
+            localStorage.setItem('AUTH_ACCOUNT', JSON.stringify(currentAccount.value));
+            showToast('Đã đổi tài khoản & mật khẩu mới thành công!');
+            accountFormCurrentPass.value = '';
+            accountFormNewPass.value = '';
+            accountFormConfirmPass.value = '';
+            showAccountModal.value = false;
+          } else {
+            currentAccount.value.username = newU;
+            localStorage.setItem('AUTH_ACCOUNT', JSON.stringify(currentAccount.value));
+            showToast('Đã lưu tên tài khoản mới thành công!');
+            showAccountModal.value = false;
+          }
+        };
+
           localStorage.setItem('AUTH_ACCOUNT', JSON.stringify(currentAccount.value));
           showToast('Đã lưu thông tin tài khoản và mật khẩu mới thành công!');
           newAccountPassword.value = '';
@@ -4536,6 +4792,16 @@ Nhiệm vụ: Trả lời hoặc viết lại/tinh chỉnh kịch bản theo yê
         });
 
         return {
+          showAccountModal,
+          userAvatar,
+          accountFormUsername,
+          accountFormCurrentPass,
+          accountFormNewPass,
+          accountFormConfirmPass,
+          openAccountModal,
+          handleAvatarUpload,
+          removeAvatar,
+          saveAccountSettings,
           isLoggedIn,
           authUsername,
           authPassword,
