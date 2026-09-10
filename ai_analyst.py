@@ -132,7 +132,7 @@ HÃY TRẢ VỀ ĐỊNH DẠNG JSON HỢP LỆ VỚI CẤU TRÚC SAU:
 }}
 """
 
-    endpoint = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={gemini_api_key}"
+    models_to_try = ["gemini-3.5-flash", "gemma-4-26b-a4b-it"]
     payload = {
         "contents": [{"parts": [{"text": prompt}]}],
         "generationConfig": {
@@ -141,30 +141,34 @@ HÃY TRẢ VỀ ĐỊNH DẠNG JSON HỢP LỆ VỚI CẤU TRÚC SAU:
         }
     }
 
-    try:
-        data_bytes = json.dumps(payload).encode("utf-8")
-        req = urllib.request.Request(
-            endpoint,
-            data=data_bytes,
-            headers={"Content-Type": "application/json"}
-        )
-        with urllib.request.urlopen(req, timeout=30) as resp:
-            res_json = json.loads(resp.read().decode("utf-8"))
+    for model_name in models_to_try:
+        endpoint = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={gemini_api_key}"
+        try:
+            data_bytes = json.dumps(payload).encode("utf-8")
+            req = urllib.request.Request(
+                endpoint,
+                data=data_bytes,
+                headers={"Content-Type": "application/json"}
+            )
+            with urllib.request.urlopen(req, timeout=35) as resp:
+                res_json = json.loads(resp.read().decode("utf-8"))
 
-        # Bóc tách nội dung text
-        candidates = res_json.get("candidates", [])
-        if not candidates:
-            print("⚠️ [AI ANALYST] Gemini không trả về kết quả.")
-            return None
+            candidates = res_json.get("candidates", [])
+            if not candidates:
+                continue
 
-        part_text = candidates[0].get("content", {}).get("parts", [{}])[0].get("text", "")
-        # Parse JSON
-        analysis_data = json.loads(part_text)
-        analysis_data["analyzed_at"] = datetime.now(timezone.utc).isoformat()
-        analysis_data["model"] = "gemini-1.5-flash"
-        print(f"✅ [AI ANALYST] Đã hoàn thành phân tích chuyên sâu cho: '{title[:30]}...'")
-        return analysis_data
+            part_text = candidates[0].get("content", {}).get("parts", [{}])[0].get("text", "")
+            # Làm sạch nếu có markdown block ```json ... ```
+            cleaned_text = re.sub(r"^```(?:json)?\s*", "", part_text.strip(), flags=re.MULTILINE)
+            cleaned_text = re.sub(r"\s*```$", "", cleaned_text.strip(), flags=re.MULTILINE)
 
-    except Exception as e:
-        print(f"❌ [AI ANALYST ERROR] Lỗi phân tích Gemini: {e}")
-        return None
+            analysis_data = json.loads(cleaned_text)
+            analysis_data["analyzed_at"] = datetime.now(timezone.utc).isoformat()
+            analysis_data["model"] = model_name
+            print(f"✅ [AI ANALYST] Đã hoàn thành phân tích chuyên sâu ({model_name}) cho: '{title[:30]}...'")
+            return analysis_data
+        except Exception as err:
+            print(f"⚠️ [AI ANALYST] Thử model {model_name} thất bại: {err}")
+            continue
+
+    return None
