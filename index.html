@@ -1130,42 +1130,83 @@
     <!-- MODALS                                                                                    -->
     <!-- ========================================================================================= -->
 
-    <!-- MODAL 1: AI Analysis & International Remake Blueprint -->
-    <div v-if="activeAiVideo" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-md overflow-y-auto">
-      <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-purple-800/60 rounded-3xl max-w-4xl w-full max-h-[92vh] flex flex-col shadow-2xl relative my-auto">
+    <!-- MODAL 1: AI Analysis & International Remake Blueprint WITH AI CO-PILOT CHAT -->
+    <div v-if="activeAiVideo" class="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/80 backdrop-blur-md overflow-y-auto">
+      <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-purple-800/60 rounded-3xl max-w-7xl w-full max-h-[94vh] flex flex-col shadow-2xl relative my-auto">
         
         <!-- Modal Header -->
-        <div class="p-5 sm:p-6 border-b border-slate-200 dark:border-slate-800 flex items-start justify-between gap-4 bg-slate-50 dark:bg-gradient-to-r dark:from-slate-900 dark:via-purple-950/20 dark:to-slate-900 rounded-t-3xl">
-          <div class="flex items-start space-x-3">
-            <div class="p-2.5 bg-purple-100 dark:bg-purple-600/30 border border-purple-300 dark:border-purple-500/50 rounded-2xl text-purple-600 dark:text-purple-300 text-2xl">
+        <div class="p-4 sm:p-5 border-b border-slate-200 dark:border-slate-800 flex flex-col md:flex-row md:items-center md:justify-between gap-3 bg-slate-50 dark:bg-gradient-to-r dark:from-slate-900 dark:via-purple-950/20 dark:to-slate-900 rounded-t-3xl">
+          <div class="flex items-start space-x-3 min-w-0 flex-1">
+            <div class="p-2 sm:p-2.5 bg-gradient-to-tr from-purple-600 to-indigo-600 rounded-2xl text-white text-xl sm:text-2xl flex-shrink-0 shadow-md shadow-purple-900/30">
               <i class="ph ph-sparkle"></i>
             </div>
-            <div>
-              <div class="flex items-center space-x-2">
-                <span class="text-[10px] uppercase font-black px-2 py-0.5 rounded-full bg-purple-600 text-white tracking-wider">
-                  AI Content Blueprint
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center space-x-2 flex-wrap gap-y-1">
+                <span class="text-[10px] uppercase font-black px-2 py-0.5 rounded-full bg-purple-600 text-white tracking-wider whitespace-nowrap shadow-sm">
+                  AI Content Studio & Co-Pilot
                 </span>
-                <span class="text-xs text-slate-500 dark:text-slate-400 font-medium">Kênh: <strong>{{ activeAiVideo.channel_name }}</strong></span>
+                <span class="text-xs text-slate-500 dark:text-slate-400 font-medium truncate">Kênh: <strong>{{ activeAiVideo.channel_name }}</strong></span>
+                <span class="text-xs text-rose-500 font-bold whitespace-nowrap">+{{ formatNumber(activeAiVideo.effective_vph) }}/h</span>
               </div>
-              <h3 class="text-base sm:text-lg font-black text-slate-900 dark:text-white mt-1 leading-snug">
+              <h3 class="text-sm sm:text-base font-black text-slate-900 dark:text-white mt-0.5 leading-snug truncate" :title="activeAiVideo.title">
                 {{ activeAiVideo.title }}
               </h3>
-              <div class="flex items-center space-x-3 text-xs text-slate-500 dark:text-slate-400 mt-1">
-                <span>Lượt xem: <strong>{{ formatNumber(activeAiVideo.views) }}</strong></span>
-                <span>Tốc độ: <strong class="text-rose-500">+{{ formatNumber(activeAiVideo.effective_vph) }}/h</strong></span>
-              </div>
             </div>
           </div>
 
-          <button @click="activeAiVideo = null" class="text-slate-400 hover:text-slate-600 dark:hover:text-white p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition">
-            <i class="ph ph-x text-xl"></i>
-          </button>
+          <!-- Controls & View Mode Tabs inside Modal -->
+          <div class="flex items-center space-x-2 self-end md:self-center flex-shrink-0 flex-wrap gap-y-2">
+            <!-- View Mode Tabs (Kịch bản / Chat / Song Song) -->
+            <div class="flex items-center bg-slate-200 dark:bg-slate-800 p-1 rounded-xl border border-slate-300 dark:border-slate-700 text-xs">
+              <button 
+                @click="modalTab = 'script'" 
+                :class="modalTab === 'script' ? 'bg-white dark:bg-slate-900 text-purple-600 dark:text-purple-400 font-bold shadow-sm' : 'text-slate-600 dark:text-slate-400'"
+                class="px-2.5 py-1 rounded-lg transition flex items-center space-x-1"
+              >
+                <i class="ph ph-file-text text-sm"></i>
+                <span>Kịch Bản</span>
+              </button>
+              <button 
+                @click="modalTab = 'chat'" 
+                :class="modalTab === 'chat' ? 'bg-white dark:bg-slate-900 text-purple-600 dark:text-purple-400 font-bold shadow-sm' : 'text-slate-600 dark:text-slate-400'"
+                class="px-2.5 py-1 rounded-lg transition flex items-center space-x-1"
+              >
+                <i class="ph ph-chat-circle-dots text-sm"></i>
+                <span>Trợ Lý Co-Pilot</span>
+                <span v-if="chatMessages.length > 1" class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+              </button>
+              <button 
+                @click="modalTab = 'split'" 
+                :class="modalTab === 'split' ? 'bg-white dark:bg-slate-900 text-purple-600 dark:text-purple-400 font-bold shadow-sm' : 'text-slate-600 dark:text-slate-400'"
+                class="px-2.5 py-1 rounded-lg transition hidden lg:flex items-center space-x-1"
+                title="Xem song song kịch bản và chat"
+              >
+                <i class="ph ph-columns text-sm"></i>
+                <span>Song Song</span>
+              </button>
+            </div>
+
+            <!-- Export Full Script Dropdown / Button -->
+            <button 
+              @click="exportFullScript('copy')" 
+              class="px-3 py-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:opacity-90 text-white rounded-xl text-xs font-bold transition flex items-center space-x-1 shadow-sm whitespace-nowrap"
+              title="Sao chép toàn bộ kịch bản hoàn chỉnh"
+            >
+              <i class="ph ph-copy text-sm"></i>
+              <span class="hidden sm:inline">Xuất Kịch Bản</span>
+            </button>
+
+            <!-- Close Button -->
+            <button @click="activeAiVideo = null" class="text-slate-400 hover:text-slate-600 dark:hover:text-white p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+              <i class="ph ph-x text-xl"></i>
+            </button>
+          </div>
         </div>
 
-        <!-- Modal Body -->
-        <div class="p-5 sm:p-6 overflow-y-auto space-y-6 text-slate-700 dark:text-slate-300 text-xs sm:text-sm">
+        <!-- Modal Body: Split or Single Column -->
+        <div class="p-4 sm:p-5 overflow-y-auto flex-1 text-slate-700 dark:text-slate-300 text-xs sm:text-sm">
           
-          <div v-if="!activeAiVideo.ai_analysis" class="p-8 text-center bg-slate-50 dark:bg-slate-800/40 rounded-2xl border border-slate-200 dark:border-slate-700/50">
+          <div v-if="!activeBlueprint" class="p-8 text-center bg-slate-50 dark:bg-slate-800/40 rounded-2xl border border-slate-200 dark:border-slate-700/50 my-auto">
             <div class="text-3xl text-purple-600 dark:text-purple-400 inline-block mb-2">
               <i class="ph ph-sparkle"></i>
             </div>
@@ -1175,185 +1216,416 @@
             </p>
           </div>
 
-          <div v-else class="space-y-6">
+          <div v-else class="grid grid-cols-1 gap-6" :class="{ 'lg:grid-cols-12': modalTab === 'split' }">
 
-            <!-- Phân Tích Viral & Góc Nhìn Remake (Tiếng Việt) -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div class="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700/60">
-                <h4 class="font-black text-rose-600 dark:text-rose-400 text-sm flex items-center space-x-1.5 mb-2">
-                  <i class="ph-fill ph-fire"></i>
-                  <span>Tại Sao Video Này Viral? (Giải Mã)</span>
-                </h4>
-                <ul class="space-y-2 list-disc list-inside text-slate-700 dark:text-slate-300 leading-relaxed">
-                  <li v-for="(r, idx) in activeAiVideo.ai_analysis.viral_reasons_vi" :key="idx">
-                    {{ r }}
-                  </li>
-                </ul>
-              </div>
-
-              <div class="p-4 bg-purple-50/50 dark:bg-slate-800/50 rounded-2xl border border-purple-200 dark:border-purple-800/40">
-                <h4 class="font-black text-purple-600 dark:text-purple-400 text-sm flex items-center space-x-1.5 mb-2">
-                  <i class="ph ph-lightbulb"></i>
-                  <span>Chiến Lược Cải Tiến (Remake Angle)</span>
-                </h4>
-                <p class="text-slate-700 dark:text-slate-200 leading-relaxed">
-                  {{ activeAiVideo.ai_analysis.remake_angle_vi }}
-                </p>
-              </div>
-            </div>
-
-            <!-- Dàn Ý Kịch Bản & Hook 15s Tiếng Anh -->
-            <div class="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700/60">
-              <div class="flex items-center justify-between mb-2">
-                <h4 class="font-black text-indigo-600 dark:text-indigo-400 text-sm flex items-center space-x-1.5">
-                  <i class="ph ph-film-strip"></i>
-                  <span>Dàn Ý Kịch Bản & Câu Mở Đầu (English Hook Script)</span>
-                </h4>
-                <button 
-                  @click="copyText(activeAiVideo.ai_analysis.english_hook_script, 'Đã copy English Hook Script!')"
-                  class="px-2.5 py-1 bg-indigo-100 dark:bg-indigo-600/30 hover:bg-indigo-600 text-indigo-700 dark:text-indigo-300 hover:text-white rounded-lg text-xs font-bold transition flex items-center space-x-1"
-                >
-                  <i class="ph ph-copy"></i>
-                  <span>Copy Hook</span>
-                </button>
-              </div>
-
-              <div class="p-3 bg-white dark:bg-black/50 rounded-xl border border-indigo-200 dark:border-indigo-900/50 mb-3 shadow-sm">
-                <span class="text-[11px] font-bold text-indigo-600 dark:text-indigo-300 uppercase block mb-1">🎙️ English Hook 15s:</span>
-                <p class="italic text-slate-800 dark:text-slate-100 font-medium leading-relaxed">
-                  "{{ activeAiVideo.ai_analysis.english_hook_script }}"
-                </p>
-              </div>
-
-              <div class="space-y-1.5 text-xs text-slate-700 dark:text-slate-300">
-                <div v-for="(part, idx) in activeAiVideo.ai_analysis.script_outline_vi" :key="idx" class="p-2 bg-white dark:bg-slate-900/60 rounded-lg border border-slate-200 dark:border-transparent">
-                  {{ part }}
-                </div>
-              </div>
-            </div>
-
-            <!-- 5 Tiêu Đề Tiếng Anh -->
-            <div class="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700/60">
-              <div class="flex items-center justify-between mb-2">
-                <h4 class="font-black text-amber-600 dark:text-amber-400 text-sm flex items-center space-x-1.5">
-                  <i class="ph ph-sparkle"></i>
-                  <span>5 Gợi Ý Tiêu Đề Tiếng Anh (High-CTR US/Global)</span>
-                </h4>
-                <button 
-                  @click="copyTitles(activeAiVideo.ai_analysis.english_titles)"
-                  class="px-2.5 py-1 bg-amber-100 dark:bg-amber-600/30 hover:bg-amber-600 text-amber-800 dark:text-amber-300 hover:text-white rounded-lg text-xs font-bold transition flex items-center space-x-1"
-                >
-                  <i class="ph ph-copy"></i>
-                  <span>Copy Tất Cả Tiêu Đề</span>
-                </button>
-              </div>
-
-              <div class="space-y-2">
-                <div 
-                  v-for="(t, idx) in activeAiVideo.ai_analysis.english_titles" 
-                  :key="idx"
-                  class="flex items-start justify-between p-2.5 bg-white dark:bg-slate-900/80 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-slate-400 dark:hover:border-slate-700 transition shadow-sm"
-                >
-                  <div>
-                    <div class="font-bold text-slate-900 dark:text-white text-xs sm:text-sm">
-                      <span class="text-amber-600 dark:text-amber-400 font-black mr-1">{{ idx + 1 }}.</span> {{ t.title }}
-                    </div>
-                    <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-                      <em>Nghĩa tiếng Việt:</em> {{ t.vi_meaning }}
-                    </div>
-                  </div>
+            <!-- ============================================================= -->
+            <!-- CỘT TRÁI: BẢN KỊCH BẢN CHI TIẾT (BLUEPRINT & LIVE VIEWER)     -->
+            <!-- ============================================================= -->
+            <div 
+              v-show="modalTab === 'script' || modalTab === 'split'" 
+              :class="modalTab === 'split' ? 'lg:col-span-7' : 'col-span-1'"
+              class="space-y-4"
+            >
+              
+              <!-- Quick Export & Status Bar -->
+              <div class="flex items-center justify-between p-2.5 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-800 text-xs">
+                <span class="font-bold text-slate-700 dark:text-slate-300 flex items-center space-x-1.5">
+                  <i class="ph-fill ph-check-circle text-emerald-500"></i>
+                  <span>Bản Thảo Kịch Bản (Tự động cập nhật theo AI)</span>
+                </span>
+                <div class="flex items-center space-x-2">
                   <button 
-                    @click="copyText(t.title, 'Đã copy tiêu đề!')" 
-                    class="text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 p-1 transition"
+                    @click="exportFullScript('download')" 
+                    class="text-indigo-600 dark:text-indigo-400 hover:underline font-semibold flex items-center space-x-1 text-[11px]"
                   >
-                    <i class="ph ph-copy text-base"></i>
+                    <i class="ph ph-download-simple"></i>
+                    <span>Tải .TXT</span>
+                  </button>
+                  <span>•</span>
+                  <button 
+                    @click="exportFullScript('copy')" 
+                    class="text-purple-600 dark:text-purple-400 hover:underline font-semibold flex items-center space-x-1 text-[11px]"
+                  >
+                    <i class="ph ph-copy"></i>
+                    <span>Copy Tất Cả</span>
                   </button>
                 </div>
               </div>
-            </div>
 
-            <!-- Thumbnail Design & Midjourney Prompt -->
-            <div class="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700/60">
-              <div class="flex items-center justify-between mb-2">
-                <h4 class="font-black text-pink-600 dark:text-pink-400 text-sm flex items-center space-x-1.5">
-                  <i class="ph ph-image"></i>
-                  <span>Bản Thiết Kế Thumbnail & AI Image Prompt</span>
-                </h4>
-                <button 
-                  @click="copyText(activeAiVideo.ai_analysis.thumbnail_design.image_prompt_en, 'Đã copy Prompt Midjourney!')"
-                  class="px-2.5 py-1 bg-pink-100 dark:bg-pink-600/30 hover:bg-pink-600 text-pink-700 dark:text-pink-300 hover:text-white rounded-lg text-xs font-bold transition flex items-center space-x-1"
-                >
-                  <i class="ph ph-copy"></i>
-                  <span>Copy Prompt Vẽ Ảnh</span>
-                </button>
-              </div>
-
-              <div class="space-y-2.5">
-                <div class="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
-                  <strong>Ý tưởng bố cục (Việt):</strong> {{ activeAiVideo.ai_analysis.thumbnail_design.visual_direction_vi }}
+              <!-- 1. Phân Tích Viral & Góc Nhìn Remake (Tiếng Việt) -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <div class="p-3.5 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700/60">
+                  <h4 class="font-black text-rose-600 dark:text-rose-400 text-xs uppercase flex items-center space-x-1 mb-2">
+                    <i class="ph-fill ph-fire"></i>
+                    <span>Tại Sao Video Viral? (Giải Mã)</span>
+                  </h4>
+                  <ul class="space-y-1.5 list-disc list-inside text-slate-700 dark:text-slate-300 text-xs leading-relaxed">
+                    <li v-for="(r, idx) in activeBlueprint.viral_reasons_vi" :key="idx">
+                      {{ r }}
+                    </li>
+                  </ul>
                 </div>
 
-                <div class="p-2.5 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/40 rounded-xl flex items-center justify-between">
-                  <div>
-                    <span class="text-[11px] text-rose-600 dark:text-rose-300 font-bold uppercase block">Chữ in to trên Thumbnail:</span>
-                    <span class="text-lg font-black text-slate-900 dark:text-white tracking-wide">"{{ activeAiVideo.ai_analysis.thumbnail_design.text_overlay_en }}"</span>
-                  </div>
-                  <button 
-                    @click="copyText(activeAiVideo.ai_analysis.thumbnail_design.text_overlay_en, 'Đã copy chữ trên thumbnail!')"
-                    class="text-rose-600 dark:text-rose-300 hover:opacity-80 p-1"
-                  >
-                    <i class="ph ph-copy text-base"></i>
-                  </button>
-                </div>
-
-                <div class="p-3 bg-slate-900 dark:bg-black/60 rounded-xl border border-slate-700 dark:border-slate-800">
-                  <span class="text-[11px] text-slate-400 font-bold uppercase block mb-1">Midjourney / DALL-E 3 Prompt:</span>
-                  <p class="font-mono text-xs text-emerald-400 break-words">
-                    {{ activeAiVideo.ai_analysis.thumbnail_design.image_prompt_en }}
+                <div class="p-3.5 bg-purple-50/40 dark:bg-slate-800/50 rounded-2xl border border-purple-200 dark:border-purple-800/40">
+                  <h4 class="font-black text-purple-600 dark:text-purple-400 text-xs uppercase flex items-center space-x-1 mb-2">
+                    <i class="ph ph-lightbulb"></i>
+                    <span>Chiến Lược Cải Tiến (Remake Angle)</span>
+                  </h4>
+                  <p class="text-slate-700 dark:text-slate-200 text-xs leading-relaxed">
+                    {{ activeBlueprint.remake_angle_vi }}
                   </p>
                 </div>
               </div>
+
+              <!-- 2. Dàn Ý Kịch Bản & Hook 15s Tiếng Anh -->
+              <div class="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700/60">
+                <div class="flex items-center justify-between mb-2">
+                  <h4 class="font-black text-indigo-600 dark:text-indigo-400 text-xs uppercase flex items-center space-x-1.5">
+                    <i class="ph ph-film-strip"></i>
+                    <span>Câu Mở Đầu (English Hook 15s) & Dàn Ý</span>
+                  </h4>
+                  <button 
+                    @click="copyText(activeBlueprint.english_hook_script, 'Đã copy English Hook Script!')"
+                    class="px-2.5 py-1 bg-indigo-100 dark:bg-indigo-600/30 hover:bg-indigo-600 text-indigo-700 dark:text-indigo-300 hover:text-white rounded-lg text-xs font-bold transition flex items-center space-x-1"
+                  >
+                    <i class="ph ph-copy"></i>
+                    <span>Copy Hook</span>
+                  </button>
+                </div>
+
+                <div class="p-3 bg-white dark:bg-black/50 rounded-xl border border-indigo-200 dark:border-indigo-900/50 mb-3 shadow-sm">
+                  <div class="flex items-center justify-between text-[11px] font-bold text-indigo-600 dark:text-indigo-300 uppercase mb-1">
+                    <span>🎙️ English Hook 15s:</span>
+                    <span class="text-[10px] text-slate-400 lowercase italic">(Click Co-Pilot để viết lại theo ý bạn)</span>
+                  </div>
+                  <p class="italic text-slate-800 dark:text-slate-100 font-medium leading-relaxed">
+                    "{{ activeBlueprint.english_hook_script }}"
+                  </p>
+                </div>
+
+                <div class="space-y-1.5 text-xs text-slate-700 dark:text-slate-300">
+                  <span class="text-[11px] font-bold text-slate-500 uppercase block mb-1">Dàn ý phân cảnh:</span>
+                  <div v-for="(part, idx) in activeBlueprint.script_outline_vi" :key="idx" class="p-2 bg-white dark:bg-slate-900/60 rounded-lg border border-slate-200 dark:border-slate-800 text-[11px] sm:text-xs">
+                    {{ part }}
+                  </div>
+                </div>
+              </div>
+
+              <!-- 3. 5 Tiêu Đề Tiếng Anh (High-CTR) -->
+              <div class="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700/60">
+                <div class="flex items-center justify-between mb-2">
+                  <h4 class="font-black text-amber-600 dark:text-amber-400 text-xs uppercase flex items-center space-x-1.5">
+                    <i class="ph ph-sparkle"></i>
+                    <span>5 Tiêu Đề Tiếng Anh (High-CTR Quốc Tế)</span>
+                  </h4>
+                  <button 
+                    @click="copyTitles(activeBlueprint.english_titles)"
+                    class="px-2.5 py-1 bg-amber-100 dark:bg-amber-600/30 hover:bg-amber-600 text-amber-800 dark:text-amber-300 hover:text-white rounded-lg text-xs font-bold transition flex items-center space-x-1"
+                  >
+                    <i class="ph ph-copy"></i>
+                    <span>Copy 5 Tiêu Đề</span>
+                  </button>
+                </div>
+
+                <div class="space-y-2">
+                  <div 
+                    v-for="(t, idx) in activeBlueprint.english_titles" 
+                    :key="idx"
+                    class="flex items-start justify-between p-2.5 bg-white dark:bg-slate-900/80 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-slate-400 dark:hover:border-slate-700 transition shadow-sm"
+                  >
+                    <div>
+                      <div class="font-bold text-slate-900 dark:text-white text-xs sm:text-sm">
+                        <span class="text-amber-600 dark:text-amber-400 font-black mr-1">{{ idx + 1 }}.</span> {{ t.title }}
+                      </div>
+                      <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                        <em>Nghĩa tiếng Việt:</em> {{ t.vi_meaning }}
+                      </div>
+                    </div>
+                    <button 
+                      @click="copyText(t.title, 'Đã copy tiêu đề!')" 
+                      class="text-slate-400 hover:text-amber-600 dark:hover:text-amber-400 p-1 transition flex-shrink-0"
+                    >
+                      <i class="ph ph-copy text-base"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 4. Thumbnail Design & Midjourney Prompt -->
+              <div class="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700/60">
+                <div class="flex items-center justify-between mb-2">
+                  <h4 class="font-black text-pink-600 dark:text-pink-400 text-xs uppercase flex items-center space-x-1.5">
+                    <i class="ph ph-image"></i>
+                    <span>Bản Thiết Kế Thumbnail & AI Prompt</span>
+                  </h4>
+                  <button 
+                    @click="copyText(activeBlueprint.thumbnail_design.image_prompt_en, 'Đã copy Prompt Midjourney!')"
+                    class="px-2.5 py-1 bg-pink-100 dark:bg-pink-600/30 hover:bg-pink-600 text-pink-700 dark:text-pink-300 hover:text-white rounded-lg text-xs font-bold transition flex items-center space-x-1"
+                  >
+                    <i class="ph ph-copy"></i>
+                    <span>Copy Prompt</span>
+                  </button>
+                </div>
+
+                <div class="space-y-2">
+                  <div class="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
+                    <strong>Ý tưởng bố cục:</strong> {{ activeBlueprint.thumbnail_design.visual_direction_vi }}
+                  </div>
+
+                  <div class="p-2.5 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800/40 rounded-xl flex items-center justify-between">
+                    <div>
+                      <span class="text-[10px] text-rose-600 dark:text-rose-300 font-bold uppercase block">Chữ in to trên Thumbnail:</span>
+                      <span class="text-base sm:text-lg font-black text-slate-900 dark:text-white tracking-wide">"{{ activeBlueprint.thumbnail_design.text_overlay_en }}"</span>
+                    </div>
+                    <button 
+                      @click="copyText(activeBlueprint.thumbnail_design.text_overlay_en, 'Đã copy chữ trên thumbnail!')" 
+                      class="text-rose-600 dark:text-rose-300 hover:opacity-80 p-1"
+                    >
+                      <i class="ph ph-copy text-base"></i>
+                    </button>
+                  </div>
+
+                  <div class="p-3 bg-slate-900 dark:bg-black/60 rounded-xl border border-slate-700 dark:border-slate-800">
+                    <span class="text-[10px] text-slate-400 font-bold uppercase block mb-1">Midjourney / DALL-E 3 Prompt:</span>
+                    <p class="font-mono text-xs text-emerald-400 break-words">
+                      {{ activeBlueprint.thumbnail_design.image_prompt_en }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 5. SEO Description & Tags -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                <div class="p-3.5 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700/60">
+                  <div class="flex items-center justify-between mb-1.5">
+                    <span class="font-bold text-slate-800 dark:text-white text-xs uppercase">Mô Tả SEO</span>
+                    <button 
+                      @click="copyText(activeBlueprint.english_description, 'Đã copy Description!')" 
+                      class="text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white text-xs flex items-center space-x-1"
+                    >
+                      <i class="ph ph-copy"></i>
+                      <span>Copy</span>
+                    </button>
+                  </div>
+                  <div class="p-2.5 bg-white dark:bg-black/50 border border-slate-200 dark:border-transparent rounded-xl font-mono text-[11px] text-slate-800 dark:text-slate-300 max-h-36 overflow-y-auto whitespace-pre-wrap">
+                    {{ activeBlueprint.english_description }}
+                  </div>
+                </div>
+
+                <div class="p-3.5 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700/60">
+                  <div class="flex items-center justify-between mb-1.5">
+                    <span class="font-bold text-slate-800 dark:text-white text-xs uppercase">Thẻ Tags</span>
+                    <button 
+                      @click="copyText(activeBlueprint.english_tags.join(', '), 'Đã copy bộ Tags!')" 
+                      class="text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white text-xs flex items-center space-x-1"
+                    >
+                      <i class="ph ph-copy"></i>
+                      <span>Copy Tags</span>
+                    </button>
+                  </div>
+                  <div class="flex flex-wrap gap-1 max-h-36 overflow-y-auto">
+                    <span 
+                      v-for="(tag, idx) in activeBlueprint.english_tags" 
+                      :key="idx"
+                      class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/80 text-slate-700 dark:text-slate-200 text-[11px] px-2 py-0.5 rounded-md"
+                    >
+                      #{{ tag }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
             </div>
 
-            <!-- SEO Description & Tags -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div class="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700/60">
-                <div class="flex items-center justify-between mb-2">
-                  <span class="font-bold text-slate-800 dark:text-white text-xs uppercase">Mô Tả Chuẩn SEO (English)</span>
-                  <button 
-                    @click="copyText(activeAiVideo.ai_analysis.english_description, 'Đã copy Description!')"
-                    class="text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white text-xs flex items-center space-x-1"
-                  >
-                    <i class="ph ph-copy"></i>
-                    <span>Copy</span>
-                  </button>
+            <!-- ============================================================= -->
+            <!-- CỘT PHẢI: TRỢ LÝ AI CO-PILOT (CHAT & TINH CHỈNH KỊCH BẢN)    -->
+            <!-- ============================================================= -->
+            <div 
+              v-show="modalTab === 'chat' || modalTab === 'split'" 
+              :class="modalTab === 'split' ? 'lg:col-span-5' : 'col-span-1'"
+              class="flex flex-col bg-slate-50 dark:bg-slate-950/60 rounded-3xl border border-purple-200 dark:border-purple-900/50 p-4 sm:p-5 h-full min-h-[500px]"
+            >
+              <!-- Co-Pilot Header -->
+              <div class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800/80">
+                <div class="flex items-center space-x-2">
+                  <div class="p-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl text-white text-base">
+                    <i class="ph ph-chat-circle-dots"></i>
+                  </div>
+                  <div>
+                    <h4 class="font-black text-slate-900 dark:text-white text-xs sm:text-sm flex items-center space-x-1.5">
+                      <span>AI Script Co-Pilot</span>
+                      <span class="text-[9px] px-1.5 py-0.2 rounded-full bg-purple-100 dark:bg-purple-900/60 text-purple-700 dark:text-purple-300 font-normal">Gemini 2.5</span>
+                    </h4>
+                    <p class="text-[10px] text-slate-500 dark:text-slate-400">Trợ lý tùy biến kịch bản theo yêu cầu của bạn</p>
+                  </div>
                 </div>
-                <div class="p-2.5 bg-white dark:bg-black/50 border border-slate-200 dark:border-transparent rounded-xl font-mono text-[11px] text-slate-800 dark:text-slate-300 max-h-40 overflow-y-auto whitespace-pre-wrap">
-                  {{ activeAiVideo.ai_analysis.english_description }}
+
+                <div class="flex items-center space-x-1.5">
+                  <button 
+                    @click="clearChat" 
+                    class="p-1.5 text-slate-400 hover:text-slate-600 dark:hover:text-white rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 transition text-xs" 
+                    title="Xóa lịch sử chat"
+                  >
+                    <i class="ph ph-trash"></i>
+                  </button>
+                  <button 
+                    @click="showKeyPrompt = !showKeyPrompt" 
+                    class="p-1.5 text-slate-400 hover:text-purple-600 dark:hover:text-purple-300 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 transition text-xs" 
+                    title="Cài đặt Gemini API Key"
+                  >
+                    <i class="ph ph-key"></i>
+                  </button>
                 </div>
               </div>
 
-              <div class="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700/60">
-                <div class="flex items-center justify-between mb-2">
-                  <span class="font-bold text-slate-800 dark:text-white text-xs uppercase">Thẻ Tags (Comma-separated)</span>
-                  <button 
-                    @click="copyText(activeAiVideo.ai_analysis.english_tags.join(', '), 'Đã copy bộ Tags!')"
-                    class="text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white text-xs flex items-center space-x-1"
+              <!-- API Key Warning / Drawer (if not configured or toggled) -->
+              <div v-if="!geminiApiKey || showKeyPrompt" class="my-3 p-3 bg-purple-50 dark:bg-purple-950/50 rounded-xl border border-purple-300 dark:border-purple-800/60 text-xs">
+                <div class="flex items-center justify-between text-purple-700 dark:text-purple-300 font-bold mb-1">
+                  <span class="flex items-center space-x-1">
+                    <i class="ph ph-key"></i>
+                    <span>Cài Đặt Gemini API Key (0đ Miễn Phí)</span>
+                  </span>
+                  <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-[10px] underline font-normal">Lấy mã free</a>
+                </div>
+                <div class="flex gap-1.5 mt-2">
+                  <input 
+                    type="password" 
+                    v-model="tempGeminiKey" 
+                    placeholder="Dán AIzaSy... vào đây" 
+                    class="flex-1 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg px-2.5 py-1.5 text-xs focus:outline-none focus:border-purple-500 font-mono"
                   >
-                    <i class="ph ph-copy"></i>
-                    <span>Copy Tất Cả Tags</span>
+                  <button 
+                    @click="saveGeminiKey(tempGeminiKey)" 
+                    class="px-3 py-1.5 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-xs font-bold transition whitespace-nowrap"
+                  >
+                    Lưu mã
                   </button>
                 </div>
-                <div class="flex flex-wrap gap-1.5 max-h-40 overflow-y-auto">
-                  <span 
-                    v-for="(tag, idx) in activeAiVideo.ai_analysis.english_tags" 
-                    :key="idx"
-                    class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/80 text-slate-700 dark:text-slate-200 text-xs px-2 py-0.5 rounded-md"
+              </div>
+
+              <!-- Quick Magic Prompts (1-Chạm) -->
+              <div class="my-3">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block mb-1.5">
+                  ⚡ Biến hóa nhanh 1-chạm:
+                </span>
+                <div class="flex flex-wrap gap-1.5">
+                  <button 
+                    @click="sendQuickPrompt('shorts')" 
+                    :disabled="isAiChatLoading"
+                    class="px-2.5 py-1 bg-purple-100 dark:bg-purple-900/40 hover:bg-purple-200 dark:hover:bg-purple-800/60 text-purple-700 dark:text-purple-300 rounded-lg text-[11px] font-bold transition flex items-center space-x-1 whitespace-nowrap"
                   >
-                    #{{ tag }}
-                  </span>
+                    <span>📱 Shorts/TikTok (60s)</span>
+                  </button>
+                  <button 
+                    @click="sendQuickPrompt('viral_hook')" 
+                    :disabled="isAiChatLoading"
+                    class="px-2.5 py-1 bg-rose-100 dark:bg-rose-900/40 hover:bg-rose-200 dark:hover:bg-rose-800/60 text-rose-700 dark:text-rose-300 rounded-lg text-[11px] font-bold transition flex items-center space-x-1 whitespace-nowrap"
+                  >
+                    <span>🔥 Hook giật gân x2</span>
+                  </button>
+                  <button 
+                    @click="sendQuickPrompt('vietnam_diy')" 
+                    :disabled="isAiChatLoading"
+                    class="px-2.5 py-1 bg-emerald-100 dark:bg-emerald-900/40 hover:bg-emerald-200 dark:hover:bg-emerald-800/60 text-emerald-700 dark:text-emerald-300 rounded-lg text-[11px] font-bold transition flex items-center space-x-1 whitespace-nowrap"
+                  >
+                    <span>🛠️ Đồ nghề VN giá rẻ</span>
+                  </button>
+                  <button 
+                    @click="sendQuickPrompt('mrbeast_titles')" 
+                    :disabled="isAiChatLoading"
+                    class="px-2.5 py-1 bg-amber-100 dark:bg-amber-900/40 hover:bg-amber-200 dark:hover:bg-amber-800/60 text-amber-800 dark:text-amber-300 rounded-lg text-[11px] font-bold transition flex items-center space-x-1 whitespace-nowrap"
+                  >
+                    <span>🎯 5 Tiêu đề MrBeast</span>
+                  </button>
+                  <button 
+                    @click="sendQuickPrompt('voiceover')" 
+                    :disabled="isAiChatLoading"
+                    class="px-2.5 py-1 bg-indigo-100 dark:bg-indigo-900/40 hover:bg-indigo-200 dark:hover:bg-indigo-800/60 text-indigo-700 dark:text-indigo-300 rounded-lg text-[11px] font-bold transition flex items-center space-x-1 whitespace-nowrap"
+                  >
+                    <span>🎙️ Lời thoại Voiceover</span>
+                  </button>
                 </div>
               </div>
+
+              <!-- Chat Message Stream -->
+              <div 
+                ref="chatStreamBox" 
+                class="flex-1 overflow-y-auto space-y-3 p-3 bg-white dark:bg-slate-900/80 rounded-2xl border border-slate-200 dark:border-slate-800/80 min-h-[260px] max-h-[460px]"
+              >
+                <div 
+                  v-for="(msg, idx) in chatMessages" 
+                  :key="idx" 
+                  :class="msg.role === 'user' ? 'justify-end' : 'justify-start'"
+                  class="flex"
+                >
+                  <div 
+                    :class="msg.role === 'user' 
+                      ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-2xl rounded-tr-none' 
+                      : 'bg-slate-100 dark:bg-slate-800/90 text-slate-800 dark:text-slate-200 rounded-2xl rounded-tl-none border border-slate-200 dark:border-slate-700/70'"
+                    class="max-w-[90%] p-3.5 text-xs leading-relaxed shadow-sm"
+                  >
+                    <div class="flex items-center justify-between space-x-2 mb-1.5 text-[10px] opacity-75">
+                      <span class="font-bold flex items-center space-x-1">
+                        <i v-if="msg.role === 'ai'" class="ph-fill ph-sparkle text-purple-400"></i>
+                        <span>{{ msg.role === 'user' ? 'Bạn' : 'AI Co-Pilot' }}</span>
+                      </span>
+                      <span>{{ msg.time }}</span>
+                    </div>
+
+                    <div v-html="formatAiText(msg.text)" class="space-y-1.5 font-normal"></div>
+
+                    <!-- Action Bar on AI message -->
+                    <div v-if="msg.role === 'ai' && idx > 0" class="mt-2.5 pt-2 border-t border-slate-200 dark:border-slate-700/60 flex items-center justify-between text-[11px]">
+                      <button 
+                        @click="copyText(msg.text, 'Đã sao chép phản hồi của AI!')" 
+                        class="text-slate-500 hover:text-purple-600 dark:text-slate-400 dark:hover:text-purple-300 font-bold flex items-center space-x-1"
+                      >
+                        <i class="ph ph-copy"></i>
+                        <span>Sao chép</span>
+                      </button>
+
+                      <!-- Nút áp dụng nhanh nếu AI gợi ý Hook -->
+                      <button 
+                        v-if="msg.text.toLowerCase().includes('hook') || msg.text.includes('15s')"
+                        @click="applyAiSuggestion('hook', msg.text)" 
+                        class="px-2 py-0.5 bg-purple-100 dark:bg-purple-900/60 hover:bg-purple-600 text-purple-700 dark:text-purple-300 hover:text-white rounded text-[10px] font-bold transition flex items-center space-x-1"
+                      >
+                        <i class="ph ph-arrow-left"></i>
+                        <span>Áp dụng làm Hook</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- AI Typing Indicator -->
+                <div v-if="isAiChatLoading" class="flex justify-start">
+                  <div class="bg-slate-100 dark:bg-slate-800 p-3 rounded-2xl rounded-tl-none border border-slate-200 dark:border-slate-700 flex items-center space-x-2 text-xs text-purple-600 dark:text-purple-400">
+                    <i class="ph ph-spinner animate-spin text-base"></i>
+                    <span class="font-bold">AI Co-Pilot đang suy nghĩ và viết kịch bản...</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Chat Input Box -->
+              <div class="mt-3 flex gap-2">
+                <input 
+                  type="text" 
+                  v-model="chatInput" 
+                  @keyup.enter="sendUserMessage"
+                  :disabled="isAiChatLoading"
+                  placeholder="Nhắn tin hỏi AI (VD: đổi thành Shorts 60s, viết lại câu Hook...)" 
+                  class="flex-1 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-purple-500 transition"
+                >
+                <button 
+                  @click="sendUserMessage" 
+                  :disabled="isAiChatLoading || !chatInput.trim()"
+                  class="px-4 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:opacity-90 disabled:opacity-50 text-white rounded-xl text-xs font-bold transition flex items-center space-x-1.5 shadow-md flex-shrink-0"
+                >
+                  <span>Gửi</span>
+                  <i class="ph-fill ph-paper-plane-tilt text-sm"></i>
+                </button>
+              </div>
+
             </div>
 
           </div>
@@ -1361,13 +1633,35 @@
         </div>
 
         <!-- Modal Footer -->
-        <div class="p-4 border-t border-slate-200 dark:border-slate-800 flex justify-end bg-slate-50 dark:bg-slate-900 rounded-b-3xl">
-          <button 
-            @click="activeAiVideo = null" 
-            class="px-5 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold transition"
-          >
-            Đóng
-          </button>
+        <div class="p-4 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-900 rounded-b-3xl">
+          <div class="text-[11px] text-slate-500 dark:text-slate-400 flex items-center space-x-2">
+            <span>Powered by <strong>Google Gemini 2.5 Flash</strong> (0đ)</span>
+            <span>•</span>
+            <span v-if="geminiApiKey" class="text-emerald-500 font-bold flex items-center space-x-1">
+              <i class="ph-fill ph-check-circle"></i>
+              <span>API Key đã kích hoạt</span>
+            </span>
+            <span v-else class="text-amber-500 font-bold flex items-center space-x-1">
+              <i class="ph-fill ph-warning"></i>
+              <span>Chưa nhập API Key</span>
+            </span>
+          </div>
+
+          <div class="flex space-x-2">
+            <button 
+              @click="exportFullScript('copy')" 
+              class="px-4 py-2 bg-purple-100 dark:bg-purple-900/40 hover:bg-purple-600 text-purple-700 dark:text-purple-300 hover:text-white rounded-xl text-xs font-bold transition flex items-center space-x-1"
+            >
+              <i class="ph ph-copy"></i>
+              <span>Copy Kịch Bản</span>
+            </button>
+            <button 
+              @click="activeAiVideo = null" 
+              class="px-5 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold transition"
+            >
+              Đóng
+            </button>
+          </div>
         </div>
 
       </div>
@@ -1400,7 +1694,7 @@
           <div class="p-4 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200 dark:border-slate-700">
             <label class="font-bold text-slate-900 dark:text-white text-xs block mb-1 flex items-center justify-between">
               <span>Mã GitHub Token (PAT)</span>
-              <span class="text-[11px] text-slate-500 dark:text-slate-400 font-normal">Lưu an toàn trong máy bạn</span>
+              <span class="text-[11px] text-slate-500 dark:text-slate-400 font-normal">Dùng để lưu kênh & quét</span>
             </label>
             <div class="flex gap-2">
               <input 
@@ -1416,6 +1710,29 @@
                 Ghi nhớ
               </button>
             </div>
+          </div>
+
+          <!-- Google Gemini API Key Input -->
+          <div class="p-4 bg-purple-50/50 dark:bg-purple-950/40 rounded-2xl border border-purple-200 dark:border-purple-800/60">
+            <label class="font-bold text-slate-900 dark:text-white text-xs block mb-1 flex items-center justify-between">
+              <span>Mã Google Gemini API Key (0đ Miễn Phí)</span>
+              <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-[11px] text-purple-600 dark:text-purple-400 underline font-normal">Lấy mã free tại AI Studio</a>
+            </label>
+            <div class="flex gap-2">
+              <input 
+                type="password" 
+                v-model="geminiApiKey" 
+                placeholder="AIzaSy..." 
+                class="flex-1 bg-white dark:bg-black/50 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-white focus:outline-none focus:border-purple-500 font-mono"
+              >
+              <button 
+                @click="saveGeminiKey(geminiApiKey)" 
+                class="px-3 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-xs font-bold transition"
+              >
+                Ghi nhớ
+              </button>
+            </div>
+            <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-1">Dùng để kích hoạt Trợ lý AI Co-Pilot chat và chỉnh sửa kịch bản trực tiếp trên trình duyệt.</p>
           </div>
 
           <!-- Nút kích hoạt quét ngay -->
@@ -1569,7 +1886,16 @@
 
         const toastMsg = ref('');
         const activeAiVideo = ref(null);
+        const activeBlueprint = ref(null);
         const showAdminModal = ref(false);
+        const modalTab = ref('split'); // 'split', 'script', 'chat'
+        const showKeyPrompt = ref(false);
+        const geminiApiKey = ref(localStorage.getItem('GEMINI_API_KEY') || '');
+        const tempGeminiKey = ref('');
+        const chatMessages = ref([]);
+        const chatInput = ref('');
+        const isAiChatLoading = ref(false);
+        const chatStreamBox = ref(null);
 
         // Quản lý kênh qua GitHub API
         const githubToken = ref(localStorage.getItem('GH_PAT_TOKEN') || '');
@@ -1914,8 +2240,265 @@
           sortOrder.value = 'desc';
         };
 
+        const saveGeminiKey = (key) => {
+          if (!key || !key.trim()) {
+            alert('Vui lòng nhập mã Gemini API Key!');
+            return;
+          }
+          geminiApiKey.value = key.trim();
+          tempGeminiKey.value = key.trim();
+          localStorage.setItem('GEMINI_API_KEY', key.trim());
+          showKeyPrompt.value = false;
+          showToast('Đã lưu Gemini API Key thành công!');
+        };
+
         const openAiModal = (video) => {
           activeAiVideo.value = video;
+          if (video.ai_analysis) {
+            activeBlueprint.value = JSON.parse(JSON.stringify(video.ai_analysis));
+          } else {
+            activeBlueprint.value = null;
+          }
+
+          modalTab.value = window.innerWidth >= 1024 ? 'split' : 'script';
+          tempGeminiKey.value = geminiApiKey.value;
+          showKeyPrompt.value = !geminiApiKey.value;
+
+          // Init chat history
+          chatMessages.value = [
+            {
+              role: 'ai',
+              text: `👋 Chào bạn! Tôi là **AI Co-Pilot** của video này. Tôi đã nắm toàn bộ kịch bản, lý do viral và nội dung của **"${video.title}"**.\n\nBạn muốn tôi hỗ trợ gì? Bạn có thể click các nút gợi ý nhanh bên trên (như đổi sang Shorts 60s, viết lại Hook kịch tính hơn, hoặc đổi vật liệu DIY), hoặc gõ yêu cầu cụ thể xuống khung chat bên dưới nhé!`,
+              time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            }
+          ];
+        };
+
+        const formatAiText = (text) => {
+          if (!text) return '';
+          let safe = text
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
+          safe = safe.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+          safe = safe.replace(/\*(.*?)\*/g, '<em>$1</em>');
+          safe = safe.replace(/`(.*?)`/g, '<code class="bg-slate-200 dark:bg-slate-800 px-1 rounded text-purple-600 dark:text-purple-300 font-mono text-xs">$1</code>');
+          safe = safe.replace(/\n/g, '<br>');
+          return safe;
+        };
+
+        const clearChat = () => {
+          if (confirm('Bạn có chắc muốn xóa lịch sử chat này không?')) {
+            chatMessages.value = [
+              {
+                role: 'ai',
+                text: '🧹 Đã xóa lịch sử chat. Hãy gửi câu hỏi hoặc chọn nút biến hóa nhanh để bắt đầu lại!',
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+              }
+            ];
+          }
+        };
+
+        const scrollChatToBottom = () => {
+          setTimeout(() => {
+            if (chatStreamBox.value) {
+              chatStreamBox.value.scrollTop = chatStreamBox.value.scrollHeight;
+            }
+          }, 100);
+        };
+
+        const callGeminiChat = async (userPrompt) => {
+          if (!geminiApiKey.value.trim()) {
+            showKeyPrompt.value = true;
+            throw new Error('Vui lòng nhập mã Google Gemini API Key để kích hoạt Trợ lý AI Co-Pilot.');
+          }
+
+          const v = activeAiVideo.value;
+          const b = activeBlueprint.value || {};
+          const systemContext = `Bạn là Trợ lý Biên kịch YouTube triệu view & Chuyên gia Tối ưu Video (YouTube Scriptwriting Co-Pilot).
+Người dùng đang làm việc với kịch bản remake cho video:
+- Tiêu đề gốc: "${v.title}"
+- Kênh: ${v.channel_name} (Tốc độ: +${v.effective_vph}/h, Lượt xem: ${v.views})
+- Lý do viral: ${(b.viral_reasons_vi || []).join('; ')}
+- Góc nhìn remake hiện tại: "${b.remake_angle_vi || ''}"
+- English Hook 15s hiện tại: "${b.english_hook_script || ''}"
+- Dàn ý kịch bản: ${(b.script_outline_vi || []).join(' | ')}
+- Thumbnail text overlay: "${b.thumbnail_design?.text_overlay_en || ''}"
+- Thumbnail prompt: "${b.thumbnail_design?.image_prompt_en || ''}"
+- 5 Tiêu đề hiện tại: ${(b.english_titles || []).map(t => t.title).join(' | ')}
+
+Nhiệm vụ: Trả lời hoặc viết lại/tinh chỉnh kịch bản theo yêu cầu của người dùng.
+- Định dạng câu trả lời rõ ràng, sinh động, thực chiến cho YouTuber.
+- Khi viết Hook hoặc Tiêu đề tiếng Anh, luôn kèm câu dịch nghĩa tiếng Việt.
+- Nếu người dùng yêu cầu kịch bản Shorts, hãy chia các mốc giây cụ thể (0-5s Hook, 5-25s Thân bài, 25-50s Cao trào, 50-60s Kêu gọi).`;
+
+          const messagesPayload = [
+            {
+              role: 'user',
+              parts: [{ text: systemContext + "\n\n--- YÊU CẦU CỦA NGƯỜI DÙNG ---\n" + userPrompt }]
+            }
+          ];
+
+          const endpoint25 = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiApiKey.value.trim()}`;
+          
+          let res = await fetch(endpoint25, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: messagesPayload,
+              generationConfig: { temperature: 0.7, maxOutputTokens: 2048 }
+            })
+          });
+
+          if (!res.ok) {
+            // fallback to gemini-1.5-flash
+            const endpoint15 = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey.value.trim()}`;
+            res = await fetch(endpoint15, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                contents: messagesPayload,
+                generationConfig: { temperature: 0.7, maxOutputTokens: 2048 }
+              })
+            });
+            if (!res.ok) {
+              const err = await res.json();
+              throw new Error(err.error?.message || 'Lỗi gọi Gemini API');
+            }
+          }
+
+          const data = await res.json();
+          const reply = data.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (!reply) throw new Error('AI không trả về kết quả');
+          return reply;
+        };
+
+        const sendUserMessage = async () => {
+          const text = chatInput.value.trim();
+          if (!text || isAiChatLoading.value) return;
+
+          chatMessages.value.push({
+            role: 'user',
+            text: text,
+            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+          });
+          chatInput.value = '';
+          isAiChatLoading.value = true;
+          scrollChatToBottom();
+
+          try {
+            const aiReply = await callGeminiChat(text);
+            chatMessages.value.push({
+              role: 'ai',
+              text: aiReply,
+              time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            });
+          } catch (err) {
+            console.error(err);
+            chatMessages.value.push({
+              role: 'ai',
+              text: `⚠️ **Lỗi:** ${err.message}. Vui lòng kiểm tra lại mã Gemini API Key của bạn.`,
+              time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            });
+          } finally {
+            isAiChatLoading.value = false;
+            scrollChatToBottom();
+          }
+        };
+
+        const sendQuickPrompt = (type) => {
+          let prompt = '';
+          if (type === 'shorts') {
+            prompt = 'Hãy biến video này thành kịch bản YouTube Shorts / TikTok 60 giây siêu cuốn, chia từng mốc giây (0-5s Hook, 5-25s Triển khai, 25-50s Cao trào, 50-60s Kêu gọi đăng ký). Kèm câu thoại tiếng Anh và dịch nghĩa tiếng Việt.';
+          } else if (type === 'viral_hook') {
+            prompt = 'Hãy viết lại cho tôi 3 câu mở đầu (English Hook 15s) cực kỳ kịch tính, sốc và kích thích trí tò mò tột độ cho video này, kèm bản dịch tiếng Việt.';
+          } else if (type === 'vietnam_diy') {
+            prompt = 'Hãy phân tích các dụng cụ/vật liệu trong video này và gợi ý cách thay thế bằng đồ nghề giá rẻ, dễ kiếm tại các tiệm điện nước hoặc mua trên Shopee Việt Nam.';
+          } else if (type === 'mrbeast_titles') {
+            prompt = 'Hãy gợi ý cho tôi 5 tiêu đề tiếng Anh theo phong cách MrBeast (cực ngắn, giật gân, khơi dậy tò mò mạnh) cho video này, kèm nghĩa tiếng Việt.';
+          } else if (type === 'voiceover') {
+            prompt = 'Hãy viết kịch bản lời bình lồng tiếng (Voiceover Script) chi tiết từng phân cảnh cho video này từ đầu đến cuối.';
+          }
+          chatInput.value = prompt;
+          sendUserMessage();
+        };
+
+        const applyAiSuggestion = (type, text) => {
+          if (!activeBlueprint.value) return;
+          if (type === 'hook') {
+            // Extract quote or clean up text
+            let clean = text;
+            const match = text.match(/"([^"]+)"/);
+            if (match) clean = match[1];
+            activeBlueprint.value.english_hook_script = clean;
+            showToast('✅ Đã áp dụng câu Hook mới vào kịch bản!');
+          }
+        };
+
+        const exportFullScript = (action = 'copy') => {
+          if (!activeBlueprint.value || !activeAiVideo.value) return;
+          const b = activeBlueprint.value;
+          const v = activeAiVideo.value;
+
+          let text = `====================================================\n`;
+          text += `🎬 KỊCH BẢN REMAKE QUỐC TẾ - YOUTUBE BLUEPRINT\n`;
+          text += `====================================================\n\n`;
+          text += `📌 Video tham chiếu: ${v.title}\n`;
+          text += `📺 Kênh đối thủ: ${v.channel_name} (${v.url})\n`;
+          text += `⚡ Tốc độ đo được: +${formatNumber(v.effective_vph)} view/giờ | Tổng view: ${formatNumber(v.views)}\n\n`;
+
+          text += `----------------------------------------------------\n`;
+          text += `1. TẠI SAO VIDEO NÀY VIRAL? (GIẢI MÃ)\n`;
+          text += `----------------------------------------------------\n`;
+          (b.viral_reasons_vi || []).forEach((r, idx) => {
+            text += `  ${idx + 1}. ${r}\n`;
+          });
+          text += `\n💡 Góc nhìn Remake độc lạ: ${b.remake_angle_vi}\n\n`;
+
+          text += `----------------------------------------------------\n`;
+          text += `2. CÂU MỞ ĐẦU THẦN THÁNH 15S (ENGLISH HOOK)\n`;
+          text += `----------------------------------------------------\n`;
+          text += `"${b.english_hook_script}"\n\n`;
+
+          text += `----------------------------------------------------\n`;
+          text += `3. DÀN Ý PHÂN CẢNH SẢN XUẤT (OUTLINE)\n`;
+          text += `----------------------------------------------------\n`;
+          (b.script_outline_vi || []).forEach((part, idx) => {
+            text += `  Phân đoạn ${idx + 1}: ${part}\n`;
+          });
+          text += `\n`;
+
+          text += `----------------------------------------------------\n`;
+          text += `4. GỢI Ý 5 TIÊU ĐỀ TIẾNG ANH (HIGH-CTR US/GLOBAL)\n`;
+          text += `----------------------------------------------------\n`;
+          (b.english_titles || []).forEach((t, idx) => {
+            text += `  ${idx + 1}. ${t.title} (${t.vi_meaning})\n`;
+          });
+          text += `\n`;
+
+          text += `----------------------------------------------------\n`;
+          text += `5. BẢN THIẾT KẾ THUMBNAIL & MIDJOURNEY PROMPT\n`;
+          text += `----------------------------------------------------\n`;
+          text += `  Ý tưởng bố cục: ${b.thumbnail_design?.visual_direction_vi || ''}\n`;
+          text += `  Chữ in to (Text overlay): "${b.thumbnail_design?.text_overlay_en || ''}"\n`;
+          text += `  Midjourney/DALL-E Prompt: ${b.thumbnail_design?.image_prompt_en || ''}\n\n`;
+
+          text += `----------------------------------------------------\n`;
+          text += `6. MÔ TẢ SEO & TAGS\n`;
+          text += `----------------------------------------------------\n`;
+          text += `${b.english_description}\n\n`;
+          text += `Tags: ${(b.english_tags || []).join(', ')}\n`;
+
+          if (action === 'copy') {
+            copyText(text, 'Đã sao chép trọn bộ kịch bản remake vào clipboard!');
+          } else if (action === 'download') {
+            const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `Kich_Ban_Remake_${v.video_id}.txt`;
+            link.click();
+            showToast('Đã tải file kịch bản về máy!');
+          }
         };
 
         // Admin Panel Methods
@@ -2084,6 +2667,22 @@
           viewChannelVideos,
           toastMsg,
           activeAiVideo,
+          activeBlueprint,
+          modalTab,
+          showKeyPrompt,
+          geminiApiKey,
+          tempGeminiKey,
+          chatMessages,
+          chatInput,
+          isAiChatLoading,
+          chatStreamBox,
+          saveGeminiKey,
+          formatAiText,
+          clearChat,
+          sendUserMessage,
+          sendQuickPrompt,
+          applyAiSuggestion,
+          exportFullScript,
           showAdminModal,
           githubToken,
           editableChannels,
