@@ -3048,16 +3048,18 @@
 
               <!-- Chat Input Box -->
               <div class="p-2.5 sm:p-3 border-t border-slate-200 dark:border-slate-800 bg-slate-50/95 dark:bg-slate-950/90 flex-shrink-0">
-                <form @submit.prevent="submitChatMessage" class="flex items-center space-x-2">
+                <form @submit.prevent="sendUserMessage" class="flex items-center space-x-2">
                   <input 
                     type="text" 
                     v-model="chatInput"
+                    @keydown.enter.prevent="sendUserMessage"
                     :disabled="isAiChatLoading"
                     placeholder="Hỏi AI hoặc yêu cầu chỉnh sửa kịch bản..."
                     class="flex-1 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500/30 transition disabled:opacity-50 shadow-inner"
                   >
                   <button 
-                    type="submit"
+                    type="button"
+                    @click.prevent="sendUserMessage"
                     :disabled="isAiChatLoading || !chatInput.trim()"
                     class="px-3.5 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:opacity-95 text-white font-bold rounded-xl text-xs shadow-md transition flex items-center space-x-1 cursor-pointer disabled:opacity-40"
                     title="Gửi tin nhắn"
@@ -5467,22 +5469,21 @@ HÃY TRẢ VỀ DUY NHẤT ĐỊNH DẠNG JSON HỢP LỆ VỚI CẤU TRÚC:
               }
             };
 
-            let res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(payload)
-            });
-
-            if (!res.ok) {
-              res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-              });
+            let res = null;
+            const modelsToTry = ['gemini-3.6-flash', 'gemini-2.0-flash-exp', 'gemini-1.5-flash', 'gemini-2.5-flash'];
+            for (const model of modelsToTry) {
+              try {
+                res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(payload)
+                });
+                if (res.ok) break;
+              } catch (e) {}
             }
 
-            if (!res.ok) {
-              throw new Error('Lỗi kết nối AI (HTTP ' + res.status + ')');
+            if (!res || !res.ok) {
+              throw new Error('Lỗi kết nối AI (HTTP ' + (res ? res.status : 'ERR') + ')');
             }
 
             const resJson = await res.json();
@@ -5568,17 +5569,18 @@ HÃY TRẢ VỀ DUY NHẤT ĐỊNH DẠNG JSON HỢP LỆ VỚI CẤU TRÚC:
         };
 
         const callGeminiChat = async (userPrompt) => {
-          if (!geminiApiKey.value.trim()) {
+          const key = (geminiApiKey.value || '').trim();
+          if (!key) {
             showKeyPrompt.value = true;
             throw new Error('Vui lòng nhập mã Google Gemini API Key để kích hoạt Trợ lý AI Co-Pilot.');
           }
 
-          const v = activeAiVideo.value;
+          const v = activeAiVideo.value || {};
           const b = activeBlueprint.value || {};
           const systemContext = `Bạn là Trợ lý Biên kịch YouTube triệu view & Chuyên gia Tối ưu Video (YouTube Scriptwriting Co-Pilot).
 Người dùng đang làm việc với kịch bản remake cho video:
-- Tiêu đề gốc: "${v.title}"
-- Kênh: ${v.channel_name} (Tốc độ: +${v.effective_vph}/h, Lượt xem: ${v.views})
+- Tiêu đề gốc: "${v.title || ''}"
+- Kênh: ${v.channel_name || ''} (Tốc độ: +${v.effective_vph || 0}/h, Lượt xem: ${v.views || 0})
 - Lý do viral: ${(b.viral_reasons_vi || []).join('; ')}
 - Góc nhìn remake hiện tại: "${b.remake_angle_vi || ''}"
 - English Hook 15s hiện tại: "${b.english_hook_script || ''}"
@@ -5599,38 +5601,39 @@ Nhiệm vụ: Trả lời hoặc viết lại/tinh chỉnh kịch bản theo yê
             }
           ];
 
-          const endpoint25 = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiApiKey.value.trim()}`;
-          
-          let res = await fetch(endpoint25, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              contents: messagesPayload,
-              generationConfig: { temperature: 0.7, maxOutputTokens: 2048 }
-            })
-          });
+          const modelsToTry = [
+            'gemini-3.6-flash',
+            'gemini-2.0-flash-exp',
+            'gemini-1.5-flash',
+            'gemini-2.5-flash'
+          ];
 
-          if (!res.ok) {
-            // fallback to gemini-1.5-flash
-            const endpoint15 = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey.value.trim()}`;
-            res = await fetch(endpoint15, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                contents: messagesPayload,
-                generationConfig: { temperature: 0.7, maxOutputTokens: 2048 }
-              })
-            });
-            if (!res.ok) {
-              const err = await res.json();
-              throw new Error(err.error?.message || 'Lỗi gọi Gemini API');
+          let lastError = null;
+          for (const model of modelsToTry) {
+            try {
+              const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`;
+              const res = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  contents: messagesPayload,
+                  generationConfig: { temperature: 0.7, maxOutputTokens: 2048 }
+                })
+              });
+              if (res.ok) {
+                const data = await res.json();
+                const reply = data.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (reply) return reply;
+              } else {
+                const errData = await res.json().catch(() => ({}));
+                lastError = new Error(errData.error?.message || `Lỗi HTTP ${res.status}`);
+              }
+            } catch (netErr) {
+              lastError = netErr;
             }
           }
 
-          const data = await res.json();
-          const reply = data.candidates?.[0]?.content?.parts?.[0]?.text;
-          if (!reply) throw new Error('AI không trả về kết quả');
-          return reply;
+          throw lastError || new Error('Không thể kết nối với Gemini AI, vui lòng kiểm tra lại API Key hoặc mạng.');
         };
 
         const sendUserMessage = async () => {
@@ -5666,17 +5669,21 @@ Nhiệm vụ: Trả lời hoặc viết lại/tinh chỉnh kịch bản theo yê
           }
         };
 
-        const sendQuickPrompt = (type) => {
-          let prompt = '';
-          if (type === 'shorts') {
+        const submitChatMessage = async () => {
+          await sendUserMessage();
+        };
+
+        const sendQuickPrompt = (promptText) => {
+          let prompt = promptText;
+          if (promptText === 'shorts') {
             prompt = 'Hãy biến video này thành kịch bản YouTube Shorts / TikTok 60 giây siêu cuốn, chia từng mốc giây (0-5s Hook, 5-25s Triển khai, 25-50s Cao trào, 50-60s Kêu gọi đăng ký). Kèm câu thoại tiếng Anh và dịch nghĩa tiếng Việt.';
-          } else if (type === 'viral_hook') {
+          } else if (promptText === 'viral_hook') {
             prompt = 'Hãy viết lại cho tôi 3 câu mở đầu (English Hook 15s) cực kỳ kịch tính, sốc và kích thích trí tò mò tột độ cho video này, kèm bản dịch tiếng Việt.';
-          } else if (type === 'vietnam_diy') {
+          } else if (promptText === 'vietnam_diy') {
             prompt = 'Hãy phân tích các dụng cụ/vật liệu trong video này và gợi ý cách thay thế bằng đồ nghề giá rẻ, dễ kiếm tại các tiệm điện nước hoặc mua trên Shopee Việt Nam.';
-          } else if (type === 'mrbeast_titles') {
+          } else if (promptText === 'mrbeast_titles') {
             prompt = 'Hãy gợi ý cho tôi 5 tiêu đề tiếng Anh theo phong cách MrBeast (cực ngắn, giật gân, khơi dậy tò mò mạnh) cho video này, kèm nghĩa tiếng Việt.';
-          } else if (type === 'voiceover') {
+          } else if (promptText === 'voiceover') {
             prompt = 'Hãy viết kịch bản lời bình lồng tiếng (Voiceover Script) chi tiết từng phân cảnh cho video này từ đầu đến cuối.';
           }
           chatInput.value = prompt;
@@ -6061,6 +6068,7 @@ Nhiệm vụ: Trả lời hoặc viết lại/tinh chỉnh kịch bản theo yê
           formatAiText,
           clearChat,
           sendUserMessage,
+          submitChatMessage,
           sendQuickPrompt,
           applyAiSuggestion,
           exportFullScript,
