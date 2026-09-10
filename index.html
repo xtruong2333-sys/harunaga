@@ -287,23 +287,23 @@
 
     @keyframes pulse-rgb-aura {
       0%, 100% {
-        opacity: 0.75;
-        filter: blur(10px) brightness(1.1);
+        opacity: 0.55;
+        filter: blur(8px);
         transform: scale(1);
       }
       50% {
-        opacity: 1;
-        filter: blur(18px) brightness(1.4);
-        transform: scale(1.06);
+        opacity: 0.85;
+        filter: blur(12px);
+        transform: scale(1.03);
       }
     }
 
     @keyframes float-crown {
       0%, 100% { transform: translateY(0) rotate(-2deg); }
-      50% { transform: translateY(-5px) rotate(4deg); }
+      50% { transform: translateY(-4px) rotate(3deg); }
     }
 
-    /* Admin Rotating Conic RGB Mythic Frame */
+    /* Admin Royal Cyberpunk Frame - Tông màu hài hòa tuyệt đối với giao diện Harunaga Studio */
     .avatar-frame-admin {
       position: relative;
       display: inline-flex;
@@ -313,23 +313,23 @@
 
     .avatar-frame-admin-aura {
       position: absolute;
-      inset: -5px;
+      inset: -4px;
       border-radius: 9999px;
       background: conic-gradient(
-        #ff0055, #ff3300, #ffbb00, #00ff88, #00d4ff, #8800ff, #ff0055
+        from 0deg, #f59e0b, #ec4899, #8b5cf6, #06b6d4, #10b981, #f59e0b
       );
-      animation: spin-conic 4s linear infinite, pulse-rgb-aura 3s ease-in-out infinite;
+      animation: spin-conic 5s linear infinite, pulse-rgb-aura 3s ease-in-out infinite;
       z-index: 0;
     }
 
     .avatar-frame-admin-border {
       position: absolute;
-      inset: -1.5px;
+      inset: -2px;
       border-radius: 9999px;
       background: conic-gradient(
-        #ff0055, #ff3300, #ffbb00, #00ff88, #00d4ff, #8800ff, #ff0055
+        from 0deg, #f59e0b, #ec4899, #8b5cf6, #06b6d4, #10b981, #f59e0b
       );
-      animation: spin-conic 4s linear infinite;
+      animation: spin-conic 5s linear infinite;
       z-index: 1;
     }
 
@@ -337,7 +337,7 @@
       position: relative;
       z-index: 2;
       border-radius: 9999px;
-      background: #070b16;
+      background: #090e1a;
       padding: 3px;
       overflow: hidden;
     }
@@ -345,30 +345,30 @@
     /* Header Mini Avatar Admin Frame */
     .header-avatar-admin {
       position: relative;
-      padding: 2.5px;
+      padding: 2px;
     }
     .header-avatar-admin::before {
       content: '';
       position: absolute;
       inset: 0;
       border-radius: 9999px;
-      background: conic-gradient(#ff0055, #ffaa00, #00ff88, #00d4ff, #7928ca, #ff0055);
-      animation: spin-conic 3.5s linear infinite;
+      background: conic-gradient(from 0deg, #f59e0b, #ec4899, #8b5cf6, #06b6d4, #10b981, #f59e0b);
+      animation: spin-conic 4s linear infinite;
       z-index: 0;
     }
     .header-avatar-admin::after {
       content: '';
       position: absolute;
-      inset: -2px;
+      inset: -1.5px;
       border-radius: 9999px;
-      background: conic-gradient(#ff0055, #ffaa00, #00ff88, #00d4ff, #7928ca, #ff0055);
-      animation: spin-conic 3.5s linear infinite;
-      filter: blur(5px);
-      opacity: 0.7;
+      background: conic-gradient(from 0deg, #f59e0b, #ec4899, #8b5cf6, #06b6d4, #10b981, #f59e0b);
+      animation: spin-conic 4s linear infinite;
+      filter: blur(4px);
+      opacity: 0.6;
       z-index: -1;
     }
 
-    /* Member Cyan Frame */
+    /* Member Cyan Crystal Frame - Lam ngọc nhẹ nhàng, tinh tế */
     .avatar-frame-member {
       position: relative;
       display: inline-flex;
@@ -380,20 +380,20 @@
       inset: -2px;
       border-radius: 9999px;
       background: linear-gradient(135deg, #06b6d4, #3b82f6, #6366f1);
-      box-shadow: 0 0 16px rgba(6, 182, 212, 0.45);
+      box-shadow: 0 0 12px rgba(6, 182, 212, 0.4);
       z-index: 1;
     }
     .avatar-frame-member-inner {
       position: relative;
       z-index: 2;
       border-radius: 9999px;
-      background: #070b16;
+      background: #090e1a;
       padding: 2.5px;
     }
 
     .crown-glow {
       animation: float-crown 3s ease-in-out infinite;
-      filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.9));
+      filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.85));
     }
   </style>
 </head>
@@ -1042,7 +1042,9 @@
               alt="Avatar" 
               class="w-full h-full object-cover group-hover:scale-110 transition duration-300"
             >
-            <i v-else class="ph-fill ph-user text-base text-slate-300"></i>
+            <span v-else class="w-full h-full flex items-center justify-center bg-gradient-to-tr from-indigo-600 to-purple-600 text-white font-black text-xs uppercase select-none">
+              {{ (currentAccount.username || 'U').charAt(0) }}
+            </span>
           </div>
           <!-- Mini Crown for Admin in Header -->
           <span 
@@ -3794,8 +3796,8 @@
         </button>
       </div>
 
-      <!-- Scrollable Body (Thoải mái cuộn, không bao giờ bị cắt ở đáy) -->
-      <div class="p-3.5 sm:p-4 space-y-3.5 overflow-y-auto min-h-0 flex-1 overscroll-contain text-xs pb-5">
+      <!-- Scrollable Body (Thoải mái cuộn, có ID để reset cuộn lên đầu khi mở) -->
+      <div id="account-modal-scroll" class="p-3.5 sm:p-4 space-y-3.5 overflow-y-auto min-h-0 flex-1 overscroll-contain text-xs pb-6">
         
         <!-- THẺ THÔNG TIN CÁ NHÂN & KHUNG ĐẠI DIỆN SIÊU CẤP ĐẲNG CẤP -->
         <div 
@@ -3826,21 +3828,19 @@
               v-if="userRole === 'admin'"
               class="avatar-frame-admin"
             >
-              <!-- Outer Glowing Pulsing Aura -->
               <div class="avatar-frame-admin-aura"></div>
-              <!-- Sharp Rotating Conic Border -->
               <div class="avatar-frame-admin-border"></div>
-              <!-- Inner Avatar Container -->
               <div class="avatar-frame-admin-inner">
-                <div class="w-18 h-18 sm:w-22 sm:h-22 rounded-full overflow-hidden bg-slate-950 flex items-center justify-center relative">
+                <div class="w-18 h-18 sm:w-20 sm:h-20 rounded-full overflow-hidden bg-slate-950 flex items-center justify-center relative">
                   <img 
                     v-if="userAvatar" 
                     :src="userAvatar" 
                     alt="Avatar" 
                     class="w-full h-full object-cover rounded-full"
                   >
-                  <div v-else class="w-full h-full rounded-full bg-gradient-to-tr from-slate-800 to-slate-900 flex items-center justify-center text-slate-300 text-3xl">
-                    <i class="ph-fill ph-user"></i>
+                  <!-- Chữ cái đại diện phong cách Discord khi chưa tải ảnh -->
+                  <div v-else class="w-full h-full rounded-full bg-gradient-to-tr from-amber-500 via-rose-600 to-purple-600 flex items-center justify-center text-white text-2xl font-black shadow-inner select-none">
+                    {{ (currentAccount.username || 'A').charAt(0).toUpperCase() }}
                   </div>
                 </div>
               </div>
@@ -3848,7 +3848,6 @@
               <div class="absolute -top-3.5 -right-1 z-10 crown-glow pointer-events-none">
                 <span class="text-3xl leading-none" title="Khung Admin Quản Trị Tối Cao">👑</span>
               </div>
-              <!-- Luxury Corner Sparkles -->
               <span class="absolute -bottom-1 -left-1 text-xs text-amber-300 animate-spin-slow pointer-events-none z-10">✦</span>
               <span class="absolute top-1 -left-1.5 text-xs text-rose-400 pointer-events-none z-10 animate-pulse">✨</span>
             </div>
@@ -3860,35 +3859,35 @@
             >
               <div class="avatar-frame-member-border"></div>
               <div class="avatar-frame-member-inner">
-                <div class="w-18 h-18 sm:w-22 sm:h-22 rounded-full overflow-hidden bg-slate-950 flex items-center justify-center">
+                <div class="w-18 h-18 sm:w-20 sm:h-20 rounded-full overflow-hidden bg-slate-950 flex items-center justify-center">
                   <img 
                     v-if="userAvatar" 
                     :src="userAvatar" 
                     alt="Avatar" 
                     class="w-full h-full object-cover rounded-full"
                   >
-                  <div v-else class="w-full h-full rounded-full bg-gradient-to-tr from-slate-800 to-slate-900 flex items-center justify-center text-slate-300 text-3xl">
-                    <i class="ph-fill ph-user"></i>
+                  <div v-else class="w-full h-full rounded-full bg-gradient-to-tr from-cyan-500 via-blue-600 to-indigo-600 flex items-center justify-center text-white text-2xl font-black shadow-inner select-none">
+                    {{ (currentAccount.username || 'M').charAt(0).toUpperCase() }}
                   </div>
                 </div>
               </div>
               <span class="absolute -top-2 -right-1 text-xl drop-shadow-[0_0_8px_rgba(6,182,212,0.8)] z-10" title="Khung Thành Viên VIP">💎</span>
             </div>
 
-            <!-- Tier 3: BÌNH THƯỜNG - Không có khung gì nổi bật, viền xám tối giản -->
+            <!-- Tier 3: BÌNH THƯỜNG - Viền phẳng tinh tế, màu sắc hài hòa theo giao diện -->
             <div 
               v-else
-              class="relative p-1 rounded-full border-2 border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800"
+              class="relative p-1 rounded-full border-2 border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 shadow-sm"
             >
-              <div class="w-18 h-18 sm:w-22 sm:h-22 rounded-full overflow-hidden bg-slate-900 flex items-center justify-center">
+              <div class="w-18 h-18 sm:w-20 sm:h-20 rounded-full overflow-hidden bg-slate-200 dark:bg-slate-900 flex items-center justify-center">
                 <img 
                   v-if="userAvatar" 
                   :src="userAvatar" 
                   alt="Avatar" 
                   class="w-full h-full object-cover rounded-full"
                 >
-                <div v-else class="w-full h-full rounded-full bg-slate-800 flex items-center justify-center text-slate-400 text-3xl">
-                  <i class="ph-fill ph-user"></i>
+                <div v-else class="w-full h-full rounded-full bg-gradient-to-tr from-slate-600 to-slate-800 flex items-center justify-center text-white text-2xl font-black shadow-inner select-none">
+                  {{ (currentAccount.username || 'U').charAt(0).toUpperCase() }}
                 </div>
               </div>
             </div>
@@ -3902,7 +3901,7 @@
           <!-- Name & Official Rank Badge (Khung do hệ thống/admin sét, không để nút tự chọn lung tung) -->
           <div class="mt-2.5">
             <div class="text-lg font-black tracking-wide flex items-center justify-center gap-1.5">
-              <span class="bg-gradient-to-r from-white via-slate-100 to-slate-300 dark:from-white dark:via-slate-200 dark:to-slate-400 bg-clip-text text-transparent">
+              <span class="text-slate-900 dark:text-white">
                 {{ currentAccount.username }}
               </span>
               <span v-if="userRole === 'admin'" class="text-amber-400 text-base drop-shadow" title="Admin Tối Cao">👑</span>
@@ -3965,18 +3964,44 @@
           <div class="flex items-center justify-center gap-2 mt-3 pt-3 border-t border-slate-200/70 dark:border-slate-800/70">
             <label class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 via-rose-500 to-purple-600 hover:opacity-90 text-slate-950 font-black text-[11px] cursor-pointer shadow-md flex items-center space-x-1.5 transition">
               <i class="ph-bold ph-camera"></i>
-              <span>Đổi ảnh đại diện</span>
+              <span>Tải ảnh từ máy</span>
               <input type="file" accept="image/*" @change="handleAvatarUpload" class="hidden">
             </label>
             <button 
               v-if="userAvatar" 
               @click="removeAvatar"
               class="px-2.5 py-1.5 rounded-xl bg-slate-200 dark:bg-slate-800 hover:bg-rose-500 hover:text-white text-slate-600 dark:text-slate-300 text-[11px] font-bold transition flex items-center space-x-1 cursor-pointer"
-              title="Xóa ảnh tự chọn và dùng ảnh mặc định"
+              title="Khôi phục ảnh đại diện mặc định"
             >
-              <i class="ph ph-trash"></i>
-              <span>Gỡ ảnh</span>
+              <i class="ph ph-arrow-counter-clockwise"></i>
+              <span>Mặc định</span>
             </button>
+          </div>
+
+          <!-- Bộ sưu tập Avatar mẫu Gaming 1 chạm -->
+          <div class="mt-3 pt-3 border-t border-slate-200/80 dark:border-slate-800/80">
+            <div class="text-[10px] font-bold text-slate-600 dark:text-slate-400 mb-2 flex items-center justify-between">
+              <span class="flex items-center gap-1">
+                <i class="ph-bold ph-sparkle text-amber-500"></i>
+                <span>Kho Avatar Mẫu Gaming:</span>
+              </span>
+              <span class="text-[9px] text-purple-600 dark:text-purple-400 font-semibold bg-purple-500/10 px-2 py-0.5 rounded-full">Chọn 1 chạm</span>
+            </div>
+            <div class="grid grid-cols-6 gap-1.5">
+              <button 
+                v-for="preset in PRESET_AVATARS" 
+                :key="preset.id"
+                type="button"
+                @click="selectPresetAvatar(preset.url)"
+                class="p-1 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-purple-500 dark:hover:border-purple-500 bg-white dark:bg-slate-900 transition hover:scale-105 cursor-pointer flex flex-col items-center group shadow-sm"
+                :title="preset.name"
+              >
+                <div class="w-8 h-8 rounded-full overflow-hidden bg-slate-100 dark:bg-slate-800 p-0.5 border border-slate-200 dark:border-slate-700">
+                  <img :src="preset.url" :alt="preset.name" class="w-full h-full object-contain">
+                </div>
+                <span class="text-[8px] text-slate-500 dark:text-slate-400 truncate max-w-full mt-0.5 group-hover:text-purple-400 font-medium">{{ preset.shortName }}</span>
+              </button>
+            </div>
           </div>
 
         </div>
@@ -4025,7 +4050,7 @@
           >
             <div class="flex items-center space-x-1.5">
               <i class="ph-bold ph-gear-six text-indigo-500"></i>
-              <span>{{ showEditCredentials ? 'Thu gọn thiết lập bảo mật' : 'Thiết lập tài khoản & Phân quyền' }}</span>
+              <span>{{ showEditCredentials ? 'Thu gọn cài đặt tài khoản' : (userRole === 'admin' ? 'Thiết lập tài khoản & Phân quyền' : 'Đổi tên tài khoản & Mật khẩu') }}</span>
             </div>
             <i 
               class="ph-bold ph-caret-down text-xs text-slate-400 transition-transform duration-200"
@@ -4047,8 +4072,8 @@
               >
             </div>
 
-            <!-- Cài đặt phân quyền khung đại diện (Do Admin thiết lập) -->
-            <div class="pt-2 border-t border-slate-200 dark:border-slate-800 space-y-2">
+            <!-- Cài đặt phân quyền khung đại diện (CHỈ HIỂN THỊ KHI TÀI KHOẢN LÀ ADMIN MASTER) -->
+            <div v-if="userRole === 'admin'" class="pt-2 border-t border-slate-200 dark:border-slate-800 space-y-2">
               <div class="flex items-center justify-between text-[11px] font-bold text-slate-700 dark:text-slate-300">
                 <span class="flex items-center gap-1.5">
                   <i class="ph-bold ph-crown text-amber-400"></i>
@@ -4069,8 +4094,8 @@
                   @click="setUserRole('admin')"
                   class="p-2 rounded-xl border text-center transition cursor-pointer flex flex-col items-center gap-1"
                   :class="userRole === 'admin' 
-                    ? 'bg-purple-950/40 border-amber-400/80 text-amber-300 font-black shadow-md ring-1 ring-amber-400/40' 
-                    : 'bg-slate-100 dark:bg-slate-900/60 border-slate-200 dark:border-slate-800 text-slate-500 hover:text-slate-300'"
+                    ? 'bg-purple-950/40 border-amber-400 text-amber-300 font-black shadow-md ring-1 ring-amber-400/40' 
+                    : 'bg-slate-100 dark:bg-slate-900/60 border-slate-200 dark:border-slate-800 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'"
                 >
                   <span class="text-base">👑</span>
                   <span class="text-[10px] font-black leading-tight">Admin Master</span>
@@ -4082,8 +4107,8 @@
                   @click="setUserRole('member')"
                   class="p-2 rounded-xl border text-center transition cursor-pointer flex flex-col items-center gap-1"
                   :class="userRole === 'member' 
-                    ? 'bg-cyan-950/40 border-cyan-400/80 text-cyan-300 font-black shadow-md ring-1 ring-cyan-400/40' 
-                    : 'bg-slate-100 dark:bg-slate-900/60 border-slate-200 dark:border-slate-800 text-slate-500 hover:text-slate-300'"
+                    ? 'bg-cyan-950/40 border-cyan-400 text-cyan-300 font-black shadow-md ring-1 ring-cyan-400/40' 
+                    : 'bg-slate-100 dark:bg-slate-900/60 border-slate-200 dark:border-slate-800 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'"
                 >
                   <span class="text-base">💎</span>
                   <span class="text-[10px] font-black leading-tight">Thành Viên VIP</span>
@@ -4095,14 +4120,23 @@
                   @click="setUserRole('normal')"
                   class="p-2 rounded-xl border text-center transition cursor-pointer flex flex-col items-center gap-1"
                   :class="userRole === 'normal' 
-                    ? 'bg-slate-200 dark:bg-slate-800 border-slate-400 text-white font-black shadow-sm ring-1 ring-slate-400/40' 
-                    : 'bg-slate-100 dark:bg-slate-900/60 border-slate-200 dark:border-slate-800 text-slate-500 hover:text-slate-300'"
+                    ? 'bg-slate-800 text-white dark:bg-slate-700 dark:text-white border-slate-600 font-black shadow-sm' 
+                    : 'bg-slate-100 dark:bg-slate-900/60 border-slate-200 dark:border-slate-800 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'"
                 >
                   <span class="text-base">👤</span>
                   <span class="text-[10px] font-black leading-tight">Bình Thường</span>
                   <span class="text-[8px] opacity-75">Chuẩn Tối Giản</span>
                 </button>
               </div>
+            </div>
+
+            <!-- DÀNH CHO THÀNH VIÊN THƯỜNG: CHỈ XEM CẤP BẬC, KHÔNG CÓ NÚT TỰ ĐỔI QUYỀN -->
+            <div v-else class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-300 flex items-center justify-between">
+              <span class="flex items-center gap-1.5 font-bold">
+                <i class="ph-bold ph-shield-check text-indigo-500"></i>
+                <span>Cấp bậc: <strong class="text-purple-600 dark:text-purple-400">{{ userRole === 'member' ? '💎 Thành Viên VIP' : '👤 Thành Viên Chuẩn' }}</strong></span>
+              </span>
+              <span class="text-[10px] text-slate-400 italic font-medium">Do Admin phân quyền</span>
             </div>
 
             <!-- Đổi mật khẩu mới -->
@@ -4548,7 +4582,7 @@
           JSON.stringify({ username: 'truongday', password: '123', role: 'admin' })
         ));
         if (!currentAccount.value.role) {
-          currentAccount.value.role = 'admin';
+          currentAccount.value.role = currentAccount.value.username?.toLowerCase() === 'truongday' ? 'admin' : 'normal';
         }
 
         const authUsername = ref(currentAccount.value.username || 'truongday');
@@ -4600,14 +4634,16 @@
           }
 
           if (matchedAccount) {
+            const avatarVal = matchedAccount.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(matchedAccount.username)}`;
             currentAccount.value = {
               username: matchedAccount.username,
               password: matchedAccount.password,
-              role: matchedAccount.role || (matchedAccount.username.toLowerCase() === 'truongday' ? 'admin' : 'normal')
+              role: matchedAccount.role || (matchedAccount.username.toLowerCase() === 'truongday' ? 'admin' : 'normal'),
+              avatar: avatarVal
             };
-            userRole.value = currentAccount.value.role;
+            userAvatar.value = avatarVal;
+            localStorage.setItem('USER_AVATAR', userAvatar.value);
             localStorage.setItem('AUTH_ACCOUNT', JSON.stringify(currentAccount.value));
-            localStorage.setItem('USER_ROLE', currentAccount.value.role);
 
             isLoggedIn.value = true;
             if (authRemember.value) {
@@ -4650,6 +4686,7 @@
             return;
           }
 
+          const defaultAvatar = `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(u)}`;
           // Save to Firebase Cloud Firestore if connected
           if (firestoreDb) {
             try {
@@ -4663,6 +4700,7 @@
                 username: u,
                 password: p,
                 role: 'normal',
+                avatar: defaultAvatar,
                 createdAt: new Date().toISOString()
               });
             } catch (err) {
@@ -4675,6 +4713,7 @@
             username: u,
             password: p,
             role: 'normal',
+            avatar: defaultAvatar,
             createdAt: new Date().toISOString()
           };
           localAccounts.value.push(newAcc);
@@ -4699,7 +4738,6 @@
 
           if (currentAccount.value.username.toLowerCase() === targetUsername.toLowerCase()) {
             currentAccount.value.role = newRole;
-            userRole.value = newRole;
             localStorage.setItem('AUTH_ACCOUNT', JSON.stringify(currentAccount.value));
             localStorage.setItem('USER_ROLE', newRole);
           }
@@ -4777,12 +4815,60 @@
         // Personal Account & Avatar State
         const showAccountModal = ref(false);
         const showEditCredentials = ref(false);
-        const userRole = ref(localStorage.getItem('USER_ROLE') || 'admin');
-        const userAvatar = ref(localStorage.getItem('USER_AVATAR') || '');
+        const userRole = computed(() => {
+          const r = currentAccount.value?.role;
+          if (r) return r;
+          return currentAccount.value?.username?.toLowerCase() === 'truongday' ? 'admin' : 'normal';
+        });
+        const userAvatar = ref(currentAccount.value?.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(currentAccount.value?.username || 'user')}`);
+
+        // Preset Avatars Gallery
+        const PRESET_AVATARS = [
+          { id: 'mecha', shortName: 'Mecha', name: 'Robot Mecha Chiến Binh', url: 'https://api.dicebear.com/7.x/bottts/svg?seed=Mecha' },
+          { id: 'cyber', shortName: 'Cyber', name: 'Cyberpunk Ninja', url: 'https://api.dicebear.com/7.x/bottts/svg?seed=Cyber' },
+          { id: 'gamer', shortName: 'Gamer', name: 'Gamer Pro', url: 'https://api.dicebear.com/7.x/bottts/svg?seed=Gamer' },
+          { id: 'shadow', shortName: 'Shadow', name: 'Hắc Báo Neon', url: 'https://api.dicebear.com/7.x/bottts/svg?seed=Shadow' },
+          { id: 'apollo', shortName: 'Astro', name: 'Phi Hành Gia', url: 'https://api.dicebear.com/7.x/bottts/svg?seed=Apollo' },
+          { id: 'crown', shortName: 'Royal', name: 'Hoàng Gia VIP', url: 'https://api.dicebear.com/7.x/bottts/svg?seed=Crown' },
+        ];
+
+        const selectPresetAvatar = (url) => {
+          userAvatar.value = url;
+          localStorage.setItem('USER_AVATAR', url);
+          currentAccount.value.avatar = url;
+          localStorage.setItem('AUTH_ACCOUNT', JSON.stringify(currentAccount.value));
+
+          const idx = localAccounts.value.findIndex(a => a.username.toLowerCase() === currentAccount.value.username.toLowerCase());
+          if (idx !== -1) {
+            localAccounts.value[idx].avatar = url;
+            localStorage.setItem('AUTH_ACCOUNTS_LIST', JSON.stringify(localAccounts.value));
+          }
+
+          if (firestoreDb) {
+            firestoreDb.collection('users').doc(currentAccount.value.username.toLowerCase()).update({
+              avatar: url
+            }).catch(err => console.warn('Cloud preset avatar save error:', err));
+          }
+
+          showToast('⭐ Đã đổi sang ảnh đại diện mẫu!');
+        };
 
         const setUserRole = (role) => {
-          userRole.value = role;
-          localStorage.setItem('USER_ROLE', role);
+          currentAccount.value.role = role;
+          localStorage.setItem('AUTH_ACCOUNT', JSON.stringify(currentAccount.value));
+          
+          const idx = localAccounts.value.findIndex(a => a.username.toLowerCase() === currentAccount.value.username.toLowerCase());
+          if (idx !== -1) {
+            localAccounts.value[idx].role = role;
+            localStorage.setItem('AUTH_ACCOUNTS_LIST', JSON.stringify(localAccounts.value));
+          }
+
+          if (firestoreDb) {
+            firestoreDb.collection('users').doc(currentAccount.value.username.toLowerCase()).update({
+              role: role
+            }).catch(e => console.warn('Cloud role update error:', e));
+          }
+
           showToast(
             role === 'admin' ? '👑 Đã bật khung Admin: Màu mè rực rỡ & Hào quang RGB' :
             role === 'member' ? '💎 Đã bật khung Thành viên: Tinh tế & Màu nhẹ nhàng' :
@@ -4805,6 +4891,10 @@
           accountFormNewPass.value = '';
           accountFormConfirmPass.value = '';
           showAccountModal.value = true;
+          setTimeout(() => {
+            const sc = document.getElementById('account-modal-scroll');
+            if (sc) sc.scrollTop = 0;
+          }, 60);
         };
 
         const handleAvatarUpload = (event) => {
@@ -4819,15 +4909,46 @@
             const base64 = e.target.result;
             userAvatar.value = base64;
             localStorage.setItem('USER_AVATAR', base64);
+            currentAccount.value.avatar = base64;
+            localStorage.setItem('AUTH_ACCOUNT', JSON.stringify(currentAccount.value));
+
+            const idx = localAccounts.value.findIndex(a => a.username.toLowerCase() === currentAccount.value.username.toLowerCase());
+            if (idx !== -1) {
+              localAccounts.value[idx].avatar = base64;
+              localStorage.setItem('AUTH_ACCOUNTS_LIST', JSON.stringify(localAccounts.value));
+            }
+
+            if (firestoreDb) {
+              firestoreDb.collection('users').doc(currentAccount.value.username.toLowerCase()).update({
+                avatar: base64
+              }).catch(err => console.warn('Cloud avatar save error:', err));
+            }
+
             showToast('⭐ Đã cập nhật ảnh đại diện thành công!');
           };
           reader.readAsDataURL(file);
         };
 
         const removeAvatar = () => {
-          userAvatar.value = '';
-          localStorage.removeItem('USER_AVATAR');
-          showToast('Đã gỡ ảnh đại diện về mặc định!');
+          const defaultSeedAvatar = `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(currentAccount.value.username || 'user')}`;
+          userAvatar.value = defaultSeedAvatar;
+          localStorage.setItem('USER_AVATAR', defaultSeedAvatar);
+          currentAccount.value.avatar = defaultSeedAvatar;
+          localStorage.setItem('AUTH_ACCOUNT', JSON.stringify(currentAccount.value));
+
+          const idx = localAccounts.value.findIndex(a => a.username.toLowerCase() === currentAccount.value.username.toLowerCase());
+          if (idx !== -1) {
+            localAccounts.value[idx].avatar = defaultSeedAvatar;
+            localStorage.setItem('AUTH_ACCOUNTS_LIST', JSON.stringify(localAccounts.value));
+          }
+
+          if (firestoreDb) {
+            firestoreDb.collection('users').doc(currentAccount.value.username.toLowerCase()).update({
+              avatar: defaultSeedAvatar
+            }).catch(err => console.warn('Cloud avatar remove error:', err));
+          }
+
+          showToast('Đã khôi phục ảnh đại diện mặc định!');
         };
 
         const saveAccountSettings = () => {
@@ -4836,6 +4957,10 @@
             showToast('Tên tài khoản không được để trống!');
             return;
           }
+          const oldRole = currentAccount.value.role || (currentAccount.value.username?.toLowerCase() === 'truongday' ? 'admin' : 'normal');
+          const oldAvatar = currentAccount.value.avatar || userAvatar.value || `https://api.dicebear.com/7.x/bottts/svg?seed=${encodeURIComponent(newU)}`;
+          const oldU = currentAccount.value.username;
+
           if (accountFormNewPass.value) {
             if (accountFormCurrentPass.value !== currentAccount.value.password) {
               showToast('Mật khẩu hiện tại không chính xác!');
@@ -4847,9 +4972,29 @@
             }
             currentAccount.value = {
               username: newU,
-              password: accountFormNewPass.value
+              password: accountFormNewPass.value,
+              role: oldRole,
+              avatar: oldAvatar
             };
             localStorage.setItem('AUTH_ACCOUNT', JSON.stringify(currentAccount.value));
+
+            const idx = localAccounts.value.findIndex(a => a.username.toLowerCase() === oldU.toLowerCase() || a.username.toLowerCase() === newU.toLowerCase());
+            if (idx !== -1) {
+              localAccounts.value[idx].username = newU;
+              localAccounts.value[idx].password = accountFormNewPass.value;
+              localStorage.setItem('AUTH_ACCOUNTS_LIST', JSON.stringify(localAccounts.value));
+            }
+
+            if (firestoreDb) {
+              firestoreDb.collection('users').doc(newU.toLowerCase()).set({
+                username: newU,
+                password: accountFormNewPass.value,
+                role: oldRole,
+                avatar: oldAvatar,
+                updatedAt: new Date().toISOString()
+              }, { merge: true }).catch(err => console.warn('Cloud save settings error:', err));
+            }
+
             showToast('Đã đổi tài khoản & mật khẩu mới thành công!');
             accountFormCurrentPass.value = '';
             accountFormNewPass.value = '';
@@ -4857,8 +5002,30 @@
             showEditCredentials.value = false;
             showAccountModal.value = false;
           } else {
-            currentAccount.value.username = newU;
+            currentAccount.value = {
+              username: newU,
+              password: currentAccount.value.password,
+              role: oldRole,
+              avatar: oldAvatar
+            };
             localStorage.setItem('AUTH_ACCOUNT', JSON.stringify(currentAccount.value));
+
+            const idx = localAccounts.value.findIndex(a => a.username.toLowerCase() === oldU.toLowerCase());
+            if (idx !== -1) {
+              localAccounts.value[idx].username = newU;
+              localStorage.setItem('AUTH_ACCOUNTS_LIST', JSON.stringify(localAccounts.value));
+            }
+
+            if (firestoreDb) {
+              firestoreDb.collection('users').doc(newU.toLowerCase()).set({
+                username: newU,
+                password: currentAccount.value.password,
+                role: oldRole,
+                avatar: oldAvatar,
+                updatedAt: new Date().toISOString()
+              }, { merge: true }).catch(err => console.warn('Cloud save name error:', err));
+            }
+
             showToast('Đã lưu tên tài khoản mới thành công!');
             showEditCredentials.value = false;
             showAccountModal.value = false;
@@ -5852,6 +6019,8 @@ Nhiệm vụ: Trả lời hoặc viết lại/tinh chỉnh kịch bản theo yê
           userRole,
           setUserRole,
           userAvatar,
+          PRESET_AVATARS,
+          selectPresetAvatar,
           authTab,
           registerUsername,
           registerPassword,
