@@ -58,7 +58,7 @@ def send_discord_alert(webhook_url: str, video_info: dict, channel_name: str, th
             "url": thumbnail
         },
         "footer": {
-            "text": "Competitor Video Tracker 24/7 • GitHub Actions",
+            "text": "Bắt Bài Đối Thủ 24/7 • by Truongday",
             "icon_url": "https://cdn-icons-png.flaticon.com/512/1384/1384060.png"
         },
         "timestamp": datetime.now(timezone.utc).isoformat()
@@ -122,7 +122,7 @@ def send_discord_alert(webhook_url: str, video_info: dict, channel_name: str, th
             "description": "Chiến lược làm lại video vượt trội đối thủ & đóng gói thành phẩm chuẩn US/Global:",
             "fields": ai_fields,
             "footer": {
-                "text": "Powered by Google Gemini 1.5 Flash • 0đ",
+                "text": "Bắt Bài Đối Thủ • Phân Tích Độc Quyền bởi Truongday",
                 "icon_url": "https://cdn-icons-png.flaticon.com/512/2103/2103832.png"
             }
         }
