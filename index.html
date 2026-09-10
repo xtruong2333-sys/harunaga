@@ -29,11 +29,29 @@
   </script>
   <style>
     [v-cloak] { display: none; }
+    .line-clamp-1 {
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
     .line-clamp-2 {
       display: -webkit-box;
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
+    }
+    body {
+      word-break: normal;
+      overflow-wrap: break-word;
+    }
+    /* Hide scrollbar for Chrome, Safari and Opera */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
     }
     /* Custom scrollbar */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -44,34 +62,34 @@
 </head>
 <body class="bg-slate-100 dark:bg-darkBg text-slate-900 dark:text-slate-100 min-h-screen font-sans antialiased selection:bg-rose-500 selection:text-white transition-colors duration-200">
 
-  <div id="app" v-cloak class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div id="app" v-cloak class="max-w-[1720px] w-full mx-auto px-3 sm:px-6 lg:px-8 py-5 sm:py-8">
     
     <!-- Top Header -->
-    <header class="flex flex-col md:flex-row md:items-center md:justify-between pb-6 border-b border-slate-300 dark:border-slate-800 gap-4">
+    <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-5 sm:pb-6 border-b border-slate-300 dark:border-slate-800 gap-3 sm:gap-4">
       <div>
-        <div class="flex items-center space-x-3">
-          <div class="p-2.5 bg-gradient-to-tr from-rose-600 via-purple-600 to-amber-500 rounded-2xl shadow-lg shadow-purple-900/30">
-            <i class="ph ph-fire text-2xl text-white"></i>
+        <div class="flex items-center space-x-2.5 sm:space-x-3">
+          <div class="p-2 sm:p-2.5 bg-gradient-to-tr from-rose-600 via-purple-600 to-amber-500 rounded-2xl shadow-lg shadow-purple-900/30 flex-shrink-0">
+            <i class="ph ph-fire text-xl sm:text-2xl text-white"></i>
           </div>
           <div>
-            <div class="flex items-center space-x-2">
-              <h1 class="text-2xl sm:text-3xl font-black tracking-tight bg-gradient-to-r from-slate-900 via-slate-800 to-slate-600 dark:from-white dark:via-slate-100 dark:to-slate-400 bg-clip-text text-transparent">
+            <div class="flex items-center space-x-2 flex-wrap gap-y-1">
+              <h1 class="text-xl sm:text-2xl lg:text-3xl font-black tracking-tight bg-gradient-to-r from-slate-900 via-slate-800 to-slate-600 dark:from-white dark:via-slate-100 dark:to-slate-400 bg-clip-text text-transparent">
                 Competitor Tracker
               </h1>
-              <span class="bg-gradient-to-r from-purple-500 to-indigo-500 text-[10px] uppercase font-black px-2 py-0.5 rounded-full text-white tracking-widest shadow-sm">
+              <span class="bg-gradient-to-r from-purple-500 to-indigo-500 text-[9px] sm:text-[10px] uppercase font-black px-2 py-0.5 rounded-full text-white tracking-widest shadow-sm whitespace-nowrap">
                 AI Strategist & Analytics
               </span>
             </div>
-            <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+            <p class="text-[11px] sm:text-xs lg:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
               Giám sát video đối thủ, AI Remake kịch bản & phân tích tăng trưởng 47 kênh 24/7
             </p>
           </div>
         </div>
       </div>
 
-      <div class="flex items-center space-x-2.5">
+      <div class="flex items-center space-x-2 self-start sm:self-auto flex-wrap gap-y-2">
         <!-- Live Cloud Pill -->
-        <div class="flex items-center space-x-2 bg-emerald-100 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-800/80 px-3 py-1.5 rounded-full text-xs font-medium text-emerald-800 dark:text-emerald-300 shadow-sm">
+        <div class="flex items-center space-x-1.5 bg-emerald-100 dark:bg-emerald-950/60 border border-emerald-300 dark:border-emerald-800/80 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full text-[11px] sm:text-xs font-medium text-emerald-800 dark:text-emerald-300 shadow-sm whitespace-nowrap">
           <span class="relative flex h-2 w-2">
             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
             <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
@@ -83,36 +101,38 @@
         <button 
           @click="toggleTheme" 
           :title="isDark ? 'Chuyển sang Chế độ Sáng' : 'Chuyển sang Chế độ Tối'"
-          class="p-2 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl text-base shadow-sm transition transform active:scale-95 flex items-center justify-center"
+          class="p-1.5 sm:p-2 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl text-base shadow-sm transition transform active:scale-95 flex items-center justify-center"
         >
-          <i v-if="isDark" class="ph ph-sun text-amber-400 text-lg"></i>
-          <i v-else class="ph ph-moon text-indigo-600 text-lg"></i>
+          <i v-if="isDark" class="ph ph-sun text-amber-400 text-base sm:text-lg"></i>
+          <i v-else class="ph ph-moon text-indigo-600 text-base sm:text-lg"></i>
         </button>
 
         <!-- Quản lý kênh Button -->
         <button 
           @click="openAdminModal" 
-          class="flex items-center space-x-1.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white px-3.5 py-2 rounded-xl text-xs font-bold shadow-lg shadow-purple-900/30 transition transform active:scale-95"
+          class="flex items-center space-x-1.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-[11px] sm:text-xs font-bold shadow-lg shadow-purple-900/30 transition transform active:scale-95 whitespace-nowrap"
         >
-          <i class="ph ph-sliders text-sm"></i>
+          <i class="ph ph-sliders text-xs sm:text-sm"></i>
           <span>Quản lý kênh & Quét</span>
         </button>
       </div>
     </header>
 
     <!-- Main Navigation Menu (Menu chọn giữa 2 phần) -->
-    <nav class="flex items-center space-x-3 my-6 border-b border-slate-300 dark:border-slate-800 pb-4">
+    <nav class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:space-x-3 my-4 sm:my-6 border-b border-slate-300 dark:border-slate-800 pb-4">
       <!-- Tab 1: Video & AI Remake -->
       <button 
         @click="activeMainTab = 'videos'"
         :class="activeMainTab === 'videos' 
           ? 'bg-gradient-to-r from-rose-600 to-indigo-600 text-white font-black shadow-lg shadow-rose-900/20' 
           : 'bg-white dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-slate-400'"
-        class="px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-bold flex items-center space-x-2 transition duration-200"
+        class="px-4 sm:px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-bold flex items-center justify-between sm:justify-start space-x-2 transition duration-200 whitespace-nowrap"
       >
-        <i class="ph ph-film-strip text-lg"></i>
-        <span>1. Giám Sát Video & AI Remake</span>
-        <span class="text-[11px] px-2 py-0.5 rounded-full bg-black/20 text-white font-semibold">{{ stats.total_videos }}</span>
+        <div class="flex items-center space-x-2">
+          <i class="ph ph-film-strip text-base sm:text-lg"></i>
+          <span>1. Giám Sát Video & AI Remake</span>
+        </div>
+        <span class="text-[10px] sm:text-[11px] px-2 py-0.5 rounded-full bg-black/20 text-white font-semibold flex-shrink-0">{{ stats.total_videos }}</span>
       </button>
 
       <!-- Tab 2: Phân Tích Kênh & Leaderboard -->
@@ -121,11 +141,13 @@
         :class="activeMainTab === 'channels' 
           ? 'bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white font-black shadow-lg shadow-purple-900/20' 
           : 'bg-white dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-slate-400'"
-        class="px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-bold flex items-center space-x-2 transition duration-200"
+        class="px-4 sm:px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-bold flex items-center justify-between sm:justify-start space-x-2 transition duration-200 whitespace-nowrap"
       >
-        <i class="ph ph-chart-line-up text-lg"></i>
-        <span>2. Bảng Xếp Hạng & Tăng Trưởng Kênh</span>
-        <span class="text-[11px] px-2 py-0.5 rounded-full bg-black/20 text-white font-semibold">{{ stats.total_channels }} kênh</span>
+        <div class="flex items-center space-x-2">
+          <i class="ph ph-chart-line-up text-base sm:text-lg"></i>
+          <span>2. Bảng Xếp Hạng & Tăng Trưởng Kênh</span>
+        </div>
+        <span class="text-[10px] sm:text-[11px] px-2 py-0.5 rounded-full bg-black/20 text-white font-semibold flex-shrink-0">{{ stats.total_channels }} kênh</span>
       </button>
     </nav>
 
@@ -144,52 +166,52 @@
     <section v-if="activeMainTab === 'videos'">
 
       <!-- Stats Overview Cards -->
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <div class="bg-white dark:bg-cardBg border border-slate-200 dark:border-borderDark rounded-2xl p-4 shadow-sm">
-          <span class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Kênh theo dõi</span>
-          <div class="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white mt-1">{{ stats.total_channels }}</div>
-          <div class="text-xs text-slate-500 dark:text-slate-500 mt-1 flex items-center">
-            <i class="ph ph-broadcast mr-1 text-indigo-500"></i> Quét tự động mỗi 1 giờ
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-5 sm:mb-6">
+        <div class="bg-white dark:bg-cardBg border border-slate-200 dark:border-borderDark rounded-2xl p-3 sm:p-4 shadow-sm">
+          <span class="text-[10px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block truncate">Kênh theo dõi</span>
+          <div class="text-xl sm:text-3xl font-black text-slate-900 dark:text-white mt-1">{{ stats.total_channels }}</div>
+          <div class="text-[10px] sm:text-xs text-slate-500 dark:text-slate-500 mt-1 flex items-center whitespace-nowrap truncate">
+            <i class="ph ph-broadcast mr-1 text-indigo-500 flex-shrink-0"></i> Quét tự động mỗi 1h
           </div>
         </div>
 
-        <div class="bg-white dark:bg-cardBg border border-slate-200 dark:border-borderDark rounded-2xl p-4 shadow-sm">
-          <span class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Video đã quét</span>
-          <div class="text-2xl sm:text-3xl font-black text-indigo-600 dark:text-indigo-400 mt-1">{{ stats.total_videos }}</div>
-          <div class="text-xs text-slate-500 dark:text-slate-500 mt-1 flex items-center">
-            <i class="ph ph-video mr-1 text-indigo-500"></i> 15 video mới nhất/kênh
+        <div class="bg-white dark:bg-cardBg border border-slate-200 dark:border-borderDark rounded-2xl p-3 sm:p-4 shadow-sm">
+          <span class="text-[10px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block truncate">Video đã quét</span>
+          <div class="text-xl sm:text-3xl font-black text-indigo-600 dark:text-indigo-400 mt-1">{{ stats.total_videos }}</div>
+          <div class="text-[10px] sm:text-xs text-slate-500 dark:text-slate-500 mt-1 flex items-center whitespace-nowrap truncate">
+            <i class="ph ph-video mr-1 text-indigo-500 flex-shrink-0"></i> 15 video mới nhất/kênh
           </div>
         </div>
 
-        <div class="bg-white dark:bg-cardBg border border-rose-300 dark:border-rose-900/40 bg-gradient-to-b from-rose-50/50 dark:from-cardBg to-rose-100/50 dark:to-rose-950/20 rounded-2xl p-4 shadow-sm">
-          <span class="text-xs font-bold text-rose-600 dark:text-rose-400 uppercase tracking-wider flex items-center">
-            <i class="ph-fill ph-fire text-rose-500 mr-1"></i> Video Đang Viral
+        <div class="bg-white dark:bg-cardBg border border-rose-300 dark:border-rose-900/40 bg-gradient-to-b from-rose-50/50 dark:from-cardBg to-rose-100/50 dark:to-rose-950/20 rounded-2xl p-3 sm:p-4 shadow-sm">
+          <span class="text-[10px] sm:text-xs font-bold text-rose-600 dark:text-rose-400 uppercase tracking-wider flex items-center whitespace-nowrap truncate">
+            <i class="ph-fill ph-fire text-rose-500 mr-1 flex-shrink-0"></i> Video Đang Viral
           </span>
-          <div class="text-2xl sm:text-3xl font-black text-rose-600 dark:text-rose-500 mt-1">{{ stats.viral_count }}</div>
-          <div class="text-xs text-rose-600/80 dark:text-rose-400/70 mt-1 flex items-center">
+          <div class="text-xl sm:text-3xl font-black text-rose-600 dark:text-rose-500 mt-1">{{ stats.viral_count }}</div>
+          <div class="text-[10px] sm:text-xs text-rose-600/80 dark:text-rose-400/70 mt-1 flex items-center whitespace-nowrap">
             Tốc độ &ge; 5.000 view/h
           </div>
         </div>
 
-        <div class="bg-white dark:bg-cardBg border border-slate-200 dark:border-borderDark rounded-2xl p-4 shadow-sm">
-          <span class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Cập nhật lần cuối</span>
-          <div class="text-sm sm:text-base font-bold text-slate-900 dark:text-slate-200 mt-2 truncate">
+        <div class="bg-white dark:bg-cardBg border border-slate-200 dark:border-borderDark rounded-2xl p-3 sm:p-4 shadow-sm">
+          <span class="text-[10px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block truncate">Cập nhật lần cuối</span>
+          <div class="text-xs sm:text-base font-bold text-slate-900 dark:text-slate-200 mt-1 sm:mt-2 truncate" :title="lastUpdatedFormatted">
             {{ lastUpdatedFormatted || 'Đang tải...' }}
           </div>
-          <div class="text-xs text-slate-500 dark:text-slate-500 mt-1 flex items-center">
-            <i class="ph ph-clock mr-1 text-indigo-500"></i> {{ timeSinceUpdate }}
+          <div class="text-[10px] sm:text-xs text-slate-500 dark:text-slate-500 mt-1 flex items-center whitespace-nowrap">
+            <i class="ph ph-clock mr-1 text-indigo-500 flex-shrink-0"></i> {{ timeSinceUpdate }}
           </div>
         </div>
       </div>
 
       <!-- Quick Filter Pills -->
-      <div class="flex items-center space-x-2 overflow-x-auto pb-2 mb-4">
+      <div class="flex items-center space-x-2 overflow-x-auto pb-2 mb-4 no-scrollbar">
         <button 
           @click="filterTab = 'all'" 
           :class="filterTab === 'all' 
             ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black shadow-md' 
             : 'bg-white dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-slate-400'"
-          class="px-4 py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5 whitespace-nowrap transition"
+          class="flex-shrink-0 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5 whitespace-nowrap transition"
         >
           <span>Tất cả video</span>
           <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200">{{ stats.total_videos }}</span>
@@ -200,7 +222,7 @@
           :class="filterTab === 'viral' 
             ? 'bg-rose-600 text-white font-black shadow-lg shadow-rose-900/30' 
             : 'bg-white dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-rose-500/50'"
-          class="px-4 py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5 whitespace-nowrap transition"
+          class="flex-shrink-0 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5 whitespace-nowrap transition"
         >
           <i class="ph-fill ph-fire text-amber-400"></i>
           <span>Chỉ Video Viral (&ge; 5k/h)</span>
@@ -212,7 +234,7 @@
           :class="filterTab === 'high_speed' 
             ? 'bg-amber-500 text-white font-black shadow-md' 
             : 'bg-white dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-amber-400'"
-          class="px-4 py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5 whitespace-nowrap transition"
+          class="flex-shrink-0 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5 whitespace-nowrap transition"
         >
           <i class="ph ph-lightning text-amber-400"></i>
           <span>Tăng Nhanh (&ge; 1k/h)</span>
@@ -223,7 +245,7 @@
           :class="filterTab === 'ai' 
             ? 'bg-purple-600 text-white font-black shadow-lg shadow-purple-900/30' 
             : 'bg-white dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-purple-400'"
-          class="px-4 py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5 whitespace-nowrap transition"
+          class="flex-shrink-0 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5 whitespace-nowrap transition"
         >
           <i class="ph ph-sparkle text-purple-300"></i>
           <span>Có Kịch Bản AI</span>
@@ -234,7 +256,7 @@
           :class="filterTab === 'recent' 
             ? 'bg-indigo-600 text-white font-black shadow-md' 
             : 'bg-white dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:border-indigo-400'"
-          class="px-4 py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5 whitespace-nowrap transition"
+          class="flex-shrink-0 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-xl text-xs font-bold flex items-center space-x-1.5 whitespace-nowrap transition"
         >
           <i class="ph ph-clock text-indigo-300"></i>
           <span>Mới đăng (&le; 48 giờ)</span>
@@ -330,14 +352,14 @@
       </div>
 
       <!-- Video Grid -->
-      <div v-if="filteredVideos.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div v-if="filteredVideos.length > 0" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4 gap-4 sm:gap-5">
         <div 
           v-for="v in filteredVideos" 
           :key="v.video_id"
           :class="v.is_viral 
             ? 'border-rose-400 dark:border-rose-900/50 shadow-rose-900/10 dark:shadow-rose-950/30' 
             : 'border-slate-200 dark:border-borderDark'"
-          class="group bg-white dark:bg-cardBg border hover:border-slate-400 dark:hover:border-slate-600 rounded-2xl overflow-hidden shadow-md dark:shadow-xl transition duration-300 flex flex-col justify-between"
+          class="group bg-white dark:bg-cardBg border hover:border-slate-400 dark:hover:border-slate-600 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition duration-300 flex flex-col justify-between"
         >
           <div>
             <!-- Thumbnail Container -->
@@ -352,71 +374,71 @@
               <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
 
               <!-- Viral Speed Badge Overlaid -->
-              <div class="absolute top-3 right-3">
+              <div class="absolute top-2.5 right-2.5 sm:top-3 sm:right-3 flex-shrink-0">
                 <div 
                   v-if="v.is_viral" 
-                  class="flex items-center space-x-1 bg-gradient-to-r from-rose-600 to-amber-600 text-white font-black text-xs px-2.5 py-1 rounded-full shadow-lg border border-rose-400/50 animate-pulse"
+                  class="flex items-center space-x-1 bg-gradient-to-r from-rose-600 to-amber-600 text-white font-black text-[11px] sm:text-xs px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full shadow-lg border border-rose-400/50 animate-pulse whitespace-nowrap"
                 >
                   <i class="ph-fill ph-fire text-amber-300"></i>
                   <span>+{{ formatNumber(v.effective_vph) }}/h</span>
                 </div>
                 <div 
                   v-else-if="v.effective_vph >= 1000" 
-                  class="flex items-center space-x-1 bg-slate-900/80 backdrop-blur-md text-amber-400 font-bold text-xs px-2.5 py-1 rounded-full border border-amber-500/30"
+                  class="flex items-center space-x-1 bg-slate-900/80 backdrop-blur-md text-amber-400 font-bold text-[11px] sm:text-xs px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full border border-amber-500/30 whitespace-nowrap"
                 >
                   <i class="ph ph-lightning text-amber-400"></i>
                   <span>+{{ formatNumber(v.effective_vph) }}/h</span>
                 </div>
                 <div 
                   v-else 
-                  class="bg-slate-900/70 backdrop-blur-md text-slate-300 font-medium text-xs px-2 py-0.5 rounded-full border border-slate-700"
+                  class="bg-slate-900/70 backdrop-blur-md text-slate-300 font-medium text-[10px] sm:text-xs px-2 py-0.5 rounded-full border border-slate-700 whitespace-nowrap"
                 >
                   +{{ formatNumber(v.effective_vph) }}/h
                 </div>
               </div>
 
               <!-- Channel Tag -->
-              <div class="absolute bottom-3 left-3">
-                <span class="bg-black/60 backdrop-blur-md border border-white/10 text-white text-xs font-semibold px-2.5 py-1 rounded-lg flex items-center space-x-1">
-                  <i class="ph ph-youtube-logo text-rose-500"></i>
-                  <span class="truncate max-w-[170px]">{{ v.channel_name }}</span>
+              <div class="absolute bottom-2.5 left-2.5 sm:bottom-3 sm:left-3 max-w-[65%]">
+                <span class="bg-black/60 backdrop-blur-md border border-white/10 text-white text-[11px] sm:text-xs font-semibold px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg flex items-center space-x-1 truncate">
+                  <i class="ph ph-youtube-logo text-rose-500 flex-shrink-0"></i>
+                  <span class="truncate">{{ v.channel_name }}</span>
                 </span>
               </div>
 
               <!-- Publish Time Badge -->
-              <div class="absolute bottom-3 right-3 text-[11px] font-medium text-slate-300 bg-black/60 backdrop-blur-md px-2 py-0.5 rounded">
+              <div class="absolute bottom-2.5 right-2.5 sm:bottom-3 sm:right-3 text-[10px] sm:text-[11px] font-medium text-slate-300 bg-black/60 backdrop-blur-md px-1.5 py-0.5 rounded whitespace-nowrap">
                 {{ v.hours_ago_formatted }}
               </div>
             </div>
 
             <!-- Content Body -->
-            <div class="p-4">
+            <div class="p-3 sm:p-4">
               <a 
                 :href="v.url" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                class="text-sm font-bold text-slate-900 dark:text-slate-100 hover:text-rose-600 dark:hover:text-rose-400 transition line-clamp-2 leading-snug group-hover:underline"
+                class="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 hover:text-rose-600 dark:hover:text-rose-400 transition line-clamp-2 leading-snug group-hover:underline break-words"
                 :title="v.title"
               >
                 {{ v.title }}
               </a>
 
-              <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 grid grid-cols-2 gap-2 text-xs">
+              <div class="mt-3 sm:mt-4 pt-2.5 sm:pt-3 border-t border-slate-100 dark:border-slate-800/80 grid grid-cols-2 gap-2 text-xs">
                 <div>
-                  <span class="text-slate-500 dark:text-slate-400 block text-[11px]">Tổng lượt xem</span>
-                  <span class="font-black text-slate-900 dark:text-slate-200 text-sm flex items-center mt-0.5">
-                    <i class="ph ph-eye text-slate-400 mr-1"></i>
+                  <span class="text-slate-500 dark:text-slate-400 block text-[10px] sm:text-[11px] whitespace-nowrap">Tổng lượt xem</span>
+                  <span class="font-black text-slate-900 dark:text-slate-200 text-xs sm:text-sm flex items-center mt-0.5 whitespace-nowrap">
+                    <i class="ph ph-eye text-slate-400 mr-1 flex-shrink-0"></i>
                     {{ formatNumber(v.views) }}
                   </span>
                 </div>
 
                 <div class="text-right">
-                  <span class="text-slate-500 dark:text-slate-400 block text-[11px]">Tốc độ đo được</span>
+                  <span class="text-slate-500 dark:text-slate-400 block text-[10px] sm:text-[11px] whitespace-nowrap">Tốc độ đo được</span>
                   <span 
                     :class="v.is_viral ? 'text-rose-600 dark:text-rose-400 font-black' : 'text-slate-700 dark:text-slate-300 font-bold'" 
-                    class="text-sm flex items-center justify-end mt-0.5"
+                    class="text-xs sm:text-sm flex items-center justify-end mt-0.5 whitespace-nowrap"
                   >
-                    <i v-if="v.is_viral" class="ph-fill ph-trend-up text-rose-500 mr-1"></i>
+                    <i v-if="v.is_viral" class="ph-fill ph-trend-up text-rose-500 mr-1 flex-shrink-0"></i>
                     +{{ formatNumber(v.effective_vph) }}/h
                   </span>
                 </div>
@@ -425,22 +447,22 @@
           </div>
 
           <!-- Action Buttons Footer -->
-          <div class="px-4 pb-4 space-y-2">
+          <div class="px-3 pb-3 sm:px-4 sm:pb-4 space-y-1.5 sm:space-y-2">
             <button 
               v-if="v.ai_analysis"
               @click="openAiModal(v)"
-              class="w-full flex items-center justify-center space-x-2 py-2.5 bg-gradient-to-r from-purple-600 via-indigo-600 to-pink-600 hover:opacity-90 text-white rounded-xl text-xs font-black shadow-lg shadow-purple-900/30 transition duration-200"
+              class="w-full flex items-center justify-center space-x-1.5 py-2 sm:py-2.5 bg-gradient-to-r from-purple-600 via-indigo-600 to-pink-600 hover:opacity-90 text-white rounded-xl text-[11px] sm:text-xs font-black shadow-lg shadow-purple-900/30 transition duration-200 whitespace-nowrap"
             >
-              <i class="ph ph-sparkle text-sm"></i>
+              <i class="ph ph-sparkle text-sm flex-shrink-0"></i>
               <span>Xem Kịch Bản Remake Quốc Tế</span>
             </button>
 
             <button 
               v-else-if="v.is_viral"
               @click="openAiModal(v)"
-              class="w-full flex items-center justify-center space-x-2 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-purple-50 dark:hover:bg-purple-900/40 text-purple-700 dark:text-purple-300 border border-purple-300 dark:border-purple-800/50 rounded-xl text-xs font-bold transition duration-200"
+              class="w-full flex items-center justify-center space-x-1.5 py-2 sm:py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-purple-50 dark:hover:bg-purple-900/40 text-purple-700 dark:text-purple-300 border border-purple-300 dark:border-purple-800/50 rounded-xl text-[11px] sm:text-xs font-bold transition duration-200 whitespace-nowrap"
             >
-              <i class="ph ph-sparkle text-sm"></i>
+              <i class="ph ph-sparkle text-sm flex-shrink-0"></i>
               <span>Xem Kịch Bản AI</span>
             </button>
 
@@ -448,9 +470,9 @@
               :href="v.url" 
               target="_blank" 
               rel="noopener noreferrer"
-              class="w-full flex items-center justify-center space-x-1.5 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white rounded-xl text-xs font-semibold transition"
+              class="w-full flex items-center justify-center space-x-1.5 py-1.5 sm:py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white rounded-xl text-[11px] sm:text-xs font-semibold transition whitespace-nowrap"
             >
-              <i class="ph ph-arrow-square-out text-sm"></i>
+              <i class="ph ph-arrow-square-out text-sm flex-shrink-0"></i>
               <span>Xem video trên YouTube</span>
             </a>
           </div>
@@ -480,61 +502,61 @@
     <section v-if="activeMainTab === 'channels'">
       
       <!-- Top Highlights for Channels -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4 mb-5 sm:mb-6">
         
         <!-- Top Performer -->
-        <div class="bg-gradient-to-br from-indigo-900/40 via-purple-900/20 to-cardBg bg-white dark:bg-cardBg border border-indigo-300 dark:border-indigo-800/60 rounded-2xl p-5 shadow-sm">
+        <div class="bg-gradient-to-br from-indigo-900/40 via-purple-900/20 to-cardBg bg-white dark:bg-cardBg border border-indigo-300 dark:border-indigo-800/60 rounded-2xl p-4 sm:p-5 shadow-sm">
           <div class="flex items-center justify-between">
-            <span class="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 flex items-center space-x-1">
+            <span class="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 flex items-center space-x-1 whitespace-nowrap">
               <i class="ph-fill ph-trophy text-amber-400 text-base"></i>
               <span>Kênh Tốc Độ Đỉnh Nhất</span>
             </span>
-            <span class="text-[11px] font-black px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300">#1 Speed</span>
+            <span class="text-[10px] sm:text-[11px] font-black px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 whitespace-nowrap flex-shrink-0">#1 Speed</span>
           </div>
-          <div v-if="topSpeedChannel" class="mt-3">
-            <h4 class="text-lg font-black text-slate-900 dark:text-white truncate">{{ topSpeedChannel.name }}</h4>
-            <div class="text-xs text-slate-500 dark:text-slate-400 font-mono mt-0.5">{{ topSpeedChannel.handle }}</div>
-            <div class="mt-3 flex items-baseline space-x-2">
-              <span class="text-2xl font-black text-rose-600 dark:text-rose-400">+{{ formatNumber(topSpeedChannel.peak_vph) }}</span>
-              <span class="text-xs text-slate-500 dark:text-slate-400">view/h (Kỷ lục)</span>
+          <div v-if="topSpeedChannel" class="mt-2.5 sm:mt-3">
+            <h4 class="text-base sm:text-lg font-black text-slate-900 dark:text-white truncate" :title="topSpeedChannel.name">{{ topSpeedChannel.name }}</h4>
+            <div class="text-[11px] text-slate-500 dark:text-slate-400 font-mono mt-0.5 truncate">{{ topSpeedChannel.handle }}</div>
+            <div class="mt-2.5 sm:mt-3 flex items-baseline space-x-2 whitespace-nowrap">
+              <span class="text-xl sm:text-2xl font-black text-rose-600 dark:text-rose-400">+{{ formatNumber(topSpeedChannel.peak_vph) }}</span>
+              <span class="text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap">view/h (Kỷ lục)</span>
             </div>
           </div>
         </div>
 
         <!-- Top Viral Rate -->
-        <div class="bg-gradient-to-br from-rose-900/40 via-amber-900/20 to-cardBg bg-white dark:bg-cardBg border border-rose-300 dark:border-rose-800/60 rounded-2xl p-5 shadow-sm">
+        <div class="bg-gradient-to-br from-rose-900/40 via-amber-900/20 to-cardBg bg-white dark:bg-cardBg border border-rose-300 dark:border-rose-800/60 rounded-2xl p-4 sm:p-5 shadow-sm">
           <div class="flex items-center justify-between">
-            <span class="text-xs font-bold uppercase tracking-wider text-rose-600 dark:text-rose-400 flex items-center space-x-1">
+            <span class="text-xs font-bold uppercase tracking-wider text-rose-600 dark:text-rose-400 flex items-center space-x-1 whitespace-nowrap">
               <i class="ph-fill ph-fire text-rose-500 text-base"></i>
               <span>Kênh Tỷ Lệ Viral Cao Nhất</span>
             </span>
-            <span class="text-[11px] font-black px-2 py-0.5 rounded-full bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300">#1 Hit Rate</span>
+            <span class="text-[10px] sm:text-[11px] font-black px-2 py-0.5 rounded-full bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300 whitespace-nowrap flex-shrink-0">#1 Hit Rate</span>
           </div>
-          <div v-if="topHitRateChannel" class="mt-3">
-            <h4 class="text-lg font-black text-slate-900 dark:text-white truncate">{{ topHitRateChannel.name }}</h4>
-            <div class="text-xs text-slate-500 dark:text-slate-400 font-mono mt-0.5">{{ topHitRateChannel.handle }}</div>
-            <div class="mt-3 flex items-baseline space-x-2">
-              <span class="text-2xl font-black text-amber-500">{{ topHitRateChannel.viral_rate }}%</span>
-              <span class="text-xs text-slate-500 dark:text-slate-400">({{ topHitRateChannel.viral_count }} / {{ topHitRateChannel.video_count }} video viral)</span>
+          <div v-if="topHitRateChannel" class="mt-2.5 sm:mt-3">
+            <h4 class="text-base sm:text-lg font-black text-slate-900 dark:text-white truncate" :title="topHitRateChannel.name">{{ topHitRateChannel.name }}</h4>
+            <div class="text-[11px] text-slate-500 dark:text-slate-400 font-mono mt-0.5 truncate">{{ topHitRateChannel.handle }}</div>
+            <div class="mt-2.5 sm:mt-3 flex items-baseline space-x-2 whitespace-nowrap">
+              <span class="text-xl sm:text-2xl font-black text-amber-500">{{ topHitRateChannel.viral_rate }}%</span>
+              <span class="text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap">({{ topHitRateChannel.viral_count }} / {{ topHitRateChannel.video_count }} video viral)</span>
             </div>
           </div>
         </div>
 
         <!-- Most Active / Upload Frequency -->
-        <div class="bg-gradient-to-br from-emerald-900/40 via-teal-900/20 to-cardBg bg-white dark:bg-cardBg border border-emerald-300 dark:border-emerald-800/60 rounded-2xl p-5 shadow-sm">
+        <div class="bg-gradient-to-br from-emerald-900/40 via-teal-900/20 to-cardBg bg-white dark:bg-cardBg border border-emerald-300 dark:border-emerald-800/60 rounded-2xl p-4 sm:p-5 shadow-sm sm:col-span-2 lg:col-span-1">
           <div class="flex items-center justify-between">
-            <span class="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center space-x-1">
+            <span class="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center space-x-1 whitespace-nowrap">
               <i class="ph-fill ph-clock text-emerald-500 text-base"></i>
-              <span>Kênh Tần Suất Đăng Đều Nhất</span>
+              <span>Kênh Tần Suất Đều Nhất</span>
             </span>
-            <span class="text-[11px] font-black px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300">Active</span>
+            <span class="text-[10px] sm:text-[11px] font-black px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 whitespace-nowrap flex-shrink-0">Active</span>
           </div>
-          <div v-if="mostConsistentChannel" class="mt-3">
-            <h4 class="text-lg font-black text-slate-900 dark:text-white truncate">{{ mostConsistentChannel.name }}</h4>
-            <div class="text-xs text-slate-500 dark:text-slate-400 font-mono mt-0.5">{{ mostConsistentChannel.handle }}</div>
-            <div class="mt-3 flex items-baseline space-x-2">
-              <span class="text-2xl font-black text-emerald-600 dark:text-emerald-400">~{{ mostConsistentChannel.avg_upload_interval_days }}</span>
-              <span class="text-xs text-slate-500 dark:text-slate-400">ngày / 1 video</span>
+          <div v-if="mostConsistentChannel" class="mt-2.5 sm:mt-3">
+            <h4 class="text-base sm:text-lg font-black text-slate-900 dark:text-white truncate" :title="mostConsistentChannel.name">{{ mostConsistentChannel.name }}</h4>
+            <div class="text-[11px] text-slate-500 dark:text-slate-400 font-mono mt-0.5 truncate">{{ mostConsistentChannel.handle }}</div>
+            <div class="mt-2.5 sm:mt-3 flex items-baseline space-x-2 whitespace-nowrap">
+              <span class="text-xl sm:text-2xl font-black text-emerald-600 dark:text-emerald-400">~{{ mostConsistentChannel.avg_upload_interval_days }}</span>
+              <span class="text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap">ngày / 1 video</span>
             </div>
           </div>
         </div>
@@ -615,16 +637,16 @@
       </div>
 
       <!-- Channel Leaderboard Grid -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5">
         <div 
           v-for="(ch, index) in filteredChannels" 
           :key="ch.channel_id"
-          class="bg-white dark:bg-cardBg border border-slate-200 dark:border-borderDark hover:border-slate-400 dark:hover:border-slate-600 rounded-2xl p-5 shadow-sm hover:shadow-md transition flex flex-col justify-between"
+          class="bg-white dark:bg-cardBg border border-slate-200 dark:border-borderDark hover:border-slate-400 dark:hover:border-slate-600 rounded-2xl p-3.5 sm:p-5 shadow-sm hover:shadow-md transition flex flex-col justify-between"
         >
           <div>
             <!-- Header: Rank & Badge -->
-            <div class="flex items-start justify-between">
-              <div class="flex items-center space-x-2.5">
+            <div class="flex items-start justify-between gap-2">
+              <div class="flex items-center space-x-2 sm:space-x-2.5 min-w-0 flex-1">
                 <!-- Rank Medal / Number -->
                 <div 
                   :class="{
@@ -633,22 +655,22 @@
                     'bg-amber-700 text-white font-black shadow-sm': index === 2,
                     'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-bold': index > 2
                   }"
-                  class="w-7 h-7 rounded-xl flex items-center justify-center text-xs"
+                  class="w-7 h-7 sm:w-8 sm:h-8 rounded-xl flex items-center justify-center text-xs flex-shrink-0"
                 >
                   {{ index === 0 ? '🥇' : (index === 1 ? '🥈' : (index === 2 ? '🥉' : '#' + (index + 1))) }}
                 </div>
 
-                <div>
-                  <h4 class="font-black text-slate-900 dark:text-white text-base leading-tight">
+                <div class="min-w-0 flex-1">
+                  <h4 class="font-black text-slate-900 dark:text-white text-sm sm:text-base leading-tight truncate" :title="ch.name">
                     {{ ch.name }}
                   </h4>
                   <a 
                     :href="'https://www.youtube.com/' + ch.handle" 
                     target="_blank" 
-                    class="text-[11px] text-slate-500 dark:text-slate-400 font-mono hover:text-indigo-500 transition flex items-center space-x-1 mt-0.5"
+                    class="text-[11px] text-slate-500 dark:text-slate-400 font-mono hover:text-indigo-500 transition flex items-center space-x-1 mt-0.5 truncate"
                   >
-                    <span>{{ ch.handle }}</span>
-                    <i class="ph ph-arrow-square-out text-xs"></i>
+                    <span class="truncate">{{ ch.handle }}</span>
+                    <i class="ph ph-arrow-square-out text-xs flex-shrink-0"></i>
                   </a>
                 </div>
               </div>
@@ -656,69 +678,69 @@
               <!-- Phong độ Tier Badge -->
               <span 
                 v-if="ch.performance_tier === 'hot'" 
-                class="px-2 py-0.5 rounded-full text-[10px] font-black bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-400 border border-rose-300 dark:border-rose-800 flex items-center space-x-1"
+                class="flex-shrink-0 px-2 py-0.5 rounded-full text-[10px] font-black bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-400 border border-rose-300 dark:border-rose-800 flex items-center space-x-1 whitespace-nowrap"
               >
                 <i class="ph-fill ph-fire text-amber-400"></i>
                 <span>TĂNG NÓNG</span>
               </span>
               <span 
                 v-else-if="ch.performance_tier === 'high'" 
-                class="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-400 border border-amber-300 dark:border-amber-800"
+                class="flex-shrink-0 px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-400 border border-amber-300 dark:border-amber-800 whitespace-nowrap"
               >
                 PHONG ĐỘ CAO
               </span>
               <span 
                 v-else 
-                class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400"
+                class="flex-shrink-0 px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 whitespace-nowrap"
               >
                 ỔN ĐỊNH
               </span>
             </div>
 
             <!-- Stats Matrix -->
-            <div class="grid grid-cols-2 gap-2.5 my-4 pt-3 border-t border-slate-100 dark:border-slate-800 text-xs">
-              <div class="bg-slate-50 dark:bg-slate-900/60 p-2.5 rounded-xl">
-                <span class="text-[11px] text-slate-500 dark:text-slate-400 block">Tốc độ đỉnh</span>
-                <span class="font-black text-rose-600 dark:text-rose-400 text-sm mt-0.5 block">
+            <div class="grid grid-cols-2 gap-2 sm:gap-2.5 my-3 sm:my-4 pt-3 border-t border-slate-100 dark:border-slate-800 text-xs">
+              <div class="bg-slate-50 dark:bg-slate-900/60 p-2 sm:p-2.5 rounded-xl min-w-0">
+                <span class="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 block whitespace-nowrap truncate">Tốc độ đỉnh</span>
+                <span class="font-black text-rose-600 dark:text-rose-400 text-xs sm:text-sm mt-0.5 block whitespace-nowrap">
                   +{{ formatNumber(ch.peak_vph) }}/h
                 </span>
               </div>
 
-              <div class="bg-slate-50 dark:bg-slate-900/60 p-2.5 rounded-xl">
-                <span class="text-[11px] text-slate-500 dark:text-slate-400 block">Tỷ lệ Viral</span>
-                <div class="flex items-center space-x-1.5 mt-0.5">
-                  <span class="font-black text-amber-600 dark:text-amber-400 text-sm">
+              <div class="bg-slate-50 dark:bg-slate-900/60 p-2 sm:p-2.5 rounded-xl min-w-0">
+                <span class="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 block whitespace-nowrap truncate">Tỷ lệ Viral</span>
+                <div class="flex items-baseline space-x-1 mt-0.5 whitespace-nowrap">
+                  <span class="font-black text-amber-600 dark:text-amber-400 text-xs sm:text-sm">
                     {{ ch.viral_rate }}%
                   </span>
-                  <span class="text-[10px] text-slate-400">({{ ch.viral_count }} video)</span>
+                  <span class="text-[10px] text-slate-400 whitespace-nowrap">({{ ch.viral_count }} vid)</span>
                 </div>
               </div>
 
-              <div class="bg-slate-50 dark:bg-slate-900/60 p-2.5 rounded-xl">
-                <span class="text-[11px] text-slate-500 dark:text-slate-400 block">Tốc độ TB kênh</span>
-                <span class="font-bold text-slate-800 dark:text-slate-200 text-xs mt-0.5 block">
+              <div class="bg-slate-50 dark:bg-slate-900/60 p-2 sm:p-2.5 rounded-xl min-w-0">
+                <span class="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 block whitespace-nowrap truncate">Tốc độ TB kênh</span>
+                <span class="font-bold text-slate-800 dark:text-slate-200 text-xs sm:text-xs mt-0.5 block whitespace-nowrap">
                   +{{ formatNumber(ch.avg_vph) }}/h
                 </span>
               </div>
 
-              <div class="bg-slate-50 dark:bg-slate-900/60 p-2.5 rounded-xl">
-                <span class="text-[11px] text-slate-500 dark:text-slate-400 block">Tần suất đăng</span>
-                <span class="font-bold text-slate-800 dark:text-slate-200 text-xs mt-0.5 block">
+              <div class="bg-slate-50 dark:bg-slate-900/60 p-2 sm:p-2.5 rounded-xl min-w-0">
+                <span class="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 block whitespace-nowrap truncate">Tần suất đăng</span>
+                <span class="font-bold text-slate-800 dark:text-slate-200 text-xs sm:text-xs mt-0.5 block whitespace-nowrap">
                   ~{{ ch.avg_upload_interval_days }} ngày/video
                 </span>
               </div>
             </div>
 
             <!-- Best Video Preview -->
-            <div v-if="ch.best_video" class="p-2.5 bg-slate-50 dark:bg-slate-900/40 rounded-xl border border-slate-200 dark:border-slate-800/80 mb-3">
-              <div class="flex items-center justify-between text-[11px] mb-1">
-                <span class="text-slate-500 dark:text-slate-400 font-medium">Video đỉnh nhất gần đây:</span>
-                <span class="font-black text-rose-500">+{{ formatNumber(ch.best_video.effective_vph) }}/h</span>
+            <div v-if="ch.best_video" class="p-2 sm:p-2.5 bg-slate-50 dark:bg-slate-900/40 rounded-xl border border-slate-200 dark:border-slate-800/80 mb-3 min-w-0">
+              <div class="flex items-center justify-between text-[10px] sm:text-[11px] mb-1 gap-1">
+                <span class="text-slate-500 dark:text-slate-400 font-medium whitespace-nowrap">Video đỉnh gần nhất:</span>
+                <span class="font-black text-rose-500 whitespace-nowrap flex-shrink-0">+{{ formatNumber(ch.best_video.effective_vph) }}/h</span>
               </div>
               <a 
                 :href="ch.best_video.url" 
                 target="_blank" 
-                class="text-xs font-bold text-slate-800 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-400 line-clamp-1 block"
+                class="text-xs font-bold text-slate-800 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-400 line-clamp-1 block break-words"
                 :title="ch.best_video.title"
               >
                 {{ ch.best_video.title }}
@@ -729,7 +751,7 @@
           <!-- Card Action Button: Xem 15 video kênh này -->
           <button 
             @click="viewChannelVideos(ch.channel_id)" 
-            class="w-full py-2 bg-slate-100 dark:bg-slate-800 hover:bg-indigo-600 dark:hover:bg-indigo-600 text-slate-700 dark:text-slate-200 hover:text-white rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1"
+            class="w-full py-2 bg-slate-100 dark:bg-slate-800 hover:bg-indigo-600 dark:hover:bg-indigo-600 text-slate-700 dark:text-slate-200 hover:text-white rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1 whitespace-nowrap"
           >
             <i class="ph ph-video"></i>
             <span>Xem 15 video của kênh này</span>
