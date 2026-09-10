@@ -3731,19 +3731,6 @@
 
     createApp({
       setup() {
-        // Khóa cuộn trang chính khi mở bất kỳ modal / tab nào
-        const isAnyModalOpen = computed(() => {
-          return showAccountModal.value || showAdminModal.value || !!activeAiVideo.value || showKeyPrompt.value;
-        });
-
-        watch(isAnyModalOpen, (isOpen) => {
-          if (isOpen) {
-            document.body.classList.add('overflow-hidden');
-          } else {
-            document.body.classList.remove('overflow-hidden');
-          }
-        });
-
         // Authentication & Waiting Screen State
         const isLoggedIn = ref(localStorage.getItem('AUTH_LOGGED_IN') === 'true');
         const currentAccount = ref(JSON.parse(
@@ -4828,6 +4815,19 @@ Nhiệm vụ: Trả lời hoặc viết lại/tinh chỉnh kịch bản theo yê
               }
             }
           });
+        });
+
+        // Khóa cuộn trang chính khi mở bất kỳ modal / tab nào
+        const isAnyModalOpen = computed(() => {
+          return !!showAccountModal.value || !!showAdminModal.value || !!activeAiVideo.value || !!showKeyPrompt.value;
+        });
+
+        watch(isAnyModalOpen, (isOpen) => {
+          if (isOpen) {
+            document.body.classList.add('overflow-hidden');
+          } else {
+            document.body.classList.remove('overflow-hidden');
+          }
         });
 
         return {
