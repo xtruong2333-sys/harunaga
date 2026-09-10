@@ -143,6 +143,115 @@
     .float-badge {
       animation: subtle-float 2.5s ease-in-out infinite;
     }
+    /* 7. Luxury RGB Wave Running Animation for Top Overview Cards */
+    @keyframes rgb-wave-stream {
+      0% {
+        background-position: 0% 50%;
+      }
+      100% {
+        background-position: 300% 50%;
+      }
+    }
+
+    @keyframes rgb-wave-sheen {
+      0% { background-position: 0% 0%; }
+      50% { background-position: 100% 100%; }
+      100% { background-position: 0% 0%; }
+    }
+
+    .card-rgb-wave {
+      position: relative;
+      isolation: isolate;
+    }
+
+    /* Running RGB Wave Perimeter Border */
+    .card-rgb-wave::before {
+      content: '';
+      position: absolute;
+      inset: -2px;
+      border-radius: inherit;
+      padding: 2px;
+      background: linear-gradient(
+        90deg,
+        #ff0077 0%,
+        #7928ca 16.6%,
+        #0070f3 33.3%,
+        #00dfd8 50%,
+        #43e97b 66.6%,
+        #f5a623 83.3%,
+        #ff0077 100%
+      );
+      background-size: 300% 100%;
+      -webkit-mask: 
+         linear-gradient(#fff 0 0) content-box, 
+         linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      opacity: 0;
+      transition: opacity 0.35s ease;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    /* Ambient Running RGB Wave Neon Aura Glow */
+    .card-rgb-wave::after {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      border-radius: inherit;
+      background: linear-gradient(
+        90deg,
+        rgba(255, 0, 119, 0.6) 0%,
+        rgba(121, 40, 202, 0.6) 16.6%,
+        rgba(0, 112, 243, 0.6) 33.3%,
+        rgba(0, 223, 216, 0.6) 50%,
+        rgba(67, 233, 123, 0.6) 66.6%,
+        rgba(245, 166, 35, 0.6) 83.3%,
+        rgba(255, 0, 119, 0.6) 100%
+      );
+      background-size: 300% 100%;
+      filter: blur(14px);
+      opacity: 0;
+      transition: opacity 0.35s ease;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    /* Subtle Internal Traveling RGB Light Sheen */
+    .card-rgb-wave .rgb-wave-sheen {
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: linear-gradient(
+        115deg,
+        transparent 20%,
+        rgba(255, 0, 119, 0.08) 35%,
+        rgba(0, 223, 216, 0.1) 50%,
+        rgba(121, 40, 202, 0.08) 65%,
+        transparent 80%
+      );
+      background-size: 250% 250%;
+      opacity: 0;
+      transition: opacity 0.35s ease;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Hover Activation: Run RGB Waves smoothly */
+    .card-rgb-wave:hover::before {
+      opacity: 1;
+      animation: rgb-wave-stream 2.6s linear infinite;
+    }
+
+    .card-rgb-wave:hover::after {
+      opacity: 0.6;
+      animation: rgb-wave-stream 2.6s linear infinite;
+    }
+
+    .card-rgb-wave:hover .rgb-wave-sheen {
+      opacity: 1;
+      animation: rgb-wave-sheen 3s ease infinite;
+    }
   </style>
 </head>
 <body class="bg-slate-100 dark:bg-darkBg text-slate-900 dark:text-slate-100 min-h-screen font-sans antialiased selection:bg-rose-500 selection:text-white transition-colors duration-200">
@@ -269,39 +378,51 @@
 
       <!-- Stats Overview Cards -->
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-5 sm:mb-6">
-        <div class="card-luxury group bg-white dark:bg-cardBg border border-slate-200 dark:border-borderDark hover:border-indigo-400 dark:hover:border-indigo-500 rounded-2xl p-3 sm:p-4 shadow-sm hover:shadow-xl dark:hover:shadow-indigo-950/30">
-          <span class="text-[10px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block truncate">Kênh theo dõi</span>
-          <div class="text-xl sm:text-3xl font-black text-slate-900 dark:text-white mt-1">{{ stats.total_channels }}</div>
-          <div class="text-[10px] sm:text-xs text-slate-500 dark:text-slate-500 mt-1 flex items-center whitespace-nowrap truncate">
-            <i class="ph ph-broadcast mr-1 text-indigo-500 flex-shrink-0"></i> Quét tự động mỗi 1h
+        <div class="card-luxury card-rgb-wave group bg-white dark:bg-cardBg border border-slate-200 dark:border-borderDark hover:border-transparent rounded-2xl p-3 sm:p-4 shadow-sm hover:shadow-xl dark:hover:shadow-indigo-950/30 cursor-pointer">
+          <div class="rgb-wave-sheen"></div>
+          <div class="relative z-10">
+            <span class="text-[10px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block truncate">Kênh theo dõi</span>
+            <div class="text-xl sm:text-3xl font-black text-slate-900 dark:text-white mt-1">{{ stats.total_channels }}</div>
+            <div class="text-[10px] sm:text-xs text-slate-500 dark:text-slate-500 mt-1 flex items-center whitespace-nowrap truncate">
+              <i class="ph ph-broadcast mr-1 text-indigo-500 flex-shrink-0"></i> Quét tự động mỗi 1h
+            </div>
           </div>
         </div>
 
-        <div class="card-luxury group bg-white dark:bg-cardBg border border-slate-200 dark:border-borderDark hover:border-purple-400 dark:hover:border-purple-500 rounded-2xl p-3 sm:p-4 shadow-sm hover:shadow-xl dark:hover:shadow-purple-950/30">
-          <span class="text-[10px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block truncate">Video đã quét</span>
-          <div class="text-xl sm:text-3xl font-black text-indigo-600 dark:text-indigo-400 mt-1">{{ stats.total_videos }}</div>
-          <div class="text-[10px] sm:text-xs text-slate-500 dark:text-slate-500 mt-1 flex items-center whitespace-nowrap truncate">
-            <i class="ph ph-video mr-1 text-indigo-500 flex-shrink-0"></i> 15 video mới nhất/kênh
+        <div class="card-luxury card-rgb-wave group bg-white dark:bg-cardBg border border-slate-200 dark:border-borderDark hover:border-transparent rounded-2xl p-3 sm:p-4 shadow-sm hover:shadow-xl dark:hover:shadow-purple-950/30 cursor-pointer">
+          <div class="rgb-wave-sheen"></div>
+          <div class="relative z-10">
+            <span class="text-[10px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block truncate">Video đã quét</span>
+            <div class="text-xl sm:text-3xl font-black text-indigo-600 dark:text-indigo-400 mt-1">{{ stats.total_videos }}</div>
+            <div class="text-[10px] sm:text-xs text-slate-500 dark:text-slate-500 mt-1 flex items-center whitespace-nowrap truncate">
+              <i class="ph ph-video mr-1 text-indigo-500 flex-shrink-0"></i> 15 video mới nhất/kênh
+            </div>
           </div>
         </div>
 
-        <div class="card-luxury group bg-white dark:bg-cardBg border-2 border-rose-400 dark:border-rose-500/60 bg-gradient-to-b from-rose-50/70 dark:from-cardBg to-rose-100/60 dark:to-rose-950/30 rounded-2xl p-3 sm:p-4 shadow-sm glow-viral hover:shadow-2xl hover:shadow-rose-950/40">
-          <span class="text-[10px] sm:text-xs font-bold text-rose-600 dark:text-rose-400 uppercase tracking-wider flex items-center whitespace-nowrap truncate">
-            <i class="ph-fill ph-fire text-rose-500 mr-1 flex-shrink-0"></i> Video Đang Viral
-          </span>
-          <div class="text-xl sm:text-3xl font-black text-rose-600 dark:text-rose-500 mt-1">{{ stats.viral_count }}</div>
-          <div class="text-[10px] sm:text-xs text-rose-600/80 dark:text-rose-400/70 mt-1 flex items-center whitespace-nowrap">
-            Tốc độ &ge; 5.000 view/h
+        <div class="card-luxury card-rgb-wave group bg-white dark:bg-cardBg border-2 border-rose-400 dark:border-rose-500/60 bg-gradient-to-b from-rose-50/70 dark:from-cardBg to-rose-100/60 dark:to-rose-950/30 rounded-2xl p-3 sm:p-4 shadow-sm glow-viral hover:shadow-2xl hover:shadow-rose-950/40 cursor-pointer">
+          <div class="rgb-wave-sheen"></div>
+          <div class="relative z-10">
+            <span class="text-[10px] sm:text-xs font-bold text-rose-600 dark:text-rose-400 uppercase tracking-wider flex items-center whitespace-nowrap truncate">
+              <i class="ph-fill ph-fire text-rose-500 mr-1 flex-shrink-0"></i> Video Đang Viral
+            </span>
+            <div class="text-xl sm:text-3xl font-black text-rose-600 dark:text-rose-500 mt-1">{{ stats.viral_count }}</div>
+            <div class="text-[10px] sm:text-xs text-rose-600/80 dark:text-rose-400/70 mt-1 flex items-center whitespace-nowrap">
+              Tốc độ &ge; 5.000 view/h
+            </div>
           </div>
         </div>
 
-        <div class="card-luxury group bg-white dark:bg-cardBg border border-slate-200 dark:border-borderDark hover:border-indigo-400 dark:hover:border-indigo-500 rounded-2xl p-3 sm:p-4 shadow-sm hover:shadow-xl dark:hover:shadow-indigo-950/30">
-          <span class="text-[10px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block truncate">Cập nhật lần cuối</span>
-          <div class="text-xs sm:text-base font-bold text-slate-900 dark:text-slate-200 mt-1 sm:mt-2 truncate" :title="lastUpdatedFormatted">
-            {{ lastUpdatedFormatted || 'Đang tải...' }}
-          </div>
-          <div class="text-[10px] sm:text-xs text-slate-500 dark:text-slate-500 mt-1 flex items-center whitespace-nowrap">
-            <i class="ph ph-clock mr-1 text-indigo-500 flex-shrink-0"></i> {{ timeSinceUpdate }}
+        <div class="card-luxury card-rgb-wave group bg-white dark:bg-cardBg border border-slate-200 dark:border-borderDark hover:border-transparent rounded-2xl p-3 sm:p-4 shadow-sm hover:shadow-xl dark:hover:shadow-indigo-950/30 cursor-pointer">
+          <div class="rgb-wave-sheen"></div>
+          <div class="relative z-10">
+            <span class="text-[10px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block truncate">Cập nhật lần cuối</span>
+            <div class="text-xs sm:text-base font-bold text-slate-900 dark:text-slate-200 mt-1 sm:mt-2 truncate" :title="lastUpdatedFormatted">
+              {{ lastUpdatedFormatted || 'Đang tải...' }}
+            </div>
+            <div class="text-[10px] sm:text-xs text-slate-500 dark:text-slate-500 mt-1 flex items-center whitespace-nowrap truncate">
+              <i class="ph ph-clock mr-1 text-indigo-500 flex-shrink-0"></i> {{ timeSinceUpdate }}
+            </div>
           </div>
         </div>
       </div>
@@ -613,89 +734,101 @@
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4 mb-5 sm:mb-6">
         
         <!-- Card 1: Top Speed Channel -->
-        <div class="card-luxury bg-gradient-to-br from-indigo-900/40 via-purple-900/20 to-cardBg bg-white dark:bg-cardBg border border-indigo-300 dark:border-indigo-800/60 hover:border-indigo-400 rounded-2xl p-4 sm:p-5 shadow-sm hover:shadow-xl">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 flex items-center space-x-1 whitespace-nowrap">
-              <i class="ph-fill ph-trophy text-amber-400 text-base"></i>
-              <span>Kỷ Lục Tốc Độ Đỉnh</span>
-            </span>
-            <span class="text-[10px] sm:text-[11px] font-black px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 whitespace-nowrap flex-shrink-0">#1 Speed</span>
-          </div>
-          <div v-if="topSpeedChannel" class="mt-2.5 sm:mt-3">
-            <h4 class="text-base sm:text-lg font-black text-slate-900 dark:text-white truncate" :title="topSpeedChannel.name">{{ topSpeedChannel.name }}</h4>
-            <div class="text-[11px] text-slate-500 dark:text-slate-400 font-mono mt-0.5 truncate">{{ topSpeedChannel.handle }}</div>
-            <div class="mt-2.5 sm:mt-3 flex items-baseline space-x-2 whitespace-nowrap">
-              <span class="text-xl sm:text-2xl font-black text-rose-600 dark:text-rose-400">+{{ formatNumber(topSpeedChannel.peak_vph) }}</span>
-              <span class="text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap">view/h</span>
+        <div class="card-luxury card-rgb-wave bg-gradient-to-br from-indigo-900/40 via-purple-900/20 to-cardBg bg-white dark:bg-cardBg border border-indigo-300 dark:border-indigo-800/60 hover:border-transparent rounded-2xl p-4 sm:p-5 shadow-sm hover:shadow-xl cursor-pointer">
+          <div class="rgb-wave-sheen"></div>
+          <div class="relative z-10">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 flex items-center space-x-1 whitespace-nowrap">
+                <i class="ph-fill ph-trophy text-amber-400 text-base"></i>
+                <span>Kỷ Lục Tốc Độ Đỉnh</span>
+              </span>
+              <span class="text-[10px] sm:text-[11px] font-black px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 whitespace-nowrap flex-shrink-0">#1 Speed</span>
             </div>
-            <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 truncate" v-if="topSpeedChannel.best_video">
-              🎬 <em>{{ topSpeedChannel.best_video.title }}</em>
+            <div v-if="topSpeedChannel" class="mt-2.5 sm:mt-3">
+              <h4 class="text-base sm:text-lg font-black text-slate-900 dark:text-white truncate" :title="topSpeedChannel.name">{{ topSpeedChannel.name }}</h4>
+              <div class="text-[11px] text-slate-500 dark:text-slate-400 font-mono mt-0.5 truncate">{{ topSpeedChannel.handle }}</div>
+              <div class="mt-2.5 sm:mt-3 flex items-baseline space-x-2 whitespace-nowrap">
+                <span class="text-xl sm:text-2xl font-black text-rose-600 dark:text-rose-400">+{{ formatNumber(topSpeedChannel.peak_vph) }}</span>
+                <span class="text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap">view/h</span>
+              </div>
+              <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 truncate" v-if="topSpeedChannel.best_video">
+                🎬 <em>{{ topSpeedChannel.best_video.title }}</em>
+              </div>
             </div>
           </div>
         </div>
 
         <!-- Card 2: Top Inflow Traffic Channel -->
-        <div class="card-luxury bg-gradient-to-br from-blue-900/40 via-indigo-900/20 to-cardBg bg-white dark:bg-cardBg border border-blue-300 dark:border-blue-800/60 hover:border-blue-400 rounded-2xl p-4 sm:p-5 shadow-sm hover:shadow-xl">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 flex items-center space-x-1 whitespace-nowrap">
-              <i class="ph-fill ph-waves text-blue-400 text-base"></i>
-              <span>Gom Traffic Khủng Nhất</span>
-            </span>
-            <span class="text-[10px] sm:text-[11px] font-black px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 whitespace-nowrap flex-shrink-0">#1 Traffic</span>
-          </div>
-          <div v-if="topInflowChannel" class="mt-2.5 sm:mt-3">
-            <h4 class="text-base sm:text-lg font-black text-slate-900 dark:text-white truncate" :title="topInflowChannel.name">{{ topInflowChannel.name }}</h4>
-            <div class="text-[11px] text-slate-500 dark:text-slate-400 font-mono mt-0.5 truncate">{{ topInflowChannel.handle }}</div>
-            <div class="mt-2.5 sm:mt-3 flex items-baseline space-x-2 whitespace-nowrap">
-              <span class="text-xl sm:text-2xl font-black text-blue-600 dark:text-blue-400">+{{ formatNumber(topInflowChannel.total_channel_vph) }}</span>
-              <span class="text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap">view/h (cả kênh)</span>
+        <div class="card-luxury card-rgb-wave bg-gradient-to-br from-blue-900/40 via-indigo-900/20 to-cardBg bg-white dark:bg-cardBg border border-blue-300 dark:border-blue-800/60 hover:border-transparent rounded-2xl p-4 sm:p-5 shadow-sm hover:shadow-xl cursor-pointer">
+          <div class="rgb-wave-sheen"></div>
+          <div class="relative z-10">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold uppercase tracking-wider text-blue-600 dark:text-blue-400 flex items-center space-x-1 whitespace-nowrap">
+                <i class="ph-fill ph-waves text-blue-400 text-base"></i>
+                <span>Gom Traffic Khủng Nhất</span>
+              </span>
+              <span class="text-[10px] sm:text-[11px] font-black px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 whitespace-nowrap flex-shrink-0">#1 Traffic</span>
             </div>
-            <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 whitespace-nowrap">
-              👀 Tổng 15 video: <strong>{{ formatNumber(topInflowChannel.total_views) }}</strong> view
+            <div v-if="topInflowChannel" class="mt-2.5 sm:mt-3">
+              <h4 class="text-base sm:text-lg font-black text-slate-900 dark:text-white truncate" :title="topInflowChannel.name">{{ topInflowChannel.name }}</h4>
+              <div class="text-[11px] text-slate-500 dark:text-slate-400 font-mono mt-0.5 truncate">{{ topInflowChannel.handle }}</div>
+              <div class="mt-2.5 sm:mt-3 flex items-baseline space-x-2 whitespace-nowrap">
+                <span class="text-xl sm:text-2xl font-black text-blue-600 dark:text-blue-400">+{{ formatNumber(topInflowChannel.total_channel_vph) }}</span>
+                <span class="text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap">view/h (cả kênh)</span>
+              </div>
+              <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 whitespace-nowrap">
+                👀 Tổng 15 video: <strong>{{ formatNumber(topInflowChannel.total_views) }}</strong> view
+              </div>
             </div>
           </div>
         </div>
 
         <!-- Card 3: Top Viral Rate -->
-        <div class="card-luxury bg-gradient-to-br from-rose-900/40 via-amber-900/20 to-cardBg bg-white dark:bg-cardBg border border-rose-300 dark:border-rose-800/60 hover:border-rose-400 rounded-2xl p-4 sm:p-5 shadow-sm hover:shadow-xl">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-bold uppercase tracking-wider text-rose-600 dark:text-rose-400 flex items-center space-x-1 whitespace-nowrap">
-              <i class="ph-fill ph-fire text-rose-500 text-base"></i>
-              <span>Tỷ Lệ Bùng Nổ Nhất</span>
-            </span>
-            <span class="text-[10px] sm:text-[11px] font-black px-2 py-0.5 rounded-full bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300 whitespace-nowrap flex-shrink-0">#1 Hit Rate</span>
-          </div>
-          <div v-if="topHitRateChannel" class="mt-2.5 sm:mt-3">
-            <h4 class="text-base sm:text-lg font-black text-slate-900 dark:text-white truncate" :title="topHitRateChannel.name">{{ topHitRateChannel.name }}</h4>
-            <div class="text-[11px] text-slate-500 dark:text-slate-400 font-mono mt-0.5 truncate">{{ topHitRateChannel.handle }}</div>
-            <div class="mt-2.5 sm:mt-3 flex items-baseline space-x-2 whitespace-nowrap">
-              <span class="text-xl sm:text-2xl font-black text-amber-500">{{ topHitRateChannel.viral_rate }}%</span>
-              <span class="text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap">({{ topHitRateChannel.viral_count }} video viral)</span>
+        <div class="card-luxury card-rgb-wave bg-gradient-to-br from-rose-900/40 via-amber-900/20 to-cardBg bg-white dark:bg-cardBg border border-rose-300 dark:border-rose-800/60 hover:border-transparent rounded-2xl p-4 sm:p-5 shadow-sm hover:shadow-xl cursor-pointer">
+          <div class="rgb-wave-sheen"></div>
+          <div class="relative z-10">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold uppercase tracking-wider text-rose-600 dark:text-rose-400 flex items-center space-x-1 whitespace-nowrap">
+                <i class="ph-fill ph-fire text-rose-500 text-base"></i>
+                <span>Tỷ Lệ Bùng Nổ Nhất</span>
+              </span>
+              <span class="text-[10px] sm:text-[11px] font-black px-2 py-0.5 rounded-full bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300 whitespace-nowrap flex-shrink-0">#1 Hit Rate</span>
             </div>
-            <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 whitespace-nowrap">
-              ⚡ Kèm <strong>{{ topHitRateChannel.fast_count }}</strong> video tăng nhanh (&ge; 1k/h)
+            <div v-if="topHitRateChannel" class="mt-2.5 sm:mt-3">
+              <h4 class="text-base sm:text-lg font-black text-slate-900 dark:text-white truncate" :title="topHitRateChannel.name">{{ topHitRateChannel.name }}</h4>
+              <div class="text-[11px] text-slate-500 dark:text-slate-400 font-mono mt-0.5 truncate">{{ topHitRateChannel.handle }}</div>
+              <div class="mt-2.5 sm:mt-3 flex items-baseline space-x-2 whitespace-nowrap">
+                <span class="text-xl sm:text-2xl font-black text-amber-500">{{ topHitRateChannel.viral_rate }}%</span>
+                <span class="text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap">({{ topHitRateChannel.viral_count }} video viral)</span>
+              </div>
+              <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 whitespace-nowrap">
+                ⚡ Kèm <strong>{{ topHitRateChannel.fast_count }}</strong> video tăng nhanh (&ge; 1k/h)
+              </div>
             </div>
           </div>
         </div>
 
         <!-- Card 4: Market Overall Pulse -->
-        <div class="card-luxury bg-gradient-to-br from-emerald-900/40 via-teal-900/20 to-cardBg bg-white dark:bg-cardBg border border-emerald-300 dark:border-emerald-800/60 hover:border-emerald-400 rounded-2xl p-4 sm:p-5 shadow-sm hover:shadow-xl">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center space-x-1 whitespace-nowrap">
-              <i class="ph-fill ph-chart-polar text-emerald-400 text-base"></i>
-              <span>Quy Mô Thị Trường</span>
-            </span>
-            <span class="text-[10px] sm:text-[11px] font-black px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 whitespace-nowrap flex-shrink-0">46 Kênh</span>
-          </div>
-          <div class="mt-2.5 sm:mt-3">
-            <h4 class="text-base sm:text-lg font-black text-slate-900 dark:text-white truncate">Tổng Lưu Lượng DIY</h4>
-            <div class="text-[11px] text-slate-500 dark:text-slate-400 font-mono mt-0.5">Thị trường DIY/Invention</div>
-            <div class="mt-2.5 sm:mt-3 flex items-baseline space-x-2 whitespace-nowrap">
-              <span class="text-xl sm:text-2xl font-black text-emerald-600 dark:text-emerald-400">+{{ formatNumber(marketStats.total_vph) }}</span>
-              <span class="text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap">view/h (Toàn ngành)</span>
+        <div class="card-luxury card-rgb-wave bg-gradient-to-br from-emerald-900/40 via-teal-900/20 to-cardBg bg-white dark:bg-cardBg border border-emerald-300 dark:border-emerald-800/60 hover:border-transparent rounded-2xl p-4 sm:p-5 shadow-sm hover:shadow-xl cursor-pointer">
+          <div class="rgb-wave-sheen"></div>
+          <div class="relative z-10">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center space-x-1 whitespace-nowrap">
+                <i class="ph-fill ph-chart-polar text-emerald-400 text-base"></i>
+                <span>Quy Mô Thị Trường</span>
+              </span>
+              <span class="text-[10px] sm:text-[11px] font-black px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 whitespace-nowrap flex-shrink-0">46 Kênh</span>
             </div>
-            <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 whitespace-nowrap">
-              👀 Tích lũy <strong>{{ formatNumber(marketStats.total_views) }}</strong> view / {{ marketStats.total_videos }} vid
+            <div class="mt-2.5 sm:mt-3">
+              <h4 class="text-base sm:text-lg font-black text-slate-900 dark:text-white truncate">Tổng Lưu Lượng DIY</h4>
+              <div class="text-[11px] text-slate-500 dark:text-slate-400 font-mono mt-0.5">Thị trường DIY/Invention</div>
+              <div class="mt-2.5 sm:mt-3 flex items-baseline space-x-2 whitespace-nowrap">
+                <span class="text-xl sm:text-2xl font-black text-emerald-600 dark:text-emerald-400">+{{ formatNumber(marketStats.total_vph) }}</span>
+                <span class="text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap">view/h (Toàn ngành)</span>
+              </div>
+              <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 whitespace-nowrap">
+                👀 Tích lũy <strong>{{ formatNumber(marketStats.total_views) }}</strong> view / {{ marketStats.total_videos }} vid
+              </div>
             </div>
           </div>
         </div>
