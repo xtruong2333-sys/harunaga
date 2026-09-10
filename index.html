@@ -1716,12 +1716,23 @@
               <span class="text-[11px] text-slate-500 dark:text-slate-400 font-normal">Dùng để lưu kênh & quét</span>
             </label>
             <div class="flex gap-2">
-              <input 
-                type="password" 
-                v-model="githubToken" 
-                placeholder="github_pat_... hoặc ghp_..." 
-                class="flex-1 bg-white dark:bg-black/50 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-white focus:outline-none focus:border-indigo-500 font-mono"
-              >
+              <div class="relative flex-1">
+                <input 
+                  :type="showGhToken ? 'text' : 'password'" 
+                  v-model="githubToken" 
+                  autocomplete="off"
+                  placeholder="ghp_... hoặc github_pat_..." 
+                  class="w-full bg-white dark:bg-black/50 border border-slate-300 dark:border-slate-700 rounded-xl pl-3 pr-9 py-2 text-xs text-slate-800 dark:text-white focus:outline-none focus:border-indigo-500 font-mono"
+                >
+                <button 
+                  type="button"
+                  @click="showGhToken = !showGhToken" 
+                  class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-white transition"
+                  :title="showGhToken ? 'Ẩn mã' : 'Hiện mã'"
+                >
+                  <i :class="showGhToken ? 'ph ph-eye-slash' : 'ph ph-eye'" class="text-sm"></i>
+                </button>
+              </div>
               <button 
                 @click="saveToken" 
                 :class="savedTokenSuccess ? 'bg-emerald-600 text-white' : 'bg-slate-800 dark:bg-slate-700 hover:opacity-90 text-white'"
@@ -1740,12 +1751,23 @@
               <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-[11px] text-purple-600 dark:text-purple-400 underline font-medium hover:text-purple-500">Nhận mã kết nối tại Google AI Studio</a>
             </label>
             <div class="flex gap-2">
-              <input 
-                type="password" 
-                v-model="geminiApiKey" 
-                placeholder="AIzaSy..." 
-                class="flex-1 bg-white dark:bg-black/50 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-white focus:outline-none focus:border-purple-500 font-mono"
-              >
+              <div class="relative flex-1">
+                <input 
+                  :type="showGeminiKey ? 'text' : 'password'" 
+                  v-model="geminiApiKey" 
+                  autocomplete="off"
+                  placeholder="AIzaSy... hoặc mã API Gemini" 
+                  class="w-full bg-white dark:bg-black/50 border border-slate-300 dark:border-slate-700 rounded-xl pl-3 pr-9 py-2 text-xs text-slate-800 dark:text-white focus:outline-none focus:border-purple-500 font-mono"
+                >
+                <button 
+                  type="button"
+                  @click="showGeminiKey = !showGeminiKey" 
+                  class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-purple-600 dark:hover:text-purple-300 transition"
+                  :title="showGeminiKey ? 'Ẩn mã' : 'Hiện mã'"
+                >
+                  <i :class="showGeminiKey ? 'ph ph-eye-slash' : 'ph ph-eye'" class="text-sm"></i>
+                </button>
+              </div>
               <button 
                 @click="saveGeminiKey(geminiApiKey)" 
                 :class="savedGeminiSuccess ? 'bg-emerald-600 text-white' : 'bg-purple-600 hover:bg-purple-500 text-white'"
@@ -1917,6 +1939,8 @@
         const toastMsg = ref('');
         const savedTokenSuccess = ref(false);
         const savedGeminiSuccess = ref(false);
+        const showGhToken = ref(false);
+        const showGeminiKey = ref(false);
         const activeAiVideo = ref(null);
         const activeBlueprint = ref(null);
         const showAdminModal = ref(false);
@@ -2636,8 +2660,13 @@ Nhiệm vụ: Trả lời hoặc viết lại/tinh chỉnh kịch bản theo yê
         };
 
         const triggerManualScan = async () => {
-          if (!githubToken.value.trim()) {
-            alert('Vui lòng nhập GitHub Token (PAT) để kích hoạt quét!');
+          const token = githubToken.value.trim();
+          if (!token) {
+            alert('Vui lòng dán mã GitHub Token (PAT) để kích hoạt quét!');
+            return;
+          }
+          if (!token.startsWith('ghp_') && !token.startsWith('github_pat_')) {
+            alert('⚠️ Mã GitHub Token không đúng định dạng!\n\nMã GitHub hợp lệ phải bắt đầu bằng "ghp_" hoặc "github_pat_".\n\n👉 Hãy kiểm tra xem bạn có dán nhầm mã Gemini API Key vào ô này không nhé!');
             return;
           }
           isTriggering.value = true;
@@ -2646,7 +2675,7 @@ Nhiệm vụ: Trả lời hoặc viết lại/tinh chỉnh kịch bản theo yê
             const res = await fetch(dispatchUrl, {
               method: 'POST',
               headers: {
-                'Authorization': `Bearer ${githubToken.value.trim()}`,
+                'Authorization': `Bearer ${token}`,
                 'Accept': 'application/vnd.github.v3+json',
                 'Content-Type': 'application/json'
               },
@@ -2654,10 +2683,17 @@ Nhiệm vụ: Trả lời hoặc viết lại/tinh chỉnh kịch bản theo yê
             });
 
             if (res.status === 204 || res.ok) {
-              showToast('⚡ Đã kích hoạt bot quét trên GitHub!');
+              showToast('⚡ Đã kích hoạt bot quét trên GitHub thành công!');
             } else {
-              const data = await res.json();
-              throw new Error(data.message || 'Lỗi kích hoạt');
+              let msg = 'Lỗi kích hoạt';
+              try {
+                const data = await res.json();
+                msg = data.message || msg;
+              } catch (e) {}
+              if (res.status === 401) {
+                throw new Error('Mã GitHub Token không hợp lệ hoặc đã hết hạn (Bad credentials). Vui lòng kiểm tra lại mã Token!');
+              }
+              throw new Error(msg);
             }
           } catch (err) {
             console.error(err);
@@ -2706,6 +2742,8 @@ Nhiệm vụ: Trả lời hoặc viết lại/tinh chỉnh kịch bản theo yê
           toastMsg,
           savedTokenSuccess,
           savedGeminiSuccess,
+          showGhToken,
+          showGeminiKey,
           activeAiVideo,
           activeBlueprint,
           modalTab,
