@@ -3749,7 +3749,9 @@
     <!-- ========================================================================================= -->
     <!-- PANEL HỒ SƠ TÀI KHOẢN CÁ NHÂN (GÓC TRÊN BÊN PHẢI + LỚP PHỦ MỜ KHÓA CUỘN TRANG CHÍNH)    -->
     <!-- ========================================================================================= -->
-    <!-- Lớp phủ mờ (Frosted Blur Backdrop) khóa trang chính và bấm ra ngoài để đóng -->
+    <!-- ============================================================================ -->
+    <!-- MODAL HỒ SƠ CÁ NHÂN & BẢO MẬT (CÂN ĐỐI 2 CỘT, CHÍNH GIỮA MÀN HÌNH) -->
+    <!-- ============================================================================ -->
     <transition
       enter-active-class="transition-opacity duration-200 ease-out"
       enter-from-class="opacity-0"
@@ -3761,471 +3763,406 @@
       <div 
         v-if="showAccountModal" 
         @click="showAccountModal = false" 
-        class="fixed inset-0 z-[99998] bg-slate-950/70 backdrop-blur-sm"
-      ></div>
-    </transition>
-
-    <!-- Top-Right Flyout Panel (Neo-Glassmorphism giữ ở góc trên bên phải, bố cục tối ưu không bị che) -->
-    <div 
-      v-if="showAccountModal" 
-      id="account-flyout-panel"
-      @click.stop
-      class="fixed top-14 sm:top-16 right-2 sm:right-5 z-[99999] w-[94vw] sm:w-[420px] max-w-[430px] bg-white dark:bg-[#0b101e] border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl shadow-black/90 flex flex-col max-h-[calc(100vh-4.5rem)] overflow-hidden transition-all duration-200 select-none"
-    >
-      <!-- Header -->
-      <div class="p-3.5 sm:p-4 border-b border-slate-200 dark:border-slate-800/80 flex items-center justify-between bg-gradient-to-r from-slate-50 via-slate-100 to-indigo-50/40 dark:from-slate-900 dark:via-slate-900 dark:to-indigo-950/40 flex-shrink-0">
-        <div class="flex items-center space-x-2.5">
-          <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 flex items-center justify-center text-white text-base shadow-md shadow-rose-900/30">
-            <i class="ph-fill ph-user-gear"></i>
-          </div>
-          <div>
-            <h3 class="text-sm font-black text-slate-900 dark:text-white leading-tight">
-              Hồ Sơ Cá Nhân
-            </h3>
-            <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
-              Quản trị viên & Thiết lập tài khoản
-            </p>
-          </div>
-        </div>
-        <button 
-          @click="showAccountModal = false" 
-          class="w-7 h-7 rounded-full bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center transition cursor-pointer"
-          title="Đóng"
-        >
-          <i class="ph-bold ph-x text-xs"></i>
-        </button>
-      </div>
-
-      <!-- Scrollable Body (Thoải mái cuộn, có ID để reset cuộn lên đầu khi mở) -->
-      <div id="account-modal-scroll" class="p-3.5 sm:p-4 space-y-3.5 overflow-y-auto min-h-0 flex-1 overscroll-contain text-xs pb-6">
-        
-        <!-- THẺ THÔNG TIN CÁ NHÂN & KHUNG ĐẠI DIỆN SIÊU CẤP ĐẲNG CẤP -->
+        class="fixed inset-0 z-[99998] bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 overflow-y-auto"
+      >
+        <!-- Modal Dialog Card (Cân đối 2 cột, nằm chính giữa màn hình, không bị nhảy ra ngoài) -->
         <div 
-          class="relative overflow-hidden rounded-2xl border p-5 pt-5 text-center transition-all duration-300"
-          :class="[
-            userRole === 'admin'
-              ? 'bg-gradient-to-b from-purple-950/30 via-slate-900/95 to-[#070b14] border-purple-500/50 shadow-[0_0_35px_rgba(168,85,247,0.2)]'
-              : userRole === 'member'
-                ? 'bg-gradient-to-b from-cyan-950/25 via-slate-900/95 to-[#070b14] border-cyan-500/40 shadow-[0_0_25px_rgba(6,182,212,0.15)]'
-                : 'bg-slate-50 dark:bg-slate-900/80 border-slate-200 dark:border-slate-800 shadow-none'
-          ]"
+          id="account-flyout-panel"
+          @click.stop
+          class="relative w-full max-w-3xl bg-white dark:bg-[#0c1120] border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl shadow-black/80 flex flex-col max-h-[92vh] overflow-hidden my-auto select-none"
         >
-          <!-- Aurora Light Beam for Admin/Member -->
-          <div 
-            v-if="userRole === 'admin'" 
-            class="absolute top-0 inset-x-0 h-24 bg-gradient-to-b from-rose-500/20 via-purple-500/15 to-transparent pointer-events-none"
-          ></div>
-          <div 
-            v-else-if="userRole === 'member'" 
-            class="absolute top-0 inset-x-0 h-20 bg-gradient-to-b from-cyan-500/20 to-transparent pointer-events-none"
-          ></div>
-
-          <!-- Avatar Display with Spectacular Dynamic Frames -->
-          <div class="relative inline-block mx-auto mb-1">
-            
-            <!-- Tier 1: ADMIN - Conic Rotating Rainbow RGB Neon Aura & Floating 3D Crown -->
-            <div 
-              v-if="userRole === 'admin'"
-              class="avatar-frame-admin"
-            >
-              <div class="avatar-frame-admin-aura"></div>
-              <div class="avatar-frame-admin-border"></div>
-              <div class="avatar-frame-admin-inner">
-                <div class="w-18 h-18 sm:w-20 sm:h-20 rounded-full overflow-hidden bg-slate-950 flex items-center justify-center relative">
-                  <img 
-                    v-if="userAvatar" 
-                    :src="userAvatar" 
-                    alt="Avatar" 
-                    class="w-full h-full object-cover rounded-full"
-                  >
-                  <!-- Chữ cái đại diện phong cách Discord khi chưa tải ảnh -->
-                  <div v-else class="w-full h-full rounded-full bg-gradient-to-tr from-amber-500 via-rose-600 to-purple-600 flex items-center justify-center text-white text-2xl font-black shadow-inner select-none">
-                    {{ (currentAccount.username || 'A').charAt(0).toUpperCase() }}
-                  </div>
-                </div>
+          <!-- Header -->
+          <div class="p-3.5 sm:p-4 px-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50/80 dark:bg-slate-900/50 flex-shrink-0">
+            <div class="flex items-center space-x-2.5">
+              <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 p-0.5 shadow-md flex items-center justify-center text-white text-sm">
+                <i class="ph-bold ph-user-gear"></i>
               </div>
-              <!-- 3D Floating Glowing Crown -->
-              <div class="absolute -top-3.5 -right-1 z-10 crown-glow pointer-events-none">
-                <span class="text-3xl leading-none" title="Khung Admin Quản Trị Tối Cao">👑</span>
-              </div>
-              <span class="absolute -bottom-1 -left-1 text-xs text-amber-300 animate-spin-slow pointer-events-none z-10">✦</span>
-              <span class="absolute top-1 -left-1.5 text-xs text-rose-400 pointer-events-none z-10 animate-pulse">✨</span>
-            </div>
-
-            <!-- Tier 2: THÀNH VIÊN - Lam Ngọc Tinh Thể Cyan Sang Trọng -->
-            <div 
-              v-else-if="userRole === 'member'"
-              class="avatar-frame-member"
-            >
-              <div class="avatar-frame-member-border"></div>
-              <div class="avatar-frame-member-inner">
-                <div class="w-18 h-18 sm:w-20 sm:h-20 rounded-full overflow-hidden bg-slate-950 flex items-center justify-center">
-                  <img 
-                    v-if="userAvatar" 
-                    :src="userAvatar" 
-                    alt="Avatar" 
-                    class="w-full h-full object-cover rounded-full"
-                  >
-                  <div v-else class="w-full h-full rounded-full bg-gradient-to-tr from-cyan-500 via-blue-600 to-indigo-600 flex items-center justify-center text-white text-2xl font-black shadow-inner select-none">
-                    {{ (currentAccount.username || 'M').charAt(0).toUpperCase() }}
-                  </div>
-                </div>
-              </div>
-              <span class="absolute -top-2 -right-1 text-xl drop-shadow-[0_0_8px_rgba(6,182,212,0.8)] z-10" title="Khung Thành Viên VIP">💎</span>
-            </div>
-
-            <!-- Tier 3: BÌNH THƯỜNG - Viền phẳng tinh tế, màu sắc hài hòa theo giao diện -->
-            <div 
-              v-else
-              class="relative p-1 rounded-full border-2 border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 shadow-sm"
-            >
-              <div class="w-18 h-18 sm:w-20 sm:h-20 rounded-full overflow-hidden bg-slate-200 dark:bg-slate-900 flex items-center justify-center">
-                <img 
-                  v-if="userAvatar" 
-                  :src="userAvatar" 
-                  alt="Avatar" 
-                  class="w-full h-full object-cover rounded-full"
-                >
-                <div v-else class="w-full h-full rounded-full bg-gradient-to-tr from-slate-600 to-slate-800 flex items-center justify-center text-white text-2xl font-black shadow-inner select-none">
-                  {{ (currentAccount.username || 'U').charAt(0).toUpperCase() }}
-                </div>
-              </div>
-            </div>
-
-            <!-- Online Indicator -->
-            <span class="absolute bottom-0.5 right-1.5 w-4 h-4 rounded-full bg-emerald-500 border-2 border-white dark:border-slate-900 flex items-center justify-center text-white text-[8px] shadow-md z-10" title="Đang trực tuyến">
-              <i class="ph-bold ph-check"></i>
-            </span>
-          </div>
-
-          <!-- Name & Official Rank Badge (Khung do hệ thống/admin sét, không để nút tự chọn lung tung) -->
-          <div class="mt-2.5">
-            <div class="text-lg font-black tracking-wide flex items-center justify-center gap-1.5">
-              <span class="text-slate-900 dark:text-white">
-                {{ currentAccount.username }}
-              </span>
-              <span v-if="userRole === 'admin'" class="text-amber-400 text-base drop-shadow" title="Admin Tối Cao">👑</span>
-              <span v-else-if="userRole === 'member'" class="text-cyan-400 text-sm" title="Thành Viên VIP">💎</span>
-            </div>
-
-            <!-- Official Role Badge -->
-            <div class="flex items-center justify-center gap-2 mt-1.5 flex-wrap">
-              <span 
-                v-if="userRole === 'admin'"
-                class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-black bg-gradient-to-r from-amber-500/20 via-rose-500/20 to-purple-500/25 text-amber-300 border border-amber-400/50 shadow-md shadow-amber-500/10"
-              >
-                <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
-                <span>👑 Quản Trị Viên (Admin Master)</span>
-              </span>
-              <span 
-                v-else-if="userRole === 'member'"
-                class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold bg-cyan-500/15 text-cyan-400 border border-cyan-500/35"
-              >
-                <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
-                <span>💎 Thành Viên VIP</span>
-              </span>
-              <span 
-                v-else
-                class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-[11px] font-medium bg-slate-200/80 dark:bg-slate-800/80 text-slate-600 dark:text-slate-400 border border-slate-300 dark:border-slate-700"
-              >
-                <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
-                <span>👤 Thành Viên Chuẩn</span>
-              </span>
-
-              <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-slate-200/60 dark:bg-slate-800/60 text-slate-600 dark:text-slate-400 border border-slate-300/50 dark:border-slate-700/50">
-                <i class="ph-fill ph-shield-check text-indigo-500"></i>
-                Toàn Quyền
-              </span>
-            </div>
-            
-            <p v-if="userRole === 'admin'" class="text-[10px] text-amber-300/80 mt-1.5 font-medium">
-              ✨ Khung đại diện Hào Quang RGB Thần Thoại (Độc quyền Admin)
-            </p>
-          </div>
-
-          <!-- Nút Mở Quản Lý Thành Viên & Cloud (Dành riêng cho Admin Master) -->
-          <div v-if="userRole === 'admin'" class="mt-3 pt-3 border-t border-slate-200/70 dark:border-slate-800/70">
-            <button 
-              type="button"
-              @click="showUserManagementModal = true"
-              class="w-full py-2 px-3 rounded-xl bg-gradient-to-r from-indigo-600/20 via-purple-600/20 to-rose-600/20 hover:from-indigo-600/30 hover:to-rose-600/30 border border-purple-500/40 text-purple-300 font-bold text-xs flex items-center justify-between transition cursor-pointer shadow-sm"
-            >
-              <div class="flex items-center space-x-2">
-                <i class="ph-fill ph-users-three text-sm text-purple-400"></i>
-                <span>Quản Lý Thành Viên ({{ localAccounts.length }})</span>
-              </div>
-              <span class="text-[9px] px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 font-black border border-purple-500/30">
-                {{ isFirebaseConfigured ? '🟢 Cloud' : '⚪ Local' }}
-              </span>
-            </button>
-          </div>
-
-          <!-- Avatar Actions (Đổi ảnh / Gỡ ảnh) -->
-          <div class="flex items-center justify-center gap-2 mt-3 pt-3 border-t border-slate-200/70 dark:border-slate-800/70">
-            <label class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 via-rose-500 to-purple-600 hover:opacity-90 text-slate-950 font-black text-[11px] cursor-pointer shadow-md flex items-center space-x-1.5 transition">
-              <i class="ph-bold ph-camera"></i>
-              <span>Tải ảnh từ máy</span>
-              <input type="file" accept="image/*" @change="handleAvatarUpload" class="hidden">
-            </label>
-            <button 
-              v-if="userAvatar" 
-              @click="removeAvatar"
-              class="px-2.5 py-1.5 rounded-xl bg-slate-200 dark:bg-slate-800 hover:bg-rose-500 hover:text-white text-slate-600 dark:text-slate-300 text-[11px] font-bold transition flex items-center space-x-1 cursor-pointer"
-              title="Khôi phục ảnh đại diện mặc định"
-            >
-              <i class="ph ph-arrow-counter-clockwise"></i>
-              <span>Mặc định</span>
-            </button>
-          </div>
-
-          <!-- Bộ sưu tập Avatar mẫu Gaming 1 chạm -->
-          <div class="mt-3 pt-3 border-t border-slate-200/80 dark:border-slate-800/80">
-            <div class="text-[10px] font-bold text-slate-600 dark:text-slate-400 mb-2 flex items-center justify-between">
-              <span class="flex items-center gap-1">
-                <i class="ph-bold ph-sparkle text-amber-500"></i>
-                <span>Kho Avatar Mẫu Gaming:</span>
-              </span>
-              <span class="text-[9px] text-purple-600 dark:text-purple-400 font-semibold bg-purple-500/10 px-2 py-0.5 rounded-full">Chọn 1 chạm</span>
-            </div>
-            <div class="grid grid-cols-6 gap-1.5">
-              <button 
-                v-for="preset in PRESET_AVATARS" 
-                :key="preset.id"
-                type="button"
-                @click="selectPresetAvatar(preset.url)"
-                class="p-1 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-purple-500 dark:hover:border-purple-500 bg-white dark:bg-slate-900 transition hover:scale-105 cursor-pointer flex flex-col items-center group shadow-sm"
-                :title="preset.name"
-              >
-                <div class="w-8 h-8 rounded-full overflow-hidden bg-slate-100 dark:bg-slate-800 p-0.5 border border-slate-200 dark:border-slate-700">
-                  <img :src="preset.url" :alt="preset.name" class="w-full h-full object-contain">
-                </div>
-                <span class="text-[8px] text-slate-500 dark:text-slate-400 truncate max-w-full mt-0.5 group-hover:text-purple-400 font-medium">{{ preset.shortName }}</span>
-              </button>
-            </div>
-          </div>
-
-        </div>
-
-        <!-- THÔNG TIN TÀI KHOẢN TÓM TẮT & NÚT THIẾT LẬP BẢO MẬT (KÍN ĐÁO - KHÔNG BỊ LỘ LIỄU) -->
-        <div class="rounded-2xl bg-slate-50 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 overflow-hidden">
-          
-          <!-- Dòng thông tin kín đáo (Summary View) -->
-          <div class="p-3.5 space-y-2">
-            <div class="flex items-center justify-between text-xs">
-              <span class="text-slate-500 dark:text-slate-400 flex items-center gap-1.5 font-medium">
-                <i class="ph-bold ph-identification-badge text-slate-400"></i>
-                Tên đăng nhập
-              </span>
-              <span class="font-bold text-slate-800 dark:text-slate-200 font-mono">
-                {{ currentAccount.username }}
-              </span>
-            </div>
-
-            <div class="flex items-center justify-between text-xs">
-              <span class="text-slate-500 dark:text-slate-400 flex items-center gap-1.5 font-medium">
-                <i class="ph-bold ph-shield-check text-slate-400"></i>
-                Cấp bậc tài khoản
-              </span>
-              <span class="font-bold text-amber-400 font-mono text-[11px]">
-                {{ userRole === 'admin' ? '👑 Admin Master' : userRole === 'member' ? '💎 Thành Viên VIP' : '👤 Bình Thường' }}
-              </span>
-            </div>
-            
-            <div class="flex items-center justify-between text-xs">
-              <span class="text-slate-500 dark:text-slate-400 flex items-center gap-1.5 font-medium">
-                <i class="ph-bold ph-lock-key text-slate-400"></i>
-                Mật khẩu
-              </span>
-              <span class="font-mono text-slate-400 tracking-widest text-[11px]">
-                ••••••••••••
-              </span>
-            </div>
-          </div>
-
-          <!-- Nút mở rộng chỉnh sửa (Accordion Trigger) -->
-          <button 
-            type="button"
-            @click="showEditCredentials = !showEditCredentials"
-            class="w-full py-2.5 px-3.5 border-t border-slate-200 dark:border-slate-800/80 bg-slate-100/80 hover:bg-slate-100 dark:bg-slate-800/40 dark:hover:bg-slate-800/80 text-slate-700 dark:text-slate-300 font-bold text-xs flex items-center justify-between transition cursor-pointer"
-          >
-            <div class="flex items-center space-x-1.5">
-              <i class="ph-bold ph-gear-six text-indigo-500"></i>
-              <span>{{ showEditCredentials ? 'Thu gọn cài đặt tài khoản' : (userRole === 'admin' ? 'Thiết lập tài khoản & Phân quyền' : 'Đổi tên tài khoản & Mật khẩu') }}</span>
-            </div>
-            <i 
-              class="ph-bold ph-caret-down text-xs text-slate-400 transition-transform duration-200"
-              :class="{'rotate-180': showEditCredentials}"
-            ></i>
-          </button>
-
-          <!-- Form Chỉnh Sửa Kín Đáo & Phân Quyền (Chỉ bung ra khi người dùng chủ động bấm) -->
-          <div v-show="showEditCredentials" class="p-3.5 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-[#070b16] space-y-3.5">
-            <div>
-              <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
-                Tên tài khoản mới
-              </label>
-              <input 
-                type="text" 
-                v-model="accountFormUsername" 
-                placeholder="Nhập tên tài khoản..."
-                class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-purple-500"
-              >
-            </div>
-
-            <!-- Cài đặt phân quyền khung đại diện (CHỈ HIỂN THỊ KHI TÀI KHOẢN LÀ ADMIN MASTER) -->
-            <div v-if="userRole === 'admin'" class="pt-2 border-t border-slate-200 dark:border-slate-800 space-y-2">
-              <div class="flex items-center justify-between text-[11px] font-bold text-slate-700 dark:text-slate-300">
-                <span class="flex items-center gap-1.5">
-                  <i class="ph-bold ph-crown text-amber-400"></i>
-                  Phân quyền cấp bậc & Khung đại diện
-                </span>
-                <span class="text-[9px] text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
-                  Quyền Admin
-                </span>
-              </div>
-              
-              <p class="text-[10px] text-slate-400 leading-normal">
-                Khung hiển thị được thiết lập theo cấp bậc tài khoản, tự động đồng bộ trên toàn hệ thống.
-              </p>
-
-              <div class="grid grid-cols-3 gap-2 pt-1">
-                <button 
-                  type="button"
-                  @click="setUserRole('admin')"
-                  class="p-2 rounded-xl border text-center transition cursor-pointer flex flex-col items-center gap-1"
-                  :class="userRole === 'admin' 
-                    ? 'bg-purple-950/40 border-amber-400 text-amber-300 font-black shadow-md ring-1 ring-amber-400/40' 
-                    : 'bg-slate-100 dark:bg-slate-900/60 border-slate-200 dark:border-slate-800 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'"
-                >
-                  <span class="text-base">👑</span>
-                  <span class="text-[10px] font-black leading-tight">Admin Master</span>
-                  <span class="text-[8px] opacity-75">RGB Thần Thoại</span>
-                </button>
-
-                <button 
-                  type="button"
-                  @click="setUserRole('member')"
-                  class="p-2 rounded-xl border text-center transition cursor-pointer flex flex-col items-center gap-1"
-                  :class="userRole === 'member' 
-                    ? 'bg-cyan-950/40 border-cyan-400 text-cyan-300 font-black shadow-md ring-1 ring-cyan-400/40' 
-                    : 'bg-slate-100 dark:bg-slate-900/60 border-slate-200 dark:border-slate-800 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'"
-                >
-                  <span class="text-base">💎</span>
-                  <span class="text-[10px] font-black leading-tight">Thành Viên VIP</span>
-                  <span class="text-[8px] opacity-75">Lam Ngọc</span>
-                </button>
-
-                <button 
-                  type="button"
-                  @click="setUserRole('normal')"
-                  class="p-2 rounded-xl border text-center transition cursor-pointer flex flex-col items-center gap-1"
-                  :class="userRole === 'normal' 
-                    ? 'bg-slate-800 text-white dark:bg-slate-700 dark:text-white border-slate-600 font-black shadow-sm' 
-                    : 'bg-slate-100 dark:bg-slate-900/60 border-slate-200 dark:border-slate-800 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'"
-                >
-                  <span class="text-base">👤</span>
-                  <span class="text-[10px] font-black leading-tight">Bình Thường</span>
-                  <span class="text-[8px] opacity-75">Chuẩn Tối Giản</span>
-                </button>
-              </div>
-            </div>
-
-            <!-- DÀNH CHO THÀNH VIÊN THƯỜNG: CHỈ XEM CẤP BẬC, KHÔNG CÓ NÚT TỰ ĐỔI QUYỀN -->
-            <div v-else class="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-300 flex items-center justify-between">
-              <span class="flex items-center gap-1.5 font-bold">
-                <i class="ph-bold ph-shield-check text-indigo-500"></i>
-                <span>Cấp bậc: <strong class="text-purple-600 dark:text-purple-400">{{ userRole === 'member' ? '💎 Thành Viên VIP' : '👤 Thành Viên Chuẩn' }}</strong></span>
-              </span>
-              <span class="text-[10px] text-slate-400 italic font-medium">Do Admin phân quyền</span>
-            </div>
-
-            <!-- Đổi mật khẩu mới -->
-            <div class="pt-2 border-t border-slate-200 dark:border-slate-800 space-y-2">
-              <div class="text-[11px] font-bold text-slate-700 dark:text-slate-300">
-                Đổi mật khẩu mới <span class="text-slate-400 font-normal">(bỏ trống nếu giữ nguyên):</span>
-              </div>
-              
               <div>
-                <label class="block text-[10px] text-slate-500 dark:text-slate-400 mb-0.5">Mật khẩu hiện tại</label>
-                <input 
-                  type="password" 
-                  v-model="accountFormCurrentPass" 
-                  placeholder="Nhập mật khẩu hiện tại..."
-                  class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-purple-500"
-                >
-              </div>
-
-              <div class="grid grid-cols-2 gap-2">
-                <div>
-                  <label class="block text-[10px] text-slate-500 dark:text-slate-400 mb-0.5">Mật khẩu mới</label>
-                  <input 
-                    type="password" 
-                    v-model="accountFormNewPass" 
-                    placeholder="Mới..."
-                    class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-purple-500"
-                  >
-                </div>
-                <div>
-                  <label class="block text-[10px] text-slate-500 dark:text-slate-400 mb-0.5">Xác nhận</label>
-                  <input 
-                    type="password" 
-                    v-model="accountFormConfirmPass" 
-                    placeholder="Xác nhận..."
-                    class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-purple-500"
-                  >
-                </div>
+                <h3 class="text-sm font-black text-slate-900 dark:text-white leading-tight">
+                  Hồ Sơ Cá Nhân & Bảo Mật
+                </h3>
+                <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
+                  Quản lý thông tin tài khoản, ảnh đại diện và quyền hạn hệ thống
+                </p>
               </div>
             </div>
+            <button 
+              @click="showAccountModal = false" 
+              class="w-7 h-7 rounded-full bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center transition cursor-pointer"
+              title="Đóng"
+            >
+              <i class="ph-bold ph-x text-xs"></i>
+            </button>
+          </div>
 
-            <div class="flex items-center gap-2 pt-1">
+          <!-- Body: Bố cục 2 Cột Cân Đối & Đều Đặn (Side-by-Side trên Desktop, Stack mượt trên Mobile) -->
+          <div id="account-modal-scroll" class="p-4 sm:p-5 overflow-y-auto min-h-0 flex-1 overscroll-contain">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-5 items-start">
+              
+              <!-- CỘT 1 (TRÁI): THẺ AVATAR & KHUNG ĐẠI DIỆN ĐẲNG CẤP -->
+              <div class="md:col-span-5 flex flex-col space-y-3">
+                <!-- Thẻ Hero Avatar Card -->
+                <div 
+                  class="relative overflow-hidden rounded-2xl border p-4 text-center transition-all duration-300"
+                  :class="[
+                    userRole === 'admin'
+                      ? 'bg-gradient-to-b from-purple-950/30 via-slate-900/95 to-[#070b14] border-purple-500/50 shadow-[0_0_25px_rgba(168,85,247,0.2)]'
+                      : userRole === 'member'
+                        ? 'bg-gradient-to-b from-cyan-950/25 via-slate-900/95 to-[#070b14] border-cyan-500/40 shadow-[0_0_20px_rgba(6,182,212,0.15)]'
+                        : 'bg-slate-50 dark:bg-slate-900/80 border-slate-200 dark:border-slate-800 shadow-sm'
+                  ]"
+                >
+                  <!-- Aurora Light Beam for Admin/Member -->
+                  <div 
+                    v-if="userRole === 'admin'" 
+                    class="absolute top-0 inset-x-0 h-20 bg-gradient-to-b from-rose-500/20 via-purple-500/15 to-transparent pointer-events-none"
+                  ></div>
+                  <div 
+                    v-else-if="userRole === 'member'" 
+                    class="absolute top-0 inset-x-0 h-16 bg-gradient-to-b from-cyan-500/20 to-transparent pointer-events-none"
+                  ></div>
+
+                  <!-- Avatar Display with Dynamic Frames -->
+                  <div class="relative inline-block mx-auto mb-1">
+                    
+                    <!-- Tier 1: ADMIN - Conic Rotating Rainbow RGB Neon Aura & Floating 3D Crown -->
+                    <div 
+                      v-if="userRole === 'admin'"
+                      class="avatar-frame-admin"
+                    >
+                      <div class="avatar-frame-admin-aura"></div>
+                      <div class="avatar-frame-admin-border"></div>
+                      <div class="avatar-frame-admin-inner">
+                        <div class="w-16 h-16 sm:w-18 sm:h-18 rounded-full overflow-hidden bg-slate-950 flex items-center justify-center relative">
+                          <img 
+                            v-if="userAvatar" 
+                            :src="userAvatar" 
+                            alt="Avatar" 
+                            class="w-full h-full object-cover rounded-full"
+                          >
+                          <div v-else class="w-full h-full rounded-full bg-gradient-to-tr from-amber-500 via-rose-600 to-purple-600 flex items-center justify-center text-white text-xl font-black shadow-inner select-none">
+                            {{ (currentAccount.username || 'A').charAt(0).toUpperCase() }}
+                          </div>
+                        </div>
+                      </div>
+                      <!-- 3D Floating Glowing Crown -->
+                      <div class="absolute -top-3.5 -right-1 z-10 crown-glow pointer-events-none">
+                        <span class="text-2xl sm:text-3xl leading-none" title="Khung Admin Quản Trị Tối Cao">👑</span>
+                      </div>
+                      <span class="absolute -bottom-1 -left-1 text-xs text-amber-300 animate-spin-slow pointer-events-none z-10">✦</span>
+                      <span class="absolute top-1 -left-1.5 text-xs text-rose-400 pointer-events-none z-10 animate-pulse">✨</span>
+                    </div>
+
+                    <!-- Tier 2: THÀNH VIÊN - Lam Ngọc Tinh Thể Cyan Sang Trọng -->
+                    <div 
+                      v-else-if="userRole === 'member'"
+                      class="avatar-frame-member"
+                    >
+                      <div class="avatar-frame-member-border"></div>
+                      <div class="avatar-frame-member-inner">
+                        <div class="w-16 h-16 sm:w-18 sm:h-18 rounded-full overflow-hidden bg-slate-950 flex items-center justify-center">
+                          <img 
+                            v-if="userAvatar" 
+                            :src="userAvatar" 
+                            alt="Avatar" 
+                            class="w-full h-full object-cover rounded-full"
+                          >
+                          <div v-else class="w-full h-full rounded-full bg-gradient-to-tr from-cyan-500 via-blue-600 to-indigo-600 flex items-center justify-center text-white text-xl font-black shadow-inner select-none">
+                            {{ (currentAccount.username || 'M').charAt(0).toUpperCase() }}
+                          </div>
+                        </div>
+                      </div>
+                      <span class="absolute -top-2 -right-1 text-lg drop-shadow-[0_0_8px_rgba(6,182,212,0.8)] z-10" title="Khung Thành Viên VIP">💎</span>
+                    </div>
+
+                    <!-- Tier 3: BÌNH THƯỜNG - Viền phẳng tinh tế, màu sắc hài hòa theo giao diện -->
+                    <div 
+                      v-else
+                      class="relative p-1 rounded-full border-2 border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 shadow-sm"
+                    >
+                      <div class="w-16 h-16 sm:w-18 sm:h-18 rounded-full overflow-hidden bg-slate-200 dark:bg-slate-900 flex items-center justify-center">
+                        <img 
+                          v-if="userAvatar" 
+                          :src="userAvatar" 
+                          alt="Avatar" 
+                          class="w-full h-full object-cover rounded-full"
+                        >
+                        <div v-else class="w-full h-full rounded-full bg-gradient-to-tr from-slate-600 to-slate-800 flex items-center justify-center text-white text-xl font-black shadow-inner select-none">
+                          {{ (currentAccount.username || 'U').charAt(0).toUpperCase() }}
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Online Indicator -->
+                    <span class="absolute bottom-0 right-1 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-white dark:border-slate-900 flex items-center justify-center text-white text-[7px] shadow-md z-10" title="Đang trực tuyến">
+                      <i class="ph-bold ph-check"></i>
+                    </span>
+                  </div>
+
+                  <!-- Name & Official Rank Badge -->
+                  <div class="mt-1.5">
+                    <div class="text-base font-black tracking-wide flex items-center justify-center gap-1.5">
+                      <span class="text-slate-900 dark:text-white">
+                        {{ currentAccount.username }}
+                      </span>
+                      <span v-if="userRole === 'admin'" class="text-amber-400 text-sm drop-shadow" title="Admin Tối Cao">👑</span>
+                      <span v-else-if="userRole === 'member'" class="text-cyan-400 text-xs" title="Thành Viên VIP">💎</span>
+                    </div>
+
+                    <!-- Official Role Badge -->
+                    <div class="flex items-center justify-center gap-1.5 mt-1 flex-wrap">
+                      <span 
+                        v-if="userRole === 'admin'"
+                        class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-500/15 text-amber-400 border border-amber-400/40 shadow-sm"
+                      >
+                        <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping"></span>
+                        Admin Master RGB
+                      </span>
+                      <span 
+                        v-else-if="userRole === 'member'"
+                        class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-cyan-500/15 text-cyan-400 border border-cyan-400/40 shadow-sm"
+                      >
+                        <span class="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
+                        Thành Viên VIP
+                      </span>
+                      <span 
+                        v-else
+                        class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700"
+                      >
+                        <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                        Thành Viên Chuẩn
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- Avatar Action Buttons (Tải ảnh từ máy / Mặc định) -->
+                  <div class="flex items-center justify-center gap-2 mt-2.5 pt-2 border-t border-slate-200/70 dark:border-slate-800/70">
+                    <label class="px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 via-rose-500 to-purple-600 hover:opacity-90 text-slate-950 font-black text-[10px] cursor-pointer shadow-sm flex items-center space-x-1 transition">
+                      <i class="ph-bold ph-camera"></i>
+                      <span>Tải ảnh từ máy</span>
+                      <input type="file" accept="image/*" @change="handleAvatarUpload" class="hidden">
+                    </label>
+                    <button 
+                      v-if="userAvatar" 
+                      @click="removeAvatar"
+                      class="px-2.5 py-1.5 rounded-xl bg-slate-200 dark:bg-slate-800 hover:bg-rose-500 hover:text-white text-slate-600 dark:text-slate-300 text-[10px] font-bold transition flex items-center space-x-1 cursor-pointer"
+                      title="Khôi phục ảnh đại diện mặc định"
+                    >
+                      <i class="ph ph-arrow-counter-clockwise"></i>
+                      <span>Mặc định</span>
+                    </button>
+                  </div>
+
+                  <!-- Bộ sưu tập Avatar mẫu Gaming 1 chạm -->
+                  <div class="mt-2.5 pt-2 border-t border-slate-200/80 dark:border-slate-800/80 text-left">
+                    <div class="text-[10px] font-bold text-slate-600 dark:text-slate-400 mb-1.5 flex items-center justify-between">
+                      <span class="flex items-center gap-1">
+                        <i class="ph-bold ph-sparkle text-amber-500"></i>
+                        <span>Avatar Gaming:</span>
+                      </span>
+                      <span class="text-[8px] text-purple-600 dark:text-purple-400 font-semibold bg-purple-500/10 px-1.5 py-0.5 rounded-full">1 chạm</span>
+                    </div>
+                    <div class="grid grid-cols-6 gap-1">
+                      <button 
+                        v-for="preset in PRESET_AVATARS" 
+                        :key="preset.id"
+                        type="button"
+                        @click="selectPresetAvatar(preset.url)"
+                        class="p-1 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-purple-500 dark:hover:border-purple-500 bg-white dark:bg-slate-900 transition hover:scale-105 cursor-pointer flex flex-col items-center group shadow-sm"
+                        :title="preset.name"
+                      >
+                        <div class="w-6 h-6 sm:w-7 sm:h-7 rounded-full overflow-hidden bg-slate-100 dark:bg-slate-800 p-0.5 border border-slate-200 dark:border-slate-700">
+                          <img :src="preset.url" :alt="preset.name" class="w-full h-full object-contain">
+                        </div>
+                        <span class="text-[8px] text-slate-500 dark:text-slate-400 truncate max-w-full mt-0.5 group-hover:text-purple-400 font-medium">{{ preset.shortName }}</span>
+                      </button>
+                    </div>
+                  </div>
+
+                </div>
+
+                <!-- Nút Mở Quản Lý Thành Viên (Chỉ dành cho Admin Master) -->
+                <div v-if="userRole === 'admin'" class="pt-0.5">
+                  <button 
+                    type="button"
+                    @click="showUserManagementModal = true"
+                    class="w-full py-2 px-3 rounded-xl bg-gradient-to-r from-indigo-600/20 via-purple-600/20 to-rose-600/20 hover:from-indigo-600/30 hover:to-rose-600/30 border border-purple-500/40 text-purple-300 font-bold text-xs flex items-center justify-between transition cursor-pointer shadow-sm"
+                  >
+                    <div class="flex items-center space-x-2">
+                      <i class="ph-fill ph-users-three text-sm text-purple-400"></i>
+                      <span>Quản Lý Thành Viên ({{ localAccounts.length }})</span>
+                    </div>
+                    <span class="text-[9px] bg-purple-500/30 text-purple-200 px-2 py-0.5 rounded font-semibold">Mở</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- CỘT 2 (PHẢI): BẢO MẬT & THIẾT LẬP TÀI KHOẢN (LUÔN CÂN ĐỐI, KHÔNG CO GIÃN BỊ NHẢY) -->
+              <div class="md:col-span-7 flex flex-col space-y-2.5 bg-slate-50/80 dark:bg-slate-900/60 p-3.5 sm:p-4 rounded-2xl border border-slate-200 dark:border-slate-800">
+                <div class="flex items-center space-x-2 pb-2 border-b border-slate-200 dark:border-slate-800">
+                  <i class="ph-bold ph-shield-check text-indigo-500 text-base"></i>
+                  <div>
+                    <h4 class="text-xs font-black text-slate-900 dark:text-white">Thiết Lập Tài Khoản & Mật Khẩu</h4>
+                    <p class="text-[10px] text-slate-500 dark:text-slate-400">Cập nhật tên hiển thị và mật khẩu đăng nhập</p>
+                  </div>
+                </div>
+
+                <!-- Form Đổi Tên Tài Khoản -->
+                <div>
+                  <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
+                    Tên tài khoản mới
+                  </label>
+                  <div class="relative">
+                    <i class="ph-fill ph-user absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                    <input 
+                      type="text" 
+                      v-model="accountFormUsername" 
+                      placeholder="Nhập tên tài khoản..."
+                      class="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl pl-8 pr-3 py-1.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500/30 transition"
+                    >
+                  </div>
+                </div>
+
+                <!-- Cài đặt phân quyền khung đại diện (CHỈ HIỂN THỊ KHI LÀ ADMIN MASTER) -->
+                <div v-if="userRole === 'admin'" class="pt-2 border-t border-slate-200 dark:border-slate-800 space-y-1.5">
+                  <div class="flex items-center justify-between text-[11px] font-bold text-slate-700 dark:text-slate-300">
+                    <span class="flex items-center gap-1.5">
+                      <i class="ph-bold ph-crown text-amber-400"></i>
+                      Phân quyền cấp bậc & Khung
+                    </span>
+                    <span class="text-[9px] text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                      Quyền Admin
+                    </span>
+                  </div>
+
+                  <div class="grid grid-cols-3 gap-1.5 pt-0.5">
+                    <button 
+                      type="button"
+                      @click="setUserRole('admin')"
+                      class="p-1.5 rounded-xl border text-center transition cursor-pointer flex flex-col items-center gap-0.5"
+                      :class="userRole === 'admin' 
+                        ? 'bg-purple-950/40 border-amber-400 text-amber-300 font-black shadow-md ring-1 ring-amber-400/40' 
+                        : 'bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'"
+                    >
+                      <span class="text-sm">👑</span>
+                      <span class="text-[9px] font-black leading-tight">Admin Master</span>
+                    </button>
+
+                    <button 
+                      type="button"
+                      @click="setUserRole('member')"
+                      class="p-1.5 rounded-xl border text-center transition cursor-pointer flex flex-col items-center gap-0.5"
+                      :class="userRole === 'member' 
+                        ? 'bg-cyan-950/40 border-cyan-400 text-cyan-300 font-black shadow-md ring-1 ring-cyan-400/40' 
+                        : 'bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'"
+                    >
+                      <span class="text-sm">💎</span>
+                      <span class="text-[9px] font-black leading-tight">Thành Viên VIP</span>
+                    </button>
+
+                    <button 
+                      type="button"
+                      @click="setUserRole('normal')"
+                      class="p-1.5 rounded-xl border text-center transition cursor-pointer flex flex-col items-center gap-0.5"
+                      :class="userRole === 'normal' 
+                        ? 'bg-slate-800 text-white dark:bg-slate-700 dark:text-white border-slate-600 font-black shadow-sm' 
+                        : 'bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'"
+                    >
+                      <span class="text-sm">👤</span>
+                      <span class="text-[9px] font-black leading-tight">Bình Thường</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- DÀNH CHO THÀNH VIÊN THƯỜNG: CHỈ XEM CẤP BẬC, KHÔNG CÓ NÚT TỰ ĐỔI QUYỀN -->
+                <div v-else class="p-2 rounded-xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-[11px] text-slate-600 dark:text-slate-300 flex items-center justify-between">
+                  <span class="flex items-center gap-1.5 font-bold">
+                    <i class="ph-bold ph-shield-check text-indigo-500"></i>
+                    <span>Cấp bậc: <strong class="text-purple-600 dark:text-purple-400">{{ userRole === 'member' ? '💎 Thành Viên VIP' : '👤 Thành Viên Chuẩn' }}</strong></span>
+                  </span>
+                  <span class="text-[9px] text-slate-400 italic">Do Admin phân quyền</span>
+                </div>
+
+                <!-- Đổi mật khẩu mới -->
+                <div class="pt-2 border-t border-slate-200 dark:border-slate-800 space-y-1.5">
+                  <div class="flex items-center justify-between text-[11px] font-bold text-slate-700 dark:text-slate-300">
+                    <span class="flex items-center gap-1">
+                      <i class="ph-bold ph-lock-key text-indigo-500"></i>
+                      Đổi mật khẩu
+                    </span>
+                    <span class="text-[9px] text-slate-400 font-normal">(bỏ trống nếu giữ nguyên)</span>
+                  </div>
+
+                  <div>
+                    <input 
+                      type="password" 
+                      v-model="accountFormCurrentPass" 
+                      placeholder="Mật khẩu hiện tại..."
+                      class="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500/30 transition"
+                    >
+                  </div>
+
+                  <div class="grid grid-cols-2 gap-2">
+                    <input 
+                      type="password" 
+                      v-model="accountFormNewPass" 
+                      placeholder="Mật khẩu mới..."
+                      class="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500/30 transition"
+                    >
+                    <input 
+                      type="password" 
+                      v-model="accountFormConfirmPass" 
+                      placeholder="Xác nhận mới..."
+                      class="w-full bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500/30 transition"
+                    >
+                  </div>
+                </div>
+
+                <!-- Action Button: Lưu Cập Nhật -->
+                <div class="pt-2">
+                  <button 
+                    type="button"
+                    @click="saveAccountSettings"
+                    class="w-full py-2 bg-gradient-to-r from-indigo-600 via-purple-600 to-rose-600 hover:opacity-95 text-white font-black rounded-xl text-xs shadow-md transition flex items-center justify-center space-x-1.5 cursor-pointer"
+                  >
+                    <i class="ph-fill ph-floppy-disk text-sm"></i>
+                    <span>Lưu Cập Nhật Tài Khoản</span>
+                  </button>
+                </div>
+
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Footer (Cố định ở đáy panel, cân đối và thoáng mát) -->
+          <div class="p-3 px-5 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/90 flex items-center justify-between gap-2 flex-shrink-0">
+            <!-- Nút Đăng Xuất (Khóa Chờ) -->
+            <button 
+              @click="handleLogout"
+              class="px-3 py-1.5 bg-rose-500/10 hover:bg-rose-500 hover:text-white text-rose-500 border border-rose-500/30 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 cursor-pointer shadow-sm"
+            >
+              <i class="ph-fill ph-sign-out"></i>
+              <span>Đăng Xuất (Khóa Chờ)</span>
+            </button>
+
+            <div class="flex items-center gap-2">
+              <span class="text-[10px] text-slate-400 hidden sm:inline flex items-center gap-1">
+                <i class="ph-fill ph-lock-key"></i>
+                Bảo mật Harunaga
+              </span>
               <button 
-                type="button"
-                @click="showEditCredentials = false"
-                class="flex-1 py-1.5 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl text-xs transition cursor-pointer text-center"
+                @click="showAccountModal = false" 
+                class="px-4 py-1.5 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-xl transition cursor-pointer"
               >
-                Hủy
-              </button>
-              <button 
-                type="button"
-                @click="saveAccountSettings"
-                class="flex-[2] py-1.5 bg-gradient-to-r from-indigo-600 via-purple-600 to-rose-600 hover:opacity-95 text-white font-bold rounded-xl text-xs shadow-md transition flex items-center justify-center space-x-1.5 cursor-pointer"
-              >
-                <i class="ph-fill ph-floppy-disk"></i>
-                <span>Lưu Cập Nhật</span>
+                Đóng
               </button>
             </div>
           </div>
 
         </div>
-
       </div>
-
-      <!-- Footer (Cố định ở đáy panel, luôn hiển thị rõ ràng không bao giờ bị che) -->
-      <div class="p-3 px-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/90 flex items-center justify-between gap-2 flex-shrink-0">
-        <!-- Nút Đăng Xuất (Luôn hiển thị rõ, không bị che khi cuộn) -->
-        <button 
-          @click="handleLogout"
-          class="px-3 py-1.5 bg-rose-500/10 hover:bg-rose-500 hover:text-white text-rose-500 border border-rose-500/30 rounded-xl text-xs font-bold transition flex items-center space-x-1.5 cursor-pointer shadow-sm"
-        >
-          <i class="ph-fill ph-sign-out"></i>
-          <span>Đăng Xuất (Khóa Chờ)</span>
-        </button>
-
-        <div class="flex items-center gap-2">
-          <span class="text-[10px] text-slate-400 hidden sm:inline flex items-center gap-1">
-            <i class="ph-fill ph-lock-key"></i>
-            Bảo mật
-          </span>
-          <button 
-            @click="showAccountModal = false" 
-            class="px-3.5 py-1.5 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-xl transition cursor-pointer"
-          >
-            Đóng
-          </button>
-        </div>
-      </div>
-
-    </div>
+    </transition>
 
     <!-- ========================================================================================= -->
     <!-- MODAL QUẢN LÝ THÀNH VIÊN & CẤU HÌNH CLOUD FIREBASE (DÀNH CHO ADMIN MASTER)                 -->
