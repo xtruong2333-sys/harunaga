@@ -297,23 +297,39 @@
 
     <!-- ========================================================================================= -->
     <!-- GIAO DIỆN CHỜ / TRẠM XÁC THỰC BẢO MẬT (ACTIVE WHEN !isLoggedIn)                          -->
+    <!-- Nền Video Không Gian Huyền Ảo: Space whale swimming through galaxy                        -->
     <!-- Thiết kế cố định vừa vặn 100% khung màn hình (Single-frame zero scroll)                    -->
     <!-- ========================================================================================= -->
     <div 
       v-if="!isLoggedIn" 
-      class="fixed inset-0 z-50 flex flex-col justify-between items-center py-3 sm:py-5 px-4 bg-slate-100 dark:bg-darkBg overflow-hidden select-none"
+      class="fixed inset-0 z-50 flex flex-col justify-between items-center py-3 sm:py-5 px-4 bg-[#030712] overflow-hidden select-none"
     >
+      <!-- Cosmic Background Video: Space whale swimming through galaxy -->
+      <video 
+        autoplay 
+        loop 
+        muted 
+        playsinline 
+        class="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none"
+      >
+        <source src="Space_whale_swimming_through_galaxy_20260911002111.mp4" type="video/mp4">
+      </video>
+
+      <!-- Soft Cinematic Vignette & Ambient Darkness Overlay -->
+      <div class="absolute inset-0 bg-slate-950/40 backdrop-blur-[0.5px] z-[1] pointer-events-none"></div>
+      <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-slate-950/50 z-[1] pointer-events-none"></div>
+
       <!-- Ambient Glow Auras -->
-      <div class="absolute w-[450px] h-[450px] bg-rose-600/10 rounded-full blur-[100px] pointer-events-none -top-16 -left-16"></div>
-      <div class="absolute w-[450px] h-[450px] bg-purple-600/10 rounded-full blur-[100px] pointer-events-none -bottom-16 -right-16"></div>
-      <div class="absolute w-[350px] h-[350px] bg-amber-500/10 rounded-full blur-[90px] pointer-events-none top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
+      <div class="absolute w-[450px] h-[450px] bg-rose-600/15 rounded-full blur-[100px] pointer-events-none -top-16 -left-16 z-[2]"></div>
+      <div class="absolute w-[450px] h-[450px] bg-purple-600/15 rounded-full blur-[100px] pointer-events-none -bottom-16 -right-16 z-[2]"></div>
+      <div class="absolute w-[350px] h-[350px] bg-amber-500/10 rounded-full blur-[90px] pointer-events-none top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[2]"></div>
 
       <!-- Center Box: Perfectly centered vertically in the available frame -->
       <div class="my-auto w-full max-w-sm sm:max-w-md flex flex-col items-center relative z-10">
         
         <!-- Radar Target Emblem (Compact & Sleek) -->
         <div class="relative mb-2.5 sm:mb-3 flex-shrink-0">
-          <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-tr from-rose-600 via-purple-600 to-amber-500 p-[2.5px] shadow-xl shadow-purple-900/30 glow-gold">
+          <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-tr from-rose-600 via-purple-600 to-amber-500 p-[2.5px] shadow-xl shadow-purple-900/40 glow-gold">
             <div class="w-full h-full bg-[#050811] rounded-[13px] flex items-center justify-center relative overflow-hidden">
               <div class="absolute inset-0 bg-gradient-to-tr from-rose-500/20 via-purple-500/20 to-amber-500/20 animate-pulse"></div>
               <i class="ph-fill ph-radar text-2xl sm:text-3xl bg-gradient-to-tr from-rose-400 via-purple-300 to-amber-300 bg-clip-text text-transparent animate-spin-slow"></i>
@@ -327,20 +343,20 @@
 
         <!-- Title & Subtitle -->
         <div class="text-center mb-3 sm:mb-4">
-          <div class="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full bg-rose-500/15 border border-rose-500/40 text-rose-400 text-[10px] sm:text-[11px] font-black uppercase tracking-wider mb-1">
-            <i class="ph-fill ph-lock-key"></i>
+          <div class="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full bg-slate-950/70 backdrop-blur-md border border-rose-500/50 text-rose-300 text-[10px] sm:text-[11px] font-black uppercase tracking-wider mb-1 shadow-lg shadow-black/50">
+            <i class="ph-fill ph-lock-key text-rose-400"></i>
             <span>TRẠM CHỜ XÁC THỰC QUYỀN TRUY CẬP</span>
           </div>
-          <h1 class="text-xl sm:text-2xl font-black tracking-tight text-slate-900 dark:text-white">
-            Bắt Bài Đối Thủ <span class="bg-gradient-to-r from-rose-500 via-purple-500 to-amber-400 bg-clip-text text-transparent">24/7</span>
+          <h1 class="text-xl sm:text-2xl font-black tracking-tight text-white drop-shadow-[0_2px_12px_rgba(0,0,0,0.9)]">
+            Bắt Bài Đối Thủ <span class="bg-gradient-to-r from-rose-400 via-purple-300 to-amber-300 bg-clip-text text-transparent">24/7</span>
           </h1>
-          <p class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-xs sm:max-w-sm mx-auto leading-relaxed line-clamp-2">
+          <p class="text-[11px] sm:text-xs text-slate-200 mt-1 max-w-xs sm:max-w-sm mx-auto leading-relaxed line-clamp-2 drop-shadow-[0_1px_6px_rgba(0,0,0,0.9)]">
             Hệ thống Radar 46 kênh đối thủ & AI Remake kịch bản được bảo vệ. Vui lòng đăng nhập để mở khóa.
           </p>
         </div>
 
-        <!-- Luxury Glassmorphism Login Card -->
-        <div class="w-full bg-white dark:bg-[#0b101d]/95 backdrop-blur-xl border border-slate-200 dark:border-slate-800/80 rounded-2xl sm:rounded-3xl p-5 sm:p-6 shadow-2xl shadow-black/40 relative">
+        <!-- Luxury Glassmorphism Login Card (Giữ nguyên toàn bộ phần đăng nhập) -->
+        <div class="w-full bg-white/95 dark:bg-[#0b101d]/95 backdrop-blur-xl border border-white/20 dark:border-slate-800/80 rounded-2xl sm:rounded-3xl p-5 sm:p-6 shadow-2xl shadow-black/60 relative">
           
           <form @submit.prevent="handleLogin" class="space-y-3 sm:space-y-3.5">
             
@@ -437,17 +453,17 @@
 
       </div>
 
-      <!-- TỐI ƯU DÒNG CHỮ DƯỚI ĐÁY: Hiển thị đầy đủ, sắc nét, không bị khuất, căn giữa khung hình -->
+      <!-- TỐI ƯU DÒNG CHỮ DƯỚI ĐÁY: Hiển thị đầy đủ, sắc nét trên nền vũ trụ -->
       <div class="w-full relative z-10 py-1 flex items-center justify-center text-center">
-        <div class="inline-flex items-center justify-center flex-wrap gap-x-2 gap-y-1 px-3.5 py-1.5 rounded-full bg-white/70 dark:bg-slate-900/80 backdrop-blur-md border border-slate-200/90 dark:border-slate-800/90 text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 shadow-sm">
-          <span class="font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1">
-            <i class="ph-fill ph-fire text-amber-500"></i> Bắt Bài Đối Thủ 24/7
+        <div class="inline-flex items-center justify-center flex-wrap gap-x-2 gap-y-1 px-3.5 py-1.5 rounded-full bg-slate-950/80 backdrop-blur-md border border-white/15 text-[11px] sm:text-xs text-slate-300 shadow-xl shadow-black/50">
+          <span class="font-bold text-white flex items-center gap-1">
+            <i class="ph-fill ph-fire text-amber-400"></i> Bắt Bài Đối Thủ 24/7
           </span>
-          <span class="text-slate-300 dark:text-slate-700">•</span>
-          <span>Nền tảng thiết kế & phát triển bởi <strong class="text-rose-500 font-bold">Truongday</strong></span>
-          <span class="text-slate-300 dark:text-slate-700">•</span>
-          <span class="inline-flex items-center gap-1 text-emerald-500 font-semibold">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span class="text-slate-600">•</span>
+          <span>Nền tảng thiết kế & phát triển bởi <strong class="text-rose-400 font-bold">Truongday</strong></span>
+          <span class="text-slate-600">•</span>
+          <span class="inline-flex items-center gap-1 text-emerald-400 font-semibold">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
             Cloud 24/7
           </span>
         </div>
