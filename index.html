@@ -408,6 +408,26 @@
 <body class="bg-slate-100 dark:bg-darkBg text-slate-900 dark:text-slate-100 min-h-screen font-sans antialiased selection:bg-rose-500 selection:text-white transition-colors duration-200">
 
   <div id="app" v-cloak class="max-w-[1720px] w-full mx-auto px-3 sm:px-6 lg:px-8 py-5 sm:py-8">
+    <!-- Global High-Z Notification Toast (Nổi trên mọi modal & màn hình chờ) -->
+    <transition
+      enter-active-class="transform ease-out duration-300 transition"
+      enter-from-class="-translate-y-6 opacity-0 scale-95"
+      enter-to-class="translate-y-0 opacity-100 scale-100"
+      leave-active-class="transform ease-in duration-200 transition"
+      leave-from-class="translate-y-0 opacity-100 scale-100"
+      leave-to-class="-translate-y-6 opacity-0 scale-95"
+    >
+      <div 
+        v-if="toastMsg" 
+        class="fixed top-6 sm:top-8 left-1/2 -translate-x-1/2 z-[999999] bg-slate-900 dark:bg-slate-800 text-white border-2 border-emerald-500 px-5 py-3 rounded-2xl shadow-2xl shadow-black/90 flex items-center space-x-3 text-xs sm:text-sm font-bold pointer-events-none ring-4 ring-emerald-500/30"
+      >
+        <div class="w-6 h-6 rounded-full bg-emerald-500 text-slate-950 flex items-center justify-center flex-shrink-0 text-sm font-black shadow-sm">
+          <i class="ph ph-check-bold"></i>
+        </div>
+        <span class="tracking-wide text-slate-100 font-bold">{{ toastMsg }}</span>
+      </div>
+    </transition>
+
     <!-- ========================================================================================= -->
     <!-- OFF-CANVAS LUXURY SIDEBAR DRAWER (Thiết kế chuẩn theo mẫu người dùng cung cấp)            -->
     <!-- ========================================================================================= -->
@@ -661,8 +681,20 @@
                   <span>{{ otpCountdown > 0 ? (otpCountdown + 's') : (otpSent ? 'Gửi lại mã' : 'Nhận mã OTP') }}</span>
                 </button>
               </div>
+              <!-- Instant status message when OTP button is clicked -->
+              <div v-if="otpStatusText" class="mt-1.5 p-2 rounded-xl text-[11px] font-medium leading-relaxed flex items-start space-x-1.5"
+                :class="otpStatusType === 'success' 
+                  ? 'bg-emerald-500/15 border border-emerald-500/30 text-emerald-400' 
+                  : (otpStatusType === 'error' 
+                    ? 'bg-rose-500/15 border border-rose-500/30 text-rose-400' 
+                    : 'bg-amber-500/15 border border-amber-500/30 text-amber-300')"
+              >
+                <i :class="otpStatusType === 'success' ? 'ph-fill ph-check-circle' : (otpStatusType === 'error' ? 'ph-fill ph-warning-circle' : 'ph-fill ph-info')" class="text-sm shrink-0 mt-0.5"></i>
+                <span class="flex-1">{{ otpStatusText }}</span>
+              </div>
+
               <!-- Hint if demo code available -->
-              <p v-if="otpDemoHint" class="text-[10px] text-amber-400/90 mt-1 font-mono flex items-center gap-1">
+              <p v-if="otpDemoHint" class="text-[10px] text-amber-400/90 mt-1.5 font-mono flex items-center gap-1">
                 <span>💡 Mã OTP tạm thời: <strong class="underline cursor-pointer text-amber-300 hover:text-white" @click="registerOtp = otpDemoHint" title="Bấm để tự điền mã">{{ otpDemoHint }}</strong> (Bấm để tự điền)</span>
               </p>
             </div>
@@ -1153,25 +1185,7 @@
       </div>
     </header>
 
-    <!-- Global High-Z Notification Toast (Nổi trên mọi modal & không bao giờ bị mờ) -->
-    <transition
-      enter-active-class="transform ease-out duration-300 transition"
-      enter-from-class="-translate-y-6 opacity-0 scale-95"
-      enter-to-class="translate-y-0 opacity-100 scale-100"
-      leave-active-class="transform ease-in duration-200 transition"
-      leave-from-class="translate-y-0 opacity-100 scale-100"
-      leave-to-class="-translate-y-6 opacity-0 scale-95"
-    >
-      <div 
-        v-if="toastMsg" 
-        class="fixed top-6 sm:top-8 left-1/2 -translate-x-1/2 z-[999999] bg-slate-900 dark:bg-slate-800 text-white border-2 border-emerald-500 px-5 py-3 rounded-2xl shadow-2xl shadow-black/90 flex items-center space-x-3 text-xs sm:text-sm font-bold pointer-events-none ring-4 ring-emerald-500/30"
-      >
-        <div class="w-6 h-6 rounded-full bg-emerald-500 text-slate-950 flex items-center justify-center flex-shrink-0 text-sm font-black shadow-sm">
-          <i class="ph ph-check-bold"></i>
-        </div>
-        <span class="tracking-wide text-slate-100 font-bold">{{ toastMsg }}</span>
-      </div>
-    </transition>
+
 
     <!-- ========================================================================================= -->
     
@@ -4449,19 +4463,27 @@
           setTimeout(() => { savedEmailJsSuccess.value = false; }, 2500);
         };
 
+        const otpStatusText = ref('');
+        const otpStatusType = ref('info');
+
         // Send OTP via EmailJS to Gmail
         const sendRegisterOtp = async () => {
           authErrorMsg.value = '';
+          otpStatusText.value = '';
           const email = (registerEmail.value || '').trim();
           const u = (registerUsername.value || '').trim();
 
           if (!email) {
             authErrorMsg.value = 'Vui lòng nhập địa chỉ Gmail/Email trước khi nhận mã xác nhận!';
+            otpStatusText.value = '⚠️ Vui lòng nhập địa chỉ Gmail/Email trước khi nhận mã!';
+            otpStatusType.value = 'error';
             return;
           }
           const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
           if (!emailRegex.test(email)) {
             authErrorMsg.value = 'Địa chỉ email không đúng định dạng (Ví dụ: yourname@gmail.com)!';
+            otpStatusText.value = '⚠️ Địa chỉ email không đúng định dạng (Ví dụ: yourname@gmail.com)!';
+            otpStatusType.value = 'error';
             return;
           }
 
@@ -4469,10 +4491,15 @@
           const emailExists = localAccounts.value.some(acc => acc.email && acc.email.toLowerCase() === email.toLowerCase());
           if (emailExists) {
             authErrorMsg.value = 'Địa chỉ Gmail này đã được đăng ký cho một tài khoản khác!';
+            otpStatusText.value = '⚠️ Địa chỉ Gmail này đã được đăng ký cho tài khoản khác!';
+            otpStatusType.value = 'error';
             return;
           }
 
           isSendingOtp.value = true;
+          otpStatusText.value = '⏳ Đang khởi tạo mã và kết nối dịch vụ gửi thư tới: ' + email + '...';
+          otpStatusType.value = 'info';
+
           // Generate secure 6-digit random code
           const code = Math.floor(100000 + Math.random() * 900000).toString();
           generatedOtp.value = code;
@@ -4504,18 +4531,24 @@
 
               otpSent.value = true;
               otpDemoHint.value = '';
-              showToast(`📧 Mã OTP đã được gửi tới Gmail "${email}"! Hãy kiểm tra hộp thư đến hoặc Thư rác.`);
+              otpStatusText.value = '✅ Đã gửi mã OTP 6 số tới Gmail: ' + email + '. Vui lòng kiểm tra hộp thư đến hoặc Thư rác (Spam)!';
+              otpStatusType.value = 'success';
+              showToast(`📧 Mã OTP đã được gửi tới Gmail "${email}"!`);
             } catch (err) {
               console.warn('EmailJS send error:', err);
               otpSent.value = true;
               otpDemoHint.value = code;
-              showToast(`⚠️ Không thể gửi mail qua EmailJS (${err?.text || err?.message || 'Lỗi cấu hình'}). Mã OTP thử nghiệm: ${code}`, 9000);
+              otpStatusText.value = '⚠️ Lỗi gửi qua EmailJS (' + (err?.text || err?.message || 'Chưa liên kết Gmail') + '). Đã cấp mã OTP tạm: ' + code;
+              otpStatusType.value = 'warning';
+              showToast(`⚠️ Không thể gửi mail qua EmailJS. Mã OTP thử nghiệm: ${code}`, 9000);
             }
           } else {
             // If EmailJS is not yet configured, provide instant OTP so user testing is never blocked
             otpSent.value = true;
             otpDemoHint.value = code;
-            showToast(`🔑 [Mã OTP Tạm Thời]: ${code} (Hãy nhập vào ô mã xác thực hoặc bấm để tự điền)`, 9000);
+            otpStatusText.value = '🔑 [Mã OTP Tạm Thời]: ' + code + ' (Bấm vào mã phía dưới để tự điền)';
+            otpStatusType.value = 'warning';
+            showToast(`🔑 [Mã OTP Tạm Thời]: ${code}`, 9000);
           }
           isSendingOtp.value = false;
         };
@@ -6299,6 +6332,8 @@ Nhiệm vụ: Trả lời hoặc viết lại/tinh chỉnh kịch bản theo yê
           otpCountdown,
           isSendingOtp,
           otpDemoHint,
+          otpStatusText,
+          otpStatusType,
           sendRegisterOtp,
           emailJsServiceId,
           emailJsTemplateId,
