@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="vi" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Competitor Video Tracker • 24/7 Viral Monitor</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔥</text></svg>">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Vue 3 CDN -->
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+  <!-- Phosphor Icons -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#fff1f2',
+              500: '#f43f5e',
+              600: '#e11d48',
+              900: '#881337',
+            },
+            darkBg: '#0b0f19',
+            cardBg: '#111827',
+            borderDark: '#1f2937'
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    [v-cloak] { display: none; }
+    .line-clamp-2 {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body class="bg-darkBg text-slate-100 min-h-screen font-sans antialiased selection:bg-rose-500 selection:text-white">
+
+  <div id="app" v-cloak class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    
+    <!-- Top Header -->
+    <header class="flex flex-col md:flex-row md:items-center md:justify-between pb-6 border-b border-gray-800 gap-4">
+      <div>
+        <div class="flex items-center space-x-3">
+          <div class="p-2 bg-gradient-to-tr from-rose-600 to-amber-500 rounded-xl shadow-lg shadow-rose-900/40">
+            <i class="ph ph-fire text-2xl text-white"></i>
+          </div>
+          <div>
+            <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">
+              Competitor Video Tracker
+            </h1>
+            <p class="text-xs sm:text-sm text-slate-400">Giám sát 15 video mới nhất từ các kênh đối thủ & bắt sóng video viral 24/7</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-3">
+        <!-- Live Status Pill -->
+        <div class="flex items-center space-x-2 bg-emerald-950/60 border border-emerald-800/80 px-3 py-1.5 rounded-full text-xs font-medium text-emerald-300 shadow-inner">
+          <span class="relative flex h-2 w-2">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+          </span>
+          <span>GitHub Cloud 24/7</span>
+        </div>
+
+        <button @click="showHelp = true" class="flex items-center space-x-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-700 transition">
+          <i class="ph ph-gear text-sm"></i>
+          <span>Thêm/Quản lý kênh</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Stats Overview Cards -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 my-6">
+      <div class="bg-cardBg border border-borderDark rounded-xl p-4 shadow-sm">
+        <span class="text-xs font-medium text-slate-400 uppercase tracking-wider">Kênh theo dõi</span>
+        <div class="text-2xl sm:text-3xl font-black text-white mt-1">{{ stats.total_channels }}</div>
+        <div class="text-xs text-slate-500 mt-1 flex items-center">
+          <i class="ph ph-broadcast mr-1"></i> Tự động quét mỗi giờ
+        </div>
+      </div>
+
+      <div class="bg-cardBg border border-borderDark rounded-xl p-4 shadow-sm">
+        <span class="text-xs font-medium text-slate-400 uppercase tracking-wider">Video đã quét</span>
+        <div class="text-2xl sm:text-3xl font-black text-indigo-400 mt-1">{{ stats.total_videos }}</div>
+        <div class="text-xs text-slate-500 mt-1 flex items-center">
+          <i class="ph ph-video mr-1"></i> 15 video mới/kênh
+        </div>
+      </div>
+
+      <div class="bg-cardBg border border-rose-900/40 bg-gradient-to-b from-cardBg to-rose-950/20 rounded-xl p-4 shadow-sm">
+        <span class="text-xs font-semibold text-rose-400 uppercase tracking-wider flex items-center">
+          <i class="ph-fill ph-fire text-rose-500 mr-1"></i> Video Đang Viral
+        </span>
+        <div class="text-2xl sm:text-3xl font-black text-rose-500 mt-1">{{ stats.viral_count }}</div>
+        <div class="text-xs text-rose-400/70 mt-1 flex items-center">
+          Tốc độ &ge; 5.000 view/h
+        </div>
+      </div>
+
+      <div class="bg-cardBg border border-borderDark rounded-xl p-4 shadow-sm">
+        <span class="text-xs font-medium text-slate-400 uppercase tracking-wider">Cập nhật lần cuối</span>
+        <div class="text-sm sm:text-base font-bold text-slate-200 mt-2 truncate">
+          {{ lastUpdatedFormatted || 'Đang tải...' }}
+        </div>
+        <div class="text-xs text-slate-500 mt-1 flex items-center">
+          <i class="ph ph-clock mr-1"></i> {{ timeSinceUpdate }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Filter & Search Toolbar -->
+    <div class="bg-cardBg border border-borderDark rounded-xl p-4 mb-6 shadow-sm flex flex-col lg:flex-row gap-3 items-stretch lg:items-center justify-between">
+      
+      <!-- Search Input -->
+      <div class="relative flex-1">
+        <i class="ph ph-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-lg"></i>
+        <input 
+          type="text" 
+          v-model="searchQuery" 
+          placeholder="Tìm theo tiêu đề video hoặc tên kênh..." 
+          class="w-full bg-slate-900/90 border border-slate-700/80 rounded-lg pl-10 pr-4 py-2 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-rose-500 transition"
+        >
+      </div>
+
+      <!-- Filters & Sorting -->
+      <div class="flex flex-wrap items-center gap-2">
+        <!-- Channel Select -->
+        <select 
+          v-model="selectedChannel" 
+          class="bg-slate-900/90 border border-slate-700/80 rounded-lg px-3 py-2 text-xs sm:text-sm text-slate-200 focus:outline-none focus:border-rose-500 transition cursor-pointer"
+        >
+          <option value="ALL">Tất cả kênh ({{ channels.length }})</option>
+          <option v-for="ch in channels" :key="ch.channel_id" :value="ch.channel_id">
+            {{ ch.name }}
+          </option>
+        </select>
+
+        <!-- Sort Option -->
+        <select 
+          v-model="sortBy" 
+          class="bg-slate-900/90 border border-slate-700/80 rounded-lg px-3 py-2 text-xs sm:text-sm text-slate-200 focus:outline-none focus:border-rose-500 transition cursor-pointer"
+        >
+          <option value="vph">🔥 Tốc độ view cao nhất</option>
+          <option value="newest">⏱ Mới xuất bản nhất</option>
+          <option value="views">👀 Nhiều lượt xem nhất</option>
+        </select>
+
+        <!-- Viral Filter Toggle -->
+        <button 
+          @click="onlyViral = !onlyViral" 
+          :class="onlyViral ? 'bg-rose-600 text-white border-rose-500' : 'bg-slate-900 text-slate-400 border-slate-700 hover:text-slate-200'"
+          class="flex items-center space-x-1.5 border px-3 py-2 rounded-lg text-xs sm:text-sm font-semibold transition"
+        >
+          <i class="ph-fill ph-fire text-amber-400"></i>
+          <span>Chỉ Viral</span>
+        </button>
+
+        <!-- Recent Only Toggle (<48h) -->
+        <button 
+          @click="onlyRecent = !onlyRecent" 
+          :class="onlyRecent ? 'bg-indigo-600 text-white border-indigo-500' : 'bg-slate-900 text-slate-400 border-slate-700 hover:text-slate-200'"
+          class="flex items-center space-x-1.5 border px-3 py-2 rounded-lg text-xs sm:text-sm font-semibold transition"
+        >
+          <i class="ph ph-clock text-indigo-300"></i>
+          <span>Dưới 48h</span>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Active Filter Notice -->
+    <div v-if="filteredVideos.length > 0" class="text-xs text-slate-400 mb-4 px-1 flex items-center justify-between">
+      <span>Hiển thị <strong>{{ filteredVideos.length }}</strong> video phù hợp</span>
+      <span v-if="onlyViral" class="text-rose-400 font-medium">Đang lọc video có tốc độ &ge; ngưỡng cảnh báo</span>
+    </div>
+
+    <!-- Video Grid -->
+    <div v-if="filteredVideos.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div 
+        v-for="v in filteredVideos" 
+        :key="v.video_id"
+        class="group bg-cardBg border border-borderDark hover:border-slate-600 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition duration-300 flex flex-col"
+      >
+        <!-- Thumbnail Container -->
+        <div class="relative aspect-video w-full overflow-hidden bg-slate-900">
+          <img 
+            :src="v.thumbnail" 
+            :alt="v.title" 
+            loading="lazy" 
+            class="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+          >
+
+          <!-- Gradient Overlay -->
+          <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+
+          <!-- Viral Speed Badge Overlaid -->
+          <div class="absolute top-3 right-3">
+            <div 
+              v-if="v.is_viral" 
+              class="flex items-center space-x-1 bg-gradient-to-r from-rose-600 to-amber-600 text-white font-extrabold text-xs px-2.5 py-1 rounded-full shadow-lg border border-rose-400/50 animate-pulse"
+            >
+              <i class="ph-fill ph-fire text-amber-300"></i>
+              <span>+{{ formatNumber(v.effective_vph) }} /h</span>
+            </div>
+            <div 
+              v-else-if="v.effective_vph >= 1000" 
+              class="flex items-center space-x-1 bg-slate-900/80 backdrop-blur-md text-amber-400 font-bold text-xs px-2.5 py-1 rounded-full border border-amber-500/30"
+            >
+              <i class="ph ph-lightning text-amber-400"></i>
+              <span>+{{ formatNumber(v.effective_vph) }} /h</span>
+            </div>
+            <div 
+              v-else 
+              class="bg-slate-900/70 backdrop-blur-md text-slate-400 font-medium text-xs px-2 py-0.5 rounded-full border border-slate-700"
+            >
+              +{{ formatNumber(v.effective_vph) }} /h
+            </div>
+          </div>
+
+          <!-- Channel Tag -->
+          <div class="absolute bottom-3 left-3">
+            <span class="bg-black/60 backdrop-blur-md border border-white/10 text-white text-xs font-semibold px-2.5 py-1 rounded-lg flex items-center space-x-1">
+              <i class="ph ph-youtube-logo text-rose-500"></i>
+              <span class="truncate max-w-[180px]">{{ v.channel_name }}</span>
+            </span>
+          </div>
+
+          <!-- Publish Time Badge -->
+          <div class="absolute bottom-3 right-3 text-[11px] font-medium text-slate-300 bg-black/60 backdrop-blur-md px-2 py-0.5 rounded">
+            {{ v.hours_ago_formatted }}
+          </div>
+        </div>
+
+        <!-- Content Body -->
+        <div class="p-4 flex-1 flex flex-col justify-between">
+          <div>
+            <a 
+              :href="v.url" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              class="text-sm sm:text-base font-bold text-slate-100 hover:text-rose-400 transition line-clamp-2 leading-snug group-hover:underline"
+              :title="v.title"
+            >
+              {{ v.title }}
+            </a>
+          </div>
+
+          <!-- Metrics Row -->
+          <div class="mt-4 pt-3 border-t border-slate-800/80 grid grid-cols-2 gap-2 text-xs">
+            <div>
+              <span class="text-slate-400 block text-[11px]">Tổng lượt xem</span>
+              <span class="font-extrabold text-slate-200 text-sm flex items-center mt-0.5">
+                <i class="ph ph-eye text-slate-400 mr-1"></i>
+                {{ formatNumber(v.views) }}
+              </span>
+            </div>
+
+            <div class="text-right">
+              <span class="text-slate-400 block text-[11px]">Tốc độ đo được</span>
+              <span 
+                :class="v.is_viral ? 'text-rose-400 font-black' : 'text-slate-300 font-bold'" 
+                class="text-sm flex items-center justify-end mt-0.5"
+              >
+                <i v-if="v.is_viral" class="ph-fill ph-trend-up text-rose-500 mr-1"></i>
+                +{{ formatNumber(v.effective_vph) }}/h
+              </span>
+            </div>
+          </div>
+
+          <!-- Action Button -->
+          <div class="mt-4">
+            <a 
+              :href="v.url" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              class="w-full flex items-center justify-center space-x-1.5 py-2 bg-slate-800 hover:bg-rose-600 text-slate-200 hover:text-white rounded-xl text-xs font-semibold transition duration-200"
+            >
+              <i class="ph ph-arrow-square-out text-sm"></i>
+              <span>Xem trên YouTube</span>
+            </a>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div v-else class="bg-cardBg border border-borderDark rounded-2xl p-12 text-center my-8">
+      <div class="w-16 h-16 mx-auto bg-slate-800 rounded-full flex items-center justify-center text-3xl text-slate-500 mb-3">
+        <i class="ph ph-video-camera-slash"></i>
+      </div>
+      <h3 class="text-lg font-bold text-slate-200">Không tìm thấy video nào</h3>
+      <p class="text-sm text-slate-400 mt-1 max-w-md mx-auto">
+        Hãy thử bỏ bớt bộ lọc hoặc thêm kênh đối thủ vào file cấu hình.
+      </p>
+      <button @click="resetFilters" class="mt-4 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-lg transition">
+        Đặt lại bộ lọc
+      </button>
+    </div>
+
+    <!-- Help Modal: Quản lý kênh -->
+    <div v-if="showHelp" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+      <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative">
+        <button @click="showHelp = false" class="absolute top-4 right-4 text-slate-400 hover:text-white transition text-lg">
+          <i class="ph ph-x"></i>
+        </button>
+
+        <h3 class="text-xl font-bold text-white flex items-center space-x-2">
+          <i class="ph ph-gear-six text-rose-500"></i>
+          <span>Hướng Dẫn Quản Lý Kênh Đối Thủ</span>
+        </h3>
+        
+        <div class="mt-4 space-y-4 text-xs sm:text-sm text-slate-300">
+          <div class="p-3 bg-slate-800/80 rounded-xl border border-slate-700">
+            <h4 class="font-bold text-white mb-1">1. Thêm hoặc Bớt Kênh Đối Thủ</h4>
+            <p class="text-slate-400">
+              Bạn chỉ cần mở file <code class="text-amber-400 bg-slate-950 px-1 py-0.5 rounded">channels.json</code> trên GitHub và sửa danh sách:
+            </p>
+            <pre class="mt-2 p-2 bg-black/60 rounded text-[11px] text-emerald-400 overflow-x-auto font-mono">
+[
+  {
+    "name": "Tên Kênh Đối Thủ",
+    "handle_or_url": "@handle_kenh",
+    "min_views_per_hour": 5000
+  }
+]</pre>
+          </div>
+
+          <div class="p-3 bg-slate-800/80 rounded-xl border border-slate-700">
+            <h4 class="font-bold text-white mb-1">2. Tùy Chỉnh Ngưỡng Cảnh Báo</h4>
+            <p class="text-slate-400">
+              Bạn có thể đặt <code class="text-amber-400">min_views_per_hour</code> khác nhau cho từng kênh: Kênh to đặt 50.000, kênh trung bình đặt 5.000, kênh nhỏ đặt 1.000 view/h.
+            </p>
+          </div>
+
+          <div class="p-3 bg-slate-800/80 rounded-xl border border-slate-700">
+            <h4 class="font-bold text-white mb-1">3. Tần Suất Quét</h4>
+            <p class="text-slate-400">
+              GitHub Actions tự động chạy <strong>mỗi 1 tiếng</strong>. Bạn cũng có thể bấm <strong>Run workflow</strong> trên GitHub để hệ thống quét ngay lập tức.
+            </p>
+          </div>
+        </div>
+
+        <div class="mt-6 flex justify-end">
+          <button @click="showHelp = false" class="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-xs font-bold transition">
+            Đã hiểu
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="mt-12 pt-6 border-t border-slate-800/80 text-center text-xs text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-2">
+      <div>
+        Hệ thống giám sát video đối thủ 24/7 • Hoạt động tự động trên GitHub Cloud
+      </div>
+      <div>
+        Cảnh báo tự động gửi qua <span class="text-indigo-400 font-semibold">Discord Webhook</span>
+      </div>
+    </footer>
+
+  </div>
+
+  <script>
+    const { createApp, ref, computed, onMounted } = Vue;
+
+    createApp({
+      setup() {
+        const stats = ref({
+          total_channels: 0,
+          total_videos: 0,
+          viral_count: 0
+        });
+        const channels = ref([]);
+        const allVideos = ref([]);
+        const lastUpdatedFormatted = ref('');
+        const lastUpdatedIso = ref('');
+        const searchQuery = ref('');
+        const selectedChannel = ref('ALL');
+        const sortBy = ref('vph');
+        const onlyViral = ref(false);
+        const onlyRecent = ref(false);
+        const showHelp = ref(false);
+
+        const formatNumber = (num) => {
+          if (!num && num !== 0) return '0';
+          if (num >= 1_000_000) {
+            return (num / 1_000_000).toFixed(1) + 'M';
+          }
+          if (num >= 1_000) {
+            return (num / 1_000).toFixed(1) + 'K';
+          }
+          return num.toLocaleString();
+        };
+
+        const timeSinceUpdate = computed(() => {
+          if (!lastUpdatedIso.value) return '';
+          const diffMs = new Date() - new Date(lastUpdatedIso.value);
+          const mins = Math.max(0, Math.floor(diffMs / 60000));
+          if (mins < 60) return `${mins} phút trước`;
+          const hours = Math.floor(mins / 60);
+          return `${hours} giờ trước`;
+        });
+
+        const loadData = async () => {
+          try {
+            // Thêm timestamp để chống cache trình duyệt
+            const res = await fetch(`./data/videos.json?t=${Date.now()}`);
+            if (!res.ok) throw new Error("Không thể tải data/videos.json");
+            const data = await res.json();
+
+            stats.value = {
+              total_channels: data.total_channels || 0,
+              total_videos: data.total_videos || 0,
+              viral_count: data.viral_count || 0
+            };
+            lastUpdatedFormatted.value = data.last_updated_formatted || '';
+            lastUpdatedIso.value = data.last_updated || '';
+            channels.value = data.channels || [];
+
+            // Gom toàn bộ video từ các kênh kèm theo channel_name
+            const flatVideos = [];
+            (data.channels || []).forEach(ch => {
+              (ch.videos || []).forEach(v => {
+                flatVideos.push({
+                  ...v,
+                  channel_name: ch.name,
+                  channel_id: ch.channel_id
+                });
+              });
+            });
+            allVideos.value = flatVideos;
+          } catch (err) {
+            console.error("Lỗi tải dữ liệu:", err);
+          }
+        };
+
+        const filteredVideos = computed(() => {
+          let list = [...allVideos.value];
+
+          // Lọc theo kênh
+          if (selectedChannel.value !== 'ALL') {
+            list = list.filter(v => v.channel_id === selectedChannel.value);
+          }
+
+          // Lọc theo từ khóa tìm kiếm
+          if (searchQuery.value.trim()) {
+            const q = searchQuery.value.toLowerCase().trim();
+            list = list.filter(v => 
+              v.title.toLowerCase().includes(q) || 
+              v.channel_name.toLowerCase().includes(q)
+            );
+          }
+
+          // Lọc chỉ video viral
+          if (onlyViral.value) {
+            list = list.filter(v => v.is_viral);
+          }
+
+          // Lọc chỉ video mới (< 48h)
+          if (onlyRecent.value) {
+            list = list.filter(v => (v.hours_since_pub || 999) <= 48);
+          }
+
+          // Sắp xếp
+          if (sortBy.value === 'vph') {
+            list.sort((a, b) => (b.effective_vph || 0) - (a.effective_vph || 0));
+          } else if (sortBy.value === 'newest') {
+            list.sort((a, b) => new Date(b.published_at) - new Date(a.published_at));
+          } else if (sortBy.value === 'views') {
+            list.sort((a, b) => (b.views || 0) - (a.views || 0));
+          }
+
+          return list;
+        });
+
+        const resetFilters = () => {
+          searchQuery.value = '';
+          selectedChannel.value = 'ALL';
+          sortBy.value = 'vph';
+          onlyViral.value = false;
+          onlyRecent.value = false;
+        };
+
+        onMounted(() => {
+          loadData();
+        });
+
+        return {
+          stats,
+          channels,
+          allVideos,
+          lastUpdatedFormatted,
+          timeSinceUpdate,
+          searchQuery,
+          selectedChannel,
+          sortBy,
+          onlyViral,
+          onlyRecent,
+          showHelp,
+          filteredVideos,
+          formatNumber,
+          resetFilters
+        };
+      }
+    }).mount('#app');
+  </script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+[
+  {
+    "name": "MrBeast",
+    "handle_or_url": "@MrBeast",
+    "min_views_per_hour": 50000
+  },
+  {
+    "name": "F8 Official (Học Lập Trình)",
+    "handle_or_url": "@F8VNOfficial",
+    "min_views_per_hour": 1000
+  },
+  {
+    "name": "VTV24",
+    "handle_or_url": "@vtv24",
+    "min_views_per_hour": 5000
+  }
+]
