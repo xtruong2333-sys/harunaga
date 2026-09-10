@@ -252,22 +252,218 @@
       opacity: 1;
       animation: rgb-wave-sheen 3s ease infinite;
     }
+    /* 8. Off-Canvas Luxury Sidebar Styles */
+    .sidebar-active-glow {
+      background: linear-gradient(90deg, #e11d48 0%, #881337 100%) !important;
+      box-shadow: 0 0 22px rgba(225, 29, 72, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
+      border: 1px solid rgba(244, 63, 94, 0.6) !important;
+    }
   </style>
 </head>
 <body class="bg-slate-100 dark:bg-darkBg text-slate-900 dark:text-slate-100 min-h-screen font-sans antialiased selection:bg-rose-500 selection:text-white transition-colors duration-200">
 
   <div id="app" v-cloak class="max-w-[1720px] w-full mx-auto px-3 sm:px-6 lg:px-8 py-5 sm:py-8">
+    <!-- ========================================================================================= -->
+    <!-- OFF-CANVAS LUXURY SIDEBAR DRAWER (Thiết kế chuẩn theo mẫu người dùng cung cấp)            -->
+    <!-- ========================================================================================= -->
+    <!-- Backdrop Overlay -->
+    <transition
+      enter-active-class="transition-opacity duration-300 ease-out"
+      enter-from-class="opacity-0"
+      enter-to-class="opacity-100"
+      leave-active-class="transition-opacity duration-200 ease-in"
+      leave-from-class="opacity-100"
+      leave-to-class="opacity-0"
+    >
+      <div 
+        v-if="isSidebarOpen" 
+        @click="isSidebarOpen = false" 
+        class="fixed inset-0 bg-black/80 backdrop-blur-md z-[99998]"
+      ></div>
+    </transition>
+
+    <!-- Sidebar Drawer Component -->
+    <aside 
+      class="fixed inset-y-0 left-0 w-64 sm:w-72 bg-[#060a14] border-r border-slate-800/80 z-[99999] shadow-2xl shadow-black flex flex-col justify-between transition-transform duration-300 ease-in-out select-none"
+      :class="isSidebarOpen ? 'translate-x-0' : '-translate-x-full'"
+    >
+      <!-- Top Section: Glowing Neon Crosshair Target YouTube Logo -->
+      <div>
+        <div class="pt-8 pb-5 px-5 flex flex-col items-center justify-center relative border-b border-slate-800/60">
+          <!-- Close Button -->
+          <button 
+            @click="isSidebarOpen = false" 
+            class="absolute top-3.5 right-3.5 text-slate-400 hover:text-white p-1.5 rounded-xl hover:bg-slate-800/80 transition"
+            title="Đóng Menu"
+          >
+            <i class="ph ph-x text-lg"></i>
+          </button>
+
+          <!-- Circular Neon Target Crosshair with YouTube Play Icon -->
+          <div 
+            class="relative w-24 h-24 flex items-center justify-center cursor-pointer group"
+            @click="navigateFromSidebar('overview')"
+            title="Bắt Bài Đối Thủ - Trở về Tổng quan"
+          >
+            <!-- Background Neon Aurora Aura -->
+            <div class="absolute inset-0 rounded-full bg-gradient-to-tr from-cyan-500 via-purple-600 to-rose-500 opacity-60 blur-lg animate-pulse"></div>
+
+            <!-- SVG Neon Target Crosshair Rings -->
+            <svg class="w-24 h-24 relative z-10 drop-shadow-[0_0_12px_rgba(168,85,247,0.7)]" viewBox="0 0 100 100" fill="none">
+              <!-- Outer gradient ring -->
+              <circle cx="50" cy="50" r="44" stroke="url(#sidebar-radar-grad)" stroke-width="3" />
+              <!-- Inner rotating dashed ring -->
+              <circle cx="50" cy="50" r="33" stroke="url(#sidebar-radar-inner)" stroke-width="2" stroke-dasharray="8 4" class="animate-spin-slow origin-center" />
+              <!-- Crosshair tick marks -->
+              <line x1="50" y1="2" x2="50" y2="15" stroke="#c084fc" stroke-width="2.5" stroke-linecap="round" />
+              <line x1="50" y1="85" x2="50" y2="98" stroke="#f43f5e" stroke-width="2.5" stroke-linecap="round" />
+              <line x1="2" y1="50" x2="15" y2="50" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round" />
+              <line x1="85" y1="50" x2="98" y2="50" stroke="#fb7185" stroke-width="2.5" stroke-linecap="round" />
+
+              <defs>
+                <linearGradient id="sidebar-radar-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#38bdf8" />
+                  <stop offset="40%" stop-color="#818cf8" />
+                  <stop offset="70%" stop-color="#c084fc" />
+                  <stop offset="100%" stop-color="#f43f5e" />
+                </linearGradient>
+                <linearGradient id="sidebar-radar-inner" x1="100%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#f43f5e" />
+                  <stop offset="50%" stop-color="#a855f7" />
+                  <stop offset="100%" stop-color="#06b6d4" />
+                </linearGradient>
+              </defs>
+            </svg>
+
+            <!-- Center Bright Red YouTube Play Button -->
+            <div class="absolute inset-0 m-auto w-12 h-8 bg-gradient-to-br from-red-500 to-red-700 rounded-xl flex items-center justify-center shadow-xl shadow-red-600/60 z-20 group-hover:scale-110 transition-transform duration-200">
+              <svg class="w-4 h-4 fill-white ml-0.5" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z"/>
+              </svg>
+            </div>
+          </div>
+
+          <div class="mt-2.5 text-center">
+            <h3 class="text-sm font-black text-white tracking-wide">Bắt Bài Đối Thủ</h3>
+            <div class="text-[10px] text-purple-400 font-bold uppercase tracking-wider">Radar Tình Báo YouTube 24/7</div>
+          </div>
+        </div>
+
+        <!-- Menu Navigation List (Khớp 100% Ảnh Mẫu) -->
+        <div class="px-3 py-4 space-y-1.5 overflow-y-auto no-scrollbar">
+
+          <!-- 1. Tổng quan -->
+          <button 
+            @click="navigateFromSidebar('overview')"
+            class="w-full flex items-center space-x-3.5 px-3.5 py-2.5 rounded-2xl text-sm font-bold transition-all duration-200 text-left"
+            :class="sidebarActiveItem === 'overview' 
+              ? 'sidebar-active-glow text-white font-black' 
+              : 'text-slate-400 hover:text-white hover:bg-slate-800/50'"
+          >
+            <i class="ph-fill ph-house text-xl" :class="sidebarActiveItem === 'overview' ? 'text-white' : 'text-slate-400'"></i>
+            <span>Tổng quan</span>
+          </button>
+
+          <!-- 2. Video đối thủ -->
+          <button 
+            @click="navigateFromSidebar('videos')"
+            class="w-full flex items-center space-x-3.5 px-3.5 py-2.5 rounded-2xl text-sm font-bold transition-all duration-200 text-left"
+            :class="sidebarActiveItem === 'videos' 
+              ? 'sidebar-active-glow text-white font-black' 
+              : 'text-slate-400 hover:text-white hover:bg-slate-800/50'"
+          >
+            <i class="ph-fill ph-play-circle text-xl" :class="sidebarActiveItem === 'videos' ? 'text-white' : 'text-blue-400'"></i>
+            <span>Video đối thủ</span>
+          </button>
+
+          <!-- 3. Kênh theo dõi -->
+          <button 
+            @click="navigateFromSidebar('channels')"
+            class="w-full flex items-center space-x-3.5 px-3.5 py-2.5 rounded-2xl text-sm font-bold transition-all duration-200 text-left"
+            :class="sidebarActiveItem === 'channels' 
+              ? 'sidebar-active-glow text-white font-black' 
+              : 'text-slate-400 hover:text-white hover:bg-slate-800/50'"
+          >
+            <i class="ph-fill ph-user text-xl" :class="sidebarActiveItem === 'channels' ? 'text-white' : 'text-indigo-400'"></i>
+            <span>Kênh theo dõi</span>
+          </button>
+
+          <!-- 4. Xu hướng -->
+          <button 
+            @click="navigateFromSidebar('trends')"
+            class="w-full flex items-center space-x-3.5 px-3.5 py-2.5 rounded-2xl text-sm font-bold transition-all duration-200 text-left"
+            :class="sidebarActiveItem === 'trends' 
+              ? 'sidebar-active-glow text-white font-black' 
+              : 'text-slate-400 hover:text-white hover:bg-slate-800/50'"
+          >
+            <i class="ph-fill ph-chart-bar text-xl" :class="sidebarActiveItem === 'trends' ? 'text-white' : 'text-amber-400'"></i>
+            <span>Xu hướng</span>
+          </button>
+
+          <!-- 5. AI phân tích -->
+          <button 
+            @click="navigateFromSidebar('ai')"
+            class="w-full flex items-center space-x-3.5 px-3.5 py-2.5 rounded-2xl text-sm font-bold transition-all duration-200 text-left"
+            :class="sidebarActiveItem === 'ai' 
+              ? 'sidebar-active-glow text-white font-black' 
+              : 'text-slate-400 hover:text-white hover:bg-slate-800/50'"
+          >
+            <i class="ph-fill ph-robot text-xl" :class="sidebarActiveItem === 'ai' ? 'text-white' : 'text-purple-400'"></i>
+            <span>AI phân tích</span>
+          </button>
+
+          <!-- 6. Lưu ý tưởng -->
+          <button 
+            @click="navigateFromSidebar('bookmarks')"
+            class="w-full flex items-center space-x-3.5 px-3.5 py-2.5 rounded-2xl text-sm font-bold transition-all duration-200 text-left"
+            :class="sidebarActiveItem === 'bookmarks' 
+              ? 'sidebar-active-glow text-white font-black' 
+              : 'text-slate-400 hover:text-white hover:bg-slate-800/50'"
+          >
+            <i class="ph-fill ph-bookmark-simple text-xl" :class="sidebarActiveItem === 'bookmarks' ? 'text-white' : 'text-emerald-400'"></i>
+            <span>Lưu ý tưởng</span>
+          </button>
+
+          <!-- 7. Cài đặt -->
+          <button 
+            @click="navigateFromSidebar('settings')"
+            class="w-full flex items-center space-x-3.5 px-3.5 py-2.5 rounded-2xl text-sm font-bold transition-all duration-200 text-left"
+            :class="sidebarActiveItem === 'settings' 
+              ? 'sidebar-active-glow text-white font-black' 
+              : 'text-slate-400 hover:text-white hover:bg-slate-800/50'"
+          >
+            <i class="ph-fill ph-gear-six text-xl" :class="sidebarActiveItem === 'settings' ? 'text-white' : 'text-slate-400'"></i>
+            <span>Cài đặt</span>
+          </button>
+
+        </div>
+      </div>
+
+      <!-- Bottom Status & Author -->
+      <div class="p-4 border-t border-slate-800/60 bg-[#04070d]">
+        <div class="flex items-center justify-between text-[11px] text-slate-500 mb-1.5">
+          <span>Hệ thống:</span>
+          <span class="text-emerald-400 font-bold flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Sẵn sàng 24/7
+          </span>
+        </div>
+        <div class="text-[11px] text-slate-400 font-medium">
+          👑 Created by <strong class="text-amber-400">Truongday</strong>
+        </div>
+      </div>
+    </aside>
+
     
     <!-- Top Header -->
     <header class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-5 sm:pb-6 border-b border-slate-300 dark:border-slate-800 gap-3 sm:gap-4">
-      <!-- Brand Logo with Clickable Dropdown Menu -->
+      <!-- Brand Logo with Click to Open Sidebar Drawer -->
       <div id="brand-nav-menu-container" class="relative">
         <button 
-          @click.stop="toggleNavMenu" 
+          @click.stop="toggleSidebar" 
           class="flex items-center space-x-3 group text-left p-1.5 sm:p-2 -m-1.5 sm:-m-2 rounded-2xl hover:bg-slate-200/60 dark:hover:bg-slate-800/60 transition-all duration-200 focus:outline-none select-none"
-          title="Bấm vào đây để chọn Mục 1 (Radar Video) hoặc Mục 2 (Đua Top Kênh)"
+          title="Bấm vào đây để mở Thanh Menu Điều Hướng Dọc"
         >
-          <!-- Luxury Brand Emblem -->
+          <!-- Luxury Brand Emblem with YouTube Radar -->
           <div class="relative flex-shrink-0">
             <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-tr from-rose-600 via-purple-600 to-amber-500 p-[2px] shadow-xl shadow-purple-900/30 group-hover:scale-105 group-hover:rotate-3 transition-transform duration-300">
               <div class="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center relative overflow-hidden">
@@ -284,9 +480,11 @@
           <!-- Brand Text & Current Mode Indicator -->
           <div>
             <div class="flex items-center space-x-2 flex-wrap gap-y-0.5">
-              <span class="text-xl sm:text-2xl font-black tracking-tight bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-700 dark:from-white dark:via-purple-100 dark:to-indigo-200 bg-clip-text text-transparent drop-shadow-sm flex items-center gap-1.5">
+              <span class="text-xl sm:text-2xl font-black tracking-tight bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-700 dark:from-white dark:via-purple-100 dark:to-indigo-200 bg-clip-text text-transparent drop-shadow-sm flex items-center gap-2">
                 Bắt Bài Đối Thủ
-                <i class="ph ph-caret-down text-base text-slate-400 group-hover:text-purple-400 transition-transform duration-300" :class="{ 'rotate-180 text-purple-400': isNavMenuOpen }"></i>
+                <span class="px-2 py-0.5 rounded-lg bg-slate-200 dark:bg-slate-800 text-[11px] font-bold text-slate-700 dark:text-purple-300 flex items-center gap-1 group-hover:bg-purple-600 group-hover:text-white transition">
+                  <i class="ph-bold ph-list"></i> Menu
+                </span>
               </span>
               <span class="bg-gradient-to-r from-purple-500 to-indigo-500 text-[9px] uppercase font-black px-2 py-0.5 rounded-full text-white tracking-widest shadow-sm whitespace-nowrap">
                 RADAR TÌNH BÁO 24/7
@@ -301,7 +499,7 @@
               <span v-else class="font-black text-purple-600 dark:text-purple-400 flex items-center gap-1">
                 <i class="ph-fill ph-chart-line-up"></i> Mục 2: Ma Trận Đua Top Kênh
               </span>
-              <span class="text-slate-400 dark:text-slate-500 text-[10px] underline underline-offset-2 ml-1 opacity-80 group-hover:opacity-100">(Đổi mục ▾)</span>
+              <span class="text-slate-400 dark:text-slate-500 text-[10px] underline underline-offset-2 ml-1 opacity-80 group-hover:opacity-100">(Mở menu ▾)</span>
             </div>
           </div>
         </button>
@@ -2425,14 +2623,52 @@
         // Navigation Tab State: 'videos' hoặc 'channels'
         const activeMainTab = ref('videos');
         const isNavMenuOpen = ref(false);
+        const isSidebarOpen = ref(false);
+        const sidebarActiveItem = ref('overview');
 
         const toggleNavMenu = () => {
           isNavMenuOpen.value = !isNavMenuOpen.value;
         };
 
+        const toggleSidebar = () => {
+          isSidebarOpen.value = !isSidebarOpen.value;
+        };
+
         const selectMainTab = (tab) => {
           activeMainTab.value = tab;
           isNavMenuOpen.value = false;
+          if (tab === 'videos') sidebarActiveItem.value = 'videos';
+          if (tab === 'channels') sidebarActiveItem.value = 'channels';
+        };
+
+        const navigateFromSidebar = (item) => {
+          sidebarActiveItem.value = item;
+          isSidebarOpen.value = false;
+
+          if (item === 'overview') {
+            activeMainTab.value = 'videos';
+            filterTab.value = 'all';
+            selectedChannel.value = 'ALL';
+            searchQuery.value = '';
+          } else if (item === 'videos') {
+            activeMainTab.value = 'videos';
+            filterTab.value = 'all';
+          } else if (item === 'channels') {
+            activeMainTab.value = 'channels';
+          } else if (item === 'trends') {
+            activeMainTab.value = 'videos';
+            filterTab.value = 'viral';
+          } else if (item === 'ai') {
+            activeMainTab.value = 'videos';
+            filterTab.value = 'ai';
+          } else if (item === 'bookmarks') {
+            activeMainTab.value = 'videos';
+            filterTab.value = 'recent';
+            toastMsg.value = 'Đã mở danh sách video lưu ý tưởng!';
+            setTimeout(() => { toastMsg.value = ''; }, 2500);
+          } else if (item === 'settings') {
+            openAdminModal();
+          }
         };
 
         // Theme State (Dark / Light)
@@ -3279,6 +3515,10 @@ Nhiệm vụ: Trả lời hoặc viết lại/tinh chỉnh kịch bản theo yê
           isNavMenuOpen,
           toggleNavMenu,
           selectMainTab,
+          isSidebarOpen,
+          sidebarActiveItem,
+          toggleSidebar,
+          navigateFromSidebar,
           isDark,
           toggleTheme,
           searchQuery,
