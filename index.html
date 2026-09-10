@@ -3258,36 +3258,47 @@
                 </div>
               </div>
 
-              <!-- Quick Magic Prompts (1-Chạm) -->
-              <div class="p-2 px-3 border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/40 flex-shrink-0">
-                <div class="text-[10px] font-bold text-slate-400 mb-1 flex items-center gap-1">
-                  <i class="ph-bold ph-magic-wand text-purple-400"></i>
-                  <span>Biến Hóa Nhanh 1 Chạm:</span>
+              <!-- Quick Magic Prompts (1-Chạm) - Căn Chỉnh Vừa Khít Khung & Không Tràn Cuộn -->
+              <div class="p-2.5 px-3 border-b border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-950/40 flex-shrink-0">
+                <div class="text-[10px] font-bold text-slate-400 mb-1.5 flex items-center justify-between">
+                  <span class="flex items-center gap-1">
+                    <i class="ph-bold ph-magic-wand text-purple-400"></i>
+                    <span>Biến Hóa Nhanh 1 Chạm:</span>
+                  </span>
+                  <span class="text-[9px] text-slate-400">4 lệnh gợi ý</span>
                 </div>
-                <div class="flex items-center gap-1.5 overflow-x-auto pb-1 text-[11px] scrollbar-none">
+                <div class="grid gap-1.5 text-[11px]" :class="modalTab === 'chat' ? 'grid-cols-2 sm:grid-cols-4' : 'grid-cols-2'">
                   <button 
                     @click="sendQuickPrompt('Hãy chuyển toàn bộ kịch bản này thành định dạng YouTube Shorts 60 giây, chia từng mốc giây 0-5s, 5-20s, 20-50s, 50-60s.')"
-                    class="px-2 py-0.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-purple-500 text-slate-700 dark:text-slate-300 whitespace-nowrap transition cursor-pointer font-medium"
+                    class="px-2 py-1.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-purple-500 hover:text-purple-600 dark:hover:text-purple-400 text-slate-700 dark:text-slate-200 transition cursor-pointer font-medium flex items-center justify-center space-x-1 shadow-sm text-center"
+                    title="Tạo kịch bản Shorts 60 giây"
                   >
-                    ⚡ Làm Shorts 60s
+                    <span class="text-amber-500 text-xs">⚡</span>
+                    <span class="truncate">Làm Shorts 60s</span>
                   </button>
                   <button 
                     @click="sendQuickPrompt('Hãy viết lại 3 phiên bản Hook 15s Tiếng Anh giật gân hơn nữa, đánh mạnh vào tâm lý tò mò và cảm giác mất mát.')"
-                    class="px-2 py-0.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-purple-500 text-slate-700 dark:text-slate-300 whitespace-nowrap transition cursor-pointer font-medium"
+                    class="px-2 py-1.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-purple-500 hover:text-purple-600 dark:hover:text-purple-400 text-slate-700 dark:text-slate-200 transition cursor-pointer font-medium flex items-center justify-center space-x-1 shadow-sm text-center"
+                    title="Viết 3 câu Hook mở đầu gây sốc"
                   >
-                    🔥 Hook sốc hơn
+                    <span class="text-rose-500 text-xs">🔥</span>
+                    <span class="truncate">Hook sốc hơn</span>
                   </button>
                   <button 
                     @click="sendQuickPrompt('Hãy gợi ý 5 ý tưởng Thumbnail phá cách hoàn toàn với đối thủ, kèm text in trên ảnh cực mạnh.')"
-                    class="px-2 py-0.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-purple-500 text-slate-700 dark:text-slate-300 whitespace-nowrap transition cursor-pointer font-medium"
+                    class="px-2 py-1.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-purple-500 hover:text-purple-600 dark:hover:text-purple-400 text-slate-700 dark:text-slate-200 transition cursor-pointer font-medium flex items-center justify-center space-x-1 shadow-sm text-center"
+                    title="Gợi ý ý tưởng thiết kế Thumbnail"
                   >
-                    🎨 Ý tưởng Thumb mới
+                    <span class="text-cyan-500 text-xs">🎨</span>
+                    <span class="truncate">Ý tưởng Thumb mới</span>
                   </button>
                   <button 
                     @click="sendQuickPrompt('Hãy dịch toàn bộ kịch bản và câu Hook mở đầu sang Tiếng Việt chuẩn ngữ điệu người dẫn chuyện hài hước, kịch tính.')"
-                    class="px-2 py-0.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-purple-500 text-slate-700 dark:text-slate-300 whitespace-nowrap transition cursor-pointer font-medium"
+                    class="px-2 py-1.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-purple-500 hover:text-purple-600 dark:hover:text-purple-400 text-slate-700 dark:text-slate-200 transition cursor-pointer font-medium flex items-center justify-center space-x-1 shadow-sm text-center"
+                    title="Dịch toàn bộ kịch bản sang tiếng Việt"
                   >
-                    🇻🇳 Dịch lồng tiếng Việt
+                    <span class="text-emerald-500 text-xs font-black">VN</span>
+                    <span class="truncate">Dịch lồng tiếng Việt</span>
                   </button>
                 </div>
               </div>
