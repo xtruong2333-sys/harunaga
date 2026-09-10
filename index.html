@@ -965,24 +965,40 @@
             <span class="text-[11px]">Cloud 24/7</span>
           </button>
 
-          <!-- Admin Control Center Trigger (Chỉ hiển thị cho Admin) -->
-          <button 
-            v-if="userRole === 'admin'"
-            @click="openAdminModal"
-            title="Bảng Điều Khiển Bot & Quản Lý Kênh (Admin)"
-            class="w-9 h-9 rounded-xl bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/40 text-purple-600 dark:text-purple-300 flex items-center justify-center transition cursor-pointer"
-          >
-            <i class="ph-bold ph-sliders text-sm"></i>
-          </button>
+          <!-- CỤM QUẢN LÝ DATA & LÀM MỚI DỮ LIỆU (Nhập Key GitHub/Gemini & Thêm/Xóa Kênh Trực Tiếp) -->
+          <div class="flex items-center bg-slate-100 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-2xl p-0.5 sm:p-1 gap-1 shadow-sm">
+            
+            <!-- Nút Quản Lý Data (Thêm/Xóa Kênh Đối Thủ Trực Tiếp Trên Web) -->
+            <button 
+              @click="openDataManagementModal('channels')" 
+              class="flex items-center space-x-1.5 px-2.5 sm:px-3 py-1.5 bg-gradient-to-r from-purple-600 via-indigo-600 to-rose-600 hover:opacity-95 text-white rounded-xl text-xs font-black shadow-sm transition cursor-pointer select-none"
+              title="Quản lý Dữ liệu: Thêm / Xóa Kênh Đối Thủ trực tiếp trên Web"
+            >
+              <i class="ph-bold ph-sliders text-sm"></i>
+              <span class="hidden sm:inline">Quản Lý Data</span>
+              <span class="text-[10px] bg-white/20 px-1.5 py-0.2 rounded-full font-bold">Kênh & Key</span>
+            </button>
 
-          <!-- Quick Reload Button -->
-          <button 
-            @click="loadData(); showToast('Đang cập nhật dữ liệu radar mới nhất...')" 
-            class="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-900/90 hover:bg-slate-200 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center transition cursor-pointer"
-            title="Làm mới dữ liệu radar"
-          >
-            <i class="ph-bold ph-arrows-clockwise text-sm hover:rotate-180 transition-transform duration-500"></i>
-          </button>
+            <!-- Phím Tắt Nhập Key (GitHub Token & Gemini API Key) -->
+            <button 
+              @click="openDataManagementModal('keys')" 
+              class="px-2 sm:px-2.5 py-1.5 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-bold transition cursor-pointer flex items-center space-x-1"
+              title="Nhập các loại Key: GitHub Token & Google Gemini API Key"
+            >
+              <i class="ph-bold ph-key text-xs sm:text-sm text-purple-500"></i>
+              <span class="text-[11px] font-bold">Nhập Key</span>
+            </button>
+
+            <!-- Nút Làm Mới Nạp Lại Dữ Liệu Tức Thì -->
+            <button 
+              @click="loadData(); showToast('Đang cập nhật dữ liệu radar mới nhất...')" 
+              class="w-7 h-7 sm:w-8 sm:h-8 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center transition cursor-pointer"
+              title="Làm mới nạp dữ liệu radar tức thì"
+            >
+              <i class="ph-bold ph-arrows-clockwise text-sm hover:rotate-180 transition-transform duration-500"></i>
+            </button>
+
+          </div>
 
           <!-- Light / Dark Theme Capsule Switch -->
           <button 
@@ -1615,10 +1631,10 @@
         <div 
           v-for="v in filteredVideos" 
           :key="v.video_id"
-          class="card-rgb-wave group bg-white dark:bg-[#0c1222] border rounded-3xl shadow-sm transition-all duration-300 flex flex-col justify-between"
+          class="card-luxury group bg-white dark:bg-[#0c1222] border rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl dark:hover:shadow-purple-950/30 transition-all duration-300 flex flex-col justify-between"
           :class="v.is_viral 
-            ? 'border-rose-400 dark:border-rose-700/80' 
-            : 'border-slate-200 dark:border-slate-800'"
+            ? 'border-rose-400 dark:border-rose-700/80 ring-1 ring-rose-400/40 shadow-rose-900/20' 
+            : 'border-slate-200 dark:border-slate-800 hover:border-purple-400 dark:hover:border-purple-600/70'"
         >
           <div>
             <!-- 16:9 Thumbnail Container -->
@@ -1910,10 +1926,10 @@
         <div 
           v-for="(ch, cIdx) in sortedAndFilteredChannels" 
           :key="ch.channel_id"
-          class="card-rgb-wave bg-white dark:bg-[#0c1222] border rounded-3xl p-5 shadow-sm transition-all duration-300 flex flex-col justify-between"
+          class="card-luxury bg-white dark:bg-[#0c1222] border rounded-3xl p-5 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between"
           :class="cIdx === 0 
-            ? 'border-amber-400/80 dark:border-amber-400/60' 
-            : 'border-slate-200 dark:border-slate-800'"
+            ? 'border-amber-400/80 dark:border-amber-400/60 ring-1 ring-amber-400/30' 
+            : 'border-slate-200 dark:border-slate-800 hover:border-indigo-400 dark:hover:border-indigo-600/70'"
         >
           <div>
             <div class="flex items-start justify-between gap-3">
@@ -2078,14 +2094,14 @@
         <div 
           v-for="(v, index) in top15TrendingVideos" 
           :key="'trend-' + v.video_id"
-          class="card-rgb-wave group bg-white dark:bg-[#0c1222] border rounded-3xl shadow-sm transition-all duration-300 flex flex-col justify-between relative"
+          class="card-luxury group bg-white dark:bg-[#0c1222] border rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between relative"
           :class="index === 0 
-            ? 'border-amber-400/80' 
+            ? 'border-amber-400/80 ring-2 ring-amber-400/30' 
             : (index === 1 
-              ? 'border-slate-300 dark:border-slate-500' 
+              ? 'border-slate-300 dark:border-slate-500 ring-2 ring-slate-400/20' 
               : (index === 2 
-                ? 'border-orange-500/70' 
-                : 'border-slate-200 dark:border-slate-800'))"
+                ? 'border-orange-500/70 ring-2 ring-orange-500/20' 
+                : 'border-slate-200 dark:border-slate-800 hover:border-amber-400/60'))"
         >
           <!-- Rank Badge -->
           <div class="absolute top-2.5 left-2.5 z-20">
@@ -2209,7 +2225,7 @@
         <div 
           v-for="v in aiVideosList" 
           :key="'ai-' + v.video_id"
-          class="card-rgb-wave group bg-white dark:bg-[#0c1222] border border-purple-500/30 dark:border-purple-800/50 rounded-3xl shadow-sm transition-all duration-300 flex flex-col justify-between"
+          class="card-luxury group bg-white dark:bg-[#0c1222] border border-purple-500/30 dark:border-purple-800/50 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl hover:border-purple-500 transition-all duration-300 flex flex-col justify-between"
         >
           <div>
             <!-- Thumbnail -->
@@ -2335,7 +2351,7 @@
         <div 
           v-for="v in savedVideosList" 
           :key="'saved-' + v.video_id"
-          class="card-rgb-wave group bg-white dark:bg-[#0c1222] border border-amber-400/40 dark:border-amber-500/40 rounded-3xl shadow-sm transition-all duration-300 flex flex-col justify-between"
+          class="card-luxury group bg-white dark:bg-[#0c1222] border border-amber-400/40 dark:border-amber-500/40 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl hover:border-amber-500 transition-all duration-300 flex flex-col justify-between"
         >
           <div>
             <!-- Thumbnail -->
@@ -3105,10 +3121,10 @@
             </div>
             <div>
               <h3 class="text-base sm:text-lg font-black text-slate-900 dark:text-white leading-tight">
-                Quản Lý Kênh & Điều Khiển Bot
+                Trung Tâm Quản Lý Data, Keys & Kênh Đối Thủ
               </h3>
               <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                Bắt bài đối thủ 24/7 • Thiết lập bởi <strong>Truongday</strong>
+                Nhập các loại Key (GitHub & Gemini) • Quản lý thêm / xóa kênh trực tiếp trên Web
               </p>
             </div>
           </div>
@@ -3117,35 +3133,9 @@
           </button>
         </div>
 
-        <!-- Admin Modal Navigation Tabs (3 Mục Chuyên Biệt Theo Yêu Cầu) -->
+        <!-- Admin Modal Navigation Tabs (Nhập Key & Quản Lý Kênh Trực Tiếp Trên Web) -->
         <div class="flex items-center p-1.5 bg-slate-100 dark:bg-slate-800/90 border-b border-slate-200 dark:border-slate-700/80 gap-1 text-xs">
-          <!-- Tab 1: Tình Trạng Quét -->
-          <button 
-            @click="adminTab = 'status'"
-            :class="adminTab === 'status' 
-              ? 'bg-white dark:bg-slate-900 text-rose-600 dark:text-rose-400 font-black shadow-sm' 
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'"
-            class="flex-1 py-2 px-2 sm:px-3 rounded-xl transition flex items-center justify-center space-x-1.5 whitespace-nowrap"
-          >
-            <i class="ph ph-radar text-sm"></i>
-            <span>1. Tình Trạng Quét</span>
-            <span class="w-2 h-2 rounded-full bg-emerald-500 flex-shrink-0"></span>
-          </button>
-
-          <!-- Tab 2: Quản Lý Kênh (Thêm & Bớt) -->
-          <button 
-            @click="adminTab = 'channels'"
-            :class="adminTab === 'channels' 
-              ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 font-black shadow-sm' 
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'"
-            class="flex-1 py-2 px-2 sm:px-3 rounded-xl transition flex items-center justify-center space-x-1.5 whitespace-nowrap"
-          >
-            <i class="ph ph-youtube-logo text-sm"></i>
-            <span>2. Quản Lý Kênh</span>
-            <span class="text-[10px] px-1.5 py-0.2 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold flex-shrink-0">{{ editableChannels.length }}</span>
-          </button>
-
-          <!-- Tab 3: Cấu Hình Mã Khóa (GitHub & Gemini) -->
+          <!-- Tab 1: Nhập Các Loại Key (GitHub & Gemini) -->
           <button 
             @click="adminTab = 'keys'"
             :class="adminTab === 'keys' 
@@ -3153,9 +3143,35 @@
               : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'"
             class="flex-1 py-2 px-2 sm:px-3 rounded-xl transition flex items-center justify-center space-x-1.5 whitespace-nowrap"
           >
-            <i class="ph ph-key text-sm"></i>
-            <span>3. Cấu Hình Mã Khóa</span>
+            <i class="ph-bold ph-key text-sm"></i>
+            <span>🔑 1. Nhập Các Loại Key</span>
             <i v-if="githubToken && geminiApiKey" class="ph-fill ph-check-circle text-emerald-500 text-xs flex-shrink-0"></i>
+          </button>
+
+          <!-- Tab 2: Quản Lý Kênh (Thêm & Xóa Kênh Trực Tiếp) -->
+          <button 
+            @click="adminTab = 'channels'"
+            :class="adminTab === 'channels' 
+              ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 font-black shadow-sm' 
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'"
+            class="flex-1 py-2 px-2 sm:px-3 rounded-xl transition flex items-center justify-center space-x-1.5 whitespace-nowrap"
+          >
+            <i class="ph-bold ph-youtube-logo text-sm"></i>
+            <span>📺 2. Thêm / Xóa Kênh</span>
+            <span class="text-[10px] px-1.5 py-0.2 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold flex-shrink-0">{{ editableChannels.length }}</span>
+          </button>
+
+          <!-- Tab 3: Tình Trạng Quét & Nạp Data -->
+          <button 
+            @click="adminTab = 'status'"
+            :class="adminTab === 'status' 
+              ? 'bg-white dark:bg-slate-900 text-rose-600 dark:text-rose-400 font-black shadow-sm' 
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'"
+            class="flex-1 py-2 px-2 sm:px-3 rounded-xl transition flex items-center justify-center space-x-1.5 whitespace-nowrap"
+          >
+            <i class="ph-bold ph-radar text-sm"></i>
+            <span>⚡ 3. Quét & Làm Mới Data</span>
+            <span class="w-2 h-2 rounded-full bg-emerald-500 flex-shrink-0"></span>
           </button>
         </div>
 
@@ -3245,6 +3261,21 @@
                 </div>
               </div>
 
+            </div>
+
+            <!-- Nút Nạp Lại Dữ Liệu Web Tức Thì -->
+            <div class="p-3.5 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div>
+                <h4 class="font-bold text-slate-900 dark:text-white text-xs sm:text-sm">Làm Mới Dữ Liệu Radar Trực Tiếp</h4>
+                <p class="text-[11px] text-slate-500 dark:text-slate-400">Tải lại tệp dữ liệu video và kênh mới nhất từ kho lưu trữ về trình duyệt</p>
+              </div>
+              <button 
+                @click="loadData(); showToast('Đang cập nhật dữ liệu radar mới nhất...')" 
+                class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 flex-shrink-0 cursor-pointer"
+              >
+                <i class="ph-bold ph-arrows-clockwise text-sm"></i>
+                <span>Làm Mới Dữ Liệu Ngay</span>
+              </button>
             </div>
 
             <!-- Nút Kích Hoạt Quét Ngay Lập Tức -->
@@ -5730,7 +5761,12 @@ Nhiệm vụ: Trả lời hoặc viết lại/tinh chỉnh kịch bản theo yê
           }
         };
 
-        // Admin Panel Methods
+        // Admin Panel & Data Management Methods
+        const openDataManagementModal = (tab = 'keys') => {
+          adminTab.value = tab;
+          openAdminModal();
+        };
+
         const openAdminModal = async () => {
           showAdminModal.value = true;
           saveStatus.value = '';
@@ -6046,6 +6082,7 @@ Nhiệm vụ: Trả lời hoặc viết lại/tinh chỉnh kịch bản theo yê
           copyTitles,
           openAiModal,
           openAdminModal,
+          openDataManagementModal,
           saveToken,
           addChannel,
           removeChannel,
