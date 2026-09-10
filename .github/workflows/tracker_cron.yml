@@ -20,28 +20,6 @@ jobs:
 
       - name: Thiết lập môi trường Python 3.11
         uses: actions/setup-python@v5
-        with:name: 24/7 Competitor Video Tracker
-
-on:
-  schedule:
-    # Chạy tự động mỗi 1 giờ (vào phút thứ 0 của mỗi giờ)
-    - cron: '0 * * * *'
-  workflow_dispatch:
-    # Cho phép bấm nút "Run workflow" để quét thủ công bất kỳ lúc nào
-
-permissions:
-  contents: write
-
-jobs:
-  track-and-notify:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Kiểm tra mã nguồn (Checkout)
-        uses: actions/checkout@v4
-
-      - name: Thiết lập môi trường Python 3.11
-        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
@@ -61,29 +39,8 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add data/
-          # Chỉ commit nếu có sự thay đổi dữ liệu
           if ! git diff --staged --quiet; then
             git commit -m "Auto-update competitor stats & AI analysis [skip ci]"
-            git push
-          else
-            echo "Dữ liệu không có thay đổi, bỏ qua commit."
-          fi
-
-          python-version: '3.11'
-
-      - name: Chạy mã quét video & gửi cảnh báo Discord
-        env:
-          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-        run: |
-          python tracker.py
-
-      - name: Tự động lưu dữ liệu mới vào Repository
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/
-          if ! git diff --staged --quiet; then
-            git commit -m "Auto-update competitor stats [skip ci]"
             git push
           else
             echo "Dữ liệu không có thay đổi, bỏ qua commit."
