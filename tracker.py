@@ -329,6 +329,11 @@ def run():
     output_payload = {
         "last_updated": now_iso,
         "last_updated_formatted": now.strftime("%H:%M:%S - %d/%m/%Y (UTC)"),
+        "scan_schedule": {
+            "section_1_frequency": "1h",
+            "section_2_frequency": "daily_midnight",
+            "status": "active_247"
+        },
         "total_channels": len(all_channels_data),
         "total_videos": total_videos_count,
         "viral_count": viral_videos_count,
