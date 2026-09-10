@@ -3552,7 +3552,7 @@
       v-if="showAccountModal" 
       id="account-flyout-panel"
       @click.stop
-      class="fixed top-16 sm:top-20 right-3 sm:right-6 lg:right-8 z-[99999] w-[92vw] sm:w-[410px] max-w-[430px] bg-white dark:bg-[#0b101e] border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl shadow-black/90 flex flex-col max-h-[84vh] overflow-hidden transition-all duration-200 select-none"
+      class="fixed top-16 sm:top-20 right-3 sm:right-6 lg:right-8 z-[99999] w-[92vw] sm:w-[410px] max-w-[430px] bg-white dark:bg-[#0b101e] border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl shadow-black/90 flex flex-col max-h-[85vh] overflow-hidden transition-all duration-200 select-none"
     >
       <!-- Header -->
       <div class="p-4 sm:p-5 border-b border-slate-200 dark:border-slate-800/80 flex items-center justify-between bg-gradient-to-r from-slate-50 via-slate-100 to-indigo-50/40 dark:from-slate-900 dark:via-slate-900 dark:to-indigo-950/40 flex-shrink-0">
@@ -3562,10 +3562,10 @@
           </div>
           <div>
             <h3 class="text-sm sm:text-base font-black text-slate-900 dark:text-white leading-tight">
-              Hồ Sơ Tài Khoản Cá Nhân
+              Hồ Sơ Cá Nhân
             </h3>
             <p class="text-[10px] sm:text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
-              Quản lý ảnh đại diện, mật khẩu & bảo mật
+              Quản trị viên & Thiết lập tài khoản
             </p>
           </div>
         </div>
@@ -3581,124 +3581,188 @@
       <!-- Scrollable Body (Smooth Mouse Wheel Scroll) -->
       <div class="p-4 sm:p-5 space-y-4 overflow-y-auto min-h-0 flex-1 overscroll-contain text-xs">
         
-        <!-- Phần 1: Ảnh Đại Diện (Avatar Management) -->
-        <div class="p-3 sm:p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 flex items-center gap-3.5">
+        <!-- THẺ THÔNG TIN CÁ NHÂN (VIP PROFILE HERO CARD) -->
+        <div class="relative overflow-hidden rounded-2xl bg-gradient-to-b from-slate-100/90 via-slate-50 to-white dark:from-slate-900/90 dark:via-[#0c1222] dark:to-[#080d1a] border border-slate-200/80 dark:border-slate-800/80 p-4 pt-5 text-center shadow-inner">
+          <div class="absolute top-0 inset-x-0 h-16 bg-gradient-to-b from-indigo-500/10 dark:from-indigo-500/20 to-transparent pointer-events-none"></div>
+
           <!-- Avatar Display -->
-          <div class="relative flex-shrink-0">
-            <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-full overflow-hidden border-2 border-amber-400 p-0.5 shadow-md shadow-amber-500/20 bg-slate-950 flex items-center justify-center">
+          <div class="relative inline-block mx-auto">
+            <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-2 border-amber-400 p-0.5 shadow-lg shadow-amber-500/20 bg-slate-950 flex items-center justify-center ring-4 ring-indigo-500/10">
               <img 
                 v-if="userAvatar" 
                 :src="userAvatar" 
                 alt="Avatar" 
                 class="w-full h-full object-cover rounded-full"
               >
-              <div v-else class="w-full h-full rounded-full bg-gradient-to-tr from-slate-800 to-slate-900 flex items-center justify-center text-slate-400 text-2xl">
+              <div v-else class="w-full h-full rounded-full bg-gradient-to-tr from-slate-800 to-slate-900 flex items-center justify-center text-slate-400 text-3xl">
                 <i class="ph-fill ph-user"></i>
               </div>
             </div>
-            <span class="absolute bottom-0 right-0 w-4 h-4 rounded-full bg-emerald-500 border-2 border-white dark:border-slate-900 flex items-center justify-center text-white text-[8px]" title="Đang trực tuyến">
+            <span class="absolute bottom-1 right-1 w-4 h-4 rounded-full bg-emerald-500 border-2 border-white dark:border-slate-900 flex items-center justify-center text-white text-[8px] shadow" title="Đang trực tuyến">
               <i class="ph-bold ph-check"></i>
             </span>
           </div>
 
-          <!-- Avatar Controls -->
-          <div class="flex-1 min-w-0">
-            <div class="text-xs font-black text-slate-900 dark:text-white truncate">Ảnh đại diện của bạn</div>
-            <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1">
-              Hiển thị ở góc trên cùng bên phải.
-            </p>
-            
-            <div class="flex items-center gap-2 mt-2 flex-wrap">
-              <!-- Upload File Button -->
-              <label class="px-2.5 py-1 rounded-lg bg-gradient-to-r from-amber-500 to-rose-500 hover:from-amber-400 hover:to-rose-400 text-slate-950 font-black text-[11px] cursor-pointer shadow-sm flex items-center space-x-1 transition">
-                <i class="ph-bold ph-upload-simple"></i>
-                <span>Tải ảnh từ máy</span>
-                <input type="file" accept="image/*" @change="handleAvatarUpload" class="hidden">
-              </label>
+          <!-- Name & Role -->
+          <div class="mt-2.5">
+            <div class="text-base font-black text-slate-900 dark:text-white flex items-center justify-center gap-1.5">
+              <span>{{ currentAccount.username }}</span>
+              <span class="text-amber-400 text-sm" title="Quản trị viên Master">👑</span>
+            </div>
+            <div class="flex items-center justify-center gap-2 mt-1.5 flex-wrap">
+              <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                Admin Master
+              </span>
+              <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-slate-200/80 dark:bg-slate-800/80 text-slate-600 dark:text-slate-400 border border-slate-300/60 dark:border-slate-700/60">
+                <i class="ph-fill ph-shield-check text-indigo-500"></i>
+                Phiên Bảo Mật
+              </span>
+            </div>
+          </div>
 
-              <!-- Delete Avatar Button -->
-              <button 
-                v-if="userAvatar" 
-                @click="removeAvatar"
-                class="px-2.5 py-1 rounded-lg bg-slate-200 dark:bg-slate-800 hover:bg-rose-500 hover:text-white text-slate-600 dark:text-slate-300 text-[11px] font-bold transition flex items-center space-x-1 cursor-pointer"
+          <!-- Avatar Actions -->
+          <div class="flex items-center justify-center gap-2 mt-3 pt-3 border-t border-slate-200/70 dark:border-slate-800/70">
+            <label class="px-3 py-1 rounded-xl bg-gradient-to-r from-amber-500 to-rose-500 hover:from-amber-400 hover:to-rose-400 text-slate-950 font-black text-[11px] cursor-pointer shadow-sm flex items-center space-x-1.5 transition">
+              <i class="ph-bold ph-camera"></i>
+              <span>Đổi ảnh đại diện</span>
+              <input type="file" accept="image/*" @change="handleAvatarUpload" class="hidden">
+            </label>
+            <button 
+              v-if="userAvatar" 
+              @click="removeAvatar"
+              class="px-2.5 py-1 rounded-xl bg-slate-200 dark:bg-slate-800 hover:bg-rose-500 hover:text-white text-slate-600 dark:text-slate-300 text-[11px] font-bold transition flex items-center space-x-1 cursor-pointer"
+              title="Xóa ảnh tự chọn và dùng ảnh mặc định"
+            >
+              <i class="ph ph-trash"></i>
+              <span>Gỡ ảnh</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- THÔNG TIN TÀI KHOẢN TÓM TẮT & NÚT THIẾT LẬP BẢO MẬT (KÍN ĐÁO - KHÔNG BỊ LỘ LIỄU) -->
+        <div class="rounded-2xl bg-slate-50 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 overflow-hidden">
+          
+          <!-- Dòng thông tin kín đáo (Summary View) -->
+          <div class="p-3.5 space-y-2.5">
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-slate-500 dark:text-slate-400 flex items-center gap-1.5 font-medium">
+                <i class="ph-bold ph-identification-badge text-slate-400"></i>
+                Tên đăng nhập
+              </span>
+              <span class="font-bold text-slate-800 dark:text-slate-200 font-mono">
+                {{ currentAccount.username }}
+              </span>
+            </div>
+            
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-slate-500 dark:text-slate-400 flex items-center gap-1.5 font-medium">
+                <i class="ph-bold ph-lock-key text-slate-400"></i>
+                Mật khẩu
+              </span>
+              <span class="font-mono text-slate-400 tracking-widest text-[11px]">
+                ••••••••••••
+              </span>
+            </div>
+          </div>
+
+          <!-- Nút mở rộng chỉnh sửa (Accordion Trigger) -->
+          <button 
+            type="button"
+            @click="showEditCredentials = !showEditCredentials"
+            class="w-full py-2.5 px-3.5 border-t border-slate-200 dark:border-slate-800/80 bg-slate-100/80 hover:bg-slate-100 dark:bg-slate-800/40 dark:hover:bg-slate-800/80 text-slate-700 dark:text-slate-300 font-bold text-xs flex items-center justify-between transition cursor-pointer"
+          >
+            <div class="flex items-center space-x-1.5">
+              <i class="ph-bold ph-gear-six text-indigo-500"></i>
+              <span>{{ showEditCredentials ? 'Thu gọn thiết lập bảo mật' : 'Thiết lập tài khoản & Đổi mật khẩu' }}</span>
+            </div>
+            <i 
+              class="ph-bold ph-caret-down text-xs text-slate-400 transition-transform duration-200"
+              :class="{'rotate-180': showEditCredentials}"
+            ></i>
+          </button>
+
+          <!-- Form Chỉnh Sửa Kín Đáo (Chỉ bung ra khi người dùng chủ động bấm) -->
+          <div v-show="showEditCredentials" class="p-3.5 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-[#070b16] space-y-3">
+            <div>
+              <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
+                Tên tài khoản mới
+              </label>
+              <input 
+                type="text" 
+                v-model="accountFormUsername" 
+                placeholder="Nhập tên tài khoản..."
+                class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-purple-500"
               >
-                <i class="ph ph-trash"></i>
-                <span>Gỡ ảnh</span>
+            </div>
+
+            <div class="pt-2 border-t border-slate-200 dark:border-slate-800 space-y-2">
+              <div class="text-[11px] font-bold text-slate-700 dark:text-slate-300">
+                Đổi mật khẩu mới <span class="text-slate-400 font-normal">(bỏ trống nếu giữ nguyên):</span>
+              </div>
+              
+              <div>
+                <label class="block text-[10px] text-slate-500 dark:text-slate-400 mb-0.5">Mật khẩu hiện tại</label>
+                <input 
+                  type="password" 
+                  v-model="accountFormCurrentPass" 
+                  placeholder="Nhập mật khẩu hiện tại..."
+                  class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-purple-500"
+                >
+              </div>
+
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="block text-[10px] text-slate-500 dark:text-slate-400 mb-0.5">Mật khẩu mới</label>
+                  <input 
+                    type="password" 
+                    v-model="accountFormNewPass" 
+                    placeholder="Mới..."
+                    class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-purple-500"
+                  >
+                </div>
+                <div>
+                  <label class="block text-[10px] text-slate-500 dark:text-slate-400 mb-0.5">Xác nhận</label>
+                  <input 
+                    type="password" 
+                    v-model="accountFormConfirmPass" 
+                    placeholder="Xác nhận..."
+                    class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-purple-500"
+                  >
+                </div>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2 pt-1">
+              <button 
+                type="button"
+                @click="showEditCredentials = false"
+                class="flex-1 py-1.5 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-xl text-xs transition cursor-pointer text-center"
+              >
+                Hủy
+              </button>
+              <button 
+                type="button"
+                @click="saveAccountSettings"
+                class="flex-[2] py-1.5 bg-gradient-to-r from-indigo-600 via-purple-600 to-rose-600 hover:opacity-95 text-white font-bold rounded-xl text-xs shadow-md transition flex items-center justify-center space-x-1.5 cursor-pointer"
+              >
+                <i class="ph-fill ph-floppy-disk"></i>
+                <span>Lưu Thay Đổi</span>
               </button>
             </div>
           </div>
+
         </div>
 
-        <!-- Phần 2: Thông Tin Tài Khoản & Đổi Mật Khẩu -->
-        <div class="space-y-3">
-          <h4 class="text-[11px] font-black uppercase text-slate-500 dark:text-slate-400 tracking-wider flex items-center space-x-1.5">
-            <i class="ph-fill ph-shield-check text-indigo-500"></i>
-            <span>Thông tin tài khoản & Mật khẩu</span>
-          </h4>
-
-          <div>
-            <label class="block text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
-              Tên tài khoản
-            </label>
-            <input 
-              type="text" 
-              v-model="accountFormUsername" 
-              class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-1.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-purple-500"
-            >
-          </div>
-
-          <div class="pt-2 border-t border-slate-200 dark:border-slate-800 space-y-2">
-            <div class="text-[11px] font-bold text-slate-700 dark:text-slate-300">Đổi mật khẩu mới (Bỏ trống nếu không đổi):</div>
-            
-            <div>
-              <label class="block text-[10px] text-slate-500 dark:text-slate-400 mb-0.5">Mật khẩu hiện tại</label>
-              <input 
-                type="password" 
-                v-model="accountFormCurrentPass" 
-                placeholder="Nhập mật khẩu hiện tại..."
-                class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-purple-500"
-              >
-            </div>
-
-            <div class="grid grid-cols-2 gap-2">
-              <div>
-                <label class="block text-[10px] text-slate-500 dark:text-slate-400 mb-0.5">Mật khẩu mới</label>
-                <input 
-                  type="password" 
-                  v-model="accountFormNewPass" 
-                  placeholder="Mới..."
-                  class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-purple-500"
-                >
-              </div>
-              <div>
-                <label class="block text-[10px] text-slate-500 dark:text-slate-400 mb-0.5">Xác nhận</label>
-                <input 
-                  type="password" 
-                  v-model="accountFormConfirmPass" 
-                  placeholder="Xác nhận..."
-                  class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-purple-500"
-                >
-              </div>
-            </div>
-          </div>
-
-          <button 
-            @click="saveAccountSettings"
-            class="w-full py-2 bg-gradient-to-r from-indigo-600 via-purple-600 to-rose-600 hover:opacity-95 text-white font-bold rounded-xl text-xs shadow-md transition flex items-center justify-center space-x-1.5 cursor-pointer mt-1"
-          >
-            <i class="ph-fill ph-floppy-disk"></i>
-            <span>Lưu Cập Nhật Tài Khoản</span>
-          </button>
-        </div>
-
-        <!-- Phần 3: Trạng Thái Phiên & Đăng Xuất -->
-        <div class="pt-2.5 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
-          <div class="text-[11px] text-slate-500 dark:text-slate-400">
-            <span>Vai trò: <strong class="text-emerald-400 font-bold">Admin Master</strong></span>
+        <!-- Trạng Thái & Nút Đăng Xuất -->
+        <div class="pt-1 flex items-center justify-between">
+          <div class="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span>
+            <span>Trạng thái: <strong class="text-emerald-500 dark:text-emerald-400 font-bold">Hoạt động</strong></span>
           </div>
           <button 
             @click="handleLogout"
-            class="px-2.5 py-1 bg-rose-500/15 hover:bg-rose-500 hover:text-white text-rose-500 border border-rose-500/30 rounded-lg text-[11px] font-bold transition flex items-center space-x-1 cursor-pointer"
+            class="px-3 py-1.5 bg-rose-500/10 hover:bg-rose-500 hover:text-white text-rose-500 border border-rose-500/30 rounded-xl text-[11px] font-bold transition flex items-center space-x-1.5 cursor-pointer shadow-sm"
           >
             <i class="ph-fill ph-sign-out"></i>
             <span>Đăng Xuất (Khóa Chờ)</span>
@@ -3709,11 +3773,12 @@
 
       <!-- Footer -->
       <div class="p-3 px-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 flex items-center justify-between flex-shrink-0">
-        <div class="text-[10px] text-slate-400">
-          Lưu trữ an toàn trên thiết bị này.
+        <div class="text-[10px] text-slate-400 flex items-center gap-1">
+          <i class="ph-fill ph-lock-key"></i>
+          <span>Lưu trữ an toàn trên thiết bị</span>
         </div>
         <button 
-          @click="showAccountModal = false"
+          @click="showAccountModal = false" 
           class="px-3 py-1 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-lg transition cursor-pointer"
         >
           Đóng
@@ -3775,6 +3840,7 @@
 
         // Personal Account & Avatar State
         const showAccountModal = ref(false);
+        const showEditCredentials = ref(false);
         const userAvatar = ref(localStorage.getItem('USER_AVATAR') || '');
         const accountFormUsername = ref(currentAccount.value.username);
         const accountFormCurrentPass = ref('');
@@ -3786,6 +3852,7 @@
             showAccountModal.value = false;
             return;
           }
+          showEditCredentials.value = false;
           accountFormUsername.value = currentAccount.value.username;
           accountFormCurrentPass.value = '';
           accountFormNewPass.value = '';
@@ -3840,11 +3907,13 @@
             accountFormCurrentPass.value = '';
             accountFormNewPass.value = '';
             accountFormConfirmPass.value = '';
+            showEditCredentials.value = false;
             showAccountModal.value = false;
           } else {
             currentAccount.value.username = newU;
             localStorage.setItem('AUTH_ACCOUNT', JSON.stringify(currentAccount.value));
             showToast('Đã lưu tên tài khoản mới thành công!');
+            showEditCredentials.value = false;
             showAccountModal.value = false;
           }
         };
@@ -4832,6 +4901,7 @@ Nhiệm vụ: Trả lời hoặc viết lại/tinh chỉnh kịch bản theo yê
 
         return {
           showAccountModal,
+          showEditCredentials,
           userAvatar,
           accountFormUsername,
           accountFormCurrentPass,
