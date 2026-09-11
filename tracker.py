@@ -195,6 +195,16 @@ def run():
         print("⚠️ [TRACKER] Không tìm thấy kênh nào trong channels.json!")
         return
 
+    # Tải dữ liệu hiện có để bảo vệ không bị mất nếu RSS gặp lỗi
+    existing_videos_data = load_json(VIDEOS_FILE, {})
+    existing_channels_map = {}
+    for c in existing_videos_data.get("channels", []):
+        cid = c.get("channel_id") or c.get("handle_or_url")
+        if cid:
+            existing_channels_map[cid] = c
+        if c.get("name"):
+            existing_channels_map[c.get("name")] = c
+
     history = load_json(HISTORY_FILE, {"channel_cache": {}, "videos": {}})
     channel_cache = history.setdefault("channel_cache", {})
     video_history = history.setdefault("videos", {})
@@ -231,6 +241,27 @@ def run():
 
         raw_videos = fetch_channel_videos(channel_id)
         print(f"   -> Lấy được {len(raw_videos)} video mới nhất.")
+
+        # Cơ chế khiên bảo vệ: Nếu RSS bị lỗi/rate-limit trả về 0 video, giữ nguyên dữ liệu video hiện có
+        if not raw_videos:
+            cached_ch = existing_channels_map.get(channel_id) or existing_channels_map.get(handle_or_url) or existing_channels_map.get(ch_name)
+            if cached_ch and cached_ch.get("videos"):
+                print(f"   🛡️ Giữ lại {len(cached_ch['videos'])} video từ dữ liệu đã có để tránh mất số liệu.")
+                c_videos = cached_ch["videos"]
+                c_median = cached_ch.get("channel_median", 1000)
+                total_videos_count += len(c_videos)
+                for pv in c_videos:
+                    if pv.get("is_viral"):
+                        viral_videos_count += 1
+                all_channels_data.append({
+                    "name": ch_name,
+                    "handle_or_url": handle_or_url,
+                    "channel_id": channel_id,
+                    "threshold": threshold,
+                    "channel_median": c_median,
+                    "videos": c_videos
+                })
+                continue
 
         # Tính toán Baseline Median của kênh để đo Outlier Multiplier
         channel_views = [v["views"] for v in raw_videos]
@@ -385,6 +416,13 @@ def run():
         "viral_count": viral_videos_count,
         "channels": all_channels_data
     }
+
+    # 🛡️ KHIÊN BẢO VỆ DỮ LIỆU: Tuyệt đối không ghi đè nếu tổng video bằng 0 (lỗi mạng/chặn IP YouTube)
+    prev_total = existing_videos_data.get("total_videos", 0)
+    if total_videos_count == 0 and prev_total > 0:
+        print(f"\n🚨 [CẢNH BÁO BẢO VỆ DỮ LIỆU] Quét được 0 video trong khi hệ thống đang có {prev_total} video!")
+        print("🚨 HỦY BỎ việc lưu file data/videos.json để bảo vệ dữ liệu hiện có, ngăn chặn xóa trắng giao diện!")
+        return
 
     save_json(VIDEOS_FILE, output_payload)
     save_json(HISTORY_FILE, history)
