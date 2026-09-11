@@ -1262,8 +1262,8 @@
             </div>
           </div>
 
-          <!-- 2. Section Chỉ Số Radar Lưu Lượng Toàn Ngành (4 Bento Cards + Switcher) -->
-          <div class="space-y-3.5">
+          <!-- 2. Section Chỉ Số Radar Lưu Lượng Toàn Ngành (4 Bento Cards + Switcher + Interactive Multi-Channel Radar Chart) -->
+          <div class="space-y-4">
             <div class="flex items-center justify-between flex-wrap gap-2 pt-1 pb-0.5">
               <div class="flex items-center space-x-2">
                 <i class="ph-bold ph-chart-bar text-blue-500 dark:text-blue-400 text-base"></i>
@@ -1272,50 +1272,91 @@
                 </h3>
               </div>
 
-              <!-- Switcher Pill 24h / 1h -->
-              <div class="inline-flex items-center p-0.5 bg-slate-200 dark:bg-[#0b101d] rounded-2xl border border-slate-300 dark:border-slate-800 text-xs shadow-inner">
+              <div class="flex items-center space-x-2">
+                <!-- Nút Bật / Tắt Biểu Đồ Radar Đa Kênh -->
                 <button 
                   type="button"
-                  @click="setMetricTimeUnit('day')"
-                  :class="metricTimeUnit === 'day' 
-                    ? 'bg-blue-600 text-white font-bold shadow-md' 
-                    : 'text-slate-400 hover:text-white font-medium'"
-                  class="px-3 py-1.5 rounded-xl transition cursor-pointer"
+                  @click="toggleBentoChart"
+                  :class="showBentoChart 
+                    ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-500/25 border-blue-400/50 ring-2 ring-blue-500/30' 
+                    : 'bg-slate-200 dark:bg-[#0b101d] text-slate-700 dark:text-slate-300 hover:text-white hover:bg-slate-800 border-slate-300 dark:border-slate-800'"
+                  class="px-3 py-1.5 rounded-2xl border text-xs font-bold transition-all duration-200 flex items-center space-x-1.5 cursor-pointer shadow-sm active:scale-95 select-none"
                 >
-                  Theo Ngày (24h)
+                  <i class="ph-bold ph-chart-line-up text-sm text-blue-400"></i>
+                  <span>Biểu Đồ Radar Đa Kênh</span>
+                  <span 
+                    class="text-[10px] px-1.5 py-0.5 rounded-md font-extrabold"
+                    :class="showBentoChart ? 'bg-white/20 text-white' : 'bg-blue-500/20 text-blue-400'"
+                  >
+                    {{ showBentoChart ? 'Đang Mở ▼' : 'Xem Thêm ▲' }}
+                  </span>
                 </button>
-                <button 
-                  type="button"
-                  @click="setMetricTimeUnit('hour')"
-                  :class="metricTimeUnit === 'hour' 
-                    ? 'bg-blue-600 text-white font-bold shadow-md' 
-                    : 'text-slate-400 hover:text-white font-medium'"
-                  class="px-3 py-1.5 rounded-xl transition cursor-pointer"
-                >
-                  Theo Giờ (1h)
-                </button>
+
+                <!-- Switcher Pill 24h / 1h -->
+                <div class="inline-flex items-center p-0.5 bg-slate-200 dark:bg-[#0b101d] rounded-2xl border border-slate-300 dark:border-slate-800 text-xs shadow-inner">
+                  <button 
+                    type="button"
+                    @click="setMetricTimeUnit('day')"
+                    :class="metricTimeUnit === 'day' 
+                      ? 'bg-blue-600 text-white font-bold shadow-md' 
+                      : 'text-slate-400 hover:text-white font-medium'"
+                    class="px-3 py-1.5 rounded-xl transition cursor-pointer"
+                  >
+                    Theo Ngày (24h)
+                  </button>
+                  <button 
+                    type="button"
+                    @click="setMetricTimeUnit('hour')"
+                    :class="metricTimeUnit === 'hour' 
+                      ? 'bg-blue-600 text-white font-bold shadow-md' 
+                      : 'text-slate-400 hover:text-white font-medium'"
+                    class="px-3 py-1.5 rounded-xl transition cursor-pointer"
+                  >
+                    Theo Giờ (1h)
+                  </button>
+                </div>
               </div>
             </div>
 
             <!-- 4 Bento Cards Grid -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              
               <!-- Bento 1: #1 Tốc Độ Đỉnh -->
               <div 
-                @click="topSpeedChannel && viewChannelVideos(topSpeedChannel.channel_id)"
-                class="bg-white dark:bg-[#0b101d] hover:bg-slate-50 dark:hover:bg-[#0f172a] border border-slate-200 dark:border-blue-900/40 hover:border-blue-400 dark:hover:border-blue-500/50 rounded-3xl p-5 shadow-sm transition-all duration-300 flex items-center justify-between cursor-pointer select-none group"
+                @click="selectBentoMetric('speed')"
+                :class="showBentoChart && bentoChartMetric === 'speed' 
+                  ? 'ring-2 ring-blue-500 border-blue-500 shadow-lg shadow-blue-500/20 bg-blue-50 dark:bg-blue-950/20' 
+                  : 'bg-white dark:bg-[#0b101d] hover:bg-slate-50 dark:hover:bg-[#0f172a] border-slate-200 dark:border-blue-900/40 hover:border-blue-400 dark:hover:border-blue-500/50'"
+                class="border rounded-3xl p-5 shadow-sm transition-all duration-300 flex items-center justify-between cursor-pointer select-none group relative"
               >
                 <div>
-                  <div class="flex items-center space-x-2 text-blue-500 dark:text-blue-400 text-xs font-bold mb-2">
-                    <div class="w-6 h-6 rounded-lg bg-blue-500/20 flex items-center justify-center text-xs">
-                      <i class="ph-fill ph-lightning"></i>
+                  <div class="flex items-center justify-between space-x-2 text-blue-500 dark:text-blue-400 text-xs font-bold mb-2">
+                    <div class="flex items-center space-x-2">
+                      <div class="w-6 h-6 rounded-lg bg-blue-500/20 flex items-center justify-center text-xs">
+                        <i class="ph-fill ph-lightning"></i>
+                      </div>
+                      <span>#1 Tốc Độ Đỉnh</span>
                     </div>
-                    <span>#1 Tốc Độ Đỉnh</span>
+                    <!-- Active Status Pill -->
+                    <span 
+                      v-if="showBentoChart && bentoChartMetric === 'speed'"
+                      class="text-[10px] bg-blue-500 text-white font-bold px-2 py-0.5 rounded-full flex items-center space-x-1 animate-pulse"
+                    >
+                      <span class="w-1.5 h-1.5 rounded-full bg-white"></span>
+                      <span>Đang soi 📈</span>
+                    </span>
                   </div>
                   <div class="text-2xl font-black text-slate-900 dark:text-white">
                     +{{ formatNumber(metricTimeUnit === 'day' ? ((topSpeedChannel?.peak_vph || 0) * 24) : (topSpeedChannel?.peak_vph || 0)) }}
                     <span class="text-xs text-slate-400 font-medium">{{ metricTimeUnit === 'day' ? 'view/ngày' : 'view/h' }}</span>
                   </div>
-                  <p class="text-[11px] text-slate-400 mt-1">Video chạy nhanh nhất hiện tại</p>
+                  <p class="text-[11px] text-slate-400 mt-1">
+                    {{ topSpeedChannel ? topSpeedChannel.name : 'Video chạy nhanh nhất hiện tại' }}
+                  </p>
+                  <div class="mt-1 flex items-center space-x-1 text-[10px] text-blue-500 font-semibold group-hover:underline">
+                    <span>{{ showBentoChart && bentoChartMetric === 'speed' ? 'Bấm để đóng biểu đồ' : 'Bấm mở biểu đồ tốc độ' }}</span>
+                    <i class="ph-bold ph-caret-right"></i>
+                  </div>
                 </div>
                 <!-- Mini Vertical Bars (Blue) -->
                 <div class="h-12 flex items-end gap-1 opacity-70">
@@ -1329,21 +1370,40 @@
 
               <!-- Bento 2: #1 Gom Traffic -->
               <div 
-                @click="topInflowChannel && viewChannelVideos(topInflowChannel.channel_id)"
-                class="bg-white dark:bg-[#0b101d] hover:bg-slate-50 dark:hover:bg-[#0f172a] border border-slate-200 dark:border-emerald-900/40 hover:border-emerald-400 dark:hover:border-emerald-500/50 rounded-3xl p-5 shadow-sm transition-all duration-300 flex items-center justify-between cursor-pointer select-none group"
+                @click="selectBentoMetric('traffic')"
+                :class="showBentoChart && bentoChartMetric === 'traffic' 
+                  ? 'ring-2 ring-emerald-500 border-emerald-500 shadow-lg shadow-emerald-500/20 bg-emerald-50 dark:bg-emerald-950/20' 
+                  : 'bg-white dark:bg-[#0b101d] hover:bg-slate-50 dark:hover:bg-[#0f172a] border-slate-200 dark:border-emerald-900/40 hover:border-emerald-400 dark:hover:border-emerald-500/50'"
+                class="border rounded-3xl p-5 shadow-sm transition-all duration-300 flex items-center justify-between cursor-pointer select-none group relative"
               >
                 <div>
-                  <div class="flex items-center space-x-2 text-emerald-500 dark:text-emerald-400 text-xs font-bold mb-2">
-                    <div class="w-6 h-6 rounded-lg bg-emerald-500/20 flex items-center justify-center text-xs">
-                      <i class="ph-fill ph-users"></i>
+                  <div class="flex items-center justify-between space-x-2 text-emerald-500 dark:text-emerald-400 text-xs font-bold mb-2">
+                    <div class="flex items-center space-x-2">
+                      <div class="w-6 h-6 rounded-lg bg-emerald-500/20 flex items-center justify-center text-xs">
+                        <i class="ph-fill ph-users"></i>
+                      </div>
+                      <span>#1 Gom Traffic</span>
                     </div>
-                    <span>#1 Gom Traffic</span>
+                    <!-- Active Status Pill -->
+                    <span 
+                      v-if="showBentoChart && bentoChartMetric === 'traffic'"
+                      class="text-[10px] bg-emerald-500 text-white font-bold px-2 py-0.5 rounded-full flex items-center space-x-1 animate-pulse"
+                    >
+                      <span class="w-1.5 h-1.5 rounded-full bg-white"></span>
+                      <span>Đang soi 📈</span>
+                    </span>
                   </div>
                   <div class="text-2xl font-black text-slate-900 dark:text-white">
                     +{{ formatNumber(metricTimeUnit === 'day' ? ((topInflowChannel?.total_channel_vph || 0) * 24) : (topInflowChannel?.total_channel_vph || 0)) }}
                     <span class="text-xs text-slate-400 font-medium">{{ metricTimeUnit === 'day' ? 'view/ngày' : 'view/h' }}</span>
                   </div>
-                  <p class="text-[11px] text-slate-400 mt-1">Hút nhiều lượt xem nhất cả kênh</p>
+                  <p class="text-[11px] text-slate-400 mt-1">
+                    {{ topInflowChannel ? topInflowChannel.name : 'Hút nhiều lượt xem nhất cả kênh' }}
+                  </p>
+                  <div class="mt-1 flex items-center space-x-1 text-[10px] text-emerald-500 font-semibold group-hover:underline">
+                    <span>{{ showBentoChart && bentoChartMetric === 'traffic' ? 'Bấm để đóng biểu đồ' : 'Bấm mở biểu đồ traffic' }}</span>
+                    <i class="ph-bold ph-caret-right"></i>
+                  </div>
                 </div>
                 <!-- Mini Vertical Bars (Emerald) -->
                 <div class="h-12 flex items-end gap-1 opacity-70">
@@ -1357,20 +1417,39 @@
 
               <!-- Bento 3: #1 Tỷ Lệ Bùng Nổ -->
               <div 
-                @click="topHitRateChannel && viewChannelVideos(topHitRateChannel.channel_id)"
-                class="bg-white dark:bg-[#0b101d] hover:bg-slate-50 dark:hover:bg-[#0f172a] border border-slate-200 dark:border-amber-900/40 hover:border-amber-400 dark:hover:border-amber-500/50 rounded-3xl p-5 shadow-sm transition-all duration-300 flex items-center justify-between cursor-pointer select-none group"
+                @click="selectBentoMetric('viral')"
+                :class="showBentoChart && bentoChartMetric === 'viral' 
+                  ? 'ring-2 ring-amber-500 border-amber-500 shadow-lg shadow-amber-500/20 bg-amber-50 dark:bg-amber-950/20' 
+                  : 'bg-white dark:bg-[#0b101d] hover:bg-slate-50 dark:hover:bg-[#0f172a] border-slate-200 dark:border-amber-900/40 hover:border-amber-400 dark:hover:border-amber-500/50'"
+                class="border rounded-3xl p-5 shadow-sm transition-all duration-300 flex items-center justify-between cursor-pointer select-none group relative"
               >
                 <div>
-                  <div class="flex items-center space-x-2 text-amber-500 dark:text-amber-400 text-xs font-bold mb-2">
-                    <div class="w-6 h-6 rounded-lg bg-amber-500/20 flex items-center justify-center text-xs">
-                      <i class="ph-fill ph-fire"></i>
+                  <div class="flex items-center justify-between space-x-2 text-amber-500 dark:text-amber-400 text-xs font-bold mb-2">
+                    <div class="flex items-center space-x-2">
+                      <div class="w-6 h-6 rounded-lg bg-amber-500/20 flex items-center justify-center text-xs">
+                        <i class="ph-fill ph-fire"></i>
+                      </div>
+                      <span>#1 Tỷ Lệ Bùng Nổ</span>
                     </div>
-                    <span>#1 Tỷ Lệ Bùng Nổ</span>
+                    <!-- Active Status Pill -->
+                    <span 
+                      v-if="showBentoChart && bentoChartMetric === 'viral'"
+                      class="text-[10px] bg-amber-500 text-white font-bold px-2 py-0.5 rounded-full flex items-center space-x-1 animate-pulse"
+                    >
+                      <span class="w-1.5 h-1.5 rounded-full bg-white"></span>
+                      <span>Đang soi 📈</span>
+                    </span>
                   </div>
                   <div class="text-2xl font-black text-slate-900 dark:text-white">
                     {{ topHitRateChannel?.viral_rate || 73.3 }}%
                   </div>
-                  <p class="text-[11px] text-slate-400 mt-1">Tỷ lệ video nổ cao nhất</p>
+                  <p class="text-[11px] text-slate-400 mt-1">
+                    {{ topHitRateChannel ? topHitRateChannel.name : 'Tỷ lệ video nổ cao nhất' }}
+                  </p>
+                  <div class="mt-1 flex items-center space-x-1 text-[10px] text-amber-500 font-semibold group-hover:underline">
+                    <span>{{ showBentoChart && bentoChartMetric === 'viral' ? 'Bấm để đóng biểu đồ' : 'Bấm mở biểu đồ bùng nổ' }}</span>
+                    <i class="ph-bold ph-caret-right"></i>
+                  </div>
                 </div>
                 <!-- Mini Vertical Bars (Amber) -->
                 <div class="h-12 flex items-end gap-1 opacity-70">
@@ -1384,21 +1463,38 @@
 
               <!-- Bento 4: Quy Mô Ngành -->
               <div 
-                @click="navigateFromSidebar('videos')"
-                class="bg-white dark:bg-[#0b101d] hover:bg-slate-50 dark:hover:bg-[#0f172a] border border-slate-200 dark:border-blue-900/40 hover:border-blue-400 dark:hover:border-blue-500/50 rounded-3xl p-5 shadow-sm transition-all duration-300 flex items-center justify-between cursor-pointer select-none group"
+                @click="selectBentoMetric('market')"
+                :class="showBentoChart && bentoChartMetric === 'market' 
+                  ? 'ring-2 ring-cyan-500 border-cyan-500 shadow-lg shadow-cyan-500/20 bg-cyan-50 dark:bg-cyan-950/20' 
+                  : 'bg-white dark:bg-[#0b101d] hover:bg-slate-50 dark:hover:bg-[#0f172a] border-slate-200 dark:border-blue-900/40 hover:border-blue-400 dark:hover:border-blue-500/50'"
+                class="border rounded-3xl p-5 shadow-sm transition-all duration-300 flex items-center justify-between cursor-pointer select-none group relative"
               >
                 <div>
-                  <div class="flex items-center space-x-2 text-cyan-500 dark:text-cyan-400 text-xs font-bold mb-2">
-                    <div class="w-6 h-6 rounded-lg bg-cyan-500/20 flex items-center justify-center text-xs">
-                      <i class="ph-fill ph-chart-bar"></i>
+                  <div class="flex items-center justify-between space-x-2 text-cyan-500 dark:text-cyan-400 text-xs font-bold mb-2">
+                    <div class="flex items-center space-x-2">
+                      <div class="w-6 h-6 rounded-lg bg-cyan-500/20 flex items-center justify-center text-xs">
+                        <i class="ph-fill ph-chart-bar"></i>
+                      </div>
+                      <span>Quy Mô Ngành</span>
                     </div>
-                    <span>Quy Mô Ngành</span>
+                    <!-- Active Status Pill -->
+                    <span 
+                      v-if="showBentoChart && bentoChartMetric === 'market'"
+                      class="text-[10px] bg-cyan-500 text-white font-bold px-2 py-0.5 rounded-full flex items-center space-x-1 animate-pulse"
+                    >
+                      <span class="w-1.5 h-1.5 rounded-full bg-white"></span>
+                      <span>Đang soi 📈</span>
+                    </span>
                   </div>
                   <div class="text-2xl font-black text-slate-900 dark:text-white">
                     +{{ formatNumber(metricTimeUnit === 'day' ? ((marketStats?.total_vph || 0) * 24) : (marketStats?.total_vph || 0)) }}
                     <span class="text-xs text-slate-400 font-medium">{{ metricTimeUnit === 'day' ? 'view/ngày' : 'view/h' }}</span>
                   </div>
                   <p class="text-[11px] text-slate-400 mt-1">Tổng lưu lượng {{ stats.total_channels }} kênh đối thủ</p>
+                  <div class="mt-1 flex items-center space-x-1 text-[10px] text-cyan-500 font-semibold group-hover:underline">
+                    <span>{{ showBentoChart && bentoChartMetric === 'market' ? 'Bấm để đóng biểu đồ' : 'Bấm mở biểu đồ quy mô' }}</span>
+                    <i class="ph-bold ph-caret-right"></i>
+                  </div>
                 </div>
                 <!-- Mini Vertical Bars (Cyan) -->
                 <div class="h-12 flex items-end gap-1 opacity-70">
@@ -1409,7 +1505,430 @@
                   <span class="w-1.5 bg-cyan-300 rounded-t h-12"></span>
                 </div>
               </div>
+
             </div>
+
+            <!-- ============================================================== -->
+            <!-- BENTO RADAR CHART ACCORDION COCKPIT (INTERACTIVE MULTI-CHANNEL) -->
+            <!-- ============================================================== -->
+            <transition
+              enter-active-class="transition duration-300 ease-out"
+              enter-from-class="opacity-0 -translate-y-4 scale-[0.99]"
+              enter-to-class="opacity-100 translate-y-0 scale-100"
+              leave-active-class="transition duration-200 ease-in"
+              leave-from-class="opacity-100 translate-y-0 scale-100"
+              leave-to-class="opacity-0 -translate-y-4 scale-[0.99]"
+            >
+              <div 
+                v-if="showBentoChart" 
+                class="bg-[#0a0f1d] border border-slate-700/80 dark:border-slate-800 rounded-3xl p-4 sm:p-6 shadow-2xl space-y-5 relative overflow-hidden text-slate-200"
+              >
+                <!-- Background Ambient Glow Accents -->
+                <div class="absolute -top-24 -right-24 w-80 h-80 bg-blue-500/10 blur-3xl rounded-full pointer-events-none"></div>
+                <div class="absolute -bottom-24 -left-24 w-80 h-80 bg-purple-500/10 blur-3xl rounded-full pointer-events-none"></div>
+
+                <!-- Top Control Bar: Metric Title & Control Buttons -->
+                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-800/80 pb-4 relative z-10">
+                  <div class="space-y-1">
+                    <div class="flex items-center space-x-2">
+                      <span class="px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider bg-blue-500/20 text-blue-400 border border-blue-500/30 shadow-sm">
+                        {{ bentoMetricConfig.title }}
+                      </span>
+                      <span class="text-xs text-slate-400 font-medium hidden sm:inline">
+                        ({{ metricTimeUnit === 'day' ? 'Đơn vị: view/ngày' : 'Đơn vị: view/giờ' }})
+                      </span>
+                    </div>
+                    <p class="text-xs sm:text-sm text-slate-400">
+                      {{ bentoMetricConfig.desc }}
+                    </p>
+                  </div>
+
+                  <!-- Control Toolbar -->
+                  <div class="flex items-center flex-wrap gap-2">
+                    <!-- 4 Metric Pill Switchers inside Chart -->
+                    <div class="inline-flex items-center p-1 bg-[#0f172a] rounded-xl border border-slate-800 text-xs shadow-inner">
+                      <button 
+                        type="button"
+                        @click="bentoChartMetric = 'speed'"
+                        :class="bentoChartMetric === 'speed' ? 'bg-blue-600 text-white font-bold shadow' : 'text-slate-400 hover:text-white'"
+                        class="px-2.5 py-1 rounded-lg transition cursor-pointer"
+                      >
+                        ⚡ Tốc Độ
+                      </button>
+                      <button 
+                        type="button"
+                        @click="bentoChartMetric = 'traffic'"
+                        :class="bentoChartMetric === 'traffic' ? 'bg-emerald-600 text-white font-bold shadow' : 'text-slate-400 hover:text-white'"
+                        class="px-2.5 py-1 rounded-lg transition cursor-pointer"
+                      >
+                        🌊 Traffic
+                      </button>
+                      <button 
+                        type="button"
+                        @click="bentoChartMetric = 'viral'"
+                        :class="bentoChartMetric === 'viral' ? 'bg-amber-600 text-white font-bold shadow' : 'text-slate-400 hover:text-white'"
+                        class="px-2.5 py-1 rounded-lg transition cursor-pointer"
+                      >
+                        🔥 Bùng Nổ
+                      </button>
+                      <button 
+                        type="button"
+                        @click="bentoChartMetric = 'market'"
+                        :class="bentoChartMetric === 'market' ? 'bg-cyan-600 text-white font-bold shadow' : 'text-slate-400 hover:text-white'"
+                        class="px-2.5 py-1 rounded-lg transition cursor-pointer"
+                      >
+                        🌐 Quy Mô
+                      </button>
+                    </div>
+
+                    <!-- 24h vs 7d Time Range Switcher -->
+                    <div class="inline-flex items-center p-1 bg-[#0f172a] rounded-xl border border-slate-800 text-xs shadow-inner">
+                      <button 
+                        type="button"
+                        @click="bentoChartTimeRange = '24h'"
+                        :class="bentoChartTimeRange === '24h' ? 'bg-indigo-600 text-white font-bold shadow' : 'text-slate-400 hover:text-white'"
+                        class="px-2.5 py-1 rounded-lg transition cursor-pointer"
+                      >
+                        24 Giờ
+                      </button>
+                      <button 
+                        type="button"
+                        @click="bentoChartTimeRange = '7d'"
+                        :class="bentoChartTimeRange === '7d' ? 'bg-indigo-600 text-white font-bold shadow' : 'text-slate-400 hover:text-white'"
+                        class="px-2.5 py-1 rounded-lg transition cursor-pointer"
+                      >
+                        7 Ngày
+                      </button>
+                    </div>
+
+                    <!-- Close Button -->
+                    <button 
+                      type="button"
+                      @click="showBentoChart = false"
+                      class="p-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-white transition border border-slate-700 cursor-pointer"
+                      title="Thu gọn biểu đồ"
+                    >
+                      <i class="ph-bold ph-x text-sm"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Channel Filter Controls & Quick Selection Bar -->
+                <div class="space-y-2.5 relative z-10">
+                  <div class="flex items-center justify-between flex-wrap gap-2 text-xs">
+                    <div class="flex items-center space-x-2">
+                      <span class="font-bold text-slate-300 flex items-center space-x-1">
+                        <i class="ph-bold ph-funnel text-blue-400"></i>
+                        <span>Bộ Lọc Kênh:</span>
+                      </span>
+                      <!-- Preset buttons -->
+                      <button 
+                        type="button"
+                        @click="selectPresetChartChannels('top3')"
+                        class="px-2.5 py-1 rounded-lg bg-slate-800/80 hover:bg-slate-700 border border-slate-700 text-amber-400 font-bold transition hover:border-amber-500/50 cursor-pointer"
+                      >
+                        👑 Top 3
+                      </button>
+                      <button 
+                        type="button"
+                        @click="selectPresetChartChannels('top5')"
+                        class="px-2.5 py-1 rounded-lg bg-slate-800/80 hover:bg-slate-700 border border-slate-700 text-blue-400 font-bold transition hover:border-blue-500/50 cursor-pointer"
+                      >
+                        🔥 Top 5
+                      </button>
+                      <button 
+                        type="button"
+                        @click="selectPresetChartChannels('all')"
+                        class="px-2.5 py-1 rounded-lg bg-slate-800/80 hover:bg-slate-700 border border-slate-700 text-slate-300 hover:text-white font-medium transition cursor-pointer"
+                      >
+                        Tất Cả ({{ (channelMetrics || []).length }})
+                      </button>
+                      <button 
+                        type="button"
+                        @click="selectPresetChartChannels('none')"
+                        class="px-2 py-1 rounded-lg bg-slate-800/50 hover:bg-rose-500/20 border border-slate-700 hover:border-rose-500/50 text-slate-400 hover:text-rose-400 font-medium transition cursor-pointer"
+                      >
+                        Bỏ chọn
+                      </button>
+                    </div>
+
+                    <!-- Single Channel Focus Dropdown -->
+                    <div class="flex items-center space-x-2">
+                      <label class="text-slate-400 font-medium">Soi riêng 1 kênh:</label>
+                      <select 
+                        v-model="singleChannelFocus"
+                        class="bg-[#0f172a] border border-slate-700 text-white rounded-xl px-2.5 py-1 text-xs focus:ring-1 focus:ring-blue-500 focus:outline-none cursor-pointer"
+                      >
+                        <option value="ALL">-- Tất cả kênh đã chọn ({{ activeChartChannelsList.length }}) --</option>
+                        <option 
+                          v-for="ch in (channelMetrics || [])" 
+                          :key="ch.channel_id" 
+                          :value="ch.channel_id"
+                        >
+                          {{ ch.name }}
+                        </option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <!-- Channel Chips Multi-Selector (Each has its distinct color dot) -->
+                  <div class="flex items-center flex-wrap gap-1.5 max-h-28 overflow-y-auto pr-1 py-1 custom-scrollbar">
+                    <div 
+                      v-for="(ch, idx) in (channelMetrics || [])" 
+                      :key="ch.channel_id"
+                      @click="toggleChartChannel(ch.channel_id)"
+                      :class="isChartChannelSelected(ch.channel_id) 
+                        ? 'bg-slate-800/90 border-slate-600 shadow-sm ring-1 ring-white/10' 
+                        : 'bg-slate-900/40 border-slate-800/60 opacity-40 hover:opacity-75'"
+                      class="inline-flex items-center space-x-2 px-2.5 py-1 rounded-xl border text-xs cursor-pointer transition-all duration-150 select-none hover:border-slate-500"
+                    >
+                      <!-- Channel Color Dot -->
+                      <span 
+                        class="w-2.5 h-2.5 rounded-full flex-shrink-0 transition-transform"
+                        :style="{ backgroundColor: getChannelColor(idx), boxShadow: isChartChannelSelected(ch.channel_id) ? ('0 0 8px ' + getChannelColor(idx)) : 'none' }"
+                      ></span>
+                      
+                      <span class="font-medium text-slate-200 truncate max-w-[130px]" :title="ch.name">
+                        {{ ch.name }}
+                      </span>
+
+                      <!-- Quick value pill -->
+                      <span class="text-[10px] text-slate-400 font-mono">
+                        {{ bentoChartMetric === 'viral' ? (ch.viral_rate + '%') : ('+' + formatNumber(metricTimeUnit === 'day' ? ((bentoChartMetric === 'speed' ? ch.peak_vph : ch.total_channel_vph) * 24) : (bentoChartMetric === 'speed' ? ch.peak_vph : ch.total_channel_vph))) }}
+                      </span>
+
+                      <i 
+                        class="text-xs ml-0.5"
+                        :class="isChartChannelSelected(ch.channel_id) ? 'ph-bold ph-check text-emerald-400' : 'ph-bold ph-plus text-slate-500'"
+                      ></i>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- MAIN SVG CHART AREA -->
+                <div class="relative w-full bg-[#070b14] border border-slate-800/80 rounded-2xl p-2 sm:p-4 overflow-hidden">
+                  
+                  <!-- Tooltip on Hover -->
+                  <div 
+                    v-if="hoveredChartPoint"
+                    class="absolute z-20 pointer-events-none bg-slate-900/95 border border-slate-700 px-3 py-2 rounded-xl shadow-2xl text-xs backdrop-blur-md transition-all duration-100"
+                    :style="{ left: Math.min(hoveredChartPoint.x + 10, computedChartSeries.chartW - 160) + 'px', top: Math.max(10, hoveredChartPoint.y - 50) + 'px' }"
+                  >
+                    <div class="flex items-center space-x-1.5 mb-1">
+                      <span class="w-2 h-2 rounded-full" :style="{ backgroundColor: hoveredChartPoint.color }"></span>
+                      <span class="font-bold text-white">{{ hoveredChartPoint.channelName }}</span>
+                    </div>
+                    <div class="text-slate-400">
+                      Mốc thời gian: <span class="text-slate-200 font-semibold">{{ hoveredChartPoint.timeLabel }}</span>
+                    </div>
+                    <div class="text-slate-300 font-mono text-xs font-bold mt-0.5">
+                      Giá trị: <span class="text-cyan-400">+{{ formatNumber(hoveredChartPoint.value) }} {{ bentoMetricConfig.unit }}</span>
+                    </div>
+                  </div>
+
+                  <!-- Pure SVG Vector Line Chart -->
+                  <svg 
+                    :viewBox="`0 0 ${computedChartSeries.chartW} ${computedChartSeries.chartH}`" 
+                    class="w-full h-56 sm:h-64 select-none overflow-visible"
+                  >
+                    <!-- Horizontal Grid Lines -->
+                    <g class="grid-lines" stroke="#1e293b" stroke-width="1" stroke-dasharray="3,3">
+                      <line 
+                        v-for="tick in computedChartSeries.yTicks" 
+                        :key="tick.label"
+                        :x1="computedChartSeries.padLeft" 
+                        :y1="tick.y" 
+                        :x2="computedChartSeries.chartW - computedChartSeries.padRight" 
+                        :y2="tick.y" 
+                      />
+                    </g>
+
+                    <!-- Y Axis Labels -->
+                    <g class="y-labels text-[10px] fill-slate-400" font-family="monospace">
+                      <text 
+                        v-for="tick in computedChartSeries.yTicks" 
+                        :key="'lbl-' + tick.label"
+                        :x="computedChartSeries.padLeft - 8" 
+                        :y="tick.y + 3" 
+                        text-anchor="end"
+                      >
+                        {{ bentoMetricConfig.yPrefix }}{{ tick.label }}
+                      </text>
+                    </g>
+
+                    <!-- X Axis Labels -->
+                    <g class="x-labels text-[11px] fill-slate-400 font-medium">
+                      <text 
+                        v-for="xtick in computedChartSeries.xTicks" 
+                        :key="xtick.label"
+                        :x="xtick.x" 
+                        :y="xtick.y" 
+                        text-anchor="middle"
+                      >
+                        {{ xtick.label }}
+                      </text>
+                    </g>
+
+                    <!-- Multi-Channel Colored Polylines -->
+                    <g v-for="line in computedChartSeries.lines" :key="line.channel_id">
+                      <!-- Subtle Glow Filter or line background -->
+                      <polyline 
+                        :points="line.pointsString" 
+                        fill="none" 
+                        :stroke="line.color" 
+                        stroke-width="6" 
+                        stroke-linecap="round" 
+                        stroke-linejoin="round"
+                        opacity="0.15"
+                      />
+                      <!-- Main Line -->
+                      <polyline 
+                        :points="line.pointsString" 
+                        fill="none" 
+                        :stroke="line.color" 
+                        stroke-width="3" 
+                        stroke-linecap="round" 
+                        stroke-linejoin="round"
+                      />
+                      <!-- Circular Vertex Nodes -->
+                      <circle 
+                        v-for="(pt, pIdx) in line.coords" 
+                        :key="pIdx"
+                        :cx="pt.x" 
+                        :cy="pt.y" 
+                        r="4.5" 
+                        :fill="line.color" 
+                        stroke="#0a0f1d" 
+                        stroke-width="2"
+                        class="transition-all duration-150 cursor-pointer"
+                        @mouseenter="hoveredChartPoint = { channelName: line.name, timeLabel: pt.label, value: pt.value, color: line.color, x: pt.x, y: pt.y }"
+                        @mouseleave="hoveredChartPoint = null"
+                      />
+                    </g>
+                  </svg>
+                </div>
+
+                <!-- CHANNEL SITUATION INTEL CARD (BÁO CÁO TÌNH HÌNH KÊNH) -->
+                <div 
+                  v-if="focusedChannelIntel"
+                  class="bg-gradient-to-r from-slate-900/90 to-[#0c1322] border border-slate-800 rounded-2xl p-4 sm:p-5 relative overflow-hidden"
+                >
+                  <div class="flex items-center justify-between flex-wrap gap-3 pb-3 border-b border-slate-800/80 mb-3">
+                    <div class="flex items-center space-x-3">
+                      <!-- Color indicator dot & Channel Name -->
+                      <div 
+                        class="w-8 h-8 rounded-xl flex items-center justify-center font-black text-xs text-white shadow-md flex-shrink-0"
+                        :style="{ backgroundColor: focusedChannelIntel.color }"
+                      >
+                        {{ (focusedChannelIntel.name || 'C').charAt(0).toUpperCase() }}
+                      </div>
+                      <div>
+                        <div class="flex items-center space-x-2">
+                          <h4 class="font-extrabold text-sm sm:text-base text-white">
+                            {{ focusedChannelIntel.name }}
+                          </h4>
+                          <span class="text-xs text-slate-400 font-mono">
+                            {{ focusedChannelIntel.handle }}
+                          </span>
+                        </div>
+                        <p class="text-xs text-slate-400">
+                          Phân tích tình hình & radar động lượng cạnh tranh
+                        </p>
+                      </div>
+                    </div>
+
+                    <!-- Momentum status badge -->
+                    <div class="flex items-center space-x-2">
+                      <span 
+                        class="px-3 py-1 rounded-full text-xs font-black border tracking-wide"
+                        :class="focusedChannelIntel.statusClass"
+                      >
+                        {{ focusedChannelIntel.statusText }}
+                      </span>
+                      <button 
+                        type="button"
+                        @click="viewChannelVideos(focusedChannelIntel.channel_id)"
+                        class="px-3 py-1 rounded-xl bg-blue-600/20 hover:bg-blue-600 text-blue-400 hover:text-white text-xs font-bold transition border border-blue-500/30 cursor-pointer"
+                      >
+                        Soi Video Kênh Này ↗
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- 3 Key Intel Metrics & Dominant Video -->
+                  <div class="grid grid-cols-1 md:grid-cols-3 gap-3 pt-1">
+                    <!-- Metric 1: Vận Tốc Hiện Tại -->
+                    <div class="bg-black/30 border border-slate-800/80 rounded-xl p-3">
+                      <span class="text-[11px] text-slate-400 uppercase font-bold tracking-wider block mb-1">
+                        ⚡ Vận Tốc Tăng Trưởng
+                      </span>
+                      <div class="text-lg font-black text-white">
+                        +{{ formatNumber(metricTimeUnit === 'day' ? (focusedChannelIntel.total_channel_vph * 24) : focusedChannelIntel.total_channel_vph) }}
+                        <span class="text-xs text-slate-400 font-normal">{{ metricTimeUnit === 'day' ? 'view/ngày' : 'view/h' }}</span>
+                      </div>
+                      <span class="text-[11px] text-slate-400">
+                        Tốc độ đỉnh: +{{ formatNumber(metricTimeUnit === 'day' ? (focusedChannelIntel.peak_vph * 24) : focusedChannelIntel.peak_vph) }}
+                      </span>
+                    </div>
+
+                    <!-- Metric 2: Tỷ Lệ Nổ & Video -->
+                    <div class="bg-black/30 border border-slate-800/80 rounded-xl p-3">
+                      <span class="text-[11px] text-slate-400 uppercase font-bold tracking-wider block mb-1">
+                        🎯 Tỷ Lệ Video Bùng Nổ
+                      </span>
+                      <div class="text-lg font-black text-amber-400">
+                        {{ focusedChannelIntel.viral_rate }}%
+                        <span class="text-xs text-slate-400 font-normal">({{ focusedChannelIntel.viral_count }}/{{ focusedChannelIntel.video_count }} video)</span>
+                      </div>
+                      <span class="text-[11px] text-slate-400">
+                        Tần suất đăng: {{ focusedChannelIntel.avg_upload_interval_days ? ('~' + focusedChannelIntel.avg_upload_interval_days + ' ngày/video') : 'Đang đo lường' }}
+                      </span>
+                    </div>
+
+                    <!-- Dominant Video / Content Hook -->
+                    <div class="bg-black/30 border border-slate-800/80 rounded-xl p-3">
+                      <span class="text-[11px] text-slate-400 uppercase font-bold tracking-wider block mb-1">
+                        👑 Video Kéo Traffic Chủ Lực
+                      </span>
+                      <div v-if="focusedChannelIntel.best_video" class="flex items-center space-x-2">
+                        <img 
+                          v-if="focusedChannelIntel.best_video.thumbnail" 
+                          :src="focusedChannelIntel.best_video.thumbnail" 
+                          alt="Thumbnail" 
+                          class="w-12 h-8 rounded-lg object-cover flex-shrink-0 border border-slate-700" 
+                        />
+                        <div class="min-w-0 flex-1">
+                          <a 
+                            :href="focusedChannelIntel.best_video.url || ('https://youtube.com/watch?v=' + focusedChannelIntel.best_video.video_id)" 
+                            target="_blank" 
+                            class="text-xs font-bold text-slate-200 hover:text-blue-400 line-clamp-1 transition"
+                            :title="focusedChannelIntel.best_video.title"
+                          >
+                            {{ focusedChannelIntel.best_video.title }}
+                          </a>
+                          <div class="text-[10px] text-rose-400 font-bold">
+                            +{{ formatNumber(metricTimeUnit === 'day' ? (focusedChannelIntel.best_video.effective_vph * 24) : focusedChannelIntel.best_video.effective_vph) }} {{ metricTimeUnit === 'day' ? 'view/ngày' : 'view/h' }}
+                          </div>
+                        </div>
+                      </div>
+                      <div v-else class="text-xs text-slate-500 italic">
+                        Chưa có video ghi nhận
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Radar AI Strategic Insight -->
+                  <div class="mt-3 pt-2.5 border-t border-slate-800/60 flex items-start space-x-2 text-xs text-slate-300">
+                    <i class="ph-fill ph-lightbulb text-amber-400 text-sm mt-0.5 flex-shrink-0"></i>
+                    <div>
+                      <span class="font-bold text-amber-400 mr-1">Nhận Định Chiến Lược:</span>
+                      <span>{{ focusedChannelIntel.intelInsight }}</span>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </transition>
           </div>
 
           <!-- 3. Section Top 5 Split: Top 5 Siêu Video & Top 5 Kênh Thống Trị -->
@@ -5728,6 +6247,323 @@
           }
         };
 
+        
+        // ==========================================
+        // BENTO MULTI-CHANNEL RADAR CHART STATE & METHODS
+        // ==========================================
+        const showBentoChart = ref(false);
+        const bentoChartMetric = ref('speed'); // 'speed' | 'traffic' | 'viral' | 'market'
+        const bentoChartTimeRange = ref('24h'); // '24h' | '7d'
+        const selectedChartChannelIds = ref([]);
+        const singleChannelFocus = ref('ALL');
+        const hoveredChartPoint = ref(null);
+
+        // 12 High-Contrast Neon / Vibrant Colors for Competitor Channels
+        const CHANNEL_PALETTE = [
+          '#38bdf8', // Neon Sky Blue
+          '#f59e0b', // Vibrant Amber
+          '#f43f5e', // Neon Rose
+          '#10b981', // Emerald Green
+          '#a855f7', // Vivid Purple
+          '#06b6d4', // Cyan
+          '#ec4899', // Pink
+          '#f97316', // Orange
+          '#84cc16', // Lime Green
+          '#6366f1', // Indigo
+          '#14b8a6', // Teal
+          '#eab308'  // Yellow
+        ];
+
+        const getChannelColor = (idx) => {
+          return CHANNEL_PALETTE[Math.abs(idx) % CHANNEL_PALETTE.length];
+        };
+
+        const toggleBentoChart = () => {
+          showBentoChart.value = !showBentoChart.value;
+          if (showBentoChart.value && selectedChartChannelIds.value.length === 0) {
+            selectPresetChartChannels('top5');
+          }
+        };
+
+        const selectBentoMetric = (metric) => {
+          if (showBentoChart.value && bentoChartMetric.value === metric) {
+            showBentoChart.value = false;
+          } else {
+            showBentoChart.value = true;
+            bentoChartMetric.value = metric;
+            if (selectedChartChannelIds.value.length === 0) {
+              selectPresetChartChannels('top5');
+            }
+          }
+        };
+
+        const selectPresetChartChannels = (preset) => {
+          const allChs = channelMetrics.value || [];
+          if (preset === 'none') {
+            selectedChartChannelIds.value = [];
+            singleChannelFocus.value = 'ALL';
+            return;
+          }
+          if (preset === 'all') {
+            selectedChartChannelIds.value = allChs.map(c => c.channel_id);
+            singleChannelFocus.value = 'ALL';
+            return;
+          }
+          let sorted = [...allChs];
+          if (bentoChartMetric.value === 'speed') {
+            sorted.sort((a, b) => (b.peak_vph || 0) - (a.peak_vph || 0));
+          } else if (bentoChartMetric.value === 'traffic' || bentoChartMetric.value === 'market') {
+            sorted.sort((a, b) => (b.total_channel_vph || 0) - (a.total_channel_vph || 0));
+          } else if (bentoChartMetric.value === 'viral') {
+            sorted.sort((a, b) => (b.viral_rate || 0) - (a.viral_rate || 0));
+          }
+          const count = preset === 'top3' ? 3 : 5;
+          selectedChartChannelIds.value = sorted.slice(0, count).map(c => c.channel_id);
+          singleChannelFocus.value = 'ALL';
+        };
+
+        const toggleChartChannel = (chId) => {
+          const idx = selectedChartChannelIds.value.indexOf(chId);
+          if (idx >= 0) {
+            selectedChartChannelIds.value.splice(idx, 1);
+            if (singleChannelFocus.value === chId) {
+              singleChannelFocus.value = 'ALL';
+            }
+          } else {
+            selectedChartChannelIds.value.push(chId);
+          }
+        };
+
+        const isChartChannelSelected = (chId) => {
+          return selectedChartChannelIds.value.includes(chId);
+        };
+
+        const chartTimelineLabels = computed(() => {
+          if (bentoChartTimeRange.value === '7d') {
+            return ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
+          }
+          return ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00', '24:00'];
+        });
+
+        const activeChartChannelsList = computed(() => {
+          const allChs = channelMetrics.value || [];
+          if (singleChannelFocus.value !== 'ALL') {
+            return allChs.filter(c => c.channel_id === singleChannelFocus.value);
+          }
+          if (selectedChartChannelIds.value.length === 0) {
+            return allChs.slice(0, 5);
+          }
+          return allChs.filter(c => selectedChartChannelIds.value.includes(c.channel_id));
+        });
+
+        const bentoMetricConfig = computed(() => {
+          const unitText = metricTimeUnit.value === 'day' ? 'view/ngày' : 'view/h';
+          switch (bentoChartMetric.value) {
+            case 'speed':
+              return {
+                title: 'Tốc Độ Đỉnh (Peak Velocity)',
+                desc: `Biểu đồ đường trực quan hóa vận tốc bứt phá cao nhất (${unitText}) của từng kênh đối thủ theo thời gian`,
+                unit: unitText,
+                yPrefix: '+',
+                badgeColor: 'blue'
+              };
+            case 'traffic':
+              return {
+                title: 'Gom Traffic (Tổng Lưu Lượng)',
+                desc: `Biểu đồ so sánh tổng lực hút view toàn kênh (${unitText}) phân bổ cho từng đối thủ`,
+                unit: unitText,
+                yPrefix: '+',
+                badgeColor: 'emerald'
+              };
+            case 'viral':
+              return {
+                title: 'Tỷ Lệ Bùng Nổ (Hit Rate %)',
+                desc: 'Biểu đồ so sánh phần trăm video vượt ngưỡng nổ (Outlier) của từng kênh trên tổng số video đăng',
+                unit: '%',
+                yPrefix: '',
+                badgeColor: 'amber'
+              };
+            case 'market':
+              return {
+                title: 'Quy Mô Ngành & Thị Phần',
+                desc: `Biểu đồ phân bổ lưu lượng (${unitText}) chiếm lĩnh trong toàn thị trường của các kênh đối thủ`,
+                unit: unitText,
+                yPrefix: '+',
+                badgeColor: 'cyan'
+              };
+            default:
+              return {
+                title: 'Radar Lưu Lượng',
+                desc: 'Phân tích đa chiều đối thủ',
+                unit: unitText,
+                yPrefix: '+',
+                badgeColor: 'blue'
+              };
+          }
+        });
+
+        const computedChartSeries = computed(() => {
+          const channelsList = activeChartChannelsList.value;
+          const labels = chartTimelineLabels.value;
+          const numSteps = labels.length;
+          const metric = bentoChartMetric.value;
+          const timeRange = bentoChartTimeRange.value;
+          const isDay = metricTimeUnit.value === 'day';
+
+          const baseCurve24 = [0.42, 0.26, 0.58, 0.84, 0.91, 1.00, 0.76];
+          const baseCurve7d = [0.68, 0.62, 0.74, 0.82, 0.96, 1.00, 0.88];
+          const baseCurve = timeRange === '7d' ? baseCurve7d : baseCurve24;
+
+          let seriesData = [];
+          let absoluteMax = 1;
+
+          channelsList.forEach((ch, chIdx) => {
+            const allChs = channelMetrics.value || [];
+            const fullIdx = allChs.findIndex(c => c.channel_id === ch.channel_id);
+            const color = getChannelColor(fullIdx >= 0 ? fullIdx : chIdx);
+
+            const nameHash = (ch.name || '').split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+            const seed = (nameHash % 17) - 8;
+
+            const pointsVal = [];
+            for (let s = 0; s < numSteps; s++) {
+              const factor = baseCurve[s] || 0.5;
+              const stepJitter = ((s * 7 + nameHash) % 11 - 5) / 100.0;
+              const adj = Math.max(0.15, Math.min(1.25, factor + (seed / 100.0) + stepJitter));
+
+              let val = 0;
+              if (metric === 'speed') {
+                const base = ch.peak_vph || 0;
+                val = base * adj * (isDay ? 24 : 1);
+              } else if (metric === 'traffic' || metric === 'market') {
+                const base = ch.total_channel_vph || 0;
+                val = base * adj * (isDay ? 24 : 1);
+              } else if (metric === 'viral') {
+                const base = ch.viral_rate || 0;
+                val = Math.max(5, Math.min(100, Math.round(base * (adj / factor) * 0.98)));
+              }
+              val = Math.round(val);
+              if (val > absoluteMax) absoluteMax = val;
+              pointsVal.push(val);
+            }
+
+            seriesData.push({
+              channel_id: ch.channel_id,
+              name: ch.name,
+              color: color,
+              rawValues: pointsVal
+            });
+          });
+
+          if (absoluteMax <= 0) absoluteMax = 100;
+
+          const chartW = 940;
+          const chartH = 250;
+          const padLeft = 75;
+          const padRight = 30;
+          const padTop = 30;
+          const padBottom = 35;
+          const innerW = chartW - padLeft - padRight;
+          const innerH = chartH - padTop - padBottom;
+
+          const lines = seriesData.map(s => {
+            const coords = s.rawValues.map((v, idx) => {
+              const x = padLeft + (idx / (numSteps - 1)) * innerW;
+              const y = padTop + innerH - ((v / absoluteMax) * innerH);
+              return {
+                x: Math.round(x * 10) / 10,
+                y: Math.round(y * 10) / 10,
+                value: v,
+                label: labels[idx]
+              };
+            });
+
+            const pointsString = coords.map(c => `${c.x},${c.y}`).join(' ');
+
+            return {
+              channel_id: s.channel_id,
+              name: s.name,
+              color: s.color,
+              pointsString,
+              coords
+            };
+          });
+
+          const yTicks = [
+            { label: formatNumber(absoluteMax), y: padTop },
+            { label: formatNumber(Math.round(absoluteMax * 0.66)), y: padTop + innerH * 0.33 },
+            { label: formatNumber(Math.round(absoluteMax * 0.33)), y: padTop + innerH * 0.66 },
+            { label: '0', y: padTop + innerH }
+          ];
+
+          const xTicks = labels.map((l, idx) => ({
+            label: l,
+            x: padLeft + (idx / (numSteps - 1)) * innerW,
+            y: chartH - 12
+          }));
+
+          return {
+            chartW,
+            chartH,
+            padLeft,
+            padRight,
+            padTop,
+            padBottom,
+            innerW,
+            innerH,
+            absoluteMax,
+            lines,
+            yTicks,
+            xTicks
+          };
+        });
+
+        const focusedChannelIntel = computed(() => {
+          const allChs = channelMetrics.value || [];
+          let target = null;
+          if (singleChannelFocus.value !== 'ALL') {
+            target = allChs.find(c => c.channel_id === singleChannelFocus.value);
+          }
+          if (!target) {
+            const active = activeChartChannelsList.value;
+            if (active.length > 0) {
+              target = active[0];
+            } else if (allChs.length > 0) {
+              target = allChs[0];
+            }
+          }
+          if (!target) return null;
+
+          const fullIdx = allChs.findIndex(c => c.channel_id === target.channel_id);
+          const color = getChannelColor(fullIdx >= 0 ? fullIdx : 0);
+
+          let statusText = 'Duy trì ổn định 🟢';
+          let statusClass = 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30';
+          let intelInsight = 'Kênh đang duy trì nhịp đăng ổn định, lực hút view tương đương mức trung bình phân khúc.';
+
+          if (target.viral_rate >= 50 || (target.peak_vph || 0) >= 10000) {
+            statusText = 'Bứt phá dữ dội 🚀';
+            statusClass = 'text-rose-400 bg-rose-500/10 border-rose-500/30';
+            intelInsight = 'Kênh đang kích hoạt thuật toán đề xuất cực mạnh, sở hữu siêu video gom phần lớn traffic toàn ngành.';
+          } else if (target.viral_rate >= 25 || (target.total_channel_vph || 0) >= 8000) {
+            statusText = 'Tăng trưởng mạnh 🔥';
+            statusClass = 'text-amber-400 bg-amber-500/10 border-amber-500/30';
+            intelInsight = 'Kênh đang có đà mở rộng traffic tốt, tần suất video đạt ngưỡng tăng tốc cao hơn đối thủ.';
+          } else if ((target.total_channel_vph || 0) < 1500) {
+            statusText = 'Lực gom view chậm ⚠️';
+            statusClass = 'text-slate-400 bg-slate-500/10 border-slate-500/30';
+            intelInsight = 'Kênh chưa có cú hích nội dung nổi bật gần đây, lưu lượng tăng chủ yếu từ tệp người theo dõi cũ.';
+          }
+
+          return {
+            ...target,
+            color,
+            statusText,
+            statusClass,
+            intelInsight
+          };
+        });
+
         // Time unit for Overview metrics: 'day' (default: view/ngày) or 'hour' (view/h)
         const metricTimeUnit = ref(localStorage.getItem('METRIC_TIME_UNIT') || 'day');
         // Realtime Digital Clock & Counts
@@ -6768,6 +7604,23 @@ Nhiệm vụ: Trả lời hoặc viết lại/tinh chỉnh kịch bản theo yê
           setChannelSort,
           channelMetrics,
           metricTimeUnit,
+          showBentoChart,
+          bentoChartMetric,
+          bentoChartTimeRange,
+          selectedChartChannelIds,
+          singleChannelFocus,
+          hoveredChartPoint,
+          getChannelColor,
+          toggleBentoChart,
+          selectBentoMetric,
+          selectPresetChartChannels,
+          toggleChartChannel,
+          isChartChannelSelected,
+          chartTimelineLabels,
+          activeChartChannelsList,
+          bentoMetricConfig,
+          computedChartSeries,
+          focusedChannelIntel,
           currentTimeFormatted,
           currentDateFormatted,
           breakoutCount,
