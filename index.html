@@ -897,7 +897,7 @@
         <!-- Cài Đặt & Hỗ Trợ -->
         <div class="space-y-1 text-xs">
           <button 
-            @click="showAdminModal = true" 
+            @click="openAdminModal" 
             class="w-full px-3 py-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/40 transition flex items-center space-x-2.5 cursor-pointer text-left"
           >
             <i class="ph-bold ph-gear text-sm"></i>
@@ -931,7 +931,7 @@
             </div>
           </div>
           <button 
-            @click="showAdminModal = true"
+            @click="openAdminModal"
             class="w-full py-1.5 text-center text-[11px] font-bold text-blue-400 hover:text-white bg-blue-500/10 hover:bg-blue-600 rounded-xl border border-blue-500/30 transition cursor-pointer"
           >
             Nâng Cấp Plan &rarr;
@@ -1003,7 +1003,7 @@
         </nav>
       </div>
       <div class="pt-4 border-t border-slate-800 text-xs">
-        <button @click="showAdminModal = true; isSidebarOpen = false" class="w-full py-2 text-slate-400 flex items-center space-x-2">
+        <button @click="openAdminModal(); isSidebarOpen = false" class="w-full py-2 text-slate-400 flex items-center space-x-2 cursor-pointer">
           <i class="ph-bold ph-gear"></i><span>Cài Đặt</span>
         </button>
       </div>
@@ -1012,7 +1012,7 @@
     <!-- ========================================================================================= -->
     <!-- 2. RIGHT MAIN VIEWPORT (Cuộn độc lập, Header Sticky)                                     -->
     <!-- ========================================================================================= -->
-    <div class="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto bg-[#070b14] custom-scrollbar">
+    <div id="main-viewport" class="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto bg-[#070b14] custom-scrollbar">
       
       <!-- Top Navigation Bar -->
       <header class="w-full sticky top-0 z-20 flex items-center justify-between px-4 sm:px-6 lg:px-8 py-3 bg-[#0b101d]/90 backdrop-blur-xl border-b border-slate-800/80 flex-shrink-0">
@@ -1035,6 +1035,7 @@
               id="global-search-input" 
               type="text" 
               v-model="searchQuery" 
+              @keydown.enter="navigateFromSidebar('videos')"
               placeholder="Tìm kiếm video, kênh, từ khóa, chủ đề..." 
               class="w-full pl-9 pr-14 py-1.5 bg-[#0e1628] border border-slate-700/60 rounded-xl text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-blue-500 transition shadow-inner"
             >
@@ -1055,7 +1056,7 @@
 
           <!-- Quản Lý Data & Key Button -->
           <button 
-            @click="showAdminModal = true" 
+            @click="openAdminModal" 
             class="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 text-xs font-bold flex items-center gap-1.5 transition cursor-pointer"
           >
             <i class="ph-bold ph-gear text-sm text-slate-400"></i>
@@ -1082,16 +1083,16 @@
           </button>
 
           <!-- User Profile Avatar Pill -->
-          <div @click="showAdminModal = true" class="flex items-center gap-2 pl-1 sm:pl-2 cursor-pointer select-none">
-            <div class="w-8 h-8 rounded-xl overflow-hidden border border-purple-500/50 flex-shrink-0 shadow-sm bg-slate-800">
-              <img src="708426ae-e5bf-49e5-867c-3a58efd90655.png" class="w-full h-full object-cover">
+          <div @click="openAccountModal" class="flex items-center gap-2 pl-1 sm:pl-2 cursor-pointer select-none group" title="Hồ sơ cá nhân & Đổi mật khẩu">
+            <div class="w-8 h-8 rounded-xl overflow-hidden border border-purple-500/50 flex-shrink-0 shadow-sm bg-slate-800 group-hover:border-purple-400 group-hover:scale-105 transition">
+              <img :src="userAvatar || '708426ae-e5bf-49e5-867c-3a58efd90655.png'" class="w-full h-full object-cover">
             </div>
             <div class="hidden xl:block text-left">
-              <div class="text-xs font-black text-white flex items-center gap-1">
-                <span>Admin</span>
+              <div class="text-xs font-black text-white flex items-center gap-1 group-hover:text-purple-300 transition">
+                <span>{{ currentAccount?.username || 'Admin' }}</span>
                 <i class="ph-fill ph-crown text-amber-400 text-xs"></i>
               </div>
-              <div class="text-[10px] text-slate-400 font-medium">Enterprise</div>
+              <div class="text-[10px] text-slate-400 font-medium capitalize">{{ userRole === 'admin' ? 'Enterprise 👑' : 'Thành Viên' }}</div>
             </div>
           </div>
         </div>
@@ -1148,15 +1149,19 @@
               </div>
             </div>
 
-            <!-- 4 Mini KPI Metric Cards inside Hero Banner -->
+            <!-- 4 Mini KPI Metric Cards inside Hero Banner (Clickable Quick Navigation) -->
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 pt-1 relative z-10">
               <!-- KPI 1: Kênh Quét -->
-              <div class="bg-[#0e1628]/80 border border-slate-800/90 rounded-2xl p-3.5 sm:p-4 flex items-center justify-between shadow-sm">
+              <div 
+                @click="navigateFromSidebar('channels')" 
+                class="bg-[#0e1628]/80 hover:bg-[#131b2e] border border-slate-800/90 hover:border-blue-500/50 rounded-2xl p-3.5 sm:p-4 flex items-center justify-between shadow-sm cursor-pointer hover:scale-[1.02] transition duration-200 select-none group"
+                title="Bấm để xem Bảng xếp hạng Đua Top Kênh"
+              >
                 <div>
-                  <div class="w-8 h-8 rounded-xl bg-blue-500/15 text-blue-400 flex items-center justify-center text-base mb-2">
+                  <div class="w-8 h-8 rounded-xl bg-blue-500/15 text-blue-400 group-hover:scale-110 flex items-center justify-center text-base mb-2 transition">
                     <i class="ph-fill ph-users"></i>
                   </div>
-                  <div class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">KÊNH QUÉT</div>
+                  <div class="text-[10px] uppercase font-bold text-slate-400 group-hover:text-blue-300 tracking-wider transition">KÊNH QUÉT</div>
                   <div class="text-xl sm:text-2xl font-black text-white mt-0.5">{{ stats.total_channels }}</div>
                   <div class="text-[10px] text-emerald-400 font-bold mt-1">&uarr; +2 kênh</div>
                 </div>
@@ -1171,12 +1176,16 @@
               </div>
 
               <!-- KPI 2: Video Mới -->
-              <div class="bg-[#0e1628]/80 border border-slate-800/90 rounded-2xl p-3.5 sm:p-4 flex items-center justify-between shadow-sm">
+              <div 
+                @click="navigateFromSidebar('videos')" 
+                class="bg-[#0e1628]/80 hover:bg-[#131b2e] border border-slate-800/90 hover:border-purple-500/50 rounded-2xl p-3.5 sm:p-4 flex items-center justify-between shadow-sm cursor-pointer hover:scale-[1.02] transition duration-200 select-none group"
+                title="Bấm để xem toàn bộ Radar Video"
+              >
                 <div>
-                  <div class="w-8 h-8 rounded-xl bg-purple-500/15 text-purple-400 flex items-center justify-center text-base mb-2">
+                  <div class="w-8 h-8 rounded-xl bg-purple-500/15 text-purple-400 group-hover:scale-110 flex items-center justify-center text-base mb-2 transition">
                     <i class="ph-fill ph-film-strip"></i>
                   </div>
-                  <div class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">VIDEO MỚI</div>
+                  <div class="text-[10px] uppercase font-bold text-slate-400 group-hover:text-purple-300 tracking-wider transition">VIDEO MỚI</div>
                   <div class="text-xl sm:text-2xl font-black text-white mt-0.5">{{ stats.total_videos }}</div>
                   <div class="text-[10px] text-purple-400 font-bold mt-1">&uarr; +128 video</div>
                 </div>
@@ -1191,12 +1200,16 @@
               </div>
 
               <!-- KPI 3: Bão View -->
-              <div class="bg-[#0e1628]/80 border border-slate-800/90 rounded-2xl p-3.5 sm:p-4 flex items-center justify-between shadow-sm">
+              <div 
+                @click="filterTab = 'viral'; navigateFromSidebar('videos')" 
+                class="bg-[#0e1628]/80 hover:bg-[#131b2e] border border-slate-800/90 hover:border-rose-500/50 rounded-2xl p-3.5 sm:p-4 flex items-center justify-between shadow-sm cursor-pointer hover:scale-[1.02] transition duration-200 select-none group"
+                title="Bấm để lọc các video Bão View"
+              >
                 <div>
-                  <div class="w-8 h-8 rounded-xl bg-rose-500/15 text-rose-500 flex items-center justify-center text-base mb-2">
+                  <div class="w-8 h-8 rounded-xl bg-rose-500/15 text-rose-500 group-hover:scale-110 flex items-center justify-center text-base mb-2 transition">
                     <i class="ph-fill ph-fire"></i>
                   </div>
-                  <div class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">BÃO VIEW</div>
+                  <div class="text-[10px] uppercase font-bold text-slate-400 group-hover:text-rose-300 tracking-wider transition">BÃO VIEW</div>
                   <div class="text-xl sm:text-2xl font-black text-white mt-0.5">{{ stats.viral_count }}</div>
                   <div class="text-[10px] text-rose-400 font-bold mt-1">&uarr; +8 video</div>
                 </div>
@@ -1211,12 +1224,16 @@
               </div>
 
               <!-- KPI 4: Ý Tưởng Lưu -->
-              <div class="bg-[#0e1628]/80 border border-slate-800/90 rounded-2xl p-3.5 sm:p-4 flex items-center justify-between shadow-sm">
+              <div 
+                @click="navigateFromSidebar('bookmarks')" 
+                class="bg-[#0e1628]/80 hover:bg-[#131b2e] border border-slate-800/90 hover:border-amber-500/50 rounded-2xl p-3.5 sm:p-4 flex items-center justify-between shadow-sm cursor-pointer hover:scale-[1.02] transition duration-200 select-none group"
+                title="Bấm để mở Kho Ý Tưởng đã lưu"
+              >
                 <div>
-                  <div class="w-8 h-8 rounded-xl bg-amber-500/15 text-amber-400 flex items-center justify-center text-base mb-2">
+                  <div class="w-8 h-8 rounded-xl bg-amber-500/15 text-amber-400 group-hover:scale-110 flex items-center justify-center text-base mb-2 transition">
                     <i class="ph-fill ph-bookmark-simple"></i>
                   </div>
-                  <div class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Ý TƯỞNG LƯU</div>
+                  <div class="text-[10px] uppercase font-bold text-slate-400 group-hover:text-amber-300 tracking-wider transition">Ý TƯỞNG LƯU</div>
                   <div class="text-xl sm:text-2xl font-black text-white mt-0.5">{{ savedIdeaIds.length }}</div>
                   <div class="text-[10px] text-amber-400 font-bold mt-1">&uarr; +12 ý tưởng</div>
                 </div>
@@ -1416,13 +1433,16 @@
                       {{ idx + 1 }}
                     </div>
 
-                    <!-- 16:9 Thumbnail with timestamp -->
-                    <div class="relative w-16 sm:w-20 aspect-video rounded-xl overflow-hidden flex-shrink-0 bg-slate-900 shadow-sm">
-                      <img :src="v.thumbnail" :alt="v.title" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                    <!-- 16:9 Thumbnail with timestamp & YouTube Play Link -->
+                    <a :href="v.url" target="_blank" class="relative w-16 sm:w-20 aspect-video rounded-xl overflow-hidden flex-shrink-0 bg-slate-900 shadow-sm cursor-pointer group/thumb" :title="'Xem trên YouTube: ' + v.title">
+                      <img :src="v.thumbnail" :alt="v.title" class="w-full h-full object-cover group-hover/thumb:scale-110 transition duration-300">
+                      <div class="absolute inset-0 bg-black/30 opacity-0 group-hover/thumb:opacity-100 flex items-center justify-center transition">
+                        <i class="ph-fill ph-play text-white text-xs"></i>
+                      </div>
                       <span class="absolute bottom-1 right-1 px-1 py-0.2 rounded bg-black/80 text-[9px] font-mono text-slate-300">
                         12:34
                       </span>
-                    </div>
+                    </a>
 
                     <!-- Video Details -->
                     <div class="flex-1 min-w-0">
@@ -1509,13 +1529,13 @@
                     </div>
 
                     <!-- Channel Avatar Logo -->
-                    <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-xs font-black text-white flex-shrink-0 shadow-sm overflow-hidden">
+                    <div @click="viewChannelVideos(ch.channel_id)" class="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-xs font-black text-white flex-shrink-0 shadow-sm overflow-hidden cursor-pointer hover:scale-105 transition" :title="'Xem video kênh: ' + ch.name">
                       <span>{{ (ch.name || 'K')[0] }}</span>
                     </div>
 
                     <!-- Channel Info -->
-                    <div class="flex-1 min-w-0">
-                      <div class="text-xs font-black text-white truncate" :title="ch.name">{{ ch.name }}</div>
+                    <div @click="viewChannelVideos(ch.channel_id)" class="flex-1 min-w-0 cursor-pointer" :title="'Xem video kênh: ' + ch.name">
+                      <div class="text-xs font-black text-white hover:text-blue-400 transition truncate">{{ ch.name }}</div>
                       <div class="text-[10px] text-slate-400 truncate">{{ ch.handle }}</div>
                       <div class="flex items-center gap-2 mt-0.5 text-[10px]">
                         <span class="font-black text-blue-400">
@@ -1526,16 +1546,18 @@
                       </div>
                     </div>
 
-                    <!-- 3 Mini Video Thumbnails Preview -->
+                    <!-- 3 Mini Video Thumbnails Preview (Clickable to open YouTube) -->
                     <div class="hidden sm:flex items-center gap-1.5 flex-shrink-0">
-                      <div 
+                      <a 
                         v-for="(mv, mIdx) in (ch.videos || []).slice(0, 3)" 
                         :key="'thumb-' + mIdx"
-                        class="w-11 h-7 rounded-lg overflow-hidden bg-slate-800 border border-slate-700/60 flex-shrink-0"
-                        :title="mv.title"
+                        :href="mv.url"
+                        target="_blank"
+                        class="w-11 h-7 rounded-lg overflow-hidden bg-slate-800 border border-slate-700/60 hover:border-blue-400 hover:scale-110 transition flex-shrink-0 cursor-pointer block"
+                        :title="'Mở video: ' + mv.title"
                       >
                         <img :src="mv.thumbnail" :alt="mv.title" class="w-full h-full object-cover">
-                      </div>
+                      </a>
                     </div>
 
                     <!-- Action Button -->
@@ -1656,9 +1678,12 @@
                 :key="'ov-grid-' + v.video_id"
                 class="bg-[#0e1628] hover:bg-[#131b2e] border border-slate-800 hover:border-blue-500/40 rounded-2xl overflow-hidden shadow-sm transition-all duration-300 flex flex-col justify-between group"
               >
-                <!-- Thumbnail with Outlier badge & Speed badge -->
-                <div class="relative aspect-video w-full overflow-hidden bg-slate-900">
-                  <img :src="v.thumbnail" :alt="v.title" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                <!-- Thumbnail with Outlier badge & Speed badge (Click to play) -->
+                <a :href="v.url" target="_blank" class="block relative aspect-video w-full overflow-hidden bg-slate-900 cursor-pointer group/thumb" :title="'Xem trên YouTube: ' + v.title">
+                  <img :src="v.thumbnail" :alt="v.title" class="w-full h-full object-cover group-hover/thumb:scale-110 transition duration-300">
+                  <div class="absolute inset-0 bg-black/30 opacity-0 group-hover/thumb:opacity-100 flex items-center justify-center transition">
+                    <i class="ph-fill ph-play text-white text-base"></i>
+                  </div>
                   
                   <!-- Top Left: Outlier Badge -->
                   <div class="absolute top-1.5 left-1.5">
@@ -1682,7 +1707,7 @@
                   <div class="absolute bottom-1 right-1 px-1 rounded bg-black/80 text-[9px] font-mono text-slate-300">
                     12:34
                   </div>
-                </div>
+                </a>
 
                 <!-- Info -->
                 <div class="p-2.5 flex-1 flex flex-col justify-between">
@@ -5470,6 +5495,15 @@
           }
         };
 
+        const scrollToMainTop = () => {
+          const vp = document.getElementById('main-viewport');
+          if (vp) {
+            vp.scrollTo({ top: 0, behavior: 'smooth' });
+          } else {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }
+        };
+
         const navigateFromSidebar = (item) => {
           isSidebarOpen.value = false;
 
@@ -5481,21 +5515,12 @@
           sidebarActiveItem.value = item;
           currentView.value = item;
           
-          if (item === 'overview') {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-          } else if (item === 'videos') {
+          if (item === 'videos') {
             filterTab.value = 'all';
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-          } else if (item === 'channels') {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-          } else if (item === 'trends') {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
           } else if (item === 'ai') {
             filterTab.value = 'ai';
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-          } else if (item === 'bookmarks') {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
           }
+          scrollToMainTop();
         };
 
         // Theme State (Dark / Light)
@@ -5988,7 +6013,7 @@
           currentView.value = 'videos';
           activeMainTab.value = 'videos';
           filterTab.value = 'all';
-          window.scrollTo({ top: 0, behavior: 'smooth' });
+          scrollToMainTop();
         };
 
         const resetFilters = () => {
