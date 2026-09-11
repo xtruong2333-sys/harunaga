@@ -1,12 +1,5 @@
 [
   {
-    "name": "Clever Home Hacks",
-    "handle_or_url": "https://www.youtube.com/channel/UCt57xJRXiQX9Tms_eZt_ijQ",
-    "min_views_per_hour": 5000,
-    "is_custom": true,
-    "added_at": "2026-09-11T09:54:34.413Z"
-  },
-  {
     "name": "DIY WELD",
     "handle_or_url": "@Diywelder-e8t",
     "min_views_per_hour": 5000
@@ -239,11 +232,6 @@
   {
     "name": "Creative inventions LMTN",
     "handle_or_url": "@lmtn",
-    "min_views_per_hour": 5000
-  },
-  {
-    "name": "Clever Home Hacks",
-    "handle_or_url": "https://www.youtube.com/channel/UCt57xJRXiQX9Tms_eZt_ijQ",
     "min_views_per_hour": 5000
   }
 ]
