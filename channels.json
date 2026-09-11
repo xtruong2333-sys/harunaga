@@ -233,5 +233,10 @@
     "name": "Creative inventions LMTN",
     "handle_or_url": "@lmtn",
     "min_views_per_hour": 5000
+  },
+  {
+    "name": "Clever Home Hacks",
+    "handle_or_url": "https://www.youtube.com/channel/UCt57xJRXiQX9Tms_eZt_ijQ",
+    "min_views_per_hour": 5000
   }
 ]
