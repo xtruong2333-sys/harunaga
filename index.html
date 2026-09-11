@@ -1096,7 +1096,7 @@
           </button>
 
           <!-- User Profile Avatar Pill -->
-          <div @click="openAccountModal" class="flex items-center gap-2 pl-1 sm:pl-2 cursor-pointer select-none group" title="Hồ sơ cá nhân & Đổi mật khẩu">
+          <div id="header-avatar-btn" @click.stop="openAccountModal" class="flex items-center gap-2 pl-1 sm:pl-2 cursor-pointer select-none group" title="Hồ sơ cá nhân & Đổi mật khẩu">
             <div class="w-8 h-8 rounded-xl overflow-hidden border border-purple-500/50 flex-shrink-0 shadow-sm bg-slate-800 group-hover:border-purple-400 group-hover:scale-105 transition">
               <img :src="userAvatar || '708426ae-e5bf-49e5-867c-3a58efd90655.png'" class="w-full h-full object-cover">
             </div>
@@ -6653,15 +6653,6 @@ Nhiệm vụ: Trả lời hoặc viết lại/tinh chỉnh kịch bản theo yê
             const container = document.getElementById('brand-nav-menu-container');
             if (container && !container.contains(e.target)) {
               isNavMenuOpen.value = false;
-            }
-
-            // Đóng Panel Hồ Sơ Cá Nhân khi click ra ngoài (Không cần backdrop che màn hình)
-            const accountPanel = document.getElementById('account-flyout-panel');
-            const avatarBtn = document.getElementById('header-avatar-btn');
-            if (showAccountModal.value && accountPanel) {
-              if (!accountPanel.contains(e.target) && !avatarBtn?.contains(e.target)) {
-                showAccountModal.value = false;
-              }
             }
           });
         });
