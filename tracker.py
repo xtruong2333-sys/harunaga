@@ -161,6 +161,20 @@ def fetch_channel_videos(channel_id: str) -> list[dict]:
         print(f"❌ Lỗi tải RSS cho channel_id '{channel_id}': {e}")
         return []
 
+def calculate_channel_median(views_list: list[int]) -> int:
+    """Tính lượt xem trung vị (Median) của kênh để làm mốc so sánh đột biến."""
+    if not views_list:
+        return 1000
+    sorted_views = sorted([v for v in views_list if v > 0] or views_list)
+    n = len(sorted_views)
+    if n == 0:
+        return 1000
+    mid = n // 2
+    if n % 2 == 1:
+        return sorted_views[mid]
+    else:
+        return int((sorted_views[mid - 1] + sorted_views[mid]) / 2)
+
 def format_time_ago(hours: float) -> str:
     if hours < 1:
         minutes = max(1, int(hours * 60))
@@ -218,6 +232,11 @@ def run():
         raw_videos = fetch_channel_videos(channel_id)
         print(f"   -> Lấy được {len(raw_videos)} video mới nhất.")
 
+        # Tính toán Baseline Median của kênh để đo Outlier Multiplier
+        channel_views = [v["views"] for v in raw_videos]
+        channel_median = calculate_channel_median(channel_views)
+        channel_avg_vph = max(100, int(sum(channel_views) / max(1, len(channel_views)) / 48))
+
         processed_videos = []
         for v in raw_videos:
             vid = v["video_id"]
@@ -247,12 +266,34 @@ def run():
             else:
                 hourly_delta_vph = lifetime_vph
 
-            # Lấy tốc độ lớn nhất giữa 2 cách đo
             effective_vph = max(lifetime_vph, hourly_delta_vph)
-            is_viral = (effective_vph >= threshold)
 
-            # Chỉ cảnh báo các video đăng trong vòng 7 ngày gần đây
+            # 3. Thuật toán Outlier Multiplier (Hệ số đột biến chuẩn 1of10)
+            outlier_score = round(views / max(100, channel_median), 1)
+
+            # 4. Phân cấp bậc đột biến (Viral Tier)
+            if outlier_score >= 10.0:
+                viral_tier = "breakout" # 👑 Siêu bão đột biến
+            elif outlier_score >= 3.0:
+                viral_tier = "viral"    # 🔥 Đột biến mạnh
+            elif outlier_score >= 1.5:
+                viral_tier = "rising"   # ⚡ Đang lên
+            elif outlier_score >= 0.8:
+                viral_tier = "normal"   # ⚪ Bình thường
+            else:
+                viral_tier = "under"    # 💤 Dưới trung bình
+
+            # 5. Điểm động lực xu hướng Momentum Score (0 - 100)
+            score_outlier = min(40, int(round(outlier_score * 4)))
+            v_ratio = effective_vph / max(100, channel_avg_vph)
+            score_velocity = min(40, int(round(v_ratio * 10)))
+            recency_factor = max(0.0, 1.0 - (hours_since_pub / 168.0))
+            score_recency = int(round(20 * recency_factor))
+            momentum_score = min(100, max(0, score_outlier + score_velocity + score_recency))
+
+            # Tiêu chí báo nổ chuẩn: Đột biến >= 3x HOẶC VPH >= Threshold (trong vòng 7 ngày)
             is_recent = (hours_since_pub <= 168)
+            is_viral = is_recent and (outlier_score >= 3.0 or effective_vph >= threshold)
 
             v_entry = {
                 "video_id": vid,
@@ -266,6 +307,10 @@ def run():
                 "lifetime_vph": lifetime_vph,
                 "hourly_delta_vph": hourly_delta_vph,
                 "effective_vph": effective_vph,
+                "channel_median": channel_median,
+                "outlier_score": outlier_score,
+                "momentum_score": momentum_score,
+                "viral_tier": viral_tier,
                 "is_viral": is_viral
             }
 
@@ -322,6 +367,7 @@ def run():
             "handle_or_url": handle_or_url,
             "channel_id": channel_id,
             "threshold": threshold,
+            "channel_median": channel_median,
             "videos": processed_videos
         })
 
