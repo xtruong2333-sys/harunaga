@@ -1450,7 +1450,7 @@
                 </div>
                 <div>
                   <h3 class="text-sm sm:text-base font-black text-slate-900 dark:text-white">Top 5 Siêu Video Tăng Tốc Đột Biến</h3>
-                  <p class="text-[11px] text-slate-500 dark:text-slate-400">{{ metricTimeUnit === 'day' ? 'Vận tốc View/ngày đo được cao nhất hiện tại' : 'Vận tốc View/h đo được cao nhất hiện tại' }}</p>
+                  <p class="text-[11px] text-slate-500 dark:text-slate-400">{{ metricTimeUnit === 'day' ? 'Vận tốc View/ngày & Hệ số vượt TB kênh (Chuẩn vidIQ Outlier)' : 'Vận tốc View/h & Hệ số vượt TB kênh (Chuẩn vidIQ Outlier)' }}</p>
                 </div>
               </div>
               <span class="text-[10px] font-black px-2.5 py-1 rounded-full bg-rose-500/10 text-rose-500 border border-rose-500/20 flex items-center gap-1">
@@ -1488,13 +1488,30 @@
                   <a :href="v.url" target="_blank" class="text-xs font-bold text-slate-900 dark:text-slate-100 hover:text-purple-600 dark:hover:text-purple-400 line-clamp-1 mt-0.5" :title="v.title">
                     {{ v.title }}
                   </a>
-                  <div class="flex items-center gap-2 mt-1 text-[11px]">
-                    <span class="font-black text-rose-600 dark:text-rose-400 flex items-center">
+                  <div class="flex items-center flex-wrap gap-x-2 gap-y-1 mt-1 text-[11px]">
+                    <span class="font-black text-rose-600 dark:text-rose-400 flex items-center whitespace-nowrap">
                       <i class="ph-fill ph-trend-up text-rose-500 mr-1"></i>
                       +{{ formatNumber(metricTimeUnit === 'day' ? (v.effective_vph * 24) : v.effective_vph) }}{{ metricTimeUnit === 'day' ? '/ngày' : '/h' }}
                     </span>
-                    <span class="text-slate-400">•</span>
-                    <span class="text-slate-500 dark:text-slate-400">{{ formatNumber(v.views) }} view</span>
+                    <span class="text-slate-300 dark:text-slate-700">•</span>
+                    <span class="text-slate-600 dark:text-slate-300 font-semibold whitespace-nowrap">{{ formatNumber(v.views) }} view</span>
+                    <span class="text-slate-300 dark:text-slate-700">•</span>
+                    <!-- vidIQ Outlier Multiplier vs TB Kênh -->
+                    <span 
+                      class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black whitespace-nowrap"
+                      :class="(v.outlier_score || 0) >= 10 
+                        ? 'bg-amber-400/20 text-amber-600 dark:text-amber-300 border border-amber-400/40 shadow-xs' 
+                        : ((v.outlier_score || 0) >= 3 
+                          ? 'bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/30' 
+                          : 'bg-purple-500/15 text-purple-600 dark:text-purple-400 border border-purple-500/30')"
+                      :title="'Hệ số vidIQ: Video này gấp ' + (v.outlier_score || 1) + ' lần mức trung bình của kênh (' + formatNumber(v.channel_median) + ' view)'"
+                    >
+                      <span>{{ (v.outlier_score || 0) >= 10 ? '👑' : ((v.outlier_score || 0) >= 3 ? '🔥' : '⚡') }}</span>
+                      <span>x{{ v.outlier_score }} vs TB kênh</span>
+                    </span>
+                    <span class="text-[10px] text-slate-400 dark:text-slate-500 whitespace-nowrap">
+                      (TB: <strong class="text-slate-600 dark:text-slate-400 font-mono">{{ formatNumber(v.channel_median) }}</strong>)
+                    </span>
                   </div>
                 </div>
 
@@ -1923,7 +1940,8 @@
                   </span>
                 </div>
                 <div class="text-[10px] text-slate-400 truncate text-right">
-                  Mức kênh: <strong class="text-slate-700 dark:text-slate-300 font-mono">{{ formatNumber(v.channel_median || 1000) }}</strong>
+                  TB kênh (vidIQ): <strong class="text-slate-700 dark:text-slate-300 font-mono">{{ formatNumber(v.channel_median || 1000) }}</strong>
+                  <span class="ml-1 text-rose-500 font-bold">(x{{ v.outlier_score || 1 }})</span>
                 </div>
               </div>
             </div>
@@ -2349,7 +2367,20 @@
 
               <div class="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs">
                 <span class="text-slate-500 font-medium">Lượt xem: <strong class="text-slate-900 dark:text-slate-200">{{ formatNumber(v.views) }}</strong></span>
-                <span class="font-black text-rose-600 dark:text-rose-400">+{{ formatNumber(v.effective_vph) }}/h</span>
+                <span class="font-black text-rose-600 dark:text-rose-400">
+                  +{{ formatNumber(metricTimeUnit === 'day' ? (v.effective_vph * 24) : v.effective_vph) }}{{ metricTimeUnit === 'day' ? '/ngày' : '/h' }}
+                </span>
+              </div>
+              <div class="mt-1.5 flex items-center justify-between text-[11px]">
+                <span 
+                  class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-black"
+                  :class="(v.outlier_score || 0) >= 10 ? 'bg-amber-400/20 text-amber-600 dark:text-amber-300' : 'bg-rose-500/15 text-rose-600 dark:text-rose-400'"
+                >
+                  {{ (v.outlier_score || 0) >= 10 ? '👑' : '🔥' }} x{{ v.outlier_score }} vs TB kênh
+                </span>
+                <span class="text-[10px] text-slate-400">
+                  TB: <strong class="text-slate-600 dark:text-slate-400 font-mono">{{ formatNumber(v.channel_median) }}</strong>
+                </span>
               </div>
             </div>
           </div>
