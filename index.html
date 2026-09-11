@@ -1613,7 +1613,9 @@
                 v-model="sortBy" 
                 class="bg-transparent text-xs sm:text-sm text-slate-800 dark:text-slate-200 font-bold focus:outline-none cursor-pointer pr-1"
               >
-                <option value="vph">🔥 Tốc độ view/h</option>
+                <option value="momentum">🚀 Điểm Xu Hướng (0-100)</option>
+                <option value="outlier">👑 Hệ Số Đột Biến (x Lần)</option>
+                <option value="vph">⚡ Tốc độ view/h</option>
                 <option value="views">👀 Tổng lượt xem</option>
                 <option value="newest">⏱ Thời gian đăng</option>
               </select>
@@ -1648,6 +1650,25 @@
             >
               <span>Tất cả video</span>
               <span class="text-[10px] px-1.5 py-0.2 rounded-full" :class="filterTab === 'all' ? 'bg-white/20' : 'bg-slate-200 dark:bg-slate-800'">{{ allVideos.length }}</span>
+            </button>
+
+            <button 
+              @click="filterTab = 'outliers'"
+              :class="filterTab === 'outliers' ? 'bg-gradient-to-r from-amber-500 via-rose-600 to-purple-600 text-white font-black shadow-md' : 'bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'"
+              class="px-3 py-1.5 rounded-xl transition flex items-center space-x-1 cursor-pointer whitespace-nowrap"
+              title="Video có view vượt trội gấp 3 lần trở lên so với mức trung bình của kênh"
+            >
+              <span>👑 Đột Biến x3+</span>
+              <span class="text-[10px] px-1.5 py-0.2 rounded-full" :class="filterTab === 'outliers' ? 'bg-white/25 text-white font-black' : 'bg-amber-500/10 text-amber-500 font-bold'">{{ outlierVideosCount }}</span>
+            </button>
+
+            <button 
+              @click="filterTab = 'momentum'"
+              :class="filterTab === 'momentum' ? 'bg-emerald-600 text-white font-black shadow-md' : 'bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'"
+              class="px-3 py-1.5 rounded-xl transition flex items-center space-x-1 cursor-pointer whitespace-nowrap"
+              title="Video có Điểm Động Lực Xu Hướng cao từ 70-100 điểm"
+            >
+              <span>🚀 Xu Hướng 70đ+</span>
             </button>
 
             <button 
@@ -1733,6 +1754,31 @@
                 </div>
               </a>
 
+              <!-- Top Left: Outlier Multiplier Badge (Chuẩn 1of10) -->
+              <div class="absolute top-2.5 left-2.5 flex items-center gap-1 z-10 pointer-events-none">
+                <div 
+                  v-if="(v.outlier_score || 0) >= 10" 
+                  class="flex items-center space-x-1 bg-gradient-to-r from-amber-500 via-rose-500 to-purple-600 text-white font-black text-[10px] px-2 py-0.5 rounded-full shadow-lg border border-amber-300/40 ring-1 ring-amber-400/40 whitespace-nowrap"
+                  :title="'Siêu bão đột biến gấp ' + v.outlier_score + ' lần mức trung vị kênh'"
+                >
+                  <span>👑 x{{ v.outlier_score }} Breakout</span>
+                </div>
+                <div 
+                  v-else-if="(v.outlier_score || 0) >= 3" 
+                  class="flex items-center space-x-1 bg-gradient-to-r from-rose-600 to-orange-500 text-white font-black text-[10px] px-2 py-0.5 rounded-full shadow-md border border-rose-400/30 whitespace-nowrap"
+                  :title="'Đột biến mạnh gấp ' + v.outlier_score + ' lần mức trung vị kênh'"
+                >
+                  <span>🔥 x{{ v.outlier_score }} Outlier</span>
+                </div>
+                <div 
+                  v-else-if="(v.outlier_score || 0) >= 1.5" 
+                  class="flex items-center space-x-1 bg-cyan-950/90 text-cyan-300 font-bold text-[10px] px-1.5 py-0.5 rounded-full border border-cyan-500/40 whitespace-nowrap"
+                  :title="'Tăng trưởng tốt hơn ' + v.outlier_score + ' lần mức trung vị kênh'"
+                >
+                  <span>⚡ x{{ v.outlier_score }} Rising</span>
+                </div>
+              </div>
+
               <!-- Top Right: Velocity Pill Badge -->
               <div class="absolute top-2.5 right-2.5 flex-shrink-0 pointer-events-none">
                 <div 
@@ -1801,6 +1847,27 @@
                     <i v-if="v.is_viral" class="ph-fill ph-trend-up text-rose-500 mr-1 flex-shrink-0"></i>
                     +{{ formatNumber(v.effective_vph) }}/h
                   </span>
+                </div>
+              </div>
+
+              <!-- Row 2: Điểm Động Lực Xu Hướng (Momentum) & Mức Kênh (Channel Median) -->
+              <div class="mt-2 pt-2 border-t border-dashed border-slate-200 dark:border-slate-800/70 flex items-center justify-between text-[11px]">
+                <div class="flex items-center space-x-1">
+                  <span class="text-slate-400 text-[10px]">Xu hướng:</span>
+                  <span 
+                    class="px-2 py-0.5 rounded-full text-[10px] font-black tracking-wide" 
+                    :class="(v.momentum_score || 0) >= 80 
+                      ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 shadow-sm' 
+                      : ((v.momentum_score || 0) >= 60 
+                        ? 'bg-amber-500/20 text-amber-400 border border-amber-500/40' 
+                        : 'bg-slate-800 text-slate-400 border border-slate-700')"
+                    :title="'Điểm động lực xu hướng kết hợp tốc độ, độ đột biến và tuổi video: ' + (v.momentum_score || 0) + '/100'"
+                  >
+                    🚀 {{ v.momentum_score || 0 }}đ
+                  </span>
+                </div>
+                <div class="text-[10px] text-slate-400 truncate text-right">
+                  Mức kênh: <strong class="text-slate-700 dark:text-slate-300 font-mono">{{ formatNumber(v.channel_median || 1000) }}</strong>
                 </div>
               </div>
             </div>
@@ -5369,7 +5436,9 @@
 
         const sortLabel = computed(() => {
           let label = '';
-          if (sortBy.value === 'vph') label = 'Tốc độ view/h';
+          if (sortBy.value === 'momentum') label = 'Điểm xu hướng (0-100)';
+          else if (sortBy.value === 'outlier') label = 'Hệ số đột biến (x lần)';
+          else if (sortBy.value === 'vph') label = 'Tốc độ view/h';
           else if (sortBy.value === 'views') label = 'Tổng lượt xem';
           else if (sortBy.value === 'newest') label = 'Thời gian đăng';
 
@@ -5402,11 +5471,38 @@
 
             const flatVideos = [];
             (data.channels || []).forEach(ch => {
+              const chMedian = ch.channel_median || 1000;
               (ch.videos || []).forEach(v => {
+                const views = v.views || 0;
+                const outlier = v.outlier_score !== undefined ? v.outlier_score : Math.round((views / Math.max(100, chMedian)) * 10) / 10;
+                const hours = v.hours_since_pub || 24;
+                const vph = v.effective_vph || 0;
+                
+                let tier = v.viral_tier;
+                if (!tier) {
+                  if (outlier >= 10.0) tier = 'breakout';
+                  else if (outlier >= 3.0) tier = 'viral';
+                  else if (outlier >= 1.5) tier = 'rising';
+                  else if (outlier >= 0.8) tier = 'normal';
+                  else tier = 'under';
+                }
+
+                let momentum = v.momentum_score;
+                if (momentum === undefined) {
+                  const sOutlier = Math.min(40, Math.round(outlier * 4));
+                  const sVel = Math.min(40, Math.round((vph / 500) * 10));
+                  const sRec = Math.round(20 * Math.max(0, 1 - (hours / 168)));
+                  momentum = Math.min(100, Math.max(0, sOutlier + sVel + sRec));
+                }
+
                 flatVideos.push({
                   ...v,
                   channel_name: ch.name,
-                  channel_id: ch.channel_id
+                  channel_id: ch.channel_id,
+                  channel_median: chMedian,
+                  outlier_score: outlier,
+                  momentum_score: momentum,
+                  viral_tier: tier
                 });
               });
             });
@@ -5434,6 +5530,10 @@
 
           if (filterTab.value === 'viral') {
             list = list.filter(v => v.is_viral);
+          } else if (filterTab.value === 'outliers') {
+            list = list.filter(v => (v.outlier_score || 0) >= 3.0);
+          } else if (filterTab.value === 'momentum') {
+            list = list.filter(v => (v.momentum_score || 0) >= 70);
           } else if (filterTab.value === 'high_speed') {
             list = list.filter(v => (v.effective_vph || 0) >= 1000);
           } else if (filterTab.value === 'ai') {
@@ -5447,7 +5547,11 @@
 
           list.sort((a, b) => {
             let diff = 0;
-            if (sortBy.value === 'vph') {
+            if (sortBy.value === 'momentum') {
+              diff = (b.momentum_score || 0) - (a.momentum_score || 0) || (b.effective_vph || 0) - (a.effective_vph || 0);
+            } else if (sortBy.value === 'outlier') {
+              diff = (b.outlier_score || 0) - (a.outlier_score || 0) || (b.views || 0) - (a.views || 0);
+            } else if (sortBy.value === 'vph') {
               diff = (b.effective_vph || 0) - (a.effective_vph || 0);
             } else if (sortBy.value === 'views') {
               diff = (b.views || 0) - (a.views || 0);
@@ -5461,10 +5565,22 @@
           return list;
         });
 
-        // Top 15 Trending Videos by View/h (Mục 4: Xu hướng)
+        // Tổng số video đột biến Outlier x3+
+        const outlierVideosCount = computed(() => {
+          return allVideos.value.filter(v => (v.outlier_score || 0) >= 3.0).length;
+        });
+
+        // Top 15 Trending Videos by Momentum & View/h (Mục 4: Xu hướng)
         const top15TrendingVideos = computed(() => {
           return [...allVideos.value]
-            .sort((a, b) => (b.effective_vph || 0) - (a.effective_vph || 0))
+            .sort((a, b) => (b.momentum_score || 0) - (a.momentum_score || 0) || (b.effective_vph || 0) - (a.effective_vph || 0))
+            .slice(0, 15);
+        });
+
+        // Top 15 Video Đột Biến Cao Nhất (Outliers)
+        const top15OutlierVideos = computed(() => {
+          return [...allVideos.value]
+            .sort((a, b) => (b.outlier_score || 0) - (a.outlier_score || 0))
             .slice(0, 15);
         });
 
@@ -6371,6 +6487,8 @@ Nhiệm vụ: Trả lời hoặc viết lại/tinh chỉnh kịch bản theo yê
           isSaved,
           toggleSaveIdea,
           clearAllSavedIdeas,
+          outlierVideosCount,
+          top15OutlierVideos,
           top15TrendingVideos,
           top5FastestVideos,
           top5TrafficChannels,
