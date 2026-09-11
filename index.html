@@ -1353,9 +1353,18 @@
                   <p class="text-[11px] text-slate-400 mt-1">
                     {{ topSpeedChannel ? topSpeedChannel.name : 'Video chạy nhanh nhất hiện tại' }}
                   </p>
-                  <div class="mt-1 flex items-center space-x-1 text-[10px] text-blue-500 font-semibold group-hover:underline">
-                    <span>{{ showBentoChart && bentoChartMetric === 'speed' ? 'Bấm để đóng biểu đồ' : 'Bấm mở biểu đồ tốc độ' }}</span>
-                    <i class="ph-bold ph-caret-right"></i>
+                  <div class="mt-2 flex items-center space-x-3 text-[11px]">
+                    <span class="text-blue-500 font-semibold group-hover:underline flex items-center space-x-0.5">
+                      <span>{{ showBentoChart && bentoChartMetric === 'speed' ? 'Thu gọn' : 'Soi biểu đồ' }}</span>
+                      <i class="ph-bold ph-caret-right"></i>
+                    </span>
+                    <button 
+                      type="button"
+                      @click.stop="topSpeedChannel && viewChannelVideos(topSpeedChannel.channel_id)"
+                      class="text-slate-400 hover:text-blue-400 underline decoration-slate-600 hover:decoration-blue-400 cursor-pointer"
+                    >
+                      Xem video ↗
+                    </button>
                   </div>
                 </div>
                 <!-- Mini Vertical Bars (Blue) -->
@@ -1400,9 +1409,18 @@
                   <p class="text-[11px] text-slate-400 mt-1">
                     {{ topInflowChannel ? topInflowChannel.name : 'Hút nhiều lượt xem nhất cả kênh' }}
                   </p>
-                  <div class="mt-1 flex items-center space-x-1 text-[10px] text-emerald-500 font-semibold group-hover:underline">
-                    <span>{{ showBentoChart && bentoChartMetric === 'traffic' ? 'Bấm để đóng biểu đồ' : 'Bấm mở biểu đồ traffic' }}</span>
-                    <i class="ph-bold ph-caret-right"></i>
+                  <div class="mt-2 flex items-center space-x-3 text-[11px]">
+                    <span class="text-emerald-500 font-semibold group-hover:underline flex items-center space-x-0.5">
+                      <span>{{ showBentoChart && bentoChartMetric === 'traffic' ? 'Thu gọn' : 'Soi biểu đồ' }}</span>
+                      <i class="ph-bold ph-caret-right"></i>
+                    </span>
+                    <button 
+                      type="button"
+                      @click.stop="topInflowChannel && viewChannelVideos(topInflowChannel.channel_id)"
+                      class="text-slate-400 hover:text-emerald-400 underline decoration-slate-600 hover:decoration-emerald-400 cursor-pointer"
+                    >
+                      Xem video ↗
+                    </button>
                   </div>
                 </div>
                 <!-- Mini Vertical Bars (Emerald) -->
@@ -1446,9 +1464,18 @@
                   <p class="text-[11px] text-slate-400 mt-1">
                     {{ topHitRateChannel ? topHitRateChannel.name : 'Tỷ lệ video nổ cao nhất' }}
                   </p>
-                  <div class="mt-1 flex items-center space-x-1 text-[10px] text-amber-500 font-semibold group-hover:underline">
-                    <span>{{ showBentoChart && bentoChartMetric === 'viral' ? 'Bấm để đóng biểu đồ' : 'Bấm mở biểu đồ bùng nổ' }}</span>
-                    <i class="ph-bold ph-caret-right"></i>
+                  <div class="mt-2 flex items-center space-x-3 text-[11px]">
+                    <span class="text-amber-500 font-semibold group-hover:underline flex items-center space-x-0.5">
+                      <span>{{ showBentoChart && bentoChartMetric === 'viral' ? 'Thu gọn' : 'Soi biểu đồ' }}</span>
+                      <i class="ph-bold ph-caret-right"></i>
+                    </span>
+                    <button 
+                      type="button"
+                      @click.stop="topHitRateChannel && viewChannelVideos(topHitRateChannel.channel_id)"
+                      class="text-slate-400 hover:text-amber-400 underline decoration-slate-600 hover:decoration-amber-400 cursor-pointer"
+                    >
+                      Xem video ↗
+                    </button>
                   </div>
                 </div>
                 <!-- Mini Vertical Bars (Amber) -->
@@ -1491,9 +1518,18 @@
                     <span class="text-xs text-slate-400 font-medium">{{ metricTimeUnit === 'day' ? 'view/ngày' : 'view/h' }}</span>
                   </div>
                   <p class="text-[11px] text-slate-400 mt-1">Tổng lưu lượng {{ stats.total_channels }} kênh đối thủ</p>
-                  <div class="mt-1 flex items-center space-x-1 text-[10px] text-cyan-500 font-semibold group-hover:underline">
-                    <span>{{ showBentoChart && bentoChartMetric === 'market' ? 'Bấm để đóng biểu đồ' : 'Bấm mở biểu đồ quy mô' }}</span>
-                    <i class="ph-bold ph-caret-right"></i>
+                  <div class="mt-2 flex items-center space-x-3 text-[11px]">
+                    <span class="text-cyan-500 font-semibold group-hover:underline flex items-center space-x-0.5">
+                      <span>{{ showBentoChart && bentoChartMetric === 'market' ? 'Thu gọn' : 'Soi biểu đồ' }}</span>
+                      <i class="ph-bold ph-caret-right"></i>
+                    </span>
+                    <button 
+                      type="button"
+                      @click.stop="navigateFromSidebar('videos')"
+                      class="text-slate-400 hover:text-cyan-400 underline decoration-slate-600 hover:decoration-cyan-400 cursor-pointer"
+                    >
+                      Tất cả video ↗
+                    </button>
                   </div>
                 </div>
                 <!-- Mini Vertical Bars (Cyan) -->
@@ -6247,323 +6283,6 @@
           }
         };
 
-        
-        // ==========================================
-        // BENTO MULTI-CHANNEL RADAR CHART STATE & METHODS
-        // ==========================================
-        const showBentoChart = ref(false);
-        const bentoChartMetric = ref('speed'); // 'speed' | 'traffic' | 'viral' | 'market'
-        const bentoChartTimeRange = ref('24h'); // '24h' | '7d'
-        const selectedChartChannelIds = ref([]);
-        const singleChannelFocus = ref('ALL');
-        const hoveredChartPoint = ref(null);
-
-        // 12 High-Contrast Neon / Vibrant Colors for Competitor Channels
-        const CHANNEL_PALETTE = [
-          '#38bdf8', // Neon Sky Blue
-          '#f59e0b', // Vibrant Amber
-          '#f43f5e', // Neon Rose
-          '#10b981', // Emerald Green
-          '#a855f7', // Vivid Purple
-          '#06b6d4', // Cyan
-          '#ec4899', // Pink
-          '#f97316', // Orange
-          '#84cc16', // Lime Green
-          '#6366f1', // Indigo
-          '#14b8a6', // Teal
-          '#eab308'  // Yellow
-        ];
-
-        const getChannelColor = (idx) => {
-          return CHANNEL_PALETTE[Math.abs(idx) % CHANNEL_PALETTE.length];
-        };
-
-        const toggleBentoChart = () => {
-          showBentoChart.value = !showBentoChart.value;
-          if (showBentoChart.value && selectedChartChannelIds.value.length === 0) {
-            selectPresetChartChannels('top5');
-          }
-        };
-
-        const selectBentoMetric = (metric) => {
-          if (showBentoChart.value && bentoChartMetric.value === metric) {
-            showBentoChart.value = false;
-          } else {
-            showBentoChart.value = true;
-            bentoChartMetric.value = metric;
-            if (selectedChartChannelIds.value.length === 0) {
-              selectPresetChartChannels('top5');
-            }
-          }
-        };
-
-        const selectPresetChartChannels = (preset) => {
-          const allChs = channelMetrics.value || [];
-          if (preset === 'none') {
-            selectedChartChannelIds.value = [];
-            singleChannelFocus.value = 'ALL';
-            return;
-          }
-          if (preset === 'all') {
-            selectedChartChannelIds.value = allChs.map(c => c.channel_id);
-            singleChannelFocus.value = 'ALL';
-            return;
-          }
-          let sorted = [...allChs];
-          if (bentoChartMetric.value === 'speed') {
-            sorted.sort((a, b) => (b.peak_vph || 0) - (a.peak_vph || 0));
-          } else if (bentoChartMetric.value === 'traffic' || bentoChartMetric.value === 'market') {
-            sorted.sort((a, b) => (b.total_channel_vph || 0) - (a.total_channel_vph || 0));
-          } else if (bentoChartMetric.value === 'viral') {
-            sorted.sort((a, b) => (b.viral_rate || 0) - (a.viral_rate || 0));
-          }
-          const count = preset === 'top3' ? 3 : 5;
-          selectedChartChannelIds.value = sorted.slice(0, count).map(c => c.channel_id);
-          singleChannelFocus.value = 'ALL';
-        };
-
-        const toggleChartChannel = (chId) => {
-          const idx = selectedChartChannelIds.value.indexOf(chId);
-          if (idx >= 0) {
-            selectedChartChannelIds.value.splice(idx, 1);
-            if (singleChannelFocus.value === chId) {
-              singleChannelFocus.value = 'ALL';
-            }
-          } else {
-            selectedChartChannelIds.value.push(chId);
-          }
-        };
-
-        const isChartChannelSelected = (chId) => {
-          return selectedChartChannelIds.value.includes(chId);
-        };
-
-        const chartTimelineLabels = computed(() => {
-          if (bentoChartTimeRange.value === '7d') {
-            return ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
-          }
-          return ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00', '24:00'];
-        });
-
-        const activeChartChannelsList = computed(() => {
-          const allChs = channelMetrics.value || [];
-          if (singleChannelFocus.value !== 'ALL') {
-            return allChs.filter(c => c.channel_id === singleChannelFocus.value);
-          }
-          if (selectedChartChannelIds.value.length === 0) {
-            return allChs.slice(0, 5);
-          }
-          return allChs.filter(c => selectedChartChannelIds.value.includes(c.channel_id));
-        });
-
-        const bentoMetricConfig = computed(() => {
-          const unitText = metricTimeUnit.value === 'day' ? 'view/ngày' : 'view/h';
-          switch (bentoChartMetric.value) {
-            case 'speed':
-              return {
-                title: 'Tốc Độ Đỉnh (Peak Velocity)',
-                desc: `Biểu đồ đường trực quan hóa vận tốc bứt phá cao nhất (${unitText}) của từng kênh đối thủ theo thời gian`,
-                unit: unitText,
-                yPrefix: '+',
-                badgeColor: 'blue'
-              };
-            case 'traffic':
-              return {
-                title: 'Gom Traffic (Tổng Lưu Lượng)',
-                desc: `Biểu đồ so sánh tổng lực hút view toàn kênh (${unitText}) phân bổ cho từng đối thủ`,
-                unit: unitText,
-                yPrefix: '+',
-                badgeColor: 'emerald'
-              };
-            case 'viral':
-              return {
-                title: 'Tỷ Lệ Bùng Nổ (Hit Rate %)',
-                desc: 'Biểu đồ so sánh phần trăm video vượt ngưỡng nổ (Outlier) của từng kênh trên tổng số video đăng',
-                unit: '%',
-                yPrefix: '',
-                badgeColor: 'amber'
-              };
-            case 'market':
-              return {
-                title: 'Quy Mô Ngành & Thị Phần',
-                desc: `Biểu đồ phân bổ lưu lượng (${unitText}) chiếm lĩnh trong toàn thị trường của các kênh đối thủ`,
-                unit: unitText,
-                yPrefix: '+',
-                badgeColor: 'cyan'
-              };
-            default:
-              return {
-                title: 'Radar Lưu Lượng',
-                desc: 'Phân tích đa chiều đối thủ',
-                unit: unitText,
-                yPrefix: '+',
-                badgeColor: 'blue'
-              };
-          }
-        });
-
-        const computedChartSeries = computed(() => {
-          const channelsList = activeChartChannelsList.value;
-          const labels = chartTimelineLabels.value;
-          const numSteps = labels.length;
-          const metric = bentoChartMetric.value;
-          const timeRange = bentoChartTimeRange.value;
-          const isDay = metricTimeUnit.value === 'day';
-
-          const baseCurve24 = [0.42, 0.26, 0.58, 0.84, 0.91, 1.00, 0.76];
-          const baseCurve7d = [0.68, 0.62, 0.74, 0.82, 0.96, 1.00, 0.88];
-          const baseCurve = timeRange === '7d' ? baseCurve7d : baseCurve24;
-
-          let seriesData = [];
-          let absoluteMax = 1;
-
-          channelsList.forEach((ch, chIdx) => {
-            const allChs = channelMetrics.value || [];
-            const fullIdx = allChs.findIndex(c => c.channel_id === ch.channel_id);
-            const color = getChannelColor(fullIdx >= 0 ? fullIdx : chIdx);
-
-            const nameHash = (ch.name || '').split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-            const seed = (nameHash % 17) - 8;
-
-            const pointsVal = [];
-            for (let s = 0; s < numSteps; s++) {
-              const factor = baseCurve[s] || 0.5;
-              const stepJitter = ((s * 7 + nameHash) % 11 - 5) / 100.0;
-              const adj = Math.max(0.15, Math.min(1.25, factor + (seed / 100.0) + stepJitter));
-
-              let val = 0;
-              if (metric === 'speed') {
-                const base = ch.peak_vph || 0;
-                val = base * adj * (isDay ? 24 : 1);
-              } else if (metric === 'traffic' || metric === 'market') {
-                const base = ch.total_channel_vph || 0;
-                val = base * adj * (isDay ? 24 : 1);
-              } else if (metric === 'viral') {
-                const base = ch.viral_rate || 0;
-                val = Math.max(5, Math.min(100, Math.round(base * (adj / factor) * 0.98)));
-              }
-              val = Math.round(val);
-              if (val > absoluteMax) absoluteMax = val;
-              pointsVal.push(val);
-            }
-
-            seriesData.push({
-              channel_id: ch.channel_id,
-              name: ch.name,
-              color: color,
-              rawValues: pointsVal
-            });
-          });
-
-          if (absoluteMax <= 0) absoluteMax = 100;
-
-          const chartW = 940;
-          const chartH = 250;
-          const padLeft = 75;
-          const padRight = 30;
-          const padTop = 30;
-          const padBottom = 35;
-          const innerW = chartW - padLeft - padRight;
-          const innerH = chartH - padTop - padBottom;
-
-          const lines = seriesData.map(s => {
-            const coords = s.rawValues.map((v, idx) => {
-              const x = padLeft + (idx / (numSteps - 1)) * innerW;
-              const y = padTop + innerH - ((v / absoluteMax) * innerH);
-              return {
-                x: Math.round(x * 10) / 10,
-                y: Math.round(y * 10) / 10,
-                value: v,
-                label: labels[idx]
-              };
-            });
-
-            const pointsString = coords.map(c => `${c.x},${c.y}`).join(' ');
-
-            return {
-              channel_id: s.channel_id,
-              name: s.name,
-              color: s.color,
-              pointsString,
-              coords
-            };
-          });
-
-          const yTicks = [
-            { label: formatNumber(absoluteMax), y: padTop },
-            { label: formatNumber(Math.round(absoluteMax * 0.66)), y: padTop + innerH * 0.33 },
-            { label: formatNumber(Math.round(absoluteMax * 0.33)), y: padTop + innerH * 0.66 },
-            { label: '0', y: padTop + innerH }
-          ];
-
-          const xTicks = labels.map((l, idx) => ({
-            label: l,
-            x: padLeft + (idx / (numSteps - 1)) * innerW,
-            y: chartH - 12
-          }));
-
-          return {
-            chartW,
-            chartH,
-            padLeft,
-            padRight,
-            padTop,
-            padBottom,
-            innerW,
-            innerH,
-            absoluteMax,
-            lines,
-            yTicks,
-            xTicks
-          };
-        });
-
-        const focusedChannelIntel = computed(() => {
-          const allChs = channelMetrics.value || [];
-          let target = null;
-          if (singleChannelFocus.value !== 'ALL') {
-            target = allChs.find(c => c.channel_id === singleChannelFocus.value);
-          }
-          if (!target) {
-            const active = activeChartChannelsList.value;
-            if (active.length > 0) {
-              target = active[0];
-            } else if (allChs.length > 0) {
-              target = allChs[0];
-            }
-          }
-          if (!target) return null;
-
-          const fullIdx = allChs.findIndex(c => c.channel_id === target.channel_id);
-          const color = getChannelColor(fullIdx >= 0 ? fullIdx : 0);
-
-          let statusText = 'Duy trì ổn định 🟢';
-          let statusClass = 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30';
-          let intelInsight = 'Kênh đang duy trì nhịp đăng ổn định, lực hút view tương đương mức trung bình phân khúc.';
-
-          if (target.viral_rate >= 50 || (target.peak_vph || 0) >= 10000) {
-            statusText = 'Bứt phá dữ dội 🚀';
-            statusClass = 'text-rose-400 bg-rose-500/10 border-rose-500/30';
-            intelInsight = 'Kênh đang kích hoạt thuật toán đề xuất cực mạnh, sở hữu siêu video gom phần lớn traffic toàn ngành.';
-          } else if (target.viral_rate >= 25 || (target.total_channel_vph || 0) >= 8000) {
-            statusText = 'Tăng trưởng mạnh 🔥';
-            statusClass = 'text-amber-400 bg-amber-500/10 border-amber-500/30';
-            intelInsight = 'Kênh đang có đà mở rộng traffic tốt, tần suất video đạt ngưỡng tăng tốc cao hơn đối thủ.';
-          } else if ((target.total_channel_vph || 0) < 1500) {
-            statusText = 'Lực gom view chậm ⚠️';
-            statusClass = 'text-slate-400 bg-slate-500/10 border-slate-500/30';
-            intelInsight = 'Kênh chưa có cú hích nội dung nổi bật gần đây, lưu lượng tăng chủ yếu từ tệp người theo dõi cũ.';
-          }
-
-          return {
-            ...target,
-            color,
-            statusText,
-            statusClass,
-            intelInsight
-          };
-        });
-
         // Time unit for Overview metrics: 'day' (default: view/ngày) or 'hour' (view/h)
         const metricTimeUnit = ref(localStorage.getItem('METRIC_TIME_UNIT') || 'day');
         // Realtime Digital Clock & Counts
@@ -7506,7 +7225,344 @@ Nhiệm vụ: Trả lời hoặc viết lại/tinh chỉnh kịch bản theo yê
           }
         });
 
+        
+        // ==========================================
+        // BENTO MULTI-CHANNEL RADAR CHART STATE & METHODS
+        // Placed after all channelMetrics, formatNumber, viewChannelVideos are initialized
+        // ==========================================
+        const showBentoChart = ref(false);
+        const bentoChartMetric = ref('speed'); // 'speed' | 'traffic' | 'viral' | 'market'
+        const bentoChartTimeRange = ref('24h'); // '24h' | '7d'
+        const selectedChartChannelIds = ref([]);
+        const singleChannelFocus = ref('ALL');
+        const hoveredChartPoint = ref(null);
+
+        // 12 High-Contrast Neon / Vibrant Colors for Competitor Channels
+        const CHANNEL_PALETTE = [
+          '#38bdf8', // Neon Sky Blue
+          '#f59e0b', // Vibrant Amber
+          '#f43f5e', // Neon Rose
+          '#10b981', // Emerald Green
+          '#a855f7', // Vivid Purple
+          '#06b6d4', // Cyan
+          '#ec4899', // Pink
+          '#f97316', // Orange
+          '#84cc16', // Lime Green
+          '#6366f1', // Indigo
+          '#14b8a6', // Teal
+          '#eab308'  // Yellow
+        ];
+
+        const getChannelColor = (idx) => {
+          return CHANNEL_PALETTE[Math.abs(idx) % CHANNEL_PALETTE.length];
+        };
+
+        const toggleBentoChart = () => {
+          showBentoChart.value = !showBentoChart.value;
+          if (showBentoChart.value && selectedChartChannelIds.value.length === 0) {
+            selectPresetChartChannels('top5');
+          }
+        };
+
+        const selectBentoMetric = (metric) => {
+          if (showBentoChart.value && bentoChartMetric.value === metric) {
+            showBentoChart.value = false;
+          } else {
+            showBentoChart.value = true;
+            bentoChartMetric.value = metric;
+            if (selectedChartChannelIds.value.length === 0) {
+              selectPresetChartChannels('top5');
+            }
+          }
+        };
+
+        const selectPresetChartChannels = (preset) => {
+          const allChs = channelMetrics.value || [];
+          if (preset === 'none') {
+            selectedChartChannelIds.value = [];
+            singleChannelFocus.value = 'ALL';
+            return;
+          }
+          if (preset === 'all') {
+            selectedChartChannelIds.value = allChs.map(c => c.channel_id);
+            singleChannelFocus.value = 'ALL';
+            return;
+          }
+          let sorted = [...allChs];
+          if (bentoChartMetric.value === 'speed') {
+            sorted.sort((a, b) => (b.peak_vph || 0) - (a.peak_vph || 0));
+          } else if (bentoChartMetric.value === 'traffic' || bentoChartMetric.value === 'market') {
+            sorted.sort((a, b) => (b.total_channel_vph || 0) - (a.total_channel_vph || 0));
+          } else if (bentoChartMetric.value === 'viral') {
+            sorted.sort((a, b) => (b.viral_rate || 0) - (a.viral_rate || 0));
+          }
+          const count = preset === 'top3' ? 3 : 5;
+          selectedChartChannelIds.value = sorted.slice(0, count).map(c => c.channel_id);
+          singleChannelFocus.value = 'ALL';
+        };
+
+        const toggleChartChannel = (chId) => {
+          const idx = selectedChartChannelIds.value.indexOf(chId);
+          if (idx >= 0) {
+            selectedChartChannelIds.value.splice(idx, 1);
+            if (singleChannelFocus.value === chId) {
+              singleChannelFocus.value = 'ALL';
+            }
+          } else {
+            selectedChartChannelIds.value.push(chId);
+          }
+        };
+
+        const isChartChannelSelected = (chId) => {
+          return selectedChartChannelIds.value.includes(chId);
+        };
+
+        const chartTimelineLabels = computed(() => {
+          if (bentoChartTimeRange.value === '7d') {
+            return ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
+          }
+          return ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00', '24:00'];
+        });
+
+        const activeChartChannelsList = computed(() => {
+          const allChs = (typeof channelMetrics !== 'undefined' && channelMetrics.value) ? channelMetrics.value : [];
+          if (singleChannelFocus.value !== 'ALL') {
+            return allChs.filter(c => c.channel_id === singleChannelFocus.value);
+          }
+          if (selectedChartChannelIds.value.length === 0) {
+            return allChs.slice(0, 5);
+          }
+          return allChs.filter(c => selectedChartChannelIds.value.includes(c.channel_id));
+        });
+
+        const bentoMetricConfig = computed(() => {
+          const unitText = (typeof metricTimeUnit !== 'undefined' && metricTimeUnit.value === 'day') ? 'view/ngày' : 'view/h';
+          switch (bentoChartMetric.value) {
+            case 'speed':
+              return {
+                title: 'Tốc Độ Đỉnh (Peak Velocity)',
+                desc: `Biểu đồ đường trực quan hóa vận tốc bứt phá cao nhất (${unitText}) của từng kênh đối thủ theo thời gian`,
+                unit: unitText,
+                yPrefix: '+',
+                badgeColor: 'blue'
+              };
+            case 'traffic':
+              return {
+                title: 'Gom Traffic (Tổng Lưu Lượng)',
+                desc: `Biểu đồ so sánh tổng lực hút view toàn kênh (${unitText}) phân bổ cho từng đối thủ`,
+                unit: unitText,
+                yPrefix: '+',
+                badgeColor: 'emerald'
+              };
+            case 'viral':
+              return {
+                title: 'Tỷ Lệ Bùng Nổ (Hit Rate %)',
+                desc: 'Biểu đồ so sánh phần trăm video vượt ngưỡng nổ (Outlier) của từng kênh trên tổng số video đăng',
+                unit: '%',
+                yPrefix: '',
+                badgeColor: 'amber'
+              };
+            case 'market':
+              return {
+                title: 'Quy Mô Ngành & Thị Phần',
+                desc: `Biểu đồ phân bổ lưu lượng (${unitText}) chiếm lĩnh trong toàn thị trường của các kênh đối thủ`,
+                unit: unitText,
+                yPrefix: '+',
+                badgeColor: 'cyan'
+              };
+            default:
+              return {
+                title: 'Radar Lưu Lượng',
+                desc: 'Phân tích đa chiều đối thủ',
+                unit: unitText,
+                yPrefix: '+',
+                badgeColor: 'blue'
+              };
+          }
+        });
+
+        const computedChartSeries = computed(() => {
+          const channelsList = activeChartChannelsList.value || [];
+          const labels = chartTimelineLabels.value;
+          const numSteps = labels.length;
+          const metric = bentoChartMetric.value;
+          const timeRange = bentoChartTimeRange.value;
+          const isDay = (typeof metricTimeUnit !== 'undefined' && metricTimeUnit.value === 'day');
+
+          const baseCurve24 = [0.42, 0.26, 0.58, 0.84, 0.91, 1.00, 0.76];
+          const baseCurve7d = [0.68, 0.62, 0.74, 0.82, 0.96, 1.00, 0.88];
+          const baseCurve = timeRange === '7d' ? baseCurve7d : baseCurve24;
+
+          let seriesData = [];
+          let absoluteMax = 1;
+
+          channelsList.forEach((ch, chIdx) => {
+            const allChs = (typeof channelMetrics !== 'undefined' && channelMetrics.value) ? channelMetrics.value : [];
+            const fullIdx = allChs.findIndex(c => c.channel_id === ch.channel_id);
+            const color = getChannelColor(fullIdx >= 0 ? fullIdx : chIdx);
+
+            const nameHash = (ch.name || '').split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+            const seed = (nameHash % 17) - 8;
+
+            const pointsVal = [];
+            for (let s = 0; s < numSteps; s++) {
+              const factor = baseCurve[s] || 0.5;
+              const stepJitter = ((s * 7 + nameHash) % 11 - 5) / 100.0;
+              const adj = Math.max(0.15, Math.min(1.25, factor + (seed / 100.0) + stepJitter));
+
+              let val = 0;
+              if (metric === 'speed') {
+                const base = ch.peak_vph || 0;
+                val = base * adj * (isDay ? 24 : 1);
+              } else if (metric === 'traffic' || metric === 'market') {
+                const base = ch.total_channel_vph || 0;
+                val = base * adj * (isDay ? 24 : 1);
+              } else if (metric === 'viral') {
+                const base = ch.viral_rate || 0;
+                val = Math.max(5, Math.min(100, Math.round(base * (adj / factor) * 0.98)));
+              }
+              val = Math.round(val);
+              if (val > absoluteMax) absoluteMax = val;
+              pointsVal.push(val);
+            }
+
+            seriesData.push({
+              channel_id: ch.channel_id,
+              name: ch.name,
+              color: color,
+              rawValues: pointsVal
+            });
+          });
+
+          if (absoluteMax <= 0) absoluteMax = 100;
+
+          const chartW = 940;
+          const chartH = 250;
+          const padLeft = 75;
+          const padRight = 30;
+          const padTop = 30;
+          const padBottom = 35;
+          const innerW = chartW - padLeft - padRight;
+          const innerH = chartH - padTop - padBottom;
+
+          const lines = seriesData.map(s => {
+            const coords = s.rawValues.map((v, idx) => {
+              const x = padLeft + (idx / (numSteps - 1)) * innerW;
+              const y = padTop + innerH - ((v / absoluteMax) * innerH);
+              return {
+                x: Math.round(x * 10) / 10,
+                y: Math.round(y * 10) / 10,
+                value: v,
+                label: labels[idx]
+              };
+            });
+
+            const pointsString = coords.map(c => `${c.x},${c.y}`).join(' ');
+
+            return {
+              channel_id: s.channel_id,
+              name: s.name,
+              color: s.color,
+              pointsString,
+              coords
+            };
+          });
+
+          const fmtFn = (typeof formatNumber === 'function') ? formatNumber : (n => n);
+
+          const yTicks = [
+            { label: fmtFn(absoluteMax), y: padTop },
+            { label: fmtFn(Math.round(absoluteMax * 0.66)), y: padTop + innerH * 0.33 },
+            { label: fmtFn(Math.round(absoluteMax * 0.33)), y: padTop + innerH * 0.66 },
+            { label: '0', y: padTop + innerH }
+          ];
+
+          const xTicks = labels.map((l, idx) => ({
+            label: l,
+            x: padLeft + (idx / (numSteps - 1)) * innerW,
+            y: chartH - 12
+          }));
+
+          return {
+            chartW,
+            chartH,
+            padLeft,
+            padRight,
+            padTop,
+            padBottom,
+            innerW,
+            innerH,
+            absoluteMax,
+            lines,
+            yTicks,
+            xTicks
+          };
+        });
+
+        const focusedChannelIntel = computed(() => {
+          const allChs = (typeof channelMetrics !== 'undefined' && channelMetrics.value) ? channelMetrics.value : [];
+          let target = null;
+          if (singleChannelFocus.value !== 'ALL') {
+            target = allChs.find(c => c.channel_id === singleChannelFocus.value);
+          }
+          if (!target) {
+            const active = activeChartChannelsList.value || [];
+            if (active.length > 0) {
+              target = active[0];
+            } else if (allChs.length > 0) {
+              target = allChs[0];
+            }
+          }
+          if (!target) return null;
+
+          const fullIdx = allChs.findIndex(c => c.channel_id === target.channel_id);
+          const color = getChannelColor(fullIdx >= 0 ? fullIdx : 0);
+
+          let statusText = 'Duy trì ổn định 🟢';
+          let statusClass = 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30';
+          let intelInsight = 'Kênh đang duy trì nhịp đăng ổn định, lực hút view tương đương mức trung bình phân khúc.';
+
+          if (target.viral_rate >= 50 || (target.peak_vph || 0) >= 10000) {
+            statusText = 'Bứt phá dữ dội 🚀';
+            statusClass = 'text-rose-400 bg-rose-500/10 border-rose-500/30';
+            intelInsight = 'Kênh đang kích hoạt thuật toán đề xuất cực mạnh, sở hữu siêu video gom phần lớn traffic toàn ngành.';
+          } else if (target.viral_rate >= 25 || (target.total_channel_vph || 0) >= 8000) {
+            statusText = 'Tăng trưởng mạnh 🔥';
+            statusClass = 'text-amber-400 bg-amber-500/10 border-amber-500/30';
+            intelInsight = 'Kênh đang có đà mở rộng traffic tốt, tần suất video đạt ngưỡng tăng tốc cao hơn đối thủ.';
+          } else if ((target.total_channel_vph || 0) < 1500) {
+            statusText = 'Lực gom view chậm ⚠️';
+            statusClass = 'text-slate-400 bg-slate-500/10 border-slate-500/30';
+            intelInsight = 'Kênh chưa có cú hích nội dung nổi bật gần đây, lưu lượng tăng chủ yếu từ tệp người theo dõi cũ.';
+          }
+
+          return {
+            ...target,
+            color,
+            statusText,
+            statusClass,
+            intelInsight
+          };
+        });
+
         return {
+          showBentoChart,
+          bentoChartMetric,
+          bentoChartTimeRange,
+          selectedChartChannelIds,
+          singleChannelFocus,
+          hoveredChartPoint,
+          getChannelColor,
+          toggleBentoChart,
+          selectBentoMetric,
+          selectPresetChartChannels,
+          toggleChartChannel,
+          isChartChannelSelected,
+          chartTimelineLabels,
+          activeChartChannelsList,
+          bentoMetricConfig,
+          computedChartSeries,
+          focusedChannelIntel,
           showAccountModal,
           showEditCredentials,
           userRole,
@@ -7604,23 +7660,6 @@ Nhiệm vụ: Trả lời hoặc viết lại/tinh chỉnh kịch bản theo yê
           setChannelSort,
           channelMetrics,
           metricTimeUnit,
-          showBentoChart,
-          bentoChartMetric,
-          bentoChartTimeRange,
-          selectedChartChannelIds,
-          singleChannelFocus,
-          hoveredChartPoint,
-          getChannelColor,
-          toggleBentoChart,
-          selectBentoMetric,
-          selectPresetChartChannels,
-          toggleChartChannel,
-          isChartChannelSelected,
-          chartTimelineLabels,
-          activeChartChannelsList,
-          bentoMetricConfig,
-          computedChartSeries,
-          focusedChannelIntel,
           currentTimeFormatted,
           currentDateFormatted,
           breakoutCount,
