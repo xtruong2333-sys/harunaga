@@ -1,6 +1,19 @@
 <!DOCTYPE html>
 <html lang="vi" class="dark">
 <head>
+  <script>
+    (function() {
+      try {
+        var t = localStorage.getItem('APP_THEME');
+        if (t === 'light') {
+          document.documentElement.classList.remove('dark');
+          document.documentElement.classList.add('light');
+        } else {
+          document.documentElement.classList.add('dark');
+        }
+      } catch(e) {}
+    })();
+  </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bắt Bài Đối Thủ • Radar Tình Báo YouTube & AI Remake by Truongday</title>
@@ -407,7 +420,7 @@
 </head>
 <body class="bg-slate-100 dark:bg-darkBg text-slate-900 dark:text-slate-100 min-h-screen font-sans antialiased selection:bg-rose-500 selection:text-white transition-colors duration-200">
 
-  <div id="app" v-cloak class="w-full h-screen bg-[#070b14] text-slate-100 font-sans antialiased overflow-hidden flex flex-col selection:bg-rose-500 selection:text-white">
+  <div id="app" v-cloak class="w-full h-screen bg-slate-100 dark:bg-[#070b14] text-slate-900 dark:text-slate-100 font-sans antialiased overflow-hidden flex flex-col selection:bg-rose-500 selection:text-white transition-colors duration-200">
     <!-- Global High-Z Notification Toast (Nổi trên mọi modal & màn hình chờ) -->
     <transition
       enter-active-class="transform ease-out duration-300 transition"
@@ -775,12 +788,12 @@
     <!-- ========================================================================================= -->
     <!-- DASHBOARD CHÍNH 7 MỤC (ACTIVE WHEN isLoggedIn)                                          -->
     <!-- ========================================================================================= -->
-    <div v-else class="flex h-screen w-full overflow-hidden bg-[#070b14]">
+    <div v-else class="flex h-screen w-full overflow-hidden bg-slate-100 dark:bg-[#070b14] transition-colors duration-200">
 
     <!-- ========================================================================================= -->
     <!-- 1. PERMANENT LEFT SIDEBAR (Desktop - Cố định bên trái)                                   -->
     <!-- ========================================================================================= -->
-    <aside class="w-64 flex-shrink-0 bg-[#0b101d] border-r border-slate-800/80 flex-col justify-between p-4 z-30 select-none overflow-y-auto custom-scrollbar hidden lg:flex">
+    <aside class="w-64 flex-shrink-0 bg-white dark:bg-[#0b101d] border-r border-slate-200 dark:border-slate-800/80 flex-col justify-between p-4 z-30 select-none overflow-y-auto custom-scrollbar hidden lg:flex transition-colors duration-200">
       
       <div class="space-y-6">
         <!-- Logo Brand: Radar Circle Target with YouTube Play -->
@@ -792,10 +805,10 @@
             </span>
           </div>
           <div class="min-w-0">
-            <h1 class="text-sm font-black text-white tracking-tight leading-none group-hover:text-blue-400 transition">
+            <h1 class="text-sm font-black text-slate-900 dark:text-white tracking-tight leading-none group-hover:text-blue-500 transition">
               Bắt Bài Đối Thủ
             </h1>
-            <p class="text-[10px] text-slate-400 font-medium tracking-wide mt-1">
+            <p class="text-[10px] text-slate-500 dark:text-slate-400 font-medium tracking-wide mt-1">
               YouTube Radar Intelligence
             </p>
           </div>
@@ -807,8 +820,8 @@
           <button 
             @click="navigateFromSidebar('overview')" 
             :class="currentView === 'overview' 
-              ? 'bg-[#131b2e] text-blue-400 font-bold border border-blue-500/40 shadow-sm shadow-blue-950/50' 
-              : 'text-slate-400 hover:text-white hover:bg-slate-800/40 border border-transparent'"
+              ? 'bg-blue-50 dark:bg-[#131b2e] text-blue-600 dark:text-blue-400 font-bold border border-blue-200 dark:border-blue-500/40 shadow-sm shadow-blue-500/10 dark:shadow-blue-950/50' 
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/40 border border-transparent'"
             class="w-full px-3.5 py-2.5 rounded-xl transition flex items-center space-x-2.5 cursor-pointer text-left"
           >
             <i class="ph-fill ph-house text-base" :class="currentView === 'overview' ? 'text-blue-400' : 'text-slate-400'"></i>
@@ -819,8 +832,8 @@
           <button 
             @click="navigateFromSidebar('videos')" 
             :class="currentView === 'videos' 
-              ? 'bg-[#131b2e] text-blue-400 font-bold border border-blue-500/40 shadow-sm shadow-blue-950/50' 
-              : 'text-slate-400 hover:text-white hover:bg-slate-800/40 border border-transparent'"
+              ? 'bg-blue-50 dark:bg-[#131b2e] text-blue-600 dark:text-blue-400 font-bold border border-blue-200 dark:border-blue-500/40 shadow-sm shadow-blue-500/10 dark:shadow-blue-950/50' 
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/40 border border-transparent'"
             class="w-full px-3.5 py-2.5 rounded-xl transition flex items-center justify-between cursor-pointer text-left"
           >
             <div class="flex items-center space-x-2.5">
@@ -834,8 +847,8 @@
           <button 
             @click="navigateFromSidebar('channels')" 
             :class="currentView === 'channels' 
-              ? 'bg-[#131b2e] text-blue-400 font-bold border border-blue-500/40 shadow-sm shadow-blue-950/50' 
-              : 'text-slate-400 hover:text-white hover:bg-slate-800/40 border border-transparent'"
+              ? 'bg-blue-50 dark:bg-[#131b2e] text-blue-600 dark:text-blue-400 font-bold border border-blue-200 dark:border-blue-500/40 shadow-sm shadow-blue-500/10 dark:shadow-blue-950/50' 
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/40 border border-transparent'"
             class="w-full px-3.5 py-2.5 rounded-xl transition flex items-center justify-between cursor-pointer text-left"
           >
             <div class="flex items-center space-x-2.5">
@@ -849,8 +862,8 @@
           <button 
             @click="navigateFromSidebar('trends')" 
             :class="currentView === 'trends' 
-              ? 'bg-[#131b2e] text-blue-400 font-bold border border-blue-500/40 shadow-sm shadow-blue-950/50' 
-              : 'text-slate-400 hover:text-white hover:bg-slate-800/40 border border-transparent'"
+              ? 'bg-blue-50 dark:bg-[#131b2e] text-blue-600 dark:text-blue-400 font-bold border border-blue-200 dark:border-blue-500/40 shadow-sm shadow-blue-500/10 dark:shadow-blue-950/50' 
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/40 border border-transparent'"
             class="w-full px-3.5 py-2.5 rounded-xl transition flex items-center justify-between cursor-pointer text-left"
           >
             <div class="flex items-center space-x-2.5">
@@ -864,8 +877,8 @@
           <button 
             @click="navigateFromSidebar('ai')" 
             :class="currentView === 'ai' 
-              ? 'bg-[#131b2e] text-blue-400 font-bold border border-blue-500/40 shadow-sm shadow-blue-950/50' 
-              : 'text-slate-400 hover:text-white hover:bg-slate-800/40 border border-transparent'"
+              ? 'bg-blue-50 dark:bg-[#131b2e] text-blue-600 dark:text-blue-400 font-bold border border-blue-200 dark:border-blue-500/40 shadow-sm shadow-blue-500/10 dark:shadow-blue-950/50' 
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/40 border border-transparent'"
             class="w-full px-3.5 py-2.5 rounded-xl transition flex items-center justify-between cursor-pointer text-left"
           >
             <div class="flex items-center space-x-2.5">
@@ -879,8 +892,8 @@
           <button 
             @click="navigateFromSidebar('bookmarks')" 
             :class="currentView === 'bookmarks' 
-              ? 'bg-[#131b2e] text-blue-400 font-bold border border-blue-500/40 shadow-sm shadow-blue-950/50' 
-              : 'text-slate-400 hover:text-white hover:bg-slate-800/40 border border-transparent'"
+              ? 'bg-blue-50 dark:bg-[#131b2e] text-blue-600 dark:text-blue-400 font-bold border border-blue-200 dark:border-blue-500/40 shadow-sm shadow-blue-500/10 dark:shadow-blue-950/50' 
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/40 border border-transparent'"
             class="w-full px-3.5 py-2.5 rounded-xl transition flex items-center justify-between cursor-pointer text-left"
           >
             <div class="flex items-center space-x-2.5">
@@ -963,7 +976,7 @@
     </transition>
 
     <aside 
-      class="fixed inset-y-0 left-0 w-64 bg-[#0b101d] border-r border-slate-800 z-[99999] shadow-2xl flex flex-col justify-between p-4 transition-transform duration-300 ease-in-out lg:hidden"
+      class="fixed inset-y-0 left-0 w-64 bg-white dark:bg-[#0b101d] border-r border-slate-200 dark:border-slate-800 z-[99999] shadow-2xl flex flex-col justify-between p-4 transition-all duration-300 ease-in-out lg:hidden"
       :class="isSidebarOpen ? 'translate-x-0' : '-translate-x-full'"
     >
       <div class="space-y-6">
@@ -1012,10 +1025,10 @@
     <!-- ========================================================================================= -->
     <!-- 2. RIGHT MAIN VIEWPORT (Cuộn độc lập, Header Sticky)                                     -->
     <!-- ========================================================================================= -->
-    <div id="main-viewport" class="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto bg-[#070b14] custom-scrollbar">
+    <div id="main-viewport" class="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto bg-slate-50 dark:bg-[#070b14] custom-scrollbar transition-colors duration-200">
       
       <!-- Top Navigation Bar -->
-      <header class="w-full sticky top-0 z-20 flex items-center justify-between px-4 sm:px-6 lg:px-8 py-3 bg-[#0b101d]/90 backdrop-blur-xl border-b border-slate-800/80 flex-shrink-0">
+      <header class="w-full sticky top-0 z-20 flex items-center justify-between px-4 sm:px-6 lg:px-8 py-3 bg-white/90 dark:bg-[#0b101d]/90 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800/80 flex-shrink-0 transition-colors duration-200">
         <!-- Left: Hamburger on Mobile + Radar 24/7 Status + Global Search -->
         <div class="flex items-center space-x-3 flex-1 max-w-2xl">
           <button @click="isSidebarOpen = true" class="lg:hidden p-2 rounded-xl bg-slate-800/80 text-slate-300 hover:text-white transition">
@@ -1057,7 +1070,7 @@
           <!-- Quản Lý Data & Key Button -->
           <button 
             @click="openAdminModal" 
-            class="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 text-xs font-bold flex items-center gap-1.5 transition cursor-pointer"
+            class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 text-xs font-bold flex items-center gap-1.5 transition cursor-pointer"
           >
             <i class="ph-bold ph-gear text-sm text-slate-400"></i>
             <span class="hidden sm:inline">Quản Lý Data & Key</span>
@@ -1066,16 +1079,16 @@
           <!-- Dark/Light Toggle -->
           <button 
             @click="toggleTheme" 
-            class="w-8 h-8 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 transition cursor-pointer"
-            title="Đổi giao diện Sáng / Tối"
+            class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 border border-slate-300 dark:border-slate-700 flex items-center justify-center text-slate-700 dark:text-slate-300 transition cursor-pointer shadow-sm"
+            :title="isDark ? 'Chuyển sang giao diện Sáng' : 'Chuyển sang giao diện Tối'"
           >
-            <i :class="isDarkMode ? 'ph-bold ph-sun text-amber-400' : 'ph-bold ph-moon text-slate-300'"></i>
+            <i :class="isDark ? 'ph-bold ph-sun text-amber-500 text-sm' : 'ph-bold ph-moon text-indigo-600 text-sm'"></i>
           </button>
 
           <!-- Bell Icon with notification dot -->
           <button 
             @click="showToast('Thông báo hệ thống: Đã cập nhật 676 video mới nhất!')" 
-            class="relative w-8 h-8 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 transition cursor-pointer"
+            class="relative w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 border border-slate-300 dark:border-slate-700 flex items-center justify-center text-slate-700 dark:text-slate-300 transition cursor-pointer"
             title="Thông báo hệ thống"
           >
             <i class="ph-bold ph-bell text-sm"></i>
@@ -1253,14 +1266,14 @@
           <div class="space-y-3.5">
             <div class="flex items-center justify-between flex-wrap gap-2 pt-1 pb-0.5">
               <div class="flex items-center space-x-2">
-                <i class="ph-bold ph-chart-bar text-blue-400 text-base"></i>
-                <h3 class="text-sm sm:text-base font-black text-white uppercase tracking-wide">
+                <i class="ph-bold ph-chart-bar text-blue-500 dark:text-blue-400 text-base"></i>
+                <h3 class="text-sm sm:text-base font-black text-slate-900 dark:text-white uppercase tracking-wide">
                   Chỉ Số Radar Lưu Lượng Toàn Ngành
                 </h3>
               </div>
 
               <!-- Switcher Pill 24h / 1h -->
-              <div class="inline-flex items-center p-0.5 bg-[#0b101d] rounded-2xl border border-slate-800 text-xs shadow-inner">
+              <div class="inline-flex items-center p-0.5 bg-slate-200 dark:bg-[#0b101d] rounded-2xl border border-slate-300 dark:border-slate-800 text-xs shadow-inner">
                 <button 
                   type="button"
                   @click="setMetricTimeUnit('day')"
@@ -1289,16 +1302,16 @@
               <!-- Bento 1: #1 Tốc Độ Đỉnh -->
               <div 
                 @click="topSpeedChannel && viewChannelVideos(topSpeedChannel.channel_id)"
-                class="bg-[#0b101d] hover:bg-[#0f172a] border border-blue-900/40 hover:border-blue-500/50 rounded-3xl p-5 shadow-sm transition-all duration-300 flex items-center justify-between cursor-pointer select-none group"
+                class="bg-white dark:bg-[#0b101d] hover:bg-slate-50 dark:hover:bg-[#0f172a] border border-slate-200 dark:border-blue-900/40 hover:border-blue-400 dark:hover:border-blue-500/50 rounded-3xl p-5 shadow-sm transition-all duration-300 flex items-center justify-between cursor-pointer select-none group"
               >
                 <div>
-                  <div class="flex items-center space-x-2 text-blue-400 text-xs font-bold mb-2">
+                  <div class="flex items-center space-x-2 text-blue-500 dark:text-blue-400 text-xs font-bold mb-2">
                     <div class="w-6 h-6 rounded-lg bg-blue-500/20 flex items-center justify-center text-xs">
                       <i class="ph-fill ph-lightning"></i>
                     </div>
                     <span>#1 Tốc Độ Đỉnh</span>
                   </div>
-                  <div class="text-2xl font-black text-white">
+                  <div class="text-2xl font-black text-slate-900 dark:text-white">
                     +{{ formatNumber(metricTimeUnit === 'day' ? ((topSpeedChannel?.peak_vph || 0) * 24) : (topSpeedChannel?.peak_vph || 0)) }}
                     <span class="text-xs text-slate-400 font-medium">{{ metricTimeUnit === 'day' ? 'view/ngày' : 'view/h' }}</span>
                   </div>
@@ -1317,16 +1330,16 @@
               <!-- Bento 2: #1 Gom Traffic -->
               <div 
                 @click="topInflowChannel && viewChannelVideos(topInflowChannel.channel_id)"
-                class="bg-[#0b101d] hover:bg-[#0f172a] border border-emerald-900/40 hover:border-emerald-500/50 rounded-3xl p-5 shadow-sm transition-all duration-300 flex items-center justify-between cursor-pointer select-none group"
+                class="bg-white dark:bg-[#0b101d] hover:bg-slate-50 dark:hover:bg-[#0f172a] border border-slate-200 dark:border-emerald-900/40 hover:border-emerald-400 dark:hover:border-emerald-500/50 rounded-3xl p-5 shadow-sm transition-all duration-300 flex items-center justify-between cursor-pointer select-none group"
               >
                 <div>
-                  <div class="flex items-center space-x-2 text-emerald-400 text-xs font-bold mb-2">
+                  <div class="flex items-center space-x-2 text-emerald-500 dark:text-emerald-400 text-xs font-bold mb-2">
                     <div class="w-6 h-6 rounded-lg bg-emerald-500/20 flex items-center justify-center text-xs">
                       <i class="ph-fill ph-users"></i>
                     </div>
                     <span>#1 Gom Traffic</span>
                   </div>
-                  <div class="text-2xl font-black text-white">
+                  <div class="text-2xl font-black text-slate-900 dark:text-white">
                     +{{ formatNumber(metricTimeUnit === 'day' ? ((topInflowChannel?.total_channel_vph || 0) * 24) : (topInflowChannel?.total_channel_vph || 0)) }}
                     <span class="text-xs text-slate-400 font-medium">{{ metricTimeUnit === 'day' ? 'view/ngày' : 'view/h' }}</span>
                   </div>
@@ -1345,16 +1358,16 @@
               <!-- Bento 3: #1 Tỷ Lệ Bùng Nổ -->
               <div 
                 @click="topHitRateChannel && viewChannelVideos(topHitRateChannel.channel_id)"
-                class="bg-[#0b101d] hover:bg-[#0f172a] border border-amber-900/40 hover:border-amber-500/50 rounded-3xl p-5 shadow-sm transition-all duration-300 flex items-center justify-between cursor-pointer select-none group"
+                class="bg-white dark:bg-[#0b101d] hover:bg-slate-50 dark:hover:bg-[#0f172a] border border-slate-200 dark:border-amber-900/40 hover:border-amber-400 dark:hover:border-amber-500/50 rounded-3xl p-5 shadow-sm transition-all duration-300 flex items-center justify-between cursor-pointer select-none group"
               >
                 <div>
-                  <div class="flex items-center space-x-2 text-amber-400 text-xs font-bold mb-2">
+                  <div class="flex items-center space-x-2 text-amber-500 dark:text-amber-400 text-xs font-bold mb-2">
                     <div class="w-6 h-6 rounded-lg bg-amber-500/20 flex items-center justify-center text-xs">
                       <i class="ph-fill ph-fire"></i>
                     </div>
                     <span>#1 Tỷ Lệ Bùng Nổ</span>
                   </div>
-                  <div class="text-2xl font-black text-white">
+                  <div class="text-2xl font-black text-slate-900 dark:text-white">
                     {{ topHitRateChannel?.viral_rate || 73.3 }}%
                   </div>
                   <p class="text-[11px] text-slate-400 mt-1">Tỷ lệ video nổ cao nhất</p>
@@ -1372,16 +1385,16 @@
               <!-- Bento 4: Quy Mô Ngành -->
               <div 
                 @click="navigateFromSidebar('videos')"
-                class="bg-[#0b101d] hover:bg-[#0f172a] border border-blue-900/40 hover:border-blue-500/50 rounded-3xl p-5 shadow-sm transition-all duration-300 flex items-center justify-between cursor-pointer select-none group"
+                class="bg-white dark:bg-[#0b101d] hover:bg-slate-50 dark:hover:bg-[#0f172a] border border-slate-200 dark:border-blue-900/40 hover:border-blue-400 dark:hover:border-blue-500/50 rounded-3xl p-5 shadow-sm transition-all duration-300 flex items-center justify-between cursor-pointer select-none group"
               >
                 <div>
-                  <div class="flex items-center space-x-2 text-cyan-400 text-xs font-bold mb-2">
+                  <div class="flex items-center space-x-2 text-cyan-500 dark:text-cyan-400 text-xs font-bold mb-2">
                     <div class="w-6 h-6 rounded-lg bg-cyan-500/20 flex items-center justify-center text-xs">
                       <i class="ph-fill ph-chart-bar"></i>
                     </div>
                     <span>Quy Mô Ngành</span>
                   </div>
-                  <div class="text-2xl font-black text-white">
+                  <div class="text-2xl font-black text-slate-900 dark:text-white">
                     +{{ formatNumber(metricTimeUnit === 'day' ? ((marketStats?.total_vph || 0) * 24) : (marketStats?.total_vph || 0)) }}
                     <span class="text-xs text-slate-400 font-medium">{{ metricTimeUnit === 'day' ? 'view/ngày' : 'view/h' }}</span>
                   </div>
@@ -1403,14 +1416,14 @@
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6">
             
             <!-- Cột Trái: Top 5 Siêu Video Tăng Tốc Đột Biến -->
-            <div class="bg-[#0b101d] border border-slate-800 rounded-3xl p-5 shadow-sm flex flex-col justify-between">
+            <div class="bg-white dark:bg-[#0b101d] border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-sm flex flex-col justify-between transition-colors duration-200">
               <div>
                 <div class="flex items-center justify-between pb-3.5 border-b border-slate-800/80 mb-4">
                   <div class="flex items-center space-x-2.5">
                     <div class="w-7 h-7 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center text-sm shadow-sm">
                       <i class="ph-fill ph-fire"></i>
                     </div>
-                    <h3 class="text-sm sm:text-base font-black text-white">Top 5 Siêu Video Tăng Tốc Đột Biến</h3>
+                    <h3 class="text-sm sm:text-base font-black text-slate-900 dark:text-white">Top 5 Siêu Video Tăng Tốc Đột Biến</h3>
                   </div>
                   <button @click="navigateFromSidebar('videos')" class="text-xs text-blue-400 hover:text-blue-300 font-bold flex items-center gap-1 cursor-pointer">
                     <span>Xem tất cả</span>
@@ -1423,7 +1436,7 @@
                   <div 
                     v-for="(v, idx) in top5FastestVideos" 
                     :key="'fast-' + v.video_id"
-                    class="group flex items-center gap-3 p-2.5 sm:p-3 rounded-2xl bg-[#0e1628]/60 hover:bg-[#131b2e] border border-slate-800/80 hover:border-blue-500/40 transition-all duration-200"
+                    class="group flex items-center gap-3 p-2.5 sm:p-3 rounded-2xl bg-slate-50 dark:bg-[#0e1628]/60 hover:bg-slate-100 dark:hover:bg-[#131b2e] border border-slate-200/80 dark:border-slate-800/80 hover:border-blue-500/40 transition-all duration-200"
                   >
                     <!-- Rank Medal Badge -->
                     <div 
@@ -1446,7 +1459,7 @@
 
                     <!-- Video Details -->
                     <div class="flex-1 min-w-0">
-                      <a :href="v.url" target="_blank" class="text-xs font-bold text-white hover:text-blue-400 line-clamp-1" :title="v.title">
+                      <a :href="v.url" target="_blank" class="text-xs font-bold text-slate-900 dark:text-white hover:text-blue-500 dark:hover:text-blue-400 line-clamp-1" :title="v.title">
                         {{ v.title }}
                       </a>
                       <div class="text-[10px] text-slate-400 mt-0.5 truncate">
@@ -1501,14 +1514,14 @@
             </div>
 
             <!-- Cột Phải: Top 5 Kênh Thống Trị Lưu Lượng (Có Cụm 3 Thumbnail Preview!) -->
-            <div class="bg-[#0b101d] border border-slate-800 rounded-3xl p-5 shadow-sm flex flex-col justify-between">
+            <div class="bg-white dark:bg-[#0b101d] border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-sm flex flex-col justify-between transition-colors duration-200">
               <div>
                 <div class="flex items-center justify-between pb-3.5 border-b border-slate-800/80 mb-4">
                   <div class="flex items-center space-x-2.5">
                     <div class="w-7 h-7 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center text-sm shadow-sm">
                       <i class="ph-fill ph-chart-line-up"></i>
                     </div>
-                    <h3 class="text-sm sm:text-base font-black text-white">Top 5 Kênh Thống Trị Lưu Lượng</h3>
+                    <h3 class="text-sm sm:text-base font-black text-slate-900 dark:text-white">Top 5 Kênh Thống Trị Lưu Lượng</h3>
                   </div>
                   <button @click="navigateFromSidebar('channels')" class="text-xs text-blue-400 hover:text-blue-300 font-bold flex items-center gap-1 cursor-pointer">
                     <span>Xem tất cả</span>
@@ -1521,7 +1534,7 @@
                   <div 
                     v-for="(ch, idx) in top5TrafficChannels" 
                     :key="'traffic-' + ch.channel_id"
-                    class="group flex items-center gap-3 p-2.5 sm:p-3 rounded-2xl bg-[#0e1628]/60 hover:bg-[#131b2e] border border-slate-800/80 hover:border-blue-500/40 transition-all duration-200"
+                    class="group flex items-center gap-3 p-2.5 sm:p-3 rounded-2xl bg-slate-50 dark:bg-[#0e1628]/60 hover:bg-slate-100 dark:hover:bg-[#131b2e] border border-slate-200/80 dark:border-slate-800/80 hover:border-blue-500/40 transition-all duration-200"
                   >
                     <!-- Rank Badge -->
                     <div class="w-6 h-6 sm:w-7 sm:h-7 rounded-xl flex items-center justify-center text-xs font-black flex-shrink-0 bg-slate-800 text-slate-300">
@@ -1576,13 +1589,13 @@
           </div>
 
           <!-- 4. Section Video Radar Toàn Cảnh (Bộ Tabs Lọc & Lưới Video Chuẩn Screenshot) -->
-          <div class="bg-[#0b101d] border border-slate-800 rounded-3xl p-5 shadow-sm space-y-4">
+          <div class="bg-white dark:bg-[#0b101d] border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-sm space-y-4 transition-colors duration-200">
             
             <!-- Section Title & Search/Sort Bar -->
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-3 border-b border-slate-800/80">
               <div class="flex items-center space-x-2">
                 <i class="ph-fill ph-radar text-rose-500 text-lg"></i>
-                <h3 class="text-base font-black text-white">Video Radar Toàn Cảnh</h3>
+                <h3 class="text-base font-black text-slate-900 dark:text-white">Video Radar Toàn Cảnh</h3>
               </div>
 
               <div class="flex items-center flex-wrap gap-2 text-xs">
@@ -5580,13 +5593,16 @@
           isDark.value = !isDark.value;
           localStorage.setItem('APP_THEME', isDark.value ? 'dark' : 'light');
           applyTheme();
+          showToast(isDark.value ? '🌙 Đã chuyển sang chế độ Tối (Dark Cockpit)' : '☀️ Đã chuyển sang chế độ Sáng (Light Mode)');
         };
 
         const applyTheme = () => {
           if (isDark.value) {
             document.documentElement.classList.add('dark');
+            document.documentElement.classList.remove('light');
           } else {
             document.documentElement.classList.remove('dark');
+            document.documentElement.classList.add('light');
           }
         };
 
