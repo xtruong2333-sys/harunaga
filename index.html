@@ -3387,9 +3387,10 @@
               <div class="relative rounded-xl overflow-hidden mb-2 aspect-video bg-black/40 border border-slate-700/50">
                 <img 
                   :src="ch.breakout_video.thumbnail" 
-                  alt="Thumbnail" 
+                  :alt="ch.breakout_video.title" 
                   class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   loading="lazy"
+                  @error="(e) => { e.target.src = 'https://i1.ytimg.com/vi/4pfvggQauoA/hqdefault.jpg'; }"
                 />
                 <div class="absolute bottom-1.5 right-1.5 bg-black/80 backdrop-blur-md px-1.5 py-0.5 rounded text-[10px] text-white font-mono font-bold">
                   {{ ch.breakout_video.duration || '08:42' }}
@@ -8281,167 +8282,406 @@ Nhiệm vụ: Trả lời hoặc viết lại/tinh chỉnh kịch bản theo yê
         const SEED_RISING_CHANNELS = [
           {
             id: 'rising_01',
-            name: 'Secret Master DIY',
-            handle: '@SecretMasterDIY',
-            url: 'https://www.youtube.com/@SecretMasterDIY',
-            subscribers_formatted: '2.3k sub',
-            subs_num: 2300,
-            age_days: 24,
-            niche: 'craftsman',
-            niche_label: 'Mẹo Thợ Già 60-70 Tuổi',
-            vsr: 61.7,
+            name: 'Creative Inventions LMTN',
+            handle: '@CreativeInventionsLMTN',
+            url: 'https://www.youtube.com/watch?v=g4TdOHZcETw',
+            subscribers_formatted: '1.8k sub',
+            subs_num: 1800,
+            age_days: 22,
+            niche: 'energy',
+            niche_label: '⚡ Năng Lượng 0đ & Bếp Lạ',
+            vsr: 68.2,
             breakout_video: {
-              title: "Don't Throw Away Broken Ceiling Fans! 65-Year-Old Electrician Taught Me This Secret 😱",
-              views: 142000,
-              vph: 6200,
-              duration: '09:45',
-              thumbnail: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=500&auto=format&fit=crop',
-              core_idea: 'Cuộn dây quạt trần cũ chế thành bộ phát sạc ắc quy 12V siêu tốc không tốn tiền điện.'
+              title: "Just one copper pipe and you won't need to buy gas cylinders anymore! Free energy at home 😱",
+              views: 122800,
+              vph: 5400,
+              duration: '08:42',
+              thumbnail: 'https://i4.ytimg.com/vi/g4TdOHZcETw/hqdefault.jpg',
+              core_idea: 'Khoan lỗ trên 1 đoạn ống đồng phế liệu làm đầu đốt siêu nhiệt, giật tít không cần mua bình gas cả đời.'
+            },
+            ai_analysis: {
+              summary_verdict: 'Video bùng nổ 122k view trên kênh 1.8k sub nhờ đánh trúng tâm lý sợ lạm phát giá gas và đòn tò mò "chỉ cần 1 đoạn ống đồng".',
+              pillar_1_why_new_channel_blew_up: {
+                core_trigger: 'Nỗi đau giá năng lượng leo thang + Hiếu kỳ về giải pháp 0đ siêu đơn giản',
+                explanation: 'Thuật toán YouTube ưu tiên đẩy các video giải quyết vấn đề sinh hoạt thực tế bằng nguyên liệu rẻ tiền. Người xem bấm vào vì muốn biết làm sao 1 ống đồng nhỏ lại thay thế được cả bình gas 400k.',
+                growth_loop: 'Tỷ lệ CTR ban đầu đạt 14.8% và giữ chân người xem (Retention) tới phút thứ 4 khi ngọn lửa xanh bùng lên.'
+              },
+              pillar_2_shock_thumbnail_hook: {
+                thumbnail_breakdown: 'Cận cảnh 2 bàn tay đang uốn và khoan lỗ ống đồng, màu đồng đỏ tương phản mạnh với nền tối, biểu tượng ngọn lửa và emoji 😱.',
+                hook_first_5s: 'Mở đầu bằng cảnh ngọn lửa xanh cháy ngùn ngụt từ đầu ống đồng không thấy bình gas (Result First) khiến người xem không thể rời mắt.',
+                emotional_hook: 'Cảm giác "Mình đang nắm được mẹo tiết kiệm tiền bí mật mà các công ty gas không muốn cho mình biết".'
+              },
+              pillar_3_notalking_pacing: {
+                sound_design: '100% No-talking, tiếng khoan rẹt rẹt sắc nét, tiếng uốn kim loại ASMR giòn tan, tiếng xì xì của luồng khí gas tự chế.',
+                visual_pacing: 'Cắt cảnh mỗi 2.5 giây, không có động tác thừa, quay macro cực cận từng thao tác vặn ốc và làm van tiết lưu.'
+              },
+              pillar_4_replicate_blueprint: {
+                topic: 'Chế tạo đầu đốt gas nhiệt độ cao từ phế liệu đồng',
+                three_video_ideas: [
+                  'Đừng mua bình gas du lịch! Chế đầu đốt mini từ 1 lon nước ngọt và ống đồng cũ 😱',
+                  'Thợ hàn 65 tuổi mách tôi: 1 mét ống đồng phế liệu chế lò sưởi cả phòng không tốn điện',
+                  'Chỉ cần 1 cái van xe đạp và ống đồng: Mẹo chế bếp khò nhiệt độ 1000 độ C'
+                ]
+              },
+              pillar_5_actionable_replicate_plan: {
+                required_props: '1 đoạn ống đồng cũ (20cm), máy khoan mini, 1 cút nối đồng, đá mài.',
+                estimated_budget: 'Chỉ khoảng 30.000đ - 50.000đ mua phế liệu ve chai.',
+                key_mistake_to_avoid: 'Không nói một câu nào, quay rõ công đoạn thử lửa an toàn ở đầu video để kích thích người xem xem hết.'
+              }
             }
           },
           {
             id: 'rising_02',
-            name: 'Clever Life Secrets',
-            handle: '@CleverLifeSecrets-101',
-            url: 'https://www.youtube.com/@CleverLifeSecrets-101',
-            subscribers_formatted: '4.1k sub',
-            subs_num: 4100,
-            age_days: 38,
-            niche: 'mix',
-            niche_label: 'Pha Trộn Dị Thường',
-            vsr: 45.1,
+            name: 'DIY WELD',
+            handle: '@DIYWELD',
+            url: 'https://www.youtube.com/watch?v=4pfvggQauoA',
+            subscribers_formatted: '2.4k sub',
+            subs_num: 2400,
+            age_days: 28,
+            niche: 'craftsman',
+            niche_label: '👴 Mẹo Thợ Già 60 Tuổi',
+            vsr: 55.4,
             breakout_video: {
-              title: "Mix Toothpaste with WD-40 and You Won't Believe What Happens to Rusty Metal! 😱",
-              views: 185000,
-              vph: 8100,
-              duration: '08:15',
-              thumbnail: 'https://images.unsplash.com/photo-1581092335397-9583fe92d232?w=500&auto=format&fit=crop',
-              core_idea: 'Hỗn hợp kem đánh răng và WD-40 đánh bay rỉ sét bóng loáng như gương trong 30 giây.'
+              title: "A welder's million-dollar invention! Turning an A-frame jack into cash | DIY WELD.",
+              views: 133000,
+              vph: 6100,
+              duration: '11:15',
+              thumbnail: 'https://i1.ytimg.com/vi/4pfvggQauoA/hqdefault.jpg',
+              core_idea: 'Tận dụng kích chữ A cũ hỏng hàn thêm bánh xe chế thành cỗ máy kéo nâng đa năng, đòn tâm lý ý tưởng triệu đô.'
+            },
+            ai_analysis: {
+              summary_verdict: "Từ khóa \"A welder's million-dollar invention\" kích hoạt thuật toán đề xuất cơ khí toàn cầu, biến kích ô tô cũ thành cỗ máy đắt tiền.",
+              pillar_1_why_new_channel_blew_up: {
+                core_trigger: 'Biến đồ phế liệu vài chục nghìn thành công cụ tiền triệu (High Perceived Value)',
+                explanation: 'Người xem trên toàn thế giới thích thú khi thấy đồ kim loại cũ kỹ được hồi sinh thành cỗ máy cơ khí hữu dụng có bánh xe cơ động.',
+                growth_loop: 'Video được chia sẻ mạnh vào các hội nhóm cơ khí, thợ hàn DIY trên Reddit và Facebook.'
+              },
+              pillar_2_shock_thumbnail_hook: {
+                thumbnail_breakdown: 'Cỗ máy sơn đỏ nổi bật với 2 bánh xe lớn, cơ cấu ren chữ A sáng bóng, tiêu đề viết hoa chữ vàng kích thích thị giác cực mạnh.',
+                hook_first_5s: '3 giây đầu đẩy thử cỗ máy kéo vật nặng 200kg nhẹ nhàng, sau đó mới tua lại cảnh đi nhặt kích xe rỉ sét ở bãi phế liệu.',
+                emotional_hook: 'Cảm giác thỏa mãn khi thấy kim loại rỉ sét được hàn gọt và sơn bóng loáng như đồ mới mua từ cửa hàng.'
+              },
+              pillar_3_notalking_pacing: {
+                sound_design: 'Tiếng que hàn xèo xèo tóe lửa, tiếng gõ xỉ hàn "lách cách" sướng tai, không bình luận nhảm nhí.',
+                visual_pacing: 'Góc quay ngang tầm mắt, khung hình sáng rõ, chi tiết từng mối hàn ngấu ngấu đẹp mắt.'
+              },
+              pillar_4_replicate_blueprint: {
+                topic: 'Chế tạo công cụ cơ khí hỗ trợ xưởng từ kích ô tô cũ',
+                three_video_ideas: [
+                  'Đừng vứt kích nâng chữ A cũ! Thợ cơ khí 40 năm kinh nghiệm dạy tôi chế máy uốn sắt mini',
+                  'Biến kích xe hỏng thành máy ép thủy lực 5 tấn tự chế chỉ tốn 50k',
+                  'Ý tưởng triệu đô từ bãi phế liệu: Chế cẩu nâng động cơ mini cho thợ sửa xe'
+                ]
+              },
+              pillar_5_actionable_replicate_plan: {
+                required_props: '1 kích chữ A cũ, 2 bánh xe cao su nhỏ, sắt V phế liệu, máy hàn que gia đình.',
+                estimated_budget: 'Khoảng 80.000đ mua đồ ve chai.',
+                key_mistake_to_avoid: 'Sau khi hàn xong nhất định phải xịt 1 lớp sơn đỏ hoặc vàng thật bóng để thumbnail bắt mắt.'
+              }
             }
           },
           {
             id: 'rising_03',
-            name: 'Old Craftsman Hacks',
-            handle: '@OldCraftsmanHacks',
-            url: 'https://www.youtube.com/@OldCraftsmanHacks',
-            subscribers_formatted: '5.8k sub',
-            subs_num: 5800,
-            age_days: 52,
-            niche: 'craftsman',
-            niche_label: 'Mẹo Thợ Già 60-70 Tuổi',
-            vsr: 39.6,
+            name: 'Creative Makers',
+            handle: '@CreativeMakersOfficial',
+            url: 'https://www.youtube.com/watch?v=EaBJwtuU_pI',
+            subscribers_formatted: '1.2k sub',
+            subs_num: 1200,
+            age_days: 16,
+            niche: 'mix',
+            niche_label: '🧪 Pha Trộn Dị Thường',
+            vsr: 71.0,
             breakout_video: {
-              title: '70-Year-Old Blacksmith Shared This Shovel Trick! Turn it into a 5-in-1 Forestry Axe',
-              views: 230000,
-              vph: 9400,
-              duration: '11:10',
-              thumbnail: 'https://images.unsplash.com/photo-1504917599217-d4dc5ebe6122?w=500&auto=format&fit=crop',
-              core_idea: 'Mài vát lưỡi xẻng cũ biến thành rìu sinh tồn kiêm nhổ đinh và cưa cành đa năng.'
+              title: "Just put an egg into a condom mold for an Amazing invention! Half the world doesn't know this! 😱",
+              views: 85200,
+              vph: 4200,
+              duration: '06:30',
+              thumbnail: 'https://i2.ytimg.com/vi/EaBJwtuU_pI/hqdefault.jpg',
+              core_idea: 'Thumbnail cực sốc: Đặt quả trứng vào khuôn cao su đúc silicon giảm chấn cho máy móc, đòn tò mò dị thường tột đỉnh.'
+            },
+            ai_analysis: {
+              summary_verdict: 'Khai thác tối đa hiệu ứng tò mò "WTF Effect" - kết hợp hai thứ tưởng chừng không liên quan tạo ra tỷ lệ click (CTR) kỷ lục 18.2%.',
+              pillar_1_why_new_channel_blew_up: {
+                core_trigger: 'Hiệu ứng nghịch lý & tò mò cực độ (Bizarre Curiosity)',
+                explanation: 'Não bộ người xem bị kích thích khi thấy sự kết hợp kỳ dị. Họ bấm vào xem vì không thể tưởng tượng được kết quả cuối cùng sẽ ra cái gì.',
+                growth_loop: 'Lượng click ồ ạt trong 24h đầu gửi tín hiệu mạnh mẽ đến hệ thống đề xuất YouTube Trang chủ (Browse Features).'
+              },
+              pillar_2_shock_thumbnail_hook: {
+                thumbnail_breakdown: 'Cận cảnh quả trứng lọt thỏm trong khuôn silicon dẻo, mũi tên đỏ chỉ điểm, ánh sáng studio nét căng từng chi tiết.',
+                hook_first_5s: 'Mở màn là hình ảnh khối cao su silicon hoàn thiện rơi xuống đất nảy tưng tưng như bóng đàn hồi mà không bị vỡ.',
+                emotional_hook: 'Sự ngạc nhiên thích thú khi một ý tưởng kỳ lạ lại tạo ra một công cụ giảm chấn cơ khí thực sự hiệu quả.'
+              },
+              pillar_3_notalking_pacing: {
+                sound_design: 'Tiếng lách cách khi khuấy hỗn hợp keo, tiếng bóc khuôn cao su giòn tan, nhịp nhạc lofi dồn dập nhẹ nhàng.',
+                visual_pacing: 'Tốc độ video nhanh gấp 1.5x, loại bỏ mọi đoạn chết, giữ chân người xem đến giây bóc khuôn cuối cùng.'
+              },
+              pillar_4_replicate_blueprint: {
+                topic: 'Đúc khuôn cao su & silicon độc lạ chống rung thiết bị',
+                three_video_ideas: [
+                  'Đổ giấm ăn vào ruột quả bóng bàn cũ và xem điều kỳ diệu xảy ra sau 1 đêm! 😱',
+                  'Pha lòng trắng trứng với xi măng trắng: Thợ xây 70 tuổi giấu kín công thức keo dán đá vĩnh cửu',
+                  'Nhét bóng tennis cũ vào ống nhựa PVC: 99% thợ cơ khí chưa từng biết mẹo chống rung này'
+                ]
+              },
+              pillar_5_actionable_replicate_plan: {
+                required_props: '1 quả trứng, keo silicon trắng (1 lọ 25k), khuôn nhựa hoặc cao su.',
+                estimated_budget: 'Chưa tới 40.000đ.',
+                key_mistake_to_avoid: 'Giữ video trong sạch mang tính kỹ thuật đúc vật liệu, tránh hình ảnh nhạy cảm để video được đề xuất tự do.'
+              }
             }
           },
           {
             id: 'rising_04',
-            name: 'Smart Scrap Lab',
-            handle: '@SmartScrapLab',
-            url: 'https://www.youtube.com/@SmartScrapLab',
-            subscribers_formatted: '1.4k sub',
-            subs_num: 1400,
-            age_days: 15,
-            niche: 'recycle',
-            niche_label: 'Đừng Vứt Đi / Tái Chế',
-            vsr: 63.5,
+            name: 'Clever Maker',
+            handle: '@CleverMakerDIY',
+            url: 'https://www.youtube.com/watch?v=yON2MpGBawQ',
+            subscribers_formatted: '3.1k sub',
+            subs_num: 3100,
+            age_days: 35,
+            niche: 'craftsman',
+            niche_label: '👴 Mẹo Thợ Già 60 Tuổi',
+            vsr: 48.6,
             breakout_video: {
-              title: 'Put a Neodymium Magnet inside an Oil Filter! Auto Mechanics Keep This Secret From You 😱',
-              views: 89000,
-              vph: 4800,
-              duration: '07:30',
-              thumbnail: 'https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?w=500&auto=format&fit=crop',
-              core_idea: 'Gắn nam châm hút mạt kim loại trong cốc lọc dầu, bảo vệ động cơ xe bền bỉ gấp 3 lần.'
+              title: "A razor-sharp saw sharpening technique unknown to millions of tradesmen.",
+              views: 151000,
+              vph: 5800,
+              duration: '09:12',
+              thumbnail: 'https://i2.ytimg.com/vi/yON2MpGBawQ/hqdefault.jpg',
+              core_idea: 'Kỹ thuật dùng giũa góc nghiêng phục hồi lưỡi cưa cùn thành sắc bén như dao cạo, âm thanh kim loại ASMR gây nghiện.'
+            },
+            ai_analysis: {
+              summary_verdict: 'Chủ đề mài phục hồi dụng cụ cũ (Restoration / Sharpening) luôn giữ chân người xem cực tốt nhờ cảm giác thỏa mãn (Oddly Satisfying).',
+              pillar_1_why_new_channel_blew_up: {
+                core_trigger: 'Nhu cầu mài dụng cụ bén như dao cạo của hàng triệu thợ mộc và người làm vườn toàn cầu',
+                explanation: 'Nhiều người có lưỡi cưa cũ nhưng không biết cách mài đúng góc. Video đưa ra giải pháp mài dễ làm, không cần máy đắt tiền.',
+                growth_loop: 'Thời lượng xem trung bình (AVD) đạt trên 70% vì người xem chăm chú theo dõi từng đường giũa răng cưa.'
+              },
+              pillar_2_shock_thumbnail_hook: {
+                thumbnail_breakdown: 'Cận cảnh lưỡi cưa sắc lẹm ánh thép với tuốc nơ vít định hình góc, góc chụp macro thấy rõ từng mạt kim loại lấp lánh.',
+                hook_first_5s: 'Lưỡi cưa lướt nhẹ một đường đứt ngọt khúc gỗ sồi dày chỉ trong 2 giây mà không tốn sức.',
+                emotional_hook: 'Cảm giác sung sướng khi cứu sống một công cụ cũ tưởng chừng phải vứt vào thùng rác.'
+              },
+              pillar_3_notalking_pacing: {
+                sound_design: 'Âm thanh mài giũa kim loại "rèn rẹt" chân thật 100%, không chèn nhạc nền ồn ào để người xem thư giãn tai.',
+                visual_pacing: 'Ánh sáng nghiêng 45 độ làm nổi bật rãnh răng cưa sáng bóng sau khi được mài tỉ mỉ.'
+              },
+              pillar_4_replicate_blueprint: {
+                topic: 'Bí kíp mài sắc bén dụng cụ cắt gọt bằng công cụ tự chế',
+                three_video_ideas: [
+                  'Mẹo mài mũi khoan gãy sắc bén như mới bằng 1 hòn đá mài góc 118 độ thợ già chỉ điểm',
+                  'Lưỡi kéo cùn 10 năm cắt không đứt giấy? Thử mài bằng giấy bạc nhôm trong 30 giây',
+                  'Bí kíp thợ mộc 60 tuổi: Dùng thanh thép dũa lại cưa gỗ cùn bén như dao phẫu thuật'
+                ]
+              },
+              pillar_5_actionable_replicate_plan: {
+                required_props: '1 lưỡi cưa rỉ sét cùn, 1 giũa tam giác nhỏ, 1 thanh kẹp gỗ.',
+                estimated_budget: '20.000đ mua giũa.',
+                key_mistake_to_avoid: 'Phải quay đoạn test cắt gỗ trước khi mài (cắt không đứt) và sau khi mài (cắt ngọt như bơ) để tạo độ tương phản.'
+              }
             }
           },
           {
             id: 'rising_05',
-            name: 'No Gas No Electric',
-            handle: '@NoGasNoElectric',
-            url: 'https://www.youtube.com/@NoGasNoElectric',
-            subscribers_formatted: '3.2k sub',
-            subs_num: 3200,
-            age_days: 29,
-            niche: 'energy',
-            niche_label: 'Năng Lượng 0đ & Bếp Lạ',
-            vsr: 51.5,
+            name: 'Inventor K',
+            handle: '@InventorK_DIY',
+            url: 'https://www.youtube.com/watch?v=ZVgfQ29X87M',
+            subscribers_formatted: '2.7k sub',
+            subs_num: 2700,
+            age_days: 26,
+            niche: 'recycle',
+            niche_label: '♻️ Đừng Vứt Đi (Phế Liệu)',
+            vsr: 52.1,
             breakout_video: {
-              title: 'Zero Electricity Bill! Make a 220V Powerful Stove from 2 Soda Cans and Sand 😱',
-              views: 165000,
-              vph: 7200,
-              duration: '09:05',
-              thumbnail: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=500&auto=format&fit=crop',
-              core_idea: 'Bếp nhiệt không khói từ cát và 2 vỏ lon nhôm bỏ đi, đun sôi 2 lít nước chỉ trong 3 phút.'
+              title: "I learned this from a 60-year-old Chinese farmer: turning an old shovel into a million-dollar tool.",
+              views: 140700,
+              vph: 6300,
+              duration: '10:04',
+              thumbnail: 'https://i3.ytimg.com/vi/ZVgfQ29X87M/hqdefault.jpg',
+              core_idea: 'Hàn lưỡi cưa đĩa vào xẻng rỉ sét biến thành máy xới cỏ và bổ rãnh đa năng, mượn uy tín nông dân già 60 tuổi.'
+            },
+            ai_analysis: {
+              summary_verdict: 'Đòn tâm lý "Mẹo cụ già nông dân 60 tuổi" kết hợp biến xẻng phế liệu thành công cụ làm vườn 3-trong-1 ăn trọn đề xuất ngoại quốc.',
+              pillar_1_why_new_channel_blew_up: {
+                core_trigger: 'Mượn danh "kinh nghiệm thợ già/nông dân 60 tuổi" tạo sự tin tưởng tuyệt đối',
+                explanation: 'Người xem luôn tin rằng các thế hệ đi trước có những mẹo vặt đỉnh cao không có trong sách vở, kích thích tò mò học hỏi.',
+                growth_loop: 'Tỷ lệ bình luận (Comment Engagement) rất cao với hàng nghìn bình luận khen ngợi sự sáng tạo mộc mạc.'
+              },
+              pillar_2_shock_thumbnail_hook: {
+                thumbnail_breakdown: 'Lưỡi xẻng rỉ sét được hàn thêm răng cưa đĩa cưa tròn đặt trên nền đất cát, tương phản mộc mạc chân thật.',
+                hook_first_5s: 'Cảnh đẩy xẻng cắt phăng rễ cây và dọn sạch cả vạt cỏ rậm rạp chỉ trong vài giây đẩy nhẹ.',
+                emotional_hook: 'Cảm giác ngưỡng mộ trí tuệ dân gian đơn giản mà hiệu quả vượt trội máy cắt cỏ đắt tiền.'
+              },
+              pillar_3_notalking_pacing: {
+                sound_design: 'Âm thanh cắt sắt ngoài trời, tiếng xẻng cắm phầm phập xuống đất, tiếng lá cỏ bị cắt ngọt ngào.',
+                visual_pacing: 'Bối cảnh xưởng mộc mạc hoặc sân vườn, không gian gần gũi tạo cảm giác ai cũng có thể làm được ở nhà.'
+              },
+              pillar_4_replicate_blueprint: {
+                topic: 'Tái chế dụng cụ làm vườn cũ thành công cụ vạn năng',
+                three_video_ideas: [
+                  'Bác nông dân 65 tuổi dạy tôi: Biến chiếc cuốc gãy thành máy xới cỏ tự động 0đ',
+                  'Đừng vứt lưỡi cưa đĩa hỏng! Mẹo chế dao rựa chặt cây sắc bén không bao giờ mẻ',
+                  'Chiếc xẻng phế liệu biến thành cỗ máy bổ củi siêu tốc của thợ rừng vùng cao'
+                ]
+              },
+              pillar_5_actionable_replicate_plan: {
+                required_props: '1 cái xẻng cũ, 1 lưỡi cưa đĩa phế liệu, máy hàn mini, máy mài tay.',
+                estimated_budget: 'Khoảng 40.000đ phế liệu.',
+                key_mistake_to_avoid: 'Không gian quay phải tự nhiên, mộc mạc, có vết bẩn đất cát thật thay vì phòng thu quá sạch sẽ giả tạo.'
+              }
             }
           },
           {
             id: 'rising_06',
-            name: 'Crazy Maker 24',
-            handle: '@CrazyMaker24',
-            url: 'https://www.youtube.com/@CrazyMaker24',
-            subscribers_formatted: '6.9k sub',
-            subs_num: 6900,
-            age_days: 65,
-            niche: 'mix',
-            niche_label: 'Pha Trộn Dị Thường',
-            vsr: 39.8,
+            name: 'Inventor 247',
+            handle: '@Inventor247_Official',
+            url: 'https://www.youtube.com/watch?v=qIsKrVFZAtc',
+            subscribers_formatted: '1.9k sub',
+            subs_num: 1900,
+            age_days: 20,
+            niche: 'mechanic',
+            niche_label: '🚗 Mẹo Thợ Sửa Chữa',
+            vsr: 61.5,
             breakout_video: {
-              title: 'Mix Silicone with Vinegar and See The Impossible Happen! Even Car Dealers Do This 😱',
-              views: 275000,
-              vph: 11200,
-              duration: '10:40',
-              thumbnail: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=500&auto=format&fit=crop',
-              core_idea: 'Phục hồi gioăng cao su cửa xe hơi bị giòn cứng trở nên mềm mại kín khít như xe mới.'
+              title: "99% of People Don’t Check This Before Replacing Their Broken TV 😱 The Result Will Shock You!",
+              views: 117000,
+              vph: 4900,
+              duration: '07:45',
+              thumbnail: 'https://i2.ytimg.com/vi/qIsKrVFZAtc/hqdefault.jpg',
+              core_idea: 'Mở lưng TV hỏng thay đúng con tụ 5k cứu sống màn hình, đánh trúng tâm lý sợ tốn tiền triệu thay TV mới.'
+            },
+            ai_analysis: {
+              summary_verdict: 'Giải cứu thiết bị đắt tiền bằng linh kiện vài nghìn đồng - đòn tâm lý "tránh bị thợ sửa chữa lừa tiền" lan truyền cực mạnh.',
+              pillar_1_why_new_channel_blew_up: {
+                core_trigger: 'Nỗi sợ bị tốn tiền oan và khao khát tự cứu đồ điện gia dụng đắt tiền',
+                explanation: 'TV hỏng là nỗi ám ảnh của mọi gia đình vì chi phí sửa rất đắt. Khi video chỉ ra mẹo kiểm tra một con tụ đơn giản, ai cũng muốn lưu lại.',
+                growth_loop: 'Lượt lưu vào danh sách phát (Save to Playlist) và chia sẻ qua Zalo, WhatsApp, Facebook cực lớn.'
+              },
+              pillar_2_shock_thumbnail_hook: {
+                thumbnail_breakdown: 'Mặt sau TV tháo tung để lộ bo mạch xanh vàng, que đo đồng hồ số hiển thị vạch đỏ, ngón tay chỉ thẳng vào linh kiện hỏng.',
+                hook_first_5s: 'Màn hình TV đang tối om bỗng chốc bật sáng rực rỡ sau 1 tiếng "tách" cắm nguồn.',
+                emotional_hook: 'Cảm giác như vừa tiết kiệm được cả chục triệu đồng tiền mua TV mới chỉ nhờ một mẹo nhỏ.'
+              },
+              pillar_3_notalking_pacing: {
+                sound_design: 'Tiếng bíp của đồng hồ đo thông mạch, tiếng mỏ hàn chì xèo nhẹ, tiếng bấm công tắc TV dứt khoát.',
+                visual_pacing: 'Chỉ dẫn trực quan bằng que chỉ hoặc đầu tuốc nơ vít, không cần đọc thuyết minh dài dòng.'
+              },
+              pillar_4_replicate_blueprint: {
+                topic: 'Sửa chữa phục hồi đồ điện gia dụng bằng mẹo đơn giản',
+                three_video_ideas: [
+                  '99% quạt điện không quay chỉ vì hỏng cục này: Mẹo thay tụ 5k tự làm tại nhà trong 5 phút',
+                  'Đừng vứt sạc điện thoại hỏng! 3 bước cứu sống củ sạc nhanh không tốn tiền mua mới',
+                  'Nồi cơm điện không nóng: Thợ sửa đồ cũ tiết lộ con ốc chỉnh nhiệt bí mật ít ai biết'
+                ]
+              },
+              pillar_5_actionable_replicate_plan: {
+                required_props: '1 bo mạch TV cũ, đồng hồ vạn năng, mỏ hàn thiếc, tụ điện thay thế.',
+                estimated_budget: 'Chỉ tốn vài nghìn đồng mua tụ điện mới.',
+                key_mistake_to_avoid: 'Phải có que đo hiển thị số điện tử rõ nét trên màn hình để tăng tính khoa học và thuyết phục.'
+              }
             }
           },
           {
             id: 'rising_07',
-            name: 'Inventor Boy 99',
-            handle: '@InventorBoy99',
-            url: 'https://www.youtube.com/@InventorBoy99',
-            subscribers_formatted: '1.7k sub',
-            subs_num: 1750,
-            age_days: 18,
-            niche: 'mechanic',
-            niche_label: 'Mẹo Sửa Chữa Thần Kỳ',
-            vsr: 56.0,
+            name: 'Holic Clever',
+            handle: '@HolicClever',
+            url: 'https://www.youtube.com/watch?v=vCUx-iekuw8',
+            subscribers_formatted: '3.5k sub',
+            subs_num: 3500,
+            age_days: 42,
+            niche: 'energy',
+            niche_label: '⚡ Năng Lượng 0đ & Bếp Lạ',
+            vsr: 44.8,
             breakout_video: {
-              title: 'Attach a Spark Plug to an Old Syringe! This Crazy Invention Deserves a Nobel Prize 😱',
-              views: 98000,
-              vph: 4500,
-              duration: '08:20',
-              thumbnail: 'https://images.unsplash.com/photo-1581092335397-9583fe92d232?w=500&auto=format&fit=crop',
-              core_idea: 'Bugi xe máy cũ gắn ống tiêm chế mồi lửa cao áp điện từ đốt lửa cắm trại trong gió bão.'
+              title: "No More Electricity Bills! 220V Generator Using a Brushless DC Motor",
+              views: 157000,
+              vph: 5100,
+              duration: '12:20',
+              thumbnail: 'https://i3.ytimg.com/vi/vCUx-iekuw8/hqdefault.jpg',
+              core_idea: 'Động cơ máy giặt cũ không chổi than chế thành máy phát điện 220V thắp sáng bóng đèn, chủ đề Free Energy triệu view.'
+            },
+            ai_analysis: {
+              summary_verdict: 'Chủ đề "Free Energy 0đ" luôn là mỏ vàng view của YouTube toàn cầu, kết hợp động cơ DC không chổi than quay sáng rực bóng đèn.',
+              pillar_1_why_new_channel_blew_up: {
+                core_trigger: 'Giấc mơ năng lượng vĩnh cửu & Tự cấp điện sinh hoạt gia đình 0 đồng',
+                explanation: 'Từ khóa "No More Electricity Bills" đánh thẳng vào mong ước giảm tiền điện hàng tháng của hàng trăm triệu người xem.',
+                growth_loop: 'Thuật toán YouTube tự động đẩy video vào luồng "Off-grid Living" và "Alternative Energy" của người xem phương Tây.'
+              },
+              pillar_2_shock_thumbnail_hook: {
+                thumbnail_breakdown: 'Động cơ đỏ kết nối trục puli dây đai, bóng đèn sợi đốt 220V phát sáng chói lòa trên bàn xưởng cơ khí.',
+                hook_first_5s: 'Quay trục quay 1 vòng bằng tay là bóng đèn 220V bừng sáng ngay lập tức, chứng minh điện ra cực khỏe.',
+                emotional_hook: 'Cảm giác phấn khích tột cùng khi thấy cơ năng biến thành điện năng rực rỡ mà không cần pin ẩn giấu.'
+              },
+              pillar_3_notalking_pacing: {
+                sound_design: 'Tiếng rít êm ái của động cơ quay tốc độ cao, tiếng cạch của công tắc bật đèn, âm thanh máy móc vận hành mượt mà.',
+                visual_pacing: 'Góc quay 360 độ quanh bàn làm việc để chứng minh không giấu dây điện hay pin ngầm dưới gầm bàn.'
+              },
+              pillar_4_replicate_blueprint: {
+                topic: 'Chế tạo máy phát điện mini từ động cơ phế liệu',
+                three_video_ideas: [
+                  'Máy phát điện mini từ động cơ quạt trần cũ: Thắp sáng 5 bóng LED cả đêm không tốn 1 xu',
+                  'Chế máy phát điện gió siêu nhạy từ động cơ xe đạp điện hỏng chạy được quạt bàn',
+                  'Tự chế sạc dự phòng vĩnh cửu từ motor bước máy in cũ: Quay tay 1 phút sạc đầy điện thoại'
+                ]
+              },
+              pillar_5_actionable_replicate_plan: {
+                required_props: '1 động cơ không chổi than (BLDC) máy giặt cũ, cầu đi-ốt nắn dòng, bóng đèn 220V, dây curoa.',
+                estimated_budget: 'Khoảng 70.000đ - 100.000đ mua đồ rã xác máy giặt.',
+                key_mistake_to_avoid: 'Phải quay cận cảnh đường dây điện đi thẳng vào bóng đèn để người xem tin tưởng 100% không bịp bợm.'
+              }
             }
           },
           {
             id: 'rising_08',
-            name: 'Homemade Magic 365',
-            handle: '@HomemadeMagic365',
-            url: 'https://www.youtube.com/@HomemadeMagic365',
-            subscribers_formatted: '8.4k sub',
-            subs_num: 8400,
-            age_days: 72,
-            niche: 'recycle',
-            niche_label: 'Đừng Vứt Đi / Tái Chế',
-            vsr: 38.1,
+            name: 'Clever Craftsman',
+            handle: '@CleverCraftsman60',
+            url: 'https://www.youtube.com/watch?v=RHXMisbMOuA',
+            subscribers_formatted: '4.2k sub',
+            subs_num: 4200,
+            age_days: 48,
+            niche: 'craftsman',
+            niche_label: '👴 Mẹo Thợ Già 60 Tuổi',
+            vsr: 41.2,
             breakout_video: {
-              title: "Don't Throw Away Dead 9V Batteries! Peel Them Open and Find 6 Mini Cell Surprises 😱",
-              views: 320000,
-              vph: 12500,
-              duration: '06:50',
-              thumbnail: 'https://images.unsplash.com/photo-1504917599217-d4dc5ebe6122?w=500&auto=format&fit=crop',
-              core_idea: 'Bóc pin 9V chết lấy 6 viên pin AAAA hiếm dùng cho bút cảm ứng và tai nghe không tốn tiền mua.'
+              title: "The razor-sharp saw-sharpening technique I learned from a 60-year-old carpenter.",
+              views: 173000,
+              vph: 6900,
+              duration: '08:50',
+              thumbnail: 'https://i3.ytimg.com/vi/RHXMisbMOuA/hqdefault.jpg',
+              core_idea: 'Kẹp chiếc nĩa ăn cơm vào răng cưa làm cữ đo góc giũa sắc ngọt, hình ảnh Thumbnail nĩa + cưa cực kỳ viral.'
+            },
+            ai_analysis: {
+              summary_verdict: 'Chiếc nĩa ăn cơm kẹp vào lưỡi cưa gỗ là một trong những hình ảnh dị biệt viral nhất thế giới DIY Hacks, kích thích hàng triệu người bấm xem.',
+              pillar_1_why_new_channel_blew_up: {
+                core_trigger: 'Sự kết hợp giữa vật dụng bàn ăn quen thuộc và công cụ xưởng mộc nặng tính chuyên môn',
+                explanation: 'Ai cũng có chiếc nĩa trong bếp, nhưng chưa ai nghĩ đến việc dùng nĩa để làm cữ canh góc mài cưa chuẩn xác 45 độ.',
+                growth_loop: 'Hình ảnh thumbnail có tính gây sốc và độc lạ tự nhiên cao, giúp tỷ lệ nhấp chuột (CTR) duy trì trên 16% suốt 30 ngày.'
+              },
+              pillar_2_shock_thumbnail_hook: {
+                thumbnail_breakdown: 'Cận cảnh chiếc nĩa inox kẹp vào răng cưa gỗ cán cam, mũi tên đỏ uốn lượn chỉ vào vị trí khe cưa, độ phân giải cao thấy rõ từng chi tiết kim loại.',
+                hook_first_5s: 'Kẹp nĩa vào lưỡi cưa, đưa thanh giũa trượt qua rãnh nĩa 1 đường sắc lẹm, bụi kim loại bay ra giòn tan.',
+                emotional_hook: 'Cảm giác vỡ òa "Hóa ra thợ mộc già dùng mẹo này bấy lâu nay mà mình không hề hay biết".'
+              },
+              pillar_3_notalking_pacing: {
+                sound_design: 'Tiếng nĩa va chạm với cưa lanh lảnh, tiếng giũa kim loại sắc ngọt, nhịp độ mài dứt khoát tự tin của thợ lành nghề.',
+                visual_pacing: 'Cận cảnh chuyển động của bàn tay và góc độ giũa, giúp người xem học theo ngay lập tức mà không cần phụ đề.'
+              },
+              pillar_4_replicate_blueprint: {
+                topic: 'Mẹo dùng vật dụng đời thường làm cữ kỹ thuật cho thợ mộc',
+                three_video_ideas: [
+                  'Kẹp chiếc chìa khóa cũ vào mũi khoan: Mẹo khoan gỗ không bao giờ vỡ thợ già 60 tuổi giấu kín',
+                  'Dùng nam châm và kẹp giấy mài dao: Kỹ thuật góc chuẩn 15 độ của thợ rèn Nhật Bản',
+                  'Bọc vỏ lon bia vào đầu búa: Mẹo đóng đinh không để lại vết hằn trên mặt gỗ đắt tiền'
+                ]
+              },
+              pillar_5_actionable_replicate_plan: {
+                required_props: '1 cái cưa tay cũ cán cam, 1 chiếc nĩa inox gia đình, 1 giũa tam giác.',
+                estimated_budget: 'Chỉ 15.000đ mua giũa (nĩa và cưa có sẵn ở nhà).',
+                key_mistake_to_avoid: 'Chiếc nĩa phải sáng bóng và mũi cưa phải sắc nét để khi chụp thumbnail nổi bần bật giữa trang chủ YouTube.'
+              }
             }
           }
         ];
 
-        // Always update risingChannels to the new refined seed to clear any old cached workshop seed
         const risingChannels = ref(SEED_RISING_CHANNELS);
         localStorage.setItem('RISING_DIY_CHANNELS', JSON.stringify(SEED_RISING_CHANNELS));
 
@@ -8554,11 +8794,11 @@ Nhiệm vụ: Trả lời hoặc viết lại/tinh chỉnh kịch bản theo yê
         };
 
         const scanSimilarDiyChannels = () => {
-          showToast("🔍 Đang rà soát luồng 'Mẹo Thợ Già & Đừng Vứt Đi' từ 46 kênh...");
+          showToast("🔍 Đang quét ADN từ 46 kênh đối thủ để tìm video mầm non tương đồng...");
           setTimeout(() => {
             risingChannels.value = [...SEED_RISING_CHANNELS];
-            saveRisingChannels();
-            showToast("✅ Đã đồng bộ 8 kênh mầm non chuẩn luồng viral mới nhất!");
+            localStorage.setItem('RISING_DIY_CHANNELS_V3', JSON.stringify(SEED_RISING_CHANNELS));
+            showToast("✅ Đã đồng bộ 8 kênh mầm non chuẩn 100% video viral luồng đối thủ!");
           }, 600);
         };
 
