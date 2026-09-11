@@ -1256,6 +1256,46 @@
         </div>
       </div>
 
+      <!-- Header Controls: Tiêu đề & Nút Chuyển Đổi Theo Ngày / Theo Giờ -->
+      <div class="flex items-center justify-between flex-wrap gap-2 pt-1 pb-0.5">
+        <div class="flex items-center space-x-2">
+          <span class="text-xs font-black uppercase tracking-wider text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+            <i class="ph-fill ph-chart-bar text-rose-500 text-sm"></i>
+            <span>Chỉ Số Radar Lưu Lượng</span>
+          </span>
+          <span class="text-[10px] text-slate-400 font-medium hidden sm:inline">
+            (Đang hiển thị: <strong class="text-rose-500 dark:text-rose-400">{{ metricTimeUnit === 'day' ? 'Chu kỳ 24 Giờ (Theo Ngày)' : 'Chu kỳ 1 Giờ (Theo Giờ)' }}</strong>)
+          </span>
+        </div>
+
+        <!-- Time Unit Switcher Pill -->
+        <div class="inline-flex items-center p-0.5 bg-slate-200 dark:bg-slate-900/90 rounded-2xl border border-slate-300 dark:border-slate-800 text-xs shadow-inner">
+          <button 
+            type="button"
+            @click="setMetricTimeUnit('day')"
+            :class="metricTimeUnit === 'day' 
+              ? 'bg-gradient-to-r from-rose-600 to-purple-600 text-white font-black shadow-md shadow-purple-950/40' 
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-semibold'"
+            class="px-3.5 py-1.5 rounded-xl transition cursor-pointer flex items-center space-x-1.5"
+          >
+            <i class="ph-bold ph-calendar-blank text-sm"></i>
+            <span>Theo Ngày (24h)</span>
+          </button>
+
+          <button 
+            type="button"
+            @click="setMetricTimeUnit('hour')"
+            :class="metricTimeUnit === 'hour' 
+              ? 'bg-gradient-to-r from-rose-600 to-purple-600 text-white font-black shadow-md shadow-purple-950/40' 
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-semibold'"
+            class="px-3.5 py-1.5 rounded-xl transition cursor-pointer flex items-center space-x-1.5"
+          >
+            <i class="ph-bold ph-clock text-sm"></i>
+            <span>Theo Giờ (1h)</span>
+          </button>
+        </div>
+      </div>
+
       <!-- 4 Bento Intelligence Metric Cards (Hào quang RGB Wave khi rê chuột) -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         
@@ -1272,14 +1312,20 @@
                 <i class="ph-fill ph-trophy text-amber-400 text-base"></i>
                 <span>#1 Tốc Độ Đỉnh</span>
               </span>
-              <span class="text-[10px] font-black px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400">Top Speed</span>
+              <span class="text-[10px] font-black px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400">
+                {{ metricTimeUnit === 'day' ? 'VPD / Ngày' : 'Top Speed' }}
+              </span>
             </div>
             <div v-if="topSpeedChannel" class="mt-3">
               <h4 class="text-sm sm:text-base font-black text-slate-900 dark:text-white truncate group-hover:text-indigo-500 transition" :title="topSpeedChannel.name">{{ topSpeedChannel.name }}</h4>
               <div class="text-[11px] text-slate-400 font-mono truncate">{{ topSpeedChannel.handle }}</div>
               <div class="mt-3 flex items-baseline space-x-1.5">
-                <span class="text-2xl font-black text-rose-600 dark:text-rose-400">+{{ formatNumber(topSpeedChannel.peak_vph) }}</span>
-                <span class="text-xs text-slate-500 dark:text-slate-400 font-medium">view/h</span>
+                <span class="text-2xl font-black text-rose-600 dark:text-rose-400">
+                  +{{ formatNumber(metricTimeUnit === 'day' ? (topSpeedChannel.peak_vph * 24) : topSpeedChannel.peak_vph) }}
+                </span>
+                <span class="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                  {{ metricTimeUnit === 'day' ? 'view/ngày' : 'view/h' }}
+                </span>
               </div>
             </div>
           </div>
@@ -1302,14 +1348,20 @@
                 <i class="ph-fill ph-waves text-blue-400 text-base"></i>
                 <span>#1 Gom Traffic</span>
               </span>
-              <span class="text-[10px] font-black px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400">Top Traffic</span>
+              <span class="text-[10px] font-black px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400">
+                {{ metricTimeUnit === 'day' ? 'Traffic / Ngày' : 'Top Traffic' }}
+              </span>
             </div>
             <div v-if="topInflowChannel" class="mt-3">
               <h4 class="text-sm sm:text-base font-black text-slate-900 dark:text-white truncate group-hover:text-blue-500 transition" :title="topInflowChannel.name">{{ topInflowChannel.name }}</h4>
               <div class="text-[11px] text-slate-400 font-mono truncate">{{ topInflowChannel.handle }}</div>
               <div class="mt-3 flex items-baseline space-x-1.5">
-                <span class="text-2xl font-black text-blue-600 dark:text-blue-400">+{{ formatNumber(topInflowChannel.total_channel_vph) }}</span>
-                <span class="text-xs text-slate-500 dark:text-slate-400 font-medium">view/h (cả kênh)</span>
+                <span class="text-2xl font-black text-blue-600 dark:text-blue-400">
+                  +{{ formatNumber(metricTimeUnit === 'day' ? (topInflowChannel.total_channel_vph * 24) : topInflowChannel.total_channel_vph) }}
+                </span>
+                <span class="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                  {{ metricTimeUnit === 'day' ? 'view/ngày (cả kênh)' : 'view/h (cả kênh)' }}
+                </span>
               </div>
             </div>
           </div>
@@ -1368,8 +1420,12 @@
               <h4 class="text-sm sm:text-base font-black text-slate-900 dark:text-white truncate group-hover:text-emerald-500 transition">Lưu Lượng Thị Trường</h4>
               <div class="text-[11px] text-slate-400 font-mono truncate">DIY & Inventions Global</div>
               <div class="mt-3 flex items-baseline space-x-1.5">
-                <span class="text-2xl font-black text-emerald-600 dark:text-emerald-400">+{{ formatNumber(marketStats.total_vph) }}</span>
-                <span class="text-xs text-slate-500 dark:text-slate-400 font-medium">view/h (Toàn ngành)</span>
+                <span class="text-2xl font-black text-emerald-600 dark:text-emerald-400">
+                  +{{ formatNumber(metricTimeUnit === 'day' ? (marketStats.total_vph * 24) : marketStats.total_vph) }}
+                </span>
+                <span class="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                  {{ metricTimeUnit === 'day' ? 'view/ngày (Toàn ngành)' : 'view/h (Toàn ngành)' }}
+                </span>
               </div>
             </div>
           </div>
@@ -1394,7 +1450,7 @@
                 </div>
                 <div>
                   <h3 class="text-sm sm:text-base font-black text-slate-900 dark:text-white">Top 5 Siêu Video Tăng Tốc Đột Biến</h3>
-                  <p class="text-[11px] text-slate-500 dark:text-slate-400">Vận tốc View/h đo được cao nhất hiện tại</p>
+                  <p class="text-[11px] text-slate-500 dark:text-slate-400">{{ metricTimeUnit === 'day' ? 'Vận tốc View/ngày đo được cao nhất hiện tại' : 'Vận tốc View/h đo được cao nhất hiện tại' }}</p>
                 </div>
               </div>
               <span class="text-[10px] font-black px-2.5 py-1 rounded-full bg-rose-500/10 text-rose-500 border border-rose-500/20 flex items-center gap-1">
@@ -1435,7 +1491,7 @@
                   <div class="flex items-center gap-2 mt-1 text-[11px]">
                     <span class="font-black text-rose-600 dark:text-rose-400 flex items-center">
                       <i class="ph-fill ph-trend-up text-rose-500 mr-1"></i>
-                      +{{ formatNumber(v.effective_vph) }}/h
+                      +{{ formatNumber(metricTimeUnit === 'day' ? (v.effective_vph * 24) : v.effective_vph) }}{{ metricTimeUnit === 'day' ? '/ngày' : '/h' }}
                     </span>
                     <span class="text-slate-400">•</span>
                     <span class="text-slate-500 dark:text-slate-400">{{ formatNumber(v.views) }} view</span>
@@ -1486,7 +1542,7 @@
                 </div>
                 <div>
                   <h3 class="text-sm sm:text-base font-black text-slate-900 dark:text-white">Top 5 Kênh Thống Trị Lưu Lượng</h3>
-                  <p class="text-[11px] text-slate-500 dark:text-slate-400">Tổng lưu lượng view/h 15 video mới nhất</p>
+                  <p class="text-[11px] text-slate-500 dark:text-slate-400">{{ metricTimeUnit === 'day' ? 'Tổng lưu lượng view/ngày 15 video mới nhất' : 'Tổng lưu lượng view/h 15 video mới nhất' }}</p>
                 </div>
               </div>
               <span class="text-[10px] font-black px-2.5 py-1 rounded-full bg-blue-500/10 text-blue-500 border border-blue-500/20">
@@ -1516,7 +1572,7 @@
                   <div class="flex items-center justify-between">
                     <span class="text-xs sm:text-sm font-black text-slate-900 dark:text-slate-100 truncate" :title="ch.name">{{ ch.name }}</span>
                     <span class="text-xs font-black text-blue-600 dark:text-blue-400 whitespace-nowrap ml-2">
-                      +{{ formatNumber(ch.total_channel_vph) }}/h
+                      +{{ formatNumber(metricTimeUnit === 'day' ? (ch.total_channel_vph * 24) : ch.total_channel_vph) }}{{ metricTimeUnit === 'day' ? '/ngày' : '/h' }}
                     </span>
                   </div>
                   <div class="flex items-center space-x-2 text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
@@ -5512,6 +5568,13 @@
           }
         };
 
+        // Time unit for Overview metrics: 'day' (default: view/ngày) or 'hour' (view/h)
+        const metricTimeUnit = ref(localStorage.getItem('METRIC_TIME_UNIT') || 'day');
+        const setMetricTimeUnit = (unit) => {
+          metricTimeUnit.value = unit;
+          localStorage.setItem('METRIC_TIME_UNIT', unit);
+        };
+
         // Tab 1: Video filtering and sorting
         const filteredVideos = computed(() => {
           let list = [...allVideos.value];
@@ -6524,6 +6587,8 @@ Nhiệm vụ: Trả lời hoặc viết lại/tinh chỉnh kịch bản theo yê
           channelViewMode,
           setChannelSort,
           channelMetrics,
+          metricTimeUnit,
+          setMetricTimeUnit,
           marketStats,
           topSpeedChannel,
           topInflowChannel,
