@@ -21,6 +21,7 @@ CHANNELS_FILE = os.path.join(BASE_DIR, "channels.json")
 DATA_DIR = os.path.join(BASE_DIR, "data")
 VIDEOS_FILE = os.path.join(DATA_DIR, "videos.json")
 HISTORY_FILE = os.path.join(DATA_DIR, "history.json")
+AVATARS_FILE = os.path.join(DATA_DIR, "channel_avatars.json")
 
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
@@ -88,6 +89,51 @@ def resolve_channel_id(handle_or_url: str, cache: dict) -> str | None:
 
     except Exception as e:
         print(f"❌ Lỗi phân giải kênh '{handle_or_url}': {e}")
+
+    return None
+
+def resolve_channel_avatar(handle_or_url: str, cache: dict) -> str | None:
+    """
+    Lấy link ảnh avatar đại diện chính thức của kênh YouTube từ YouTube HTML.
+    Không tốn quota API.
+    """
+    cleaned = handle_or_url.strip()
+    if cleaned in cache and cache[cleaned]:
+        return cache[cleaned]
+
+    url = cleaned
+    if not url.startswith("http"):
+        if not cleaned.startswith("@"):
+            cleaned = "@" + cleaned
+        url = f"https://www.youtube.com/{cleaned}"
+
+    try:
+        req = urllib.request.Request(url, headers=HEADERS)
+        with urllib.request.urlopen(req, timeout=12) as resp:
+            html = resp.read().decode("utf-8", errors="ignore")
+
+        # 1. Thẻ meta og:image chuẩn
+        m = re.search(r'<meta property="og:image" content="([^"]+)">', html)
+        if m and "yt3.googleusercontent.com" in m.group(1):
+            av = m.group(1)
+            cache[cleaned] = av
+            return av
+
+        # 2. Trong JSON ytInitialData
+        m2 = re.search(r'"avatar":\{"thumbnails":\[\{"url":"([^"]+)"', html)
+        if m2:
+            av = m2.group(1)
+            cache[cleaned] = av
+            return av
+
+        # 3. Bất kỳ link yt3.googleusercontent.com nào
+        m3 = re.search(r'(https://yt3\.googleusercontent\.com/[a-zA-Z0-9_-]+=[^"\s&]+)', html)
+        if m3:
+            av = m3.group(1)
+            cache[cleaned] = av
+            return av
+    except Exception as e:
+        print(f"⚠️ Không thể lấy avatar cho '{handle_or_url}': {e}")
 
     return None
 
@@ -208,6 +254,7 @@ def run():
     history = load_json(HISTORY_FILE, {"channel_cache": {}, "videos": {}})
     channel_cache = history.setdefault("channel_cache", {})
     video_history = history.setdefault("videos", {})
+    avatars_cache = load_json(AVATARS_FILE, {})
 
     discord_webhook = os.environ.get("DISCORD_WEBHOOK_URL", "").strip()
     discord_webhook_2 = os.environ.get("DISCORD_WEBHOOK_URL_2", "").strip()
@@ -242,6 +289,19 @@ def run():
         if not channel_id:
             print(f"⚠️ Bỏ qua {ch_name}: Không tìm thấy Channel ID.")
             continue
+
+        ch_avatar = (
+            ch.get("avatar")
+            or existing_channels_map.get(channel_id, {}).get("avatar")
+            or existing_channels_map.get(ch_name, {}).get("avatar")
+            or avatars_cache.get(ch_name)
+            or avatars_cache.get(handle_or_url)
+        )
+        if not ch_avatar:
+            ch_avatar = resolve_channel_avatar(handle_or_url, avatars_cache)
+            if ch_avatar:
+                avatars_cache[ch_name] = ch_avatar
+                avatars_cache[handle_or_url] = ch_avatar
 
         raw_videos = fetch_channel_videos(channel_id)
         print(f"   -> Lấy được {len(raw_videos)} video mới nhất.")
@@ -283,6 +343,7 @@ def run():
                     "channel_id": channel_id,
                     "threshold": threshold,
                     "channel_median": c_median,
+                    "avatar": ch_avatar,
                     "videos": c_videos
                 })
                 continue
@@ -430,6 +491,7 @@ def run():
             "channel_id": channel_id,
             "threshold": threshold,
             "channel_median": channel_median,
+            "avatar": ch_avatar,
             "videos": processed_videos
         })
 
@@ -457,6 +519,7 @@ def run():
 
     save_json(VIDEOS_FILE, output_payload)
     save_json(HISTORY_FILE, history)
+    save_json(AVATARS_FILE, avatars_cache)
 
     print(f"\n✨ [HOÀN TẤT] Đã quét {len(all_channels_data)} kênh, tổng {total_videos_count} video ({viral_videos_count} video viral).")
     print(f"📁 Dữ liệu lưu tại: {VIDEOS_FILE}")
