@@ -211,10 +211,11 @@ def run():
 
     discord_webhook = os.environ.get("DISCORD_WEBHOOK_URL", "").strip()
     discord_webhook_2 = os.environ.get("DISCORD_WEBHOOK_URL_2", "").strip()
-    if not discord_webhook and not discord_webhook_2:
-        print("ℹ️ [DISCORD] Biến môi trường DISCORD_WEBHOOK_URL hoặc DISCORD_WEBHOOK_URL_2 chưa được truyền.")
+    discord_webhook_3 = os.environ.get("DISCORD_WEBHOOK_URL_3", "").strip() or os.environ.get("RADAR_DISCORD_WEBHOOK", "").strip()
+    if not discord_webhook and not discord_webhook_2 and not discord_webhook_3:
+        print("ℹ️ [DISCORD] Biến môi trường DISCORD_WEBHOOK_URL, DISCORD_WEBHOOK_URL_2 hoặc DISCORD_WEBHOOK_URL_3 chưa được truyền.")
     else:
-        print(f"🔔 [DISCORD] Đã kết nối Webhook: Kênh 1 {'(Có)' if discord_webhook else '(Chưa)'} | Kênh 2 {'(Có)' if discord_webhook_2 else '(Chưa)'}")
+        print(f"🔔 [DISCORD] Đã kết nối Webhook: Kênh 1 {'(Có)' if discord_webhook else '(Chưa)'} | Kênh 2 {'(Có)' if discord_webhook_2 else '(Chưa)'} | Kênh 3 {'(Có)' if discord_webhook_3 else '(Chưa)'}")
 
     gh_repo = os.environ.get("GITHUB_REPOSITORY", "").strip()
     dashboard_url = os.environ.get("DASHBOARD_URL", "")
