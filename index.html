@@ -19,6 +19,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
+  <meta name="referrer" content="no-referrer">
   <title>Bắt Bài Đối Thủ • Radar Tình Báo YouTube & AI Remake by Truongday</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔥</text></svg>">
   
@@ -2142,10 +2143,21 @@
                     <div class="flex items-center space-x-3">
                       <!-- Color indicator dot & Channel Name -->
                       <div 
-                        class="w-8 h-8 rounded-xl flex items-center justify-center font-black text-xs text-white shadow-md flex-shrink-0"
+                        class="w-9 h-9 rounded-xl flex items-center justify-center font-black text-xs text-white shadow-md flex-shrink-0 overflow-hidden relative"
                         :style="{ backgroundColor: focusedChannelIntel.color }"
                       >
-                        {{ (focusedChannelIntel.name || 'C').charAt(0).toUpperCase() }}
+                        <img 
+                          v-if="focusedChannelIntel.avatar" 
+                          :src="focusedChannelIntel.avatar" 
+                          :alt="focusedChannelIntel.name" 
+                          referrerpolicy="no-referrer"
+                          class="w-full h-full object-cover rounded-xl"
+                          loading="lazy"
+                          @error="(e) => { e.target.style.display = 'none'; if(e.target.nextElementSibling) e.target.nextElementSibling.style.display = 'flex'; }"
+                        />
+                        <span :style="{ display: focusedChannelIntel.avatar ? 'none' : 'flex' }" class="items-center justify-center w-full h-full font-black text-xs">
+                          {{ (focusedChannelIntel.name || 'C').charAt(0).toUpperCase() }}
+                        </span>
                       </div>
                       <div>
                         <div class="flex items-center space-x-2">
@@ -2448,8 +2460,19 @@
                     </div>
 
                     <!-- Channel Avatar Logo -->
-                    <div @click="viewChannelVideos(ch.channel_id)" class="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-xs font-black text-white flex-shrink-0 shadow-sm overflow-hidden cursor-pointer hover:scale-105 transition" :title="'Xem video kênh: ' + ch.name">
-                      <span>{{ (ch.name || 'K')[0] }}</span>
+                    <div @click="viewChannelVideos(ch.channel_id)" class="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-xs font-black text-white flex-shrink-0 shadow-sm overflow-hidden cursor-pointer hover:scale-105 transition relative" :title="'Xem video kênh: ' + ch.name">
+                      <img 
+                        v-if="ch.avatar" 
+                        :src="ch.avatar" 
+                        :alt="ch.name" 
+                        referrerpolicy="no-referrer"
+                        class="w-full h-full object-cover rounded-xl"
+                        loading="lazy"
+                        @error="(e) => { e.target.style.display = 'none'; if(e.target.nextElementSibling) e.target.nextElementSibling.style.display = 'flex'; }"
+                      />
+                      <span :style="{ display: ch.avatar ? 'none' : 'flex' }" class="items-center justify-center w-full h-full font-black text-xs">
+                        {{ (ch.name || 'K')[0] }}
+                      </span>
                     </div>
 
                     <!-- Channel Info -->
@@ -3265,14 +3288,25 @@
                   <div class="flex items-center justify-between gap-3">
                     <!-- Avatar with Luxury Gradient Frame -->
                     <div 
-                      class="rounded-2xl flex items-center justify-center font-black flex-shrink-0 shadow-md transition-all duration-300 group-hover:scale-105"
+                      class="rounded-2xl flex items-center justify-center font-black flex-shrink-0 shadow-md transition-all duration-300 group-hover:scale-105 overflow-hidden relative"
                       :class="cIdx === 0 
-                        ? 'w-13 h-13 bg-gradient-to-br from-amber-400 via-orange-500 to-rose-600 text-slate-950 text-2xl border-2 border-amber-300 shadow-amber-500/30' 
+                        ? 'w-14 h-14 bg-gradient-to-br from-amber-400 via-orange-500 to-rose-600 text-slate-950 text-2xl border-2 border-amber-300 shadow-amber-500/30' 
                         : (cIdx === 1 
-                          ? 'w-11 h-11 bg-gradient-to-br from-slate-200 via-slate-300 to-cyan-500 text-slate-950 text-xl border border-slate-300 shadow-slate-400/20' 
-                          : 'w-11 h-11 bg-gradient-to-br from-amber-600 via-orange-600 to-amber-700 text-white text-xl border border-amber-600 shadow-orange-500/20')"
+                          ? 'w-12 h-12 bg-gradient-to-br from-slate-200 via-slate-300 to-cyan-500 text-slate-950 text-xl border-2 border-slate-300 shadow-slate-400/20' 
+                          : 'w-12 h-12 bg-gradient-to-br from-amber-600 via-orange-600 to-amber-700 text-white text-xl border-2 border-amber-600 shadow-orange-500/20')"
                     >
-                      {{ ch.name.charAt(0) }}
+                      <img 
+                        v-if="ch.avatar" 
+                        :src="ch.avatar" 
+                        :alt="ch.name" 
+                        referrerpolicy="no-referrer"
+                        class="w-full h-full object-cover rounded-xl"
+                        loading="lazy"
+                        @error="(e) => { e.target.style.display = 'none'; if(e.target.nextElementSibling) e.target.nextElementSibling.style.display = 'flex'; }"
+                      />
+                      <span :style="{ display: ch.avatar ? 'none' : 'flex' }" class="items-center justify-center w-full h-full font-black">
+                        {{ ch.name.charAt(0) }}
+                      </span>
                     </div>
 
                     <!-- Minimalist Frosted Rank Badge -->
@@ -3411,8 +3445,19 @@
                 <!-- Channel Header -->
                 <div class="flex items-start justify-between gap-2.5">
                   <div class="flex items-center space-x-2.5 min-w-0">
-                    <div class="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 text-indigo-500 dark:text-indigo-400 flex items-center justify-center font-black text-sm flex-shrink-0 border border-slate-200 dark:border-slate-700/60 shadow-sm">
-                      {{ ch.name.charAt(0) }}
+                    <div class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 text-indigo-500 dark:text-indigo-400 flex items-center justify-center font-black text-sm flex-shrink-0 border border-slate-200 dark:border-slate-700/60 shadow-sm overflow-hidden relative">
+                      <img 
+                        v-if="ch.avatar" 
+                        :src="ch.avatar" 
+                        :alt="ch.name" 
+                        referrerpolicy="no-referrer"
+                        class="w-full h-full object-cover rounded-lg"
+                        loading="lazy"
+                        @error="(e) => { e.target.style.display = 'none'; if(e.target.nextElementSibling) e.target.nextElementSibling.style.display = 'flex'; }"
+                      />
+                      <span :style="{ display: ch.avatar ? 'none' : 'flex' }" class="items-center justify-center w-full h-full font-black text-sm">
+                        {{ ch.name.charAt(0) }}
+                      </span>
                     </div>
                     <div class="min-w-0 flex-1">
                       <div class="flex items-center space-x-1">
@@ -3512,8 +3557,26 @@
                   </span>
                 </td>
                 <td class="py-3 px-4">
-                  <div class="font-bold text-slate-900 dark:text-white">{{ ch.name }}</div>
-                  <div class="text-[10px] text-slate-400 font-mono">{{ ch.handle }}</div>
+                  <div class="flex items-center space-x-2.5">
+                    <div class="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center font-black text-xs text-indigo-500 overflow-hidden flex-shrink-0 border border-slate-200 dark:border-slate-700/60 shadow-sm relative">
+                      <img 
+                        v-if="ch.avatar" 
+                        :src="ch.avatar" 
+                        :alt="ch.name" 
+                        referrerpolicy="no-referrer"
+                        class="w-full h-full object-cover rounded-lg"
+                        loading="lazy"
+                        @error="(e) => { e.target.style.display = 'none'; if(e.target.nextElementSibling) e.target.nextElementSibling.style.display = 'flex'; }"
+                      />
+                      <span :style="{ display: ch.avatar ? 'none' : 'flex' }" class="items-center justify-center w-full h-full font-bold text-xs">
+                        {{ ch.name.charAt(0) }}
+                      </span>
+                    </div>
+                    <div class="min-w-0">
+                      <div class="font-bold text-slate-900 dark:text-white truncate">{{ ch.name }}</div>
+                      <div class="text-[10px] text-slate-400 font-mono truncate">{{ ch.handle }}</div>
+                    </div>
+                  </div>
                 </td>
                 <td class="py-3 px-4 font-black text-rose-600 dark:text-rose-400">
                   +{{ formatNumber(ch.peak_vph) }}/h
@@ -6849,10 +6912,26 @@
                   :key="idx" 
                   class="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800/60 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700/70 transition"
                 >
-                  <div class="min-w-0 flex-1 pr-2">
-                    <div class="font-bold text-slate-900 dark:text-white text-xs sm:text-sm truncate">{{ ch.name }}</div>
-                    <div class="text-[11px] text-slate-500 dark:text-slate-400 font-mono mt-0.5 truncate">
-                      {{ ch.handle_or_url }} • Ngưỡng: <span class="text-amber-600 dark:text-amber-400 font-bold">{{ (ch.min_views_per_hour || 5000).toLocaleString() }}</span> view/h
+                  <div class="flex items-center space-x-3 min-w-0 flex-1 pr-2">
+                    <div class="w-8 h-8 rounded-xl bg-slate-200 dark:bg-slate-700 flex items-center justify-center font-bold text-xs text-indigo-500 overflow-hidden flex-shrink-0 relative">
+                      <img 
+                        v-if="ch.avatar || (channelAvatarsMap && (channelAvatarsMap[ch.name] || channelAvatarsMap[ch.handle_or_url]))" 
+                        :src="ch.avatar || (channelAvatarsMap && (channelAvatarsMap[ch.name] || channelAvatarsMap[ch.handle_or_url]))" 
+                        :alt="ch.name"
+                        referrerpolicy="no-referrer"
+                        class="w-full h-full object-cover rounded-xl"
+                        loading="lazy"
+                        @error="(e) => { e.target.style.display = 'none'; if(e.target.nextElementSibling) e.target.nextElementSibling.style.display = 'flex'; }"
+                      />
+                      <span :style="{ display: (ch.avatar || (channelAvatarsMap && (channelAvatarsMap[ch.name] || channelAvatarsMap[ch.handle_or_url]))) ? 'none' : 'flex' }" class="items-center justify-center w-full h-full font-bold text-xs">
+                        {{ ch.name ? ch.name.charAt(0) : '?' }}
+                      </span>
+                    </div>
+                    <div class="min-w-0 flex-1">
+                      <div class="font-bold text-slate-900 dark:text-white text-xs sm:text-sm truncate">{{ ch.name }}</div>
+                      <div class="text-[11px] text-slate-500 dark:text-slate-400 font-mono mt-0.5 truncate">
+                        {{ ch.handle_or_url }} • Ngưỡng: <span class="text-amber-600 dark:text-amber-400 font-bold">{{ (ch.min_views_per_hour || 5000).toLocaleString() }}</span> view/h
+                      </div>
                     </div>
                   </div>
                   <button 
@@ -8052,8 +8131,19 @@
             <div class="relative z-10 flex items-start sm:items-center justify-between gap-3">
               <!-- Channel Basic Info -->
               <div class="flex items-center space-x-3.5 min-w-0">
-                <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-600 text-white font-black text-2xl flex items-center justify-center shadow-lg ring-2 ring-indigo-400/40 flex-shrink-0">
-                  {{ selectedChannelProfile.name ? selectedChannelProfile.name.charAt(0) : '?' }}
+                <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-600 text-white font-black text-2xl flex items-center justify-center shadow-lg ring-2 ring-indigo-400/40 flex-shrink-0 overflow-hidden relative">
+                  <img 
+                    v-if="selectedChannelProfile.avatar" 
+                    :src="selectedChannelProfile.avatar" 
+                    :alt="selectedChannelProfile.name" 
+                    referrerpolicy="no-referrer"
+                    class="w-full h-full object-cover rounded-2xl"
+                    loading="lazy"
+                    @error="(e) => { e.target.style.display = 'none'; if(e.target.nextElementSibling) e.target.nextElementSibling.style.display = 'flex'; }"
+                  />
+                  <span :style="{ display: selectedChannelProfile.avatar ? 'none' : 'flex' }" class="items-center justify-center w-full h-full font-black text-2xl">
+                    {{ selectedChannelProfile.name ? selectedChannelProfile.name.charAt(0) : '?' }}
+                  </span>
                 </div>
                 <div class="min-w-0 flex-1">
                   <div class="flex items-center space-x-2 flex-wrap">
@@ -9212,6 +9302,7 @@
           viral_count: 0
         });
         const channels = ref([]);
+        const channelAvatarsMap = ref({});
         const allVideos = ref([]);
         const lastUpdatedFormatted = ref('');
         const lastUpdatedIso = ref('');
@@ -9530,6 +9621,16 @@
             if (!res.ok) throw new Error("Không thể tải data/videos.json");
             const data = await res.json();
 
+            // Tải danh bạ ảnh đại diện Avatar chính thức của các kênh
+            try {
+              const avRes = await fetch(`./data/channel_avatars.json?t=${Date.now()}`);
+              if (avRes.ok) {
+                channelAvatarsMap.value = await avRes.json();
+              }
+            } catch (e) {
+              console.warn("Không thể tải channel_avatars.json:", e);
+            }
+
             stats.value = {
               total_channels: data.total_channels || 0,
               total_videos: data.total_videos || 0,
@@ -9832,10 +9933,15 @@
               performanceTier = 'slow';
             }
 
+            const chAvatar = ch.avatar 
+              || (channelAvatarsMap.value && (channelAvatarsMap.value[ch.name] || channelAvatarsMap.value[ch.handle_or_url])) 
+              || null;
+
             return {
               name: ch.name,
               handle: ch.handle_or_url,
               channel_id: ch.channel_id,
+              avatar: chAvatar,
               threshold: ch.threshold,
               channel_median: ch.channel_median || 0,
               videos: vids,
@@ -11940,6 +12046,7 @@ Nhiệm vụ: Trả lời hoặc viết lại/tinh chỉnh kịch bản theo yê
           aiVideosList,
           stats,
           channels,
+          channelAvatarsMap,
           allVideos,
           lastUpdatedFormatted,
           timeSinceUpdate,
