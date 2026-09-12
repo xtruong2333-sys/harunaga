@@ -4,7 +4,7 @@ import re
 import json
 import urllib.request
 import xml.etree.ElementTree as ET
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 # Fix Windows console unicode encoding
 if sys.stdout and hasattr(sys.stdout, "reconfigure"):
@@ -320,17 +320,21 @@ def run():
                         pvid = pv.get("video_id")
                         prev_pinfo = video_history.get(pvid)
                         p_already_alerted = prev_pinfo.get("alerted", False) if prev_pinfo else False
-                        if not p_already_alerted and (discord_webhook or discord_webhook_2 or discord_webhook_3):
-                            target_whs = []
-                            if discord_webhook:
-                                target_whs.append(discord_webhook)
-                            if discord_webhook_2:
-                                target_whs.append(discord_webhook_2)
-                            if discord_webhook_3:
-                                target_whs.append(discord_webhook_3)
-                            wh_str = ",".join(target_whs) if target_whs else ""
-                            a_type = "outlier" if pv.get("outlier_score", 0) >= 3.0 else "viral"
-                            p_alert_sent = send_discord_alert(wh_str, pv, ch_name, threshold, dashboard_url, a_type)
+                        if not p_already_alerted and (discord_webhook or discord_webhook_2):
+                            p_outlier = pv.get("outlier_score", 0) >= 3.0 or "clever" in ch_name.lower()
+                            p_sent_1 = False
+                            p_sent_2 = False
+
+                            # Phòng 1: Toàn bộ video bão view (bot Đi đâu con lợn này)
+                            wh_1 = discord_webhook or discord_webhook_2
+                            if wh_1:
+                                p_sent_1 = send_discord_alert(wh_1, pv, ch_name, threshold, dashboard_url, "viral")
+
+                            # Phòng 2: Chỉ nhận video Đột Biến x3 hoặc kênh Clever (bot chạy đâu con sâu)
+                            if discord_webhook_2 and p_outlier and wh_1 != discord_webhook_2:
+                                p_sent_2 = send_discord_alert(discord_webhook_2, pv, ch_name, threshold, dashboard_url, "outlier")
+
+                            p_alert_sent = p_sent_1 or p_sent_2
                             video_history[pvid] = {
                                 "last_views": pv.get("views", 0),
                                 "last_checked": now_iso,
@@ -453,16 +457,20 @@ def run():
             already_alerted = prev_info.get("alerted", False) if prev_info else False
             
             if is_viral and is_recent and not already_alerted:
-                target_webhooks = []
-                if discord_webhook:
-                    target_webhooks.append(discord_webhook)
-                if discord_webhook_2:
-                    target_webhooks.append(discord_webhook_2)
-                if discord_webhook_3:
-                    target_webhooks.append(discord_webhook_3)
-                alert_type = "outlier" if outlier_score >= 3.0 else "viral"
-                wh_str = ",".join(target_webhooks) if target_webhooks else ""
-                alert_sent = send_discord_alert(wh_str, v_entry, ch_name, threshold, dashboard_url, alert_type)
+                is_outlier = (outlier_score >= 3.0 or "clever" in ch_name.lower())
+                sent_1 = False
+                sent_2 = False
+
+                # 🐷 PHÒNG 1: Bão View (Đi đâu con lợn này)
+                wh_1 = discord_webhook or discord_webhook_2
+                if wh_1:
+                    sent_1 = send_discord_alert(wh_1, v_entry, ch_name, threshold, dashboard_url, "viral")
+
+                # 🐛 PHÒNG 2: Siêu Đột Biến x3 hoặc kênh Clever (chạy đâu con sâu)
+                if discord_webhook_2 and is_outlier and wh_1 != discord_webhook_2:
+                    sent_2 = send_discord_alert(discord_webhook_2, v_entry, ch_name, threshold, dashboard_url, "outlier")
+
+                alert_sent = sent_1 or sent_2
                 
                 # Cập nhật lịch sử cảnh báo
                 video_history[vid] = {
@@ -500,9 +508,10 @@ def run():
         })
 
     # 3. Ghi kết quả ra file data
+    now_vn = now.astimezone(timezone(timedelta(hours=7))) if hasattr(now, 'astimezone') else now
     output_payload = {
         "last_updated": now_iso,
-        "last_updated_formatted": now.strftime("%H:%M:%S - %d/%m/%Y (UTC)"),
+        "last_updated_formatted": now_vn.strftime("%H:%M:%S - %d/%m/%Y (Giờ VN)"),
         "scan_schedule": {
             "section_1_frequency": "1h",
             "section_2_frequency": "daily_midnight",
