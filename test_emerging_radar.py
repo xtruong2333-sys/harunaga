@@ -141,5 +141,71 @@ class TestEmergingRadar(unittest.TestCase):
         self.assertEqual(res_one["viral_repeat_count"], 1)
         self.assertGreater(res_one["radar_score"], 0)
 
+    def test_discord_channel_discovery_alert(self):
+        from unittest.mock import patch, MagicMock
+        from discord_notifier import send_channel_discovery_alert
+
+        # 1. Missing webhook URL should return False without crashing
+        self.assertFalse(send_channel_discovery_alert("", {}))
+        self.assertFalse(send_channel_discovery_alert(None, {}))
+
+        # 2. Valid webhook URL with mock
+        sample_channel = {
+            "title": "Smart Scrap Lab",
+            "handle": "@SmartScrapLab",
+            "channel_id": "UC_test_scrap_999",
+            "subscriber_count": 3420,
+            "subscribers_formatted": "3.42K",
+            "active_age_days": 48,
+            "radar_score": 88.5,
+            "views_90d": 640000,
+            "median_views_90d": 92000,
+            "median_views_per_sub": 26.9,
+            "viral_repeat_count": 5,
+            "hit_rate": 0.83,
+            "median_view_velocity": 14200.0,
+            "presets": ["SUPER_EARLY_BREAKOUT"],
+            "star_video": {
+                "title": "Recycle Broken Bits",
+                "url": "https://youtube.com/watch?v=123",
+                "views": 360000,
+                "views_per_sub": 105.2,
+                "view_velocity": 28500.0
+            }
+        }
+        sample_ai = {
+            "result": {
+                "executive_summary": "Tăng trưởng tốt.",
+                "why_channel_is_growing": {"primary_growth_drivers": ["Driver A"]}
+            }
+        }
+
+        mock_resp = MagicMock()
+        mock_resp.status = 204
+        mock_resp.__enter__.return_value = mock_resp
+
+        with patch("urllib.request.urlopen", return_value=mock_resp) as mock_urlopen:
+            # Test new_channel alert
+            success_new = send_channel_discovery_alert(
+                "https://discord.com/api/webhooks/123/abc",
+                sample_channel,
+                sample_channel["star_video"],
+                sample_ai,
+                alert_type="new_channel"
+            )
+            self.assertTrue(success_new)
+            self.assertTrue(mock_urlopen.called)
+
+            # Test breakout alert
+            success_breakout = send_channel_discovery_alert(
+                "https://discord.com/api/webhooks/123/abc",
+                sample_channel,
+                sample_channel["star_video"],
+                sample_ai,
+                alert_type="breakout"
+            )
+            self.assertTrue(success_breakout)
+
 if __name__ == "__main__":
     unittest.main()
+
