@@ -320,12 +320,14 @@ def run():
                         pvid = pv.get("video_id")
                         prev_pinfo = video_history.get(pvid)
                         p_already_alerted = prev_pinfo.get("alerted", False) if prev_pinfo else False
-                        if not p_already_alerted and (discord_webhook or discord_webhook_2):
+                        if not p_already_alerted and (discord_webhook or discord_webhook_2 or discord_webhook_3):
                             target_whs = []
                             if discord_webhook:
                                 target_whs.append(discord_webhook)
-                            if discord_webhook_2 and (pv.get("outlier_score", 0) >= 3.0 or "Clever" in ch_name):
+                            if discord_webhook_2:
                                 target_whs.append(discord_webhook_2)
+                            if discord_webhook_3:
+                                target_whs.append(discord_webhook_3)
                             wh_str = ",".join(target_whs) if target_whs else ""
                             a_type = "outlier" if pv.get("outlier_score", 0) >= 3.0 else "viral"
                             p_alert_sent = send_discord_alert(wh_str, pv, ch_name, threshold, dashboard_url, a_type)
@@ -454,9 +456,11 @@ def run():
                 target_webhooks = []
                 if discord_webhook:
                     target_webhooks.append(discord_webhook)
-                if discord_webhook_2 and (outlier_score >= 3.0 or "Clever" in ch_name):
+                if discord_webhook_2:
                     target_webhooks.append(discord_webhook_2)
-                alert_type = "outlier" if outlier_score >= 3.0 else ("rising" if "Clever" in ch_name else "viral")
+                if discord_webhook_3:
+                    target_webhooks.append(discord_webhook_3)
+                alert_type = "outlier" if outlier_score >= 3.0 else "viral"
                 wh_str = ",".join(target_webhooks) if target_webhooks else ""
                 alert_sent = send_discord_alert(wh_str, v_entry, ch_name, threshold, dashboard_url, alert_type)
                 
