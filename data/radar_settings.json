@@ -1,0 +1,18 @@
+{
+  "discovery_enabled": true,
+  "run_frequency": "daily",
+  "lookback_days": 90,
+  "max_results_per_query": 20,
+  "min_subscribers": 100,
+  "max_subscribers": 10000,
+  "max_active_age_days": 120,
+  "min_views_90d": 50000,
+  "min_median_views_90d": 5000,
+  "min_videos_90d": 3,
+  "long_form_first": true,
+  "enable_shorts": true,
+  "ai_threshold_score": 70,
+  "ai_delta_threshold": 15,
+  "max_ai_analyses_per_day": 10,
+  "radar_breakout_threshold": 75
+}
