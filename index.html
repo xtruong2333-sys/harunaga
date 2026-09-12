@@ -6171,7 +6171,7 @@
     createApp({
       setup() {
         // Authentication & Waiting Screen State (Hybrid Cloud Firebase & Local Multi-Account)
-        const isLoggedIn = ref(localStorage.getItem('AUTH_LOGGED_IN') === 'true');
+        const isLoggedIn = ref(localStorage.getItem('AUTH_LOGGED_IN') === 'true' || sessionStorage.getItem('AUTH_LOGGED_IN') === 'true');
         const authTab = ref('login'); // 'login' | 'register'
         const registerUsername = ref('');
         const registerEmail = ref('');
@@ -6189,9 +6189,14 @@
         let otpTimer = null;
 
         // EmailJS Configuration State
-        const emailJsServiceId = ref(localStorage.getItem('EMAILJS_SERVICE_ID') || '');
-        const emailJsTemplateId = ref(localStorage.getItem('EMAILJS_TEMPLATE_ID') || '');
-        const emailJsPublicKey = ref(localStorage.getItem('EMAILJS_PUBLIC_KEY') || '');
+        const defaultEmailJs = {
+          serviceId: 'service_83ivl5o',
+          templateId: 'template_uytf9l4',
+          publicKey: 'LM8pDnsVIV4uGrYr_8'
+        };
+        const emailJsServiceId = ref(localStorage.getItem('EMAILJS_SERVICE_ID') || defaultEmailJs.serviceId);
+        const emailJsTemplateId = ref(localStorage.getItem('EMAILJS_TEMPLATE_ID') || defaultEmailJs.templateId);
+        const emailJsPublicKey = ref(localStorage.getItem('EMAILJS_PUBLIC_KEY') || defaultEmailJs.publicKey);
         const savedEmailJsSuccess = ref(false);
 
         const saveEmailJsConfig = () => {
@@ -6295,14 +6300,22 @@
 
         // Firebase Cloud Configuration State
         const defaultFirebaseConfig = {
-          apiKey: '',
-          projectId: '',
-          authDomain: '',
-          appId: ''
+          apiKey: 'AIzaSyCJ1bQne-3L_tXA2dni9zEglgvqZbJrWm0',
+          projectId: 'project-4062861763240365688',
+          authDomain: 'project-4062861763240365688.firebaseapp.com',
+          appId: '1:285010607200:web:70516f7fd897989655d705'
         };
-        const firebaseConfigForm = ref(JSON.parse(
-          localStorage.getItem('FIREBASE_CONFIG') || JSON.stringify(defaultFirebaseConfig)
-        ));
+        const savedFbConfig = (() => {
+          try {
+            const raw = localStorage.getItem('FIREBASE_CONFIG');
+            if (raw) {
+              const parsed = JSON.parse(raw);
+              if (parsed && parsed.apiKey && parsed.projectId) return parsed;
+            }
+          } catch (e) {}
+          return defaultFirebaseConfig;
+        })();
+        const firebaseConfigForm = ref({ ...defaultFirebaseConfig, ...savedFbConfig });
         const isFirebaseConfigured = computed(() => {
           return !!(firebaseConfigForm.value.apiKey && firebaseConfigForm.value.projectId);
         });
@@ -6373,7 +6386,7 @@
                   localAccounts.value.push(cu);
                 }
               });
-              if (currentAccount.value?.username?.toLowerCase() === 'truongday') {
+              if (isLoggedIn.value && currentAccount.value?.username?.toLowerCase() === 'truongday') {
                 currentAccount.value.role = 'admin';
                 localStorage.setItem('AUTH_ACCOUNT', JSON.stringify(currentAccount.value));
               }
@@ -6386,32 +6399,32 @@
         syncUsersFromCloud();
 
         let parsedCurrentAcc = null;
-        try {
-          const rawCurrent = localStorage.getItem('AUTH_ACCOUNT');
-          parsedCurrentAcc = rawCurrent ? JSON.parse(rawCurrent) : null;
-        } catch (e) {
-          parsedCurrentAcc = null;
+        if (isLoggedIn.value) {
+          try {
+            const rawCurrent = localStorage.getItem('AUTH_ACCOUNT') || sessionStorage.getItem('AUTH_ACCOUNT');
+            parsedCurrentAcc = rawCurrent ? JSON.parse(rawCurrent) : null;
+          } catch (e) {
+            parsedCurrentAcc = null;
+          }
         }
         if (!parsedCurrentAcc) {
-          parsedCurrentAcc = { username: 'truongday', password: '123', role: 'admin' };
+          parsedCurrentAcc = { username: '', role: 'normal', avatar: '' };
         }
-        // Permanently guarantee truongday has admin role
+        // Permanently guarantee truongday has admin role if logged in as truongday
         if (parsedCurrentAcc.username && parsedCurrentAcc.username.toLowerCase() === 'truongday') {
           parsedCurrentAcc.role = 'admin';
         } else if (!parsedCurrentAcc.role) {
           parsedCurrentAcc.role = 'normal';
         }
         const currentAccount = ref(parsedCurrentAcc);
-        localStorage.setItem('AUTH_ACCOUNT', JSON.stringify(currentAccount.value));
-        if (currentAccount.value.username?.toLowerCase() === 'truongday') {
-          localStorage.setItem('USER_ROLE', 'admin');
-        }
 
-        const authUsername = ref(currentAccount.value.username || 'truongday');
-        const authPassword = ref(currentAccount.value.password || '123');
+        // Saved credentials on THIS device ONLY (blank on new devices)
+        const isDeviceRemembered = localStorage.getItem('SAVED_REMEMBER') === 'true';
+        const authUsername = ref(isDeviceRemembered ? (localStorage.getItem('SAVED_USERNAME') || '') : '');
+        const authPassword = ref('');
         const showPassword = ref(false);
         const authErrorMsg = ref('');
-        const authRemember = ref(true);
+        const authRemember = ref(isDeviceRemembered);
 
         // Modals for User Management & Cloud
         const showUserManagementModal = ref(false);
@@ -6466,12 +6479,24 @@
               avatar: avatarVal
             };
             userAvatar.value = avatarVal;
-            localStorage.setItem('USER_AVATAR', userAvatar.value);
-            localStorage.setItem('AUTH_ACCOUNT', JSON.stringify(currentAccount.value));
 
             isLoggedIn.value = true;
             if (authRemember.value) {
               localStorage.setItem('AUTH_LOGGED_IN', 'true');
+              localStorage.setItem('AUTH_ACCOUNT', JSON.stringify(currentAccount.value));
+              localStorage.setItem('SAVED_USERNAME', matchedAccount.username);
+              localStorage.setItem('SAVED_REMEMBER', 'true');
+              localStorage.setItem('USER_ROLE', roleVal);
+              localStorage.setItem('USER_AVATAR', avatarVal);
+            } else {
+              sessionStorage.setItem('AUTH_LOGGED_IN', 'true');
+              sessionStorage.setItem('AUTH_ACCOUNT', JSON.stringify(currentAccount.value));
+              sessionStorage.setItem('USER_ROLE', roleVal);
+              sessionStorage.setItem('USER_AVATAR', avatarVal);
+              localStorage.removeItem('AUTH_LOGGED_IN');
+              localStorage.removeItem('AUTH_ACCOUNT');
+              localStorage.removeItem('SAVED_USERNAME');
+              localStorage.removeItem('SAVED_REMEMBER');
             }
             showToast(`Chào mừng ${currentAccount.value.username} đã mở khóa hệ thống!`);
             authPassword.value = '';
@@ -6656,12 +6681,12 @@
         };
 
         const clearFirebaseConfig = () => {
-          if (confirm('Bạn có chắc chắn muốn ngắt kết nối Firebase Cloud và quay về bộ nhớ cục bộ?')) {
-            firebaseConfigForm.value = { apiKey: '', projectId: '', authDomain: '', appId: '' };
+          if (confirm('Bạn có chắc chắn muốn đặt lại cấu hình Firebase Cloud về mặc định?')) {
+            firebaseConfigForm.value = { ...defaultFirebaseConfig };
             localStorage.removeItem('FIREBASE_CONFIG');
-            firestoreDb = null;
-            firebaseApp = null;
-            showToast('Đã ngắt kết nối Firebase Cloud. Hệ thống trở về chế độ Cục bộ.');
+            initFirebase();
+            syncUsersFromCloud();
+            showToast('Đã đặt lại cấu hình Firebase Cloud về mặc định hệ thống.');
           }
         };
 
@@ -6671,6 +6696,17 @@
             showAdminModal.value = false;
             showAccountModal.value = false;
             localStorage.removeItem('AUTH_LOGGED_IN');
+            sessionStorage.removeItem('AUTH_LOGGED_IN');
+            localStorage.removeItem('AUTH_ACCOUNT');
+            sessionStorage.removeItem('AUTH_ACCOUNT');
+            currentAccount.value = { username: '', role: 'normal', avatar: '' };
+            if (localStorage.getItem('SAVED_REMEMBER') === 'true') {
+              authUsername.value = localStorage.getItem('SAVED_USERNAME') || '';
+            } else {
+              authUsername.value = '';
+              authRemember.value = false;
+            }
+            authPassword.value = '';
             showToast('Đã đăng xuất. Hệ thống đã trở về Giao diện chờ!');
           }
         };
