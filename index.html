@@ -4805,7 +4805,7 @@
 
     <!-- MODAL 2: Admin Panel (Quản Lý Kênh & Điều Khiển Bot - 3 TABS) -->
     <div v-if="showAdminModal" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/40 dark:bg-slate-950/70 backdrop-blur-md overflow-y-auto transition-opacity duration-300">
-      <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-indigo-700/60 ring-1 ring-white/10 rounded-3xl max-w-2xl w-full h-[640px] max-h-[92vh] flex flex-col shadow-2xl shadow-black/90 relative my-auto">
+      <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-indigo-700/60 ring-1 ring-white/10 rounded-3xl max-w-3xl w-full h-[640px] max-h-[92vh] flex flex-col shadow-2xl shadow-black/90 relative my-auto overflow-hidden">
         
         <!-- Header -->
         <div class="p-4 sm:p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-900/90 rounded-t-3xl">
@@ -4828,7 +4828,7 @@
         </div>
 
         <!-- Admin Modal Navigation Tabs (Nhập Key & Quản Lý Kênh Trực Tiếp Trên Web) -->
-        <div class="flex items-center p-1.5 bg-slate-100 dark:bg-slate-800/90 border-b border-slate-200 dark:border-slate-700/80 gap-1 text-xs">
+        <div class="flex items-center p-1.5 bg-slate-100 dark:bg-slate-800/90 border-b border-slate-200 dark:border-slate-700/80 gap-1 text-[11px] sm:text-xs overflow-x-auto">
           <!-- Tab 1: Nhập Các Loại Key (GitHub & Gemini) - CHỈ ADMIN -->
           <button 
             v-if="userRole === 'admin'"
@@ -4836,10 +4836,10 @@
             :class="adminTab === 'keys' 
               ? 'bg-white dark:bg-slate-900 text-purple-600 dark:text-purple-400 font-black shadow-sm' 
               : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'"
-            class="flex-1 py-2 px-2 sm:px-3 rounded-xl transition flex items-center justify-center space-x-1.5 whitespace-nowrap cursor-pointer"
+            class="flex-1 py-2 px-1.5 sm:px-2.5 rounded-xl transition flex items-center justify-center space-x-1 sm:space-x-1.5 whitespace-nowrap cursor-pointer text-[11px] sm:text-xs"
           >
             <i class="ph-bold ph-key text-sm"></i>
-            <span>🔑 {{ getTabNumber('keys') }}. Nhập Các Loại Key</span>
+            <span>🔑 {{ getTabNumber('keys') }}. Nhập Key</span>
             <i v-if="githubToken && geminiApiKey" class="ph-fill ph-check-circle text-emerald-500 text-xs flex-shrink-0"></i>
           </button>
 
@@ -4850,7 +4850,7 @@
             :class="adminTab === 'channels' 
               ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 font-black shadow-sm' 
               : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'"
-            class="flex-1 py-2 px-2 sm:px-3 rounded-xl transition flex items-center justify-center space-x-1.5 whitespace-nowrap cursor-pointer"
+            class="flex-1 py-2 px-1.5 sm:px-2.5 rounded-xl transition flex items-center justify-center space-x-1 sm:space-x-1.5 whitespace-nowrap cursor-pointer text-[11px] sm:text-xs"
           >
             <i class="ph-bold ph-youtube-logo text-sm"></i>
             <span>📺 {{ getTabNumber('channels') }}. Thêm / Xóa Kênh</span>
@@ -4863,7 +4863,7 @@
             :class="adminTab === 'status' 
               ? 'bg-white dark:bg-slate-900 text-rose-600 dark:text-rose-400 font-black shadow-sm' 
               : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'"
-            class="flex-1 py-2 px-2 sm:px-3 rounded-xl transition flex items-center justify-center space-x-1.5 whitespace-nowrap cursor-pointer"
+            class="flex-1 py-2 px-1.5 sm:px-2.5 rounded-xl transition flex items-center justify-center space-x-1 sm:space-x-1.5 whitespace-nowrap cursor-pointer text-[11px] sm:text-xs"
           >
             <i class="ph-bold ph-radar text-sm"></i>
             <span>⚡ {{ getTabNumber('status') }}. Quét Data</span>
@@ -4877,7 +4877,7 @@
             :class="adminTab === 'discord' 
               ? 'bg-white dark:bg-slate-900 text-[#5865F2] font-black shadow-sm ring-1 ring-[#5865F2]/40' 
               : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'"
-            class="flex-1 py-2 px-2 sm:px-3 rounded-xl transition flex items-center justify-center space-x-1.5 whitespace-nowrap cursor-pointer"
+            class="flex-1 py-2 px-1.5 sm:px-2.5 rounded-xl transition flex items-center justify-center space-x-1 sm:space-x-1.5 whitespace-nowrap cursor-pointer text-[11px] sm:text-xs"
           >
             <i class="ph-bold ph-discord-logo text-sm text-[#5865F2]"></i>
             <span>🔔 {{ getTabNumber('discord') }}. Discord (2 Kênh)</span>
