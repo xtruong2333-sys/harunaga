@@ -14,6 +14,8 @@ import xml.etree.ElementTree as ET
 from datetime import datetime, timezone, timedelta
 import statistics
 
+from discord_notifier import send_channel_discovery_alert
+
 if sys.stdout and hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8")
 if sys.stderr and hasattr(sys.stderr, "reconfigure"):
@@ -722,6 +724,32 @@ def run_emerging_radar_pipeline(manual_query: str | None = None, limit_queries: 
     min_subs_allowed = settings.get("min_subscribers", 100)
     max_active_age = settings.get("max_active_age_days", 120)
 
+    # Cấu hình Discord Webhook & Dashboard URL
+    wh_targets = []
+    if settings.get("discord_webhook"):
+        wh_targets.append(settings.get("discord_webhook"))
+    if os.environ.get("DISCORD_WEBHOOK_URL"):
+        wh_targets.append(os.environ.get("DISCORD_WEBHOOK_URL"))
+    if os.environ.get("DISCORD_WEBHOOK_URL_2"):
+        wh_targets.append(os.environ.get("DISCORD_WEBHOOK_URL_2"))
+    discord_webhook_url = ",".join(list(dict.fromkeys([w.strip() for w in wh_targets if w and w.strip()])))
+    notify_on_new = settings.get("discord_notify_on_new", True)
+    notify_on_breakout = settings.get("discord_notify_on_breakout", True)
+
+    gh_repo = os.environ.get("GITHUB_REPOSITORY", "").strip()
+    dashboard_url = os.environ.get("DASHBOARD_URL", "")
+    if not dashboard_url and "/" in gh_repo:
+        owner, repo = gh_repo.split("/", 1)
+        dashboard_url = f"https://{owner}.github.io/{repo}/"
+    if not dashboard_url:
+        dashboard_url = "https://xtruong2333-sys.github.io/harunaga/"
+
+    ai_cache = load_json(AI_CACHE_FILE, {})
+    if discord_webhook_url:
+        print(f"🔔 [RADAR DISCORD] Đã kết nối Webhook ({len(discord_webhook_url.split(','))} URL) • Báo kênh mới: {notify_on_new} • Báo Breakout: {notify_on_breakout}")
+    else:
+        print("ℹ️ [RADAR DISCORD] Chưa cấu hình Discord Webhook cho Radar.")
+
     updated_channel_list = []
     for cid in all_channel_ids_to_process:
         is_new = (cid not in existing_channels_map)
@@ -827,8 +855,42 @@ def run_emerging_radar_pipeline(manual_query: str | None = None, limit_queries: 
             "breakout_status": is_breakout,
             "presets": presets,
             "star_video": metrics["star_video"],
-            "videos": metrics["videos"]
+            "videos": metrics["videos"],
+            # Discord notification tracking
+            "discord_new_alerted_at": existing_rec.get("discord_new_alerted_at"),
+            "discord_breakout_alerted_at": existing_rec.get("discord_breakout_alerted_at")
         }
+
+        # Bắn thông báo Discord Webhook nếu có cấu hình
+        ch_ai_data = ai_cache.get(cid)
+
+        # 1. Báo kênh mới nổi lần đầu phát hiện
+        if is_new and not channel_entry.get("discord_new_alerted_at") and notify_on_new and discord_webhook_url:
+            print(f"🌱 [RADAR DISCORD] Phát hiện kênh mới! Gửi thông báo: {channel_entry['title']}")
+            sent = send_channel_discovery_alert(
+                webhook_url=discord_webhook_url,
+                channel_data=channel_entry,
+                star_video=channel_entry.get("star_video"),
+                ai_data=ch_ai_data,
+                dashboard_url=dashboard_url,
+                alert_type="new_channel"
+            )
+            if sent:
+                channel_entry["discord_new_alerted_at"] = now.isoformat()
+
+        # 2. Báo kênh bùng nổ Breakout
+        if is_breakout and not channel_entry.get("discord_breakout_alerted_at") and notify_on_breakout and discord_webhook_url:
+            print(f"🚨 [RADAR DISCORD] Kênh bùng nổ Breakout! Gửi cảnh báo: {channel_entry['title']}")
+            sent = send_channel_discovery_alert(
+                webhook_url=discord_webhook_url,
+                channel_data=channel_entry,
+                star_video=channel_entry.get("star_video"),
+                ai_data=ch_ai_data,
+                dashboard_url=dashboard_url,
+                alert_type="breakout"
+            )
+            if sent:
+                channel_entry["discord_breakout_alerted_at"] = now.isoformat()
 
         updated_channel_list.append(channel_entry)
         run_log["qualified_channels"] += 1
@@ -853,5 +915,42 @@ def run_emerging_radar_pipeline(manual_query: str | None = None, limit_queries: 
     return updated_channel_list
 
 if __name__ == "__main__":
-    q_arg = sys.argv[1] if len(sys.argv) > 1 else None
-    run_emerging_radar_pipeline(manual_query=q_arg)
+    if len(sys.argv) > 1 and sys.argv[1] == "--test-discord":
+        target = sys.argv[2] if len(sys.argv) > 2 else os.environ.get('DISCORD_WEBHOOK_URL', '')
+        from discord_notifier import send_channel_discovery_alert
+        settings = load_json(SETTINGS_FILE, {})
+        wh = target or settings.get("discord_webhook") or os.environ.get('DISCORD_WEBHOOK_URL', '')
+        sample_channel = {
+            'title': 'Smart Scrap Lab',
+            'handle': '@SmartScrapLab',
+            'channel_id': 'UC_demo_smart_scrap_123',
+            'thumbnail': 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=150&auto=format&fit=crop&q=80',
+            'subscriber_count': 3420,
+            'subscribers_formatted': '3.42K',
+            'active_age_days': 48,
+            'last_upload_age_days': 2,
+            'radar_score': 88.5,
+            'views_90d': 640000,
+            'median_views_90d': 92000,
+            'median_views_per_sub': 26.9,
+            'max_views_per_sub': 105.2,
+            'viral_repeat_count': 5,
+            'hit_rate': 0.83,
+            'median_view_velocity': 14200.0,
+            'presets': ['SUPER_EARLY_BREAKOUT', 'HIGH_EFFICIENCY'],
+            'discovery_query': 'waste metal recycling hack',
+            'star_video': {
+                'title': "Don't Throw Away Broken Drill Bits! Genius Recycling Hack",
+                'url': 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+                'thumbnail': 'https://images.unsplash.com/photo-1504917599217-d4dc5ebe6122?w=800&auto=format&fit=crop&q=80',
+                'views': 360000,
+                'view_velocity': 28500.0,
+                'views_per_sub': 105.2
+            }
+        }
+        print(f"Đang gửi tin thử nghiệm tới Webhook: {wh[:45]}...")
+        ok = send_channel_discovery_alert(wh, sample_channel, sample_channel['star_video'], dashboard_url='https://xtruong2333-sys.github.io/harunaga/', alert_type='test')
+        print("Kết quả:", "THÀNH CÔNG 🎉" if ok else "THẤT BÀI ❌")
+    else:
+        q_arg = sys.argv[1] if len(sys.argv) > 1 else None
+        run_emerging_radar_pipeline(manual_query=q_arg)
