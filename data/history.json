@@ -300,8 +300,8 @@
     "aLdIQvMilLk": {
       "last_views": 112413,
       "last_checked": "2026-09-12T19:10:11.387720+00:00",
-      "alerted": true,
-      "alerted_at": "2026-09-10T10:13:17.334927+00:00",
+      "alerted": false,
+      "alerted_at": null,
       "alerted_vph": 5253,
       "ai_analysis": null
     },
@@ -592,8 +592,8 @@
     "XfjjzPKgKKM": {
       "last_views": 31585,
       "last_checked": "2026-09-12T19:10:11.387720+00:00",
-      "alerted": true,
-      "alerted_at": "2026-09-12T15:11:22.874960+00:00",
+      "alerted": false,
+      "alerted_at": null,
       "alerted_vph": 2049,
       "ai_analysis": {
         "viral_reasons_vi": [
@@ -661,8 +661,8 @@
     "R_9fiRqraYk": {
       "last_views": 91323,
       "last_checked": "2026-09-12T19:10:11.387720+00:00",
-      "alerted": true,
-      "alerted_at": "2026-09-11T08:14:03.500414+00:00",
+      "alerted": false,
+      "alerted_at": null,
       "alerted_vph": 676,
       "ai_analysis": {
         "viral_reasons_vi": [
@@ -730,8 +730,8 @@
     "S1tsf27mb_A": {
       "last_views": 61643,
       "last_checked": "2026-09-12T19:10:11.387720+00:00",
-      "alerted": true,
-      "alerted_at": "2026-09-11T08:14:03.500414+00:00",
+      "alerted": false,
+      "alerted_at": null,
       "alerted_vph": 439,
       "ai_analysis": {
         "viral_reasons_vi": [
@@ -799,8 +799,8 @@
     "uNIyaCcYs4Q": {
       "last_views": 114655,
       "last_checked": "2026-09-12T19:10:11.387720+00:00",
-      "alerted": true,
-      "alerted_at": "2026-09-11T08:14:03.500414+00:00",
+      "alerted": false,
+      "alerted_at": null,
       "alerted_vph": 706,
       "ai_analysis": {
         "viral_reasons_vi": [
@@ -910,8 +910,8 @@
     "iBg-Cx_RDkg": {
       "last_views": 133826,
       "last_checked": "2026-09-12T19:10:11.387720+00:00",
-      "alerted": true,
-      "alerted_at": "2026-09-11T11:12:20.499973+00:00",
+      "alerted": false,
+      "alerted_at": null,
       "alerted_vph": 10755,
       "ai_analysis": {
         "viral_reasons_vi": [
@@ -1147,8 +1147,8 @@
     "yON2MpGBawQ": {
       "last_views": 729443,
       "last_checked": "2026-09-12T19:10:11.387720+00:00",
-      "alerted": true,
-      "alerted_at": "2026-09-10T09:46:27.609787+00:00",
+      "alerted": false,
+      "alerted_at": null,
       "alerted_vph": 51049,
       "ai_analysis": {
         "viral_reasons_vi": [
@@ -1216,8 +1216,8 @@
     "dDMXExyHRBE": {
       "last_views": 64612,
       "last_checked": "2026-09-12T19:10:11.387720+00:00",
-      "alerted": true,
-      "alerted_at": "2026-09-11T08:14:03.500414+00:00",
+      "alerted": false,
+      "alerted_at": null,
       "alerted_vph": 585,
       "ai_analysis": {
         "viral_reasons_vi": [
@@ -1467,8 +1467,8 @@
     "bFG90VOkQr8": {
       "last_views": 44263,
       "last_checked": "2026-09-12T19:10:11.387720+00:00",
-      "alerted": true,
-      "alerted_at": "2026-09-11T12:16:56.394065+00:00",
+      "alerted": false,
+      "alerted_at": null,
       "alerted_vph": 541,
       "ai_analysis": {
         "viral_reasons_vi": [
@@ -1542,8 +1542,8 @@
     "flmik7AxaWk": {
       "last_views": 122233,
       "last_checked": "2026-09-12T19:10:11.387720+00:00",
-      "alerted": true,
-      "alerted_at": "2026-09-11T08:14:03.500414+00:00",
+      "alerted": false,
+      "alerted_at": null,
       "alerted_vph": 1272,
       "ai_analysis": {
         "viral_reasons_vi": [
@@ -1617,8 +1617,8 @@
     "8wGdk7pXYHM": {
       "last_views": 605872,
       "last_checked": "2026-09-12T19:10:11.387720+00:00",
-      "alerted": true,
-      "alerted_at": "2026-09-11T08:14:03.500414+00:00",
+      "alerted": false,
+      "alerted_at": null,
       "alerted_vph": 3946,
       "ai_analysis": {
         "viral_reasons_vi": [
@@ -1680,8 +1680,8 @@
     "scN5e1N1a2w": {
       "last_views": 465101,
       "last_checked": "2026-09-12T19:10:11.387720+00:00",
-      "alerted": true,
-      "alerted_at": "2026-09-10T10:13:17.334927+00:00",
+      "alerted": false,
+      "alerted_at": null,
       "alerted_vph": 5984,
       "ai_analysis": {
         "viral_reasons_vi": [
@@ -1875,8 +1875,8 @@
     "vCUx-iekuw8": {
       "last_views": 1184067,
       "last_checked": "2026-09-12T19:10:11.387720+00:00",
-      "alerted": true,
-      "alerted_at": "2026-09-10T09:46:27.609787+00:00",
+      "alerted": false,
+      "alerted_at": null,
       "alerted_vph": 8663,
       "ai_analysis": {
         "viral_reasons_vi": [
@@ -2130,8 +2130,8 @@
     "6muKRwieyl0": {
       "last_views": 58290,
       "last_checked": "2026-09-12T19:10:11.387720+00:00",
-      "alerted": true,
-      "alerted_at": "2026-09-11T08:14:03.500414+00:00",
+      "alerted": false,
+      "alerted_at": null,
       "alerted_vph": 558,
       "ai_analysis": {
         "viral_reasons_vi": [
@@ -2193,8 +2193,8 @@
     "Jz_VvNbGEYc": {
       "last_views": 104786,
       "last_checked": "2026-09-12T19:10:11.387720+00:00",
-      "alerted": true,
-      "alerted_at": "2026-09-11T08:14:03.500414+00:00",
+      "alerted": false,
+      "alerted_at": null,
       "alerted_vph": 725,
       "ai_analysis": {
         "viral_reasons_vi": [
@@ -2268,8 +2268,8 @@
     "gcR0gp-p_34": {
       "last_views": 35722,
       "last_checked": "2026-09-12T19:10:11.387720+00:00",
-      "alerted": true,
-      "alerted_at": "2026-09-11T08:14:03.500414+00:00",
+      "alerted": false,
+      "alerted_at": null,
       "alerted_vph": 207,
       "ai_analysis": null
     },
@@ -2414,8 +2414,8 @@
     "UMeLZVqfEFw": {
       "last_views": 92346,
       "last_checked": "2026-09-12T19:10:11.387720+00:00",
-      "alerted": true,
-      "alerted_at": "2026-09-12T12:15:14.537485+00:00",
+      "alerted": false,
+      "alerted_at": null,
       "alerted_vph": 941,
       "ai_analysis": {
         "viral_reasons_vi": [
@@ -2483,8 +2483,8 @@
     "-28yCCwydnY": {
       "last_views": 91903,
       "last_checked": "2026-09-12T19:10:11.387720+00:00",
-      "alerted": true,
-      "alerted_at": "2026-09-11T08:14:03.500414+00:00",
+      "alerted": false,
+      "alerted_at": null,
       "alerted_vph": 575,
       "ai_analysis": {
         "viral_reasons_vi": [
@@ -2546,8 +2546,8 @@
     "V-2jIthO1y0": {
       "last_views": 123870,
       "last_checked": "2026-09-12T19:10:11.387720+00:00",
-      "alerted": true,
-      "alerted_at": "2026-09-11T08:14:03.500414+00:00",
+      "alerted": false,
+      "alerted_at": null,
       "alerted_vph": 659,
       "ai_analysis": null
     },
@@ -2608,8 +2608,8 @@
     "HAAvoyCVRds": {
       "last_views": 36148,
       "last_checked": "2026-09-12T19:10:11.387720+00:00",
-      "alerted": true,
-      "alerted_at": "2026-09-11T04:13:41.997900+00:00",
+      "alerted": false,
+      "alerted_at": null,
       "alerted_vph": 683,
       "ai_analysis": {
         "viral_reasons_vi": [
@@ -2671,8 +2671,8 @@
     "TSbtRITXkTg": {
       "last_views": 14517,
       "last_checked": "2026-09-12T19:10:11.387720+00:00",
-      "alerted": true,
-      "alerted_at": "2026-09-11T04:13:41.997900+00:00",
+      "alerted": false,
+      "alerted_at": null,
       "alerted_vph": 142,
       "ai_analysis": {
         "viral_reasons_vi": [
@@ -2812,8 +2812,8 @@
     "ZVgfQ29X87M": {
       "last_views": 755431,
       "last_checked": "2026-09-12T19:10:11.387720+00:00",
-      "alerted": true,
-      "alerted_at": "2026-09-10T09:46:27.609787+00:00",
+      "alerted": false,
+      "alerted_at": null,
       "alerted_vph": 10433,
       "ai_analysis": {
         "viral_reasons_vi": [
@@ -3235,8 +3235,8 @@
     "ZNOAGdDdeeM": {
       "last_views": 160459,
       "last_checked": "2026-09-12T19:10:11.387720+00:00",
-      "alerted": true,
-      "alerted_at": "2026-09-10T10:13:17.334927+00:00",
+      "alerted": false,
+      "alerted_at": null,
       "alerted_vph": 5380,
       "ai_analysis": {
         "viral_reasons_vi": [
@@ -3376,8 +3376,8 @@
     "2sxK_cKuY1A": {
       "last_views": 9702,
       "last_checked": "2026-09-12T19:10:11.387720+00:00",
-      "alerted": true,
-      "alerted_at": "2026-09-12T07:10:44.218161+00:00",
+      "alerted": false,
+      "alerted_at": null,
       "alerted_vph": 113,
       "ai_analysis": {
         "viral_reasons_vi": [
@@ -3451,8 +3451,8 @@
     "HyFyMDDhJDs": {
       "last_views": 10328,
       "last_checked": "2026-09-12T19:10:11.387720+00:00",
-      "alerted": true,
-      "alerted_at": "2026-09-11T08:14:03.500414+00:00",
+      "alerted": false,
+      "alerted_at": null,
       "alerted_vph": 73,
       "ai_analysis": {
         "viral_reasons_vi": [
@@ -3586,8 +3586,8 @@
     "IDOwBZ8Vjl4": {
       "last_views": 228611,
       "last_checked": "2026-09-12T19:10:11.387720+00:00",
-      "alerted": true,
-      "alerted_at": "2026-09-11T08:14:03.500414+00:00",
+      "alerted": false,
+      "alerted_at": null,
       "alerted_vph": 1446,
       "ai_analysis": {
         "viral_reasons_vi": [
@@ -3841,8 +3841,8 @@
     "EaBJwtuU_pI": {
       "last_views": 940224,
       "last_checked": "2026-09-12T19:10:11.387720+00:00",
-      "alerted": true,
-      "alerted_at": "2026-09-10T09:46:27.609787+00:00",
+      "alerted": false,
+      "alerted_at": null,
       "alerted_vph": 13999,
       "ai_analysis": {
         "viral_reasons_vi": [
@@ -3904,8 +3904,8 @@
     "eM3YVnFJXz0": {
       "last_views": 75953,
       "last_checked": "2026-09-12T19:10:11.387720+00:00",
-      "alerted": true,
-      "alerted_at": "2026-09-11T08:14:03.500414+00:00",
+      "alerted": false,
+      "alerted_at": null,
       "alerted_vph": 707,
       "ai_analysis": {
         "viral_reasons_vi": [
@@ -3967,8 +3967,8 @@
     "ANTy52ejuR4": {
       "last_views": 485677,
       "last_checked": "2026-09-12T19:10:11.387720+00:00",
-      "alerted": true,
-      "alerted_at": "2026-09-10T09:46:27.609787+00:00",
+      "alerted": false,
+      "alerted_at": null,
       "alerted_vph": 6047,
       "ai_analysis": {
         "viral_reasons_vi": [
@@ -4036,8 +4036,8 @@
     "n0Qvg4e-c-c": {
       "last_views": 105916,
       "last_checked": "2026-09-12T19:10:11.387720+00:00",
-      "alerted": true,
-      "alerted_at": "2026-09-11T08:14:03.500414+00:00",
+      "alerted": false,
+      "alerted_at": null,
       "alerted_vph": 703,
       "ai_analysis": {
         "viral_reasons_vi": [
@@ -4141,8 +4141,8 @@
     "5iLCK08XgLE": {
       "last_views": 172635,
       "last_checked": "2026-09-12T19:10:11.387720+00:00",
-      "alerted": true,
-      "alerted_at": "2026-09-11T08:14:03.500414+00:00",
+      "alerted": false,
+      "alerted_at": null,
       "alerted_vph": 1535,
       "ai_analysis": {
         "viral_reasons_vi": [
@@ -4378,8 +4378,8 @@
     "zpepeeg9g4Q": {
       "last_views": 63734,
       "last_checked": "2026-09-12T19:10:11.387720+00:00",
-      "alerted": true,
-      "alerted_at": "2026-09-11T08:14:03.500414+00:00",
+      "alerted": false,
+      "alerted_at": null,
       "alerted_vph": 427,
       "ai_analysis": {
         "viral_reasons_vi": [
@@ -4519,8 +4519,8 @@
     "-_Jk62WHrDc": {
       "last_views": 50296,
       "last_checked": "2026-09-12T19:10:11.387720+00:00",
-      "alerted": true,
-      "alerted_at": "2026-09-11T08:14:03.500414+00:00",
+      "alerted": false,
+      "alerted_at": null,
       "alerted_vph": 653,
       "ai_analysis": {
         "viral_reasons_vi": [
@@ -4672,8 +4672,8 @@
     "jO2toVHd0uA": {
       "last_views": 46591,
       "last_checked": "2026-09-12T19:10:11.387720+00:00",
-      "alerted": true,
-      "alerted_at": "2026-09-11T23:10:46.812305+00:00",
+      "alerted": false,
+      "alerted_at": null,
       "alerted_vph": 701,
       "ai_analysis": {
         "viral_reasons_vi": [
@@ -4747,8 +4747,8 @@
     "dOkYB_YxzHE": {
       "last_views": 190288,
       "last_checked": "2026-09-12T19:10:11.387720+00:00",
-      "alerted": true,
-      "alerted_at": "2026-09-11T08:14:03.500414+00:00",
+      "alerted": false,
+      "alerted_at": null,
       "alerted_vph": 1095,
       "ai_analysis": {
         "viral_reasons_vi": [
@@ -5339,8 +5339,8 @@
     "cGx0KPaQYV8": {
       "last_views": 31843,
       "last_checked": "2026-09-12T19:10:11.387720+00:00",
-      "alerted": true,
-      "alerted_at": "2026-09-11T08:14:03.500414+00:00",
+      "alerted": false,
+      "alerted_at": null,
       "alerted_vph": 258,
       "ai_analysis": {
         "viral_reasons_vi": [
@@ -5474,8 +5474,8 @@
     "J4_T2oltiDs": {
       "last_views": 20951,
       "last_checked": "2026-09-12T19:10:11.387720+00:00",
-      "alerted": true,
-      "alerted_at": "2026-09-11T23:10:46.812305+00:00",
+      "alerted": false,
+      "alerted_at": null,
       "alerted_vph": 244,
       "ai_analysis": null
     },
@@ -5656,8 +5656,8 @@
     "PBK-9Kq11jo": {
       "last_views": 40132,
       "last_checked": "2026-09-12T19:10:11.387720+00:00",
-      "alerted": true,
-      "alerted_at": "2026-09-10T10:13:17.334927+00:00",
+      "alerted": false,
+      "alerted_at": null,
       "alerted_vph": 8057,
       "ai_analysis": {
         "viral_reasons_vi": [
@@ -5803,8 +5803,8 @@
     "e33S1AYeNdU": {
       "last_views": 6472,
       "last_checked": "2026-09-12T19:10:11.387720+00:00",
-      "alerted": true,
-      "alerted_at": "2026-09-11T16:13:22.612514+00:00",
+      "alerted": false,
+      "alerted_at": null,
       "alerted_vph": 81,
       "ai_analysis": null
     },
@@ -5823,8 +5823,8 @@
     "pEmXXajk4LQ": {
       "last_views": 6966,
       "last_checked": "2026-09-12T19:10:11.387720+00:00",
-      "alerted": true,
-      "alerted_at": "2026-09-11T08:14:03.500414+00:00",
+      "alerted": false,
+      "alerted_at": null,
       "alerted_vph": 48,
       "ai_analysis": {
         "viral_reasons_vi": [
@@ -6042,8 +6042,8 @@
     "LehJkPQb4xQ": {
       "last_views": 9301,
       "last_checked": "2026-09-12T19:10:11.387720+00:00",
-      "alerted": true,
-      "alerted_at": "2026-09-11T12:16:56.394065+00:00",
+      "alerted": false,
+      "alerted_at": null,
       "alerted_vph": 131,
       "ai_analysis": {
         "viral_reasons_vi": [
@@ -6111,8 +6111,8 @@
     "MNX337Luk60": {
       "last_views": 14291,
       "last_checked": "2026-09-12T19:10:11.387720+00:00",
-      "alerted": true,
-      "alerted_at": "2026-09-11T08:14:03.500414+00:00",
+      "alerted": false,
+      "alerted_at": null,
       "alerted_vph": 146,
       "ai_analysis": {
         "viral_reasons_vi": [
@@ -6174,8 +6174,8 @@
     "D2uJNgbun4I": {
       "last_views": 10180,
       "last_checked": "2026-09-12T19:10:11.387720+00:00",
-      "alerted": true,
-      "alerted_at": "2026-09-11T08:14:03.500414+00:00",
+      "alerted": false,
+      "alerted_at": null,
       "alerted_vph": 86,
       "ai_analysis": {
         "viral_reasons_vi": [
@@ -6237,8 +6237,8 @@
     "iK3kuV9hqNg": {
       "last_views": 11762,
       "last_checked": "2026-09-12T19:10:11.387720+00:00",
-      "alerted": true,
-      "alerted_at": "2026-09-11T12:16:56.394065+00:00",
+      "alerted": false,
+      "alerted_at": null,
       "alerted_vph": 76,
       "ai_analysis": {
         "viral_reasons_vi": [
@@ -6366,8 +6366,8 @@
     "CaNDPVzC4Zo": {
       "last_views": 15207,
       "last_checked": "2026-09-12T19:10:11.387720+00:00",
-      "alerted": true,
-      "alerted_at": "2026-09-11T08:14:03.500414+00:00",
+      "alerted": false,
+      "alerted_at": null,
       "alerted_vph": 136,
       "ai_analysis": {
         "viral_reasons_vi": [
@@ -6441,8 +6441,8 @@
     "-Dvagc3WAWY": {
       "last_views": 20281,
       "last_checked": "2026-09-12T19:10:11.387720+00:00",
-      "alerted": true,
-      "alerted_at": "2026-09-11T08:14:03.500414+00:00",
+      "alerted": false,
+      "alerted_at": null,
       "alerted_vph": 116,
       "ai_analysis": null
     },
@@ -6509,8 +6509,8 @@
     "49TwrlVRUQo": {
       "last_views": 281465,
       "last_checked": "2026-09-12T19:10:11.387720+00:00",
-      "alerted": true,
-      "alerted_at": "2026-09-11T08:14:03.500414+00:00",
+      "alerted": false,
+      "alerted_at": null,
       "alerted_vph": 1735,
       "ai_analysis": {
         "viral_reasons_vi": [
@@ -6668,8 +6668,8 @@
     "RtaTeHNK9fE": {
       "last_views": 13173,
       "last_checked": "2026-09-12T19:10:11.387720+00:00",
-      "alerted": true,
-      "alerted_at": "2026-09-12T08:12:30.860686+00:00",
+      "alerted": false,
+      "alerted_at": null,
       "alerted_vph": 93,
       "ai_analysis": {
         "viral_reasons_vi": [
@@ -6743,8 +6743,8 @@
     "vp6oqOXFbY0": {
       "last_views": 277745,
       "last_checked": "2026-09-12T19:10:11.387720+00:00",
-      "alerted": true,
-      "alerted_at": "2026-09-10T10:13:17.334927+00:00",
+      "alerted": false,
+      "alerted_at": null,
       "alerted_vph": 5910,
       "ai_analysis": {
         "viral_reasons_vi": [
@@ -6806,8 +6806,8 @@
     "K1hKjwu64hs": {
       "last_views": 208376,
       "last_checked": "2026-09-12T19:10:11.387720+00:00",
-      "alerted": true,
-      "alerted_at": "2026-09-10T10:13:17.334927+00:00",
+      "alerted": false,
+      "alerted_at": null,
       "alerted_vph": 5866,
       "ai_analysis": {
         "viral_reasons_vi": [
@@ -6978,8 +6978,8 @@
     "cNbk2F3pxrc": {
       "last_views": 74855,
       "last_checked": "2026-09-12T19:10:11.387720+00:00",
-      "alerted": true,
-      "alerted_at": "2026-09-11T05:11:57.819239+00:00",
+      "alerted": false,
+      "alerted_at": null,
       "alerted_vph": 957,
       "ai_analysis": {
         "viral_reasons_vi": [
@@ -7065,8 +7065,8 @@
     "MH4XHq7AzEs": {
       "last_views": 175536,
       "last_checked": "2026-09-12T19:10:11.387720+00:00",
-      "alerted": true,
-      "alerted_at": "2026-09-11T05:11:57.819239+00:00",
+      "alerted": false,
+      "alerted_at": null,
       "alerted_vph": 1056,
       "ai_analysis": null
     },
@@ -7121,8 +7121,8 @@
     "g4TdOHZcETw": {
       "last_views": 1051380,
       "last_checked": "2026-09-12T19:10:11.387720+00:00",
-      "alerted": true,
-      "alerted_at": "2026-09-10T09:46:27.609787+00:00",
+      "alerted": false,
+      "alerted_at": null,
       "alerted_vph": 26540,
       "ai_analysis": {
         "viral_reasons_vi": [
@@ -7202,8 +7202,8 @@
     "2YptcqTxmU0": {
       "last_views": 414403,
       "last_checked": "2026-09-12T19:10:11.387720+00:00",
-      "alerted": true,
-      "alerted_at": "2026-09-11T08:14:03.500414+00:00",
+      "alerted": false,
+      "alerted_at": null,
       "alerted_vph": 2405,
       "ai_analysis": null
     },
@@ -7276,8 +7276,8 @@
     "ee64_CtC1T0": {
       "last_views": 42871,
       "last_checked": "2026-09-12T19:10:11.387720+00:00",
-      "alerted": true,
-      "alerted_at": "2026-09-11T11:12:20.499973+00:00",
+      "alerted": false,
+      "alerted_at": null,
       "alerted_vph": 1976,
       "ai_analysis": {
         "viral_reasons_vi": [
@@ -7351,8 +7351,8 @@
     "7qBlf7R5dSw": {
       "last_views": 103338,
       "last_checked": "2026-09-12T19:10:11.387720+00:00",
-      "alerted": true,
-      "alerted_at": "2026-09-10T22:11:25.769362+00:00",
+      "alerted": false,
+      "alerted_at": null,
       "alerted_vph": 8167,
       "ai_analysis": {
         "viral_reasons_vi": [
@@ -7486,8 +7486,8 @@
     "2n-Vw6EBtcQ": {
       "last_views": 34640,
       "last_checked": "2026-09-12T19:10:11.387720+00:00",
-      "alerted": true,
-      "alerted_at": "2026-09-11T15:12:25.032282+00:00",
+      "alerted": false,
+      "alerted_at": null,
       "alerted_vph": 1818,
       "ai_analysis": {
         "viral_reasons_vi": [
@@ -7561,8 +7561,8 @@
     "oXCLfDxize0": {
       "last_views": 32054,
       "last_checked": "2026-09-12T19:10:11.387720+00:00",
-      "alerted": true,
-      "alerted_at": "2026-09-11T20:12:44.463002+00:00",
+      "alerted": false,
+      "alerted_at": null,
       "alerted_vph": 1253,
       "ai_analysis": {
         "viral_reasons_vi": [
@@ -7636,8 +7636,8 @@
     "x6EopoZOs70": {
       "last_views": 90781,
       "last_checked": "2026-09-12T19:10:11.387720+00:00",
-      "alerted": true,
-      "alerted_at": "2026-09-12T13:11:34.645207+00:00",
+      "alerted": false,
+      "alerted_at": null,
       "alerted_vph": 1628,
       "ai_analysis": {
         "viral_reasons_vi": [
@@ -7711,8 +7711,8 @@
     "s9yRGp8t3Gk": {
       "last_views": 18281,
       "last_checked": "2026-09-12T19:10:11.387720+00:00",
-      "alerted": true,
-      "alerted_at": "2026-09-11T04:13:41.997900+00:00",
+      "alerted": false,
+      "alerted_at": null,
       "alerted_vph": 1128,
       "ai_analysis": {
         "viral_reasons_vi": [
@@ -7774,8 +7774,8 @@
     "U6NyYlVaDf0": {
       "last_views": 93774,
       "last_checked": "2026-09-12T19:10:11.387720+00:00",
-      "alerted": true,
-      "alerted_at": "2026-09-10T19:10:29.465445+00:00",
+      "alerted": false,
+      "alerted_at": null,
       "alerted_vph": 5537,
       "ai_analysis": {
         "viral_reasons_vi": [
@@ -7927,8 +7927,8 @@
     "nomSjyUzYCc": {
       "last_views": 100814,
       "last_checked": "2026-09-12T19:10:11.387720+00:00",
-      "alerted": true,
-      "alerted_at": "2026-09-12T00:17:11.730043+00:00",
+      "alerted": false,
+      "alerted_at": null,
       "alerted_vph": 6631,
       "ai_analysis": {
         "viral_reasons_vi": [
@@ -8008,8 +8008,8 @@
     "yJKmnf8WuGU": {
       "last_views": 230537,
       "last_checked": "2026-09-12T19:10:11.387720+00:00",
-      "alerted": true,
-      "alerted_at": "2026-09-11T20:12:44.463002+00:00",
+      "alerted": false,
+      "alerted_at": null,
       "alerted_vph": 5356,
       "ai_analysis": {
         "viral_reasons_vi": [
@@ -8185,8 +8185,8 @@
     "yOcHbJN2L9E": {
       "last_views": 64812,
       "last_checked": "2026-09-12T19:10:11.387720+00:00",
-      "alerted": true,
-      "alerted_at": "2026-09-12T10:11:43.135331+00:00",
+      "alerted": false,
+      "alerted_at": null,
       "alerted_vph": 6446,
       "ai_analysis": {
         "viral_reasons_vi": [
@@ -8284,8 +8284,8 @@
     "Wfd1UY6z0lM": {
       "last_views": 29113,
       "last_checked": "2026-09-12T19:10:11.387720+00:00",
-      "alerted": true,
-      "alerted_at": "2026-09-12T18:13:26.681474+00:00",
+      "alerted": false,
+      "alerted_at": null,
       "alerted_vph": 5696,
       "ai_analysis": {
         "viral_reasons_vi": [
@@ -8359,8 +8359,8 @@
     "lFWTluWt6PU": {
       "last_views": 7217,
       "last_checked": "2026-09-12T19:10:11.387720+00:00",
-      "alerted": true,
-      "alerted_at": "2026-09-12T18:13:26.681474+00:00",
+      "alerted": false,
+      "alerted_at": null,
       "alerted_vph": 1954,
       "ai_analysis": null
     },
@@ -8511,8 +8511,8 @@
     "jDqS2obdJsA": {
       "last_views": 18551,
       "last_checked": "2026-09-12T19:10:11.387720+00:00",
-      "alerted": true,
-      "alerted_at": "2026-09-12T19:05:33.104902+00:00",
+      "alerted": false,
+      "alerted_at": null,
       "alerted_vph": 5289,
       "ai_analysis": {
         "viral_reasons_vi": [
@@ -8592,8 +8592,8 @@
     "hm08rD9vrxo": {
       "last_views": 14041,
       "last_checked": "2026-09-12T19:10:11.387720+00:00",
-      "alerted": true,
-      "alerted_at": "2026-09-12T19:05:33.104902+00:00",
+      "alerted": false,
+      "alerted_at": null,
       "alerted_vph": 5335,
       "ai_analysis": null
     },
