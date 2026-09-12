@@ -7126,11 +7126,15 @@
                 </div>
                 <div class="text-xs">
                   <div class="font-bold text-slate-900 dark:text-white text-sm flex items-center gap-2">
-                    <span>Hệ Thống 3 Kênh Bắn Cảnh Báo Discord 24/7</span>
-                    <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold font-mono">🐍 Bot: Rắn không độc</span>
+                    <span>Hệ Thống 3 Kênh Bắn Cảnh Báo Discord 24/7 (3 Bot Riêng Biệt)</span>
                   </div>
-                  <div class="text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                    Bot <strong>Rắn không độc</strong> tự động quét 48 đối thủ &amp; Radar kênh mới nổi mỗi 1 giờ. Khi phát hiện video bão view, video đột biến, hoặc kênh mới nổi bùng nổ, bot sẽ gửi ngay thẻ bài kèm ảnh thumbnail, tốc độ view/h và gợi ý kịch bản AI vào đúng phòng chat của bạn.
+                  <div class="flex items-center gap-1.5 mt-1 flex-wrap">
+                    <span class="text-[10px] px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-600 dark:text-rose-400 font-bold font-mono">🐷 Bot 1: Đi đâu con lợn này</span>
+                    <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold font-mono">🐛 Bot 2: chạy đâu con sâu</span>
+                    <span class="text-[10px] px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 font-bold font-mono">🐍 Bot 3: Rắn không độc</span>
+                  </div>
+                  <div class="text-slate-500 dark:text-slate-400 mt-1 leading-relaxed text-[11px]">
+                    Hệ thống 3 bot tự động quét mỗi 1 giờ: Phòng 1 cảnh báo video bão view với bot <strong>Đi đâu con lợn này</strong>, Phòng 2 cảnh báo đột biến x3 với bot <strong>chạy đâu con sâu</strong>, và Phòng 3 cảnh báo radar kênh nhỏ view khủng với bot <strong>Rắn không độc</strong>!
                   </div>
                 </div>
               </div>
@@ -7186,7 +7190,7 @@
                 <div class="flex items-center justify-between">
                   <span class="font-bold text-slate-900 dark:text-white text-xs flex items-center space-x-1.5">
                     <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-                    <span class="text-emerald-600 dark:text-emerald-400 font-black uppercase tracking-wide">PHÒNG 2: 👑 Siêu đột biến x3 (#👑・siêu-đột-biến-x3)</span>
+                    <span class="text-emerald-600 dark:text-emerald-400 font-black uppercase tracking-wide">PHÒNG 2: 🐛 chạy đâu con sâu (#👑・siêu-đột-biến-x3)</span>
                   </span>
                   <span class="text-[10px] text-slate-400 font-mono">Đột biến x3+ hoặc Clever Home Hacks</span>
                 </div>
@@ -7232,7 +7236,7 @@
                 <div class="flex items-center justify-between">
                   <span class="font-bold text-slate-900 dark:text-white text-xs flex items-center space-x-1.5">
                     <span class="w-2.5 h-2.5 rounded-full bg-indigo-500 animate-pulse"></span>
-                    <span class="text-indigo-600 dark:text-indigo-400 font-black uppercase tracking-wide">PHÒNG 3: 🌱 Kênh Nhỏ View Khủng (#🌱・kênh-nhỏ-view-khủng)</span>
+                    <span class="text-indigo-600 dark:text-indigo-400 font-black uppercase tracking-wide">PHÒNG 3: 🐍 Rắn không độc (#🌱・kênh-nhỏ-view-khủng)</span>
                   </span>
                   <span class="text-[10px] text-slate-400 font-mono">&lt;10K subs • &lt;120 ngày • Breakout</span>
                 </div>
@@ -10703,12 +10707,18 @@ Nhiệm vụ: Trả lời hoặc viết lại/tinh chỉnh kịch bản theo yê
             let payloadDesc = "";
             let payloadFields = [];
             let payloadColor = 16724787;
+            let botUsername = "Rắn không độc";
+            let botAvatar = "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Snake/3D/snake_3d.png";
+            let footerText = "Bắt Bài Đối Thủ 24/7 • Harunaga Studio by Truongday";
 
             if (channelNum === 1) {
+              botUsername = "Đi đâu con lợn này";
+              botAvatar = "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Pig%20face/3D/pig_face_3d.png";
+              footerText = "Bắt Bài Đối Thủ 24/7 • Bot Đi đâu con lợn này by Truongday";
               payloadColor = 16724787;
-              payloadContent = "🚨 **[RẮN KHÔNG ĐỘC - TEST THÀNH CÔNG]** Cảnh báo Video Bão View từ hệ thống Bắt Bài Đối Thủ!";
+              payloadContent = "🚨 **[ĐI ĐÂU CON LỢN NÀY - TEST THÀNH CÔNG]** Cảnh báo Video Bão View từ hệ thống Bắt Bài Đối Thủ!";
               payloadTitle = "🚨 [PHÒNG 1: BÃO VIEW] Never Throw Away Waste Oil Recycling! Genius DIY Idea";
-              payloadDesc = "✅ **Kết nối thành công! Webhook Phòng 1 (#🚨・bão-view-thị-trường) đã sẵn sàng.**\n\nTừ bây giờ, cứ mỗi 1 tiếng bot **Rắn không độc** sẽ tự động quét 48 kênh đối thủ. Khi phát hiện video tăng view nhanh hoặc video đột biến, bot sẽ bắn cảnh báo kèm kịch bản AI ngay vào phòng này!";
+              payloadDesc = "✅ **Kết nối thành công! Webhook Phòng 1 (#🚨・bão-view-thị-trường) đã sẵn sàng.**\n\nTừ bây giờ, cứ mỗi 1 tiếng bot **Đi đâu con lợn này** sẽ tự động quét 48 kênh đối thủ. Khi phát hiện video tăng view nhanh hoặc video đột biến, bot sẽ bắn cảnh báo kèm kịch bản AI ngay vào phòng này!";
               payloadFields = [
                 { name: "📺 Kênh Đối Thủ", value: "**Clever Home Hacks**", inline: true },
                 { name: "⚡ Tốc Độ Tăng Trưởng", value: "🔥 **+2,500 view/h**", inline: true },
@@ -10716,10 +10726,13 @@ Nhiệm vụ: Trả lời hoặc viết lại/tinh chỉnh kịch bản theo yê
                 { name: "💡 Gợi Ý Kịch Bản AI", value: "Tái chế chai nhựa cũ và bàn chải thành vòi phun nước mini thông minh.", inline: false }
               ];
             } else if (channelNum === 2) {
+              botUsername = "chạy đâu con sâu";
+              botAvatar = "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Bug/3D/bug_3d.png";
+              footerText = "Bắt Bài Đối Thủ 24/7 • Bot chạy đâu con sâu by Truongday";
               payloadColor = 1097857;
-              payloadContent = "👑 **[RẮN KHÔNG ĐỘC - TEST THÀNH CÔNG]** Cảnh báo Video Đột Biến x3 từ hệ thống Bắt Bài Đối Thủ!";
+              payloadContent = "👑 **[CHẠY ĐÂU CON SÂU - TEST THÀNH CÔNG]** Cảnh báo Video Đột Biến x3 từ hệ thống Bắt Bài Đối Thủ!";
               payloadTitle = "👑 [PHÒNG 2: SIÊU ĐỘT BIẾN X3] Attach an Old Toothbrush to a Plastic Bottle";
-              payloadDesc = "✅ **Kết nối thành công! Webhook Phòng 2 (#👑・siêu-đột-biến-x3) đã sẵn sàng.**\n\nPhòng này chuyên nhận cảnh báo video đột biến x3 bình thường của đối thủ và toàn bộ video mới của kênh chính bạn!";
+              payloadDesc = "✅ **Kết nối thành công! Webhook Phòng 2 (#👑・siêu-đột-biến-x3) đã sẵn sàng.**\n\nPhòng này chuyên nhận cảnh báo video đột biến x3 bình thường của đối thủ và toàn bộ video mới của kênh chính bạn từ bot **chạy đâu con sâu**!";
               payloadFields = [
                 { name: "📺 Kênh", value: "**Clever Home Hacks**", inline: true },
                 { name: "⚡ Tốc Độ", value: "🔥 **+1,800 view/h**", inline: true },
@@ -10727,10 +10740,13 @@ Nhiệm vụ: Trả lời hoặc viết lại/tinh chỉnh kịch bản theo yê
                 { name: "💡 Gợi Ý Kịch Bản AI", value: "Biến bàn chải cũ thành đầu chà vệ sinh góc hẹp tiện dụng.", inline: false }
               ];
             } else {
+              botUsername = "Rắn không độc";
+              botAvatar = "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Snake/3D/snake_3d.png";
+              footerText = "Bắt Bài Đối Thủ 24/7 • Bot Rắn Không Độc by Truongday";
               payloadColor = 6309851;
               payloadContent = "🌱 **[RẮN KHÔNG ĐỘC - TEST THÀNH CÔNG]** Cảnh báo Radar Kênh Nhỏ View Khủng & Breakout!";
               payloadTitle = "🌱 [PHÒNG 3: KÊNH NHỎ VIEW KHỦNG] Smart Scrap Lab (@SmartScrapLab)";
-              payloadDesc = "✅ **Kết nối thành công! Webhook Phòng 3 (#🌱・kênh-nhỏ-view-khủng) đã sẵn sàng.**\n\nPhòng này chuyên nhận radar phát hiện kênh mới nổi (<10K subs, <120 ngày tuổi) và các kênh đạt trạng thái Early Breakout!";
+              payloadDesc = "✅ **Kết nối thành công! Webhook Phòng 3 (#🌱・kênh-nhỏ-view-khủng) đã sẵn sàng.**\n\nPhòng này chuyên nhận radar phát hiện kênh mới nổi (<10K subs, <120 ngày tuổi) và các kênh đạt trạng thái Early Breakout từ bot **Rắn không độc**!";
               payloadFields = [
                 { name: "📺 Kênh YouTube", value: "**Smart Scrap Lab**\n`@SmartScrapLab`", inline: true },
                 { name: "🎯 Radar Score", value: "⭐ **88.5/100**\n`SUPER_EARLY_BREAKOUT`", inline: true },
@@ -10742,8 +10758,8 @@ Nhiệm vụ: Trả lời hoặc viết lại/tinh chỉnh kịch bản theo yê
             }
 
             const payload = {
-              username: "Rắn không độc",
-              avatar_url: "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Snake/3D/snake_3d.png",
+              username: botUsername,
+              avatar_url: botAvatar,
               content: payloadContent,
               embeds: [
                 {
@@ -10752,7 +10768,7 @@ Nhiệm vụ: Trả lời hoặc viết lại/tinh chỉnh kịch bản theo yê
                   color: payloadColor,
                   description: payloadDesc,
                   fields: payloadFields,
-                  footer: { text: "Bắt Bài Đối Thủ 24/7 • Bot Rắn Không Độc by Truongday" },
+                  footer: { text: footerText },
                   timestamp: new Date().toISOString()
                 }
               ]
