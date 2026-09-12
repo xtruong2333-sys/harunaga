@@ -3184,97 +3184,302 @@
       </div>
 
       <!-- Channel Grid Mode -->
-      <div v-if="channelViewMode === 'grid'" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-        <div 
-          v-for="(ch, cIdx) in sortedAndFilteredChannels" 
-          :key="ch.channel_id"
-          @click="openChannelModal(ch)"
-          class="card-luxury group bg-white dark:bg-[#0c1222] border rounded-3xl p-5 shadow-sm transition-all duration-300 flex flex-col justify-between cursor-pointer relative overflow-hidden hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-indigo-500/10 hover:border-indigo-400/80 dark:hover:border-indigo-500/80 hover:ring-2 hover:ring-indigo-500/30 dark:hover:ring-indigo-400/30"
-          :class="cIdx === 0 
-            ? 'border-amber-400/80 dark:border-amber-400/60 ring-1 ring-amber-400/30' 
-            : 'border-slate-200 dark:border-slate-800'"
-        >
-          <div>
-            <div class="flex items-start justify-between gap-3">
-              <div class="flex items-center space-x-3 min-w-0">
-                <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500/15 via-purple-500/10 to-pink-500/15 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-black text-lg flex-shrink-0 border border-indigo-500/30 shadow-sm group-hover:scale-105 group-hover:border-indigo-400 group-hover:ring-2 group-hover:ring-indigo-400/30 transition-all duration-300">
-                  {{ ch.name.charAt(0) }}
-                </div>
-                <div class="min-w-0 flex-1">
-                  <div class="flex items-center space-x-1.5">
-                    <span class="font-black text-sm text-slate-900 dark:text-white truncate group-hover:text-indigo-600 dark:group-hover:text-indigo-300 transition-colors" :title="ch.name">{{ ch.name }}</span>
-                    <i class="ph-fill ph-check-circle text-emerald-500 text-xs"></i>
-                  </div>
-                  <div class="text-[11px] text-slate-400 font-mono truncate">{{ ch.handle }}</div>
-                </div>
-              </div>
-
-              <!-- Rank Badge -->
-              <span 
-                class="text-xs font-black px-2.5 py-0.5 rounded-full shadow-sm flex-shrink-0 transition-transform group-hover:scale-105"
-                :class="cIdx === 0 ? 'bg-amber-400 text-slate-950 ring-2 ring-amber-400/50' : (cIdx === 1 ? 'bg-slate-300 text-slate-900' : (cIdx === 2 ? 'bg-amber-700 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'))"
-              >
-                {{ cIdx === 0 ? '👑 #1' : '#' + (cIdx + 1) }}
+      <div v-if="channelViewMode === 'grid'" class="space-y-6">
+        
+        <!-- ========================================================================= -->
+        <!-- BỤC VINH QUANG OLYMPIC: TOP 3 KÊNH QUÁN QUÂN (2 - 1 - 3 PODIUM)           -->
+        <!-- ========================================================================= -->
+        <div class="space-y-4 pt-1">
+          <div class="flex items-center justify-between px-1">
+            <div class="flex items-center space-x-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-amber-400 shadow-md shadow-amber-400/80 animate-pulse"></span>
+              <span class="text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200 font-mono flex items-center gap-1.5">
+                <span>BỤC VINH QUANG TOP 3 KÊNH THỊ TRƯỜNG</span>
+                <span class="text-amber-500 text-xs">👑</span>
               </span>
             </div>
-
-            <!-- Stats Matrix -->
-            <div class="grid grid-cols-3 gap-2 mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/80 text-center">
-              <div class="bg-slate-50 dark:bg-slate-900/60 p-2 rounded-xl group-hover:bg-rose-500/5 transition-colors">
-                <span class="text-[10px] text-slate-400 uppercase font-bold block">Tốc độ đỉnh</span>
-                <span class="text-xs font-black text-rose-600 dark:text-rose-400 mt-0.5 block">+{{ formatNumber(ch.peak_vph) }}/h</span>
-              </div>
-              <div class="bg-slate-50 dark:bg-slate-900/60 p-2 rounded-xl group-hover:bg-blue-500/5 transition-colors">
-                <span class="text-[10px] text-slate-400 uppercase font-bold block">Tổng View/h</span>
-                <span class="text-xs font-black text-blue-600 dark:text-blue-400 mt-0.5 block">+{{ formatNumber(ch.total_channel_vph) }}/h</span>
-              </div>
-              <div class="bg-slate-50 dark:bg-slate-900/60 p-2 rounded-xl group-hover:bg-amber-500/5 transition-colors">
-                <span class="text-[10px] text-slate-400 uppercase font-bold block">Tỷ lệ Viral</span>
-                <span class="text-xs font-black text-amber-500 mt-0.5 block">{{ ch.viral_rate }}%</span>
-              </div>
-            </div>
-
-            <!-- Quick Intelligence Highlights -->
-            <div class="mt-3 flex items-center justify-between gap-2 flex-wrap">
-              <span v-if="ch.million_count > 0" class="px-2 py-0.5 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-600 dark:text-amber-300 text-[10px] font-black inline-flex items-center gap-1 shadow-sm">
-                <i class="ph-fill ph-crown text-amber-500"></i>
-                <span>{{ ch.million_count }} video &ge; 1M view</span>
-              </span>
-              <span v-else class="text-[10px] font-bold text-slate-400 font-mono">
-                {{ ch.video_count }} video • ~{{ ch.est_monthly_videos }} vd/tháng
-              </span>
-              <span class="text-[10px] text-slate-400 font-mono">
-                📅 {{ ch.start_date }}
-              </span>
-            </div>
-
-            <!-- Best Video Preview -->
-            <div class="mt-2.5 text-[11px] text-slate-500 dark:text-slate-400 truncate" v-if="ch.best_video">
-              🎬 <em>{{ ch.best_video.title }}</em>
-            </div>
+            <span class="text-[11px] text-slate-400 font-mono hidden sm:inline flex items-center gap-1">
+              <i class="ph-fill ph-fire text-amber-500"></i> Olympic Podium & Flame Aura
+            </span>
           </div>
 
-          <!-- Card Actions -->
-          <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center space-x-2">
-            <button 
-              type="button"
-              @click.stop="openChannelModal(ch)"
-              class="flex-1 py-2 px-3 bg-indigo-50 dark:bg-indigo-950/40 group-hover:bg-gradient-to-r group-hover:from-indigo-600 group-hover:to-purple-600 text-indigo-700 dark:text-indigo-300 group-hover:text-white rounded-xl text-xs font-bold transition-all duration-200 flex items-center justify-center space-x-1.5 shadow-sm cursor-pointer"
+          <!-- OLYMPIC PODIUM GRID: Top 2 (Left) - Top 1 (Center, Big) - Top 3 (Right) -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-7 items-center pt-3">
+            
+            <div 
+              v-for="(ch, cIdx) in sortedAndFilteredChannels.slice(0, 3)" 
+              :key="'top3-ch-podium-' + ch.channel_id"
+              class="group select-none relative transition-all duration-300 cursor-pointer"
+              :class="[
+                cIdx === 0 
+                  ? 'order-1 md:order-2 md:scale-[1.05] md:-translate-y-4 z-20 flame-card-champion' 
+                  : (cIdx === 1 
+                    ? 'order-2 md:order-1 md:scale-[0.98] z-10 flame-card-silver' 
+                    : 'order-3 md:order-3 md:scale-[0.98] z-10 flame-card-bronze')
+              ]"
+              @click="openChannelModal(ch)"
             >
-              <i class="ph-bold ph-chart-polar text-sm"></i>
-              <span>Hồ Sơ Kênh ✨</span>
-            </button>
-            <a 
-              :href="'https://www.youtube.com/' + (ch.handle || '')" 
-              target="_blank" 
-              @click.stop
-              class="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-rose-500/20 hover:border-rose-500/40 text-slate-500 dark:text-slate-300 hover:text-rose-500 flex items-center justify-center transition border border-transparent shadow-sm flex-shrink-0 cursor-pointer"
-              title="Mở kênh YouTube gốc"
-            >
-              <i class="ph-fill ph-youtube-logo text-rose-500 text-base"></i>
-            </a>
+              <!-- ================= TOP 1: BLAZING SOLAR FLAME LAYERS ================= -->
+              <template v-if="cIdx === 0">
+                <!-- Outer Expansive Atmospheric Fire Glow -->
+                <div class="absolute -inset-4 sm:-inset-6 rounded-[2.5rem] podium-top1-aura blur-2xl opacity-60 pointer-events-none -z-20"></div>
+                <!-- Radiant Fiery Perimeter Rim -->
+                <div class="absolute -inset-[2.5px] rounded-[1.6rem] podium-top1-rim opacity-85 pointer-events-none -z-10"></div>
+              </template>
+
+              <!-- ================= TOP 2: CELESTIAL SILVER FLAME LAYERS ================= -->
+              <template v-else-if="cIdx === 1">
+                <div class="absolute -inset-3 rounded-[2rem] bg-cyan-400/20 blur-xl opacity-40 podium-top2-aura pointer-events-none -z-20"></div>
+                <div class="absolute -inset-[1.5px] rounded-[1.55rem] podium-top2-rim opacity-60 pointer-events-none -z-10"></div>
+              </template>
+
+              <!-- ================= TOP 3: EMBER BRONZE FLAME LAYERS ================= -->
+              <template v-else>
+                <div class="absolute -inset-3 rounded-[2rem] bg-orange-500/20 blur-xl opacity-40 podium-top3-aura pointer-events-none -z-20"></div>
+                <div class="absolute -inset-[1.5px] rounded-[1.55rem] podium-top3-rim opacity-60 pointer-events-none -z-10"></div>
+              </template>
+
+              <!-- Floating Grand Crown Pill on top of Top 1 -->
+              <div v-if="cIdx === 0" class="absolute -top-3.5 left-1/2 -translate-x-1/2 z-30 pointer-events-none whitespace-nowrap">
+                <span class="px-4 py-1 rounded-full bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-slate-950 font-black text-[11px] shadow-xl shadow-amber-500/50 uppercase tracking-wider font-mono flex items-center gap-1.5 border border-yellow-200">
+                  <i class="ph-fill ph-crown text-slate-950 text-xs"></i>
+                  <span>KÊNH QUÁN QUÂN THỊ TRƯỜNG</span>
+                  <i class="ph-fill ph-fire text-rose-600 text-xs"></i>
+                </span>
+              </div>
+
+              <!-- Inner Solid Card Body (Obsidian Glass, Zero bleed, 100% crisp typography) -->
+              <div 
+                class="card-luxury bg-white dark:bg-[#090d16] border rounded-3xl p-5 sm:p-6 transition-all duration-300 flex flex-col justify-between relative shadow-2xl h-full"
+                :class="cIdx === 0 
+                  ? 'border-amber-400/90 dark:border-amber-400/80 shadow-amber-500/20' 
+                  : (cIdx === 1 
+                    ? 'border-slate-300 dark:border-slate-400/40 shadow-slate-400/10' 
+                    : 'border-amber-600/50 dark:border-amber-600/40 shadow-orange-500/10')"
+              >
+                <div>
+                  <!-- Channel Header (Row 1: Avatar + Rank Badge; Row 2: Full Width Channel Name) -->
+                  <div class="flex items-center justify-between gap-3">
+                    <!-- Avatar with Luxury Gradient Frame -->
+                    <div 
+                      class="rounded-2xl flex items-center justify-center font-black flex-shrink-0 shadow-md transition-all duration-300 group-hover:scale-105"
+                      :class="cIdx === 0 
+                        ? 'w-13 h-13 bg-gradient-to-br from-amber-400 via-orange-500 to-rose-600 text-slate-950 text-2xl border-2 border-amber-300 shadow-amber-500/30' 
+                        : (cIdx === 1 
+                          ? 'w-11 h-11 bg-gradient-to-br from-slate-200 via-slate-300 to-cyan-500 text-slate-950 text-xl border border-slate-300 shadow-slate-400/20' 
+                          : 'w-11 h-11 bg-gradient-to-br from-amber-600 via-orange-600 to-amber-700 text-white text-xl border border-amber-600 shadow-orange-500/20')"
+                    >
+                      {{ ch.name.charAt(0) }}
+                    </div>
+
+                    <!-- Minimalist Frosted Rank Badge -->
+                    <div class="flex-shrink-0">
+                      <span 
+                        class="flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-black tracking-wider shadow-lg backdrop-blur-md"
+                        :class="cIdx === 0 
+                          ? 'bg-slate-950/90 border border-amber-400/90 text-amber-300 shadow-amber-500/30 font-mono' 
+                          : (cIdx === 1 
+                            ? 'bg-slate-950/85 border border-slate-300/60 text-slate-200 font-mono' 
+                            : 'bg-slate-950/85 border border-amber-600/60 text-amber-200 font-mono')"
+                      >
+                        <i v-if="cIdx === 0" class="ph-fill ph-crown text-amber-400 text-sm"></i>
+                        <i v-else-if="cIdx === 1" class="ph-fill ph-medal text-slate-300 text-xs"></i>
+                        <i v-else class="ph-fill ph-medal text-orange-400 text-xs"></i>
+                        <span>{{ cIdx === 0 ? '#01 CHAMPION' : (cIdx === 1 ? '#02 RUNNER-UP' : '#03 THIRD') }}</span>
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- Full Width Channel Name & Handle -->
+                  <div class="mt-3">
+                    <div class="flex items-center space-x-1.5">
+                      <span 
+                        class="font-black transition-colors"
+                        :class="cIdx === 0 ? 'text-base sm:text-lg text-slate-900 dark:text-white group-hover:text-amber-400' : 'text-sm sm:text-base text-slate-900 dark:text-white group-hover:text-indigo-400'"
+                        :title="ch.name"
+                      >
+                        {{ ch.name }}
+                      </span>
+                      <i class="ph-fill ph-check-circle text-emerald-500 text-sm flex-shrink-0"></i>
+                    </div>
+                    <div class="text-xs text-slate-400 font-mono mt-0.5 truncate">{{ ch.handle }}</div>
+                  </div>
+
+                  <!-- High-Tech Stats Matrix -->
+                  <div class="grid grid-cols-3 gap-2 sm:gap-2.5 mt-4 pt-3.5 border-t border-slate-100 dark:border-slate-800/80 text-center">
+                    <div class="bg-slate-50 dark:bg-slate-900/70 p-2.5 rounded-2xl group-hover:bg-rose-500/10 transition-colors border border-slate-100 dark:border-slate-800/60">
+                      <span class="text-[10px] text-slate-400 uppercase font-bold block font-mono">Tốc độ đỉnh</span>
+                      <span class="text-xs sm:text-sm font-black text-rose-600 dark:text-rose-400 mt-0.5 block font-mono flex items-center justify-center gap-0.5">
+                        <i class="ph-fill ph-fire text-rose-500 text-xs"></i>
+                        <span>+{{ formatNumber(ch.peak_vph) }}/h</span>
+                      </span>
+                    </div>
+                    <div class="bg-slate-50 dark:bg-slate-900/70 p-2.5 rounded-2xl group-hover:bg-blue-500/10 transition-colors border border-slate-100 dark:border-slate-800/60">
+                      <span class="text-[10px] text-slate-400 uppercase font-bold block font-mono">Tổng View/h</span>
+                      <span class="text-xs sm:text-sm font-black text-blue-600 dark:text-blue-400 mt-0.5 block font-mono">
+                        +{{ formatNumber(ch.total_channel_vph) }}/h
+                      </span>
+                    </div>
+                    <div class="bg-slate-50 dark:bg-slate-900/70 p-2.5 rounded-2xl group-hover:bg-amber-500/10 transition-colors border border-slate-100 dark:border-slate-800/60">
+                      <span class="text-[10px] text-slate-400 uppercase font-bold block font-mono">Tỷ lệ Viral</span>
+                      <span class="text-xs sm:text-sm font-black text-amber-500 mt-0.5 block font-mono">
+                        {{ ch.viral_rate }}%
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- Quick Intelligence Highlights -->
+                  <div class="mt-3.5 flex items-center justify-between gap-2 flex-wrap text-xs">
+                    <span v-if="ch.million_count > 0" class="px-2.5 py-0.5 rounded-lg bg-amber-500/15 border border-amber-500/30 text-amber-600 dark:text-amber-300 text-[10px] font-black inline-flex items-center gap-1 shadow-sm font-mono">
+                      <i class="ph-fill ph-crown text-amber-500"></i>
+                      <span>{{ ch.million_count }} video &ge; 1M view</span>
+                    </span>
+                    <span v-else class="text-[10px] font-bold text-slate-400 font-mono">
+                      {{ ch.video_count }} video • ~{{ ch.est_monthly_videos }} vd/tháng
+                    </span>
+                    <span class="text-[10px] text-slate-400 font-mono">
+                      📅 {{ ch.start_date }}
+                    </span>
+                  </div>
+
+                  <!-- Best Video Preview -->
+                  <div class="mt-2.5 p-2 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-100 dark:border-slate-800/50 text-[11px] text-slate-600 dark:text-slate-300 truncate" v-if="ch.best_video">
+                    🎬 <strong class="text-slate-900 dark:text-white font-semibold">{{ ch.best_video.title }}</strong>
+                  </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="mt-4 pt-3.5 border-t border-slate-100 dark:border-slate-800 flex items-center space-x-2">
+                  <button 
+                    type="button"
+                    @click.stop="openChannelModal(ch)"
+                    class="flex-1 py-2.5 px-3 rounded-2xl text-xs font-black transition-all duration-200 flex items-center justify-center space-x-1.5 shadow-md cursor-pointer group/btn"
+                    :class="cIdx === 0 
+                      ? 'bg-slate-950 dark:bg-[#0e1424] hover:bg-slate-800 text-amber-300 border border-amber-400/70 hover:border-amber-300 hover:shadow-amber-500/30 py-3' 
+                      : (cIdx === 1 
+                        ? 'bg-slate-950 dark:bg-[#0e1424] hover:bg-slate-800 text-slate-200 border border-slate-300/30 hover:border-slate-300 hover:shadow-slate-400/10' 
+                        : 'bg-slate-950 dark:bg-[#0e1424] hover:bg-slate-800 text-amber-200 border border-amber-600/30 hover:border-amber-500 hover:shadow-orange-500/10')"
+                  >
+                    <i v-if="cIdx === 0" class="ph-fill ph-crown text-amber-400 text-sm group-hover/btn:scale-125 transition-transform"></i>
+                    <i v-else class="ph-bold ph-chart-polar text-sm group-hover/btn:scale-110 transition-transform"></i>
+                    <span>{{ cIdx === 0 ? '👑 Hồ Sơ Kênh Quán Quân' : (cIdx === 1 ? 'Hồ Sơ Á Quân ✨' : 'Hồ Sơ Top 3 ✨') }}</span>
+                    <i class="ph-bold ph-arrow-right text-xs opacity-60 group-hover/btn:translate-x-1 transition-transform"></i>
+                  </button>
+                  <a 
+                    :href="'https://www.youtube.com/' + (ch.handle || '')" 
+                    target="_blank" 
+                    @click.stop
+                    class="w-10 h-10 rounded-2xl bg-slate-100 dark:bg-slate-800/80 hover:bg-rose-500/20 hover:border-rose-500/40 text-slate-500 dark:text-slate-300 hover:text-rose-500 flex items-center justify-center transition border border-transparent shadow-sm flex-shrink-0 cursor-pointer"
+                    title="Mở kênh YouTube gốc"
+                  >
+                    <i class="ph-fill ph-youtube-logo text-rose-500 text-lg"></i>
+                  </a>
+                </div>
+
+              </div>
+
+            </div>
+
           </div>
         </div>
+
+        <!-- ========================================================================= -->
+        <!-- ĐƯỜNG PHÂN CÁCH ĐẲNG CẤP & BẢNG XẾP HẠNG KÊNH GỌN GÀNG (TỪ TOP #04 TRỞ ĐI)-->
+        <!-- ========================================================================= -->
+        <div v-if="sortedAndFilteredChannels.length > 3" class="space-y-4 pt-4">
+          <div class="flex items-center space-x-4">
+            <div class="h-px flex-1 bg-gradient-to-r from-transparent via-slate-200 dark:via-slate-800 to-slate-200 dark:to-slate-800"></div>
+            <div class="flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-[11px] font-bold text-slate-500 dark:text-slate-400 tracking-wider uppercase font-mono shadow-sm">
+              <i class="ph-bold ph-list-numbers text-indigo-500"></i>
+              <span>BẢNG XẾP HẠNG TIẾP THEO (TỪ TOP #04 TRỞ ĐI)</span>
+            </div>
+            <div class="h-px flex-1 bg-gradient-to-r from-slate-200 dark:from-slate-800 via-slate-200 dark:via-slate-800 to-transparent"></div>
+          </div>
+
+          <!-- Compact Standard 4-Col Grid Cards for #4 onwards (Subordinate to Podium) -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-4">
+            <div 
+              v-for="(ch, subIdx) in sortedAndFilteredChannels.slice(3)" 
+              :key="'sub-ch-' + ch.channel_id"
+              @click="openChannelModal(ch)"
+              class="card-luxury group bg-white dark:bg-[#0c1222] border border-slate-200/90 dark:border-slate-800/90 hover:border-indigo-400/50 dark:hover:border-indigo-500/50 rounded-2xl p-3.5 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col justify-between cursor-pointer relative select-none hover:-translate-y-1"
+            >
+              <div>
+                <!-- Channel Header -->
+                <div class="flex items-start justify-between gap-2.5">
+                  <div class="flex items-center space-x-2.5 min-w-0">
+                    <div class="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 text-indigo-500 dark:text-indigo-400 flex items-center justify-center font-black text-sm flex-shrink-0 border border-slate-200 dark:border-slate-700/60 shadow-sm">
+                      {{ ch.name.charAt(0) }}
+                    </div>
+                    <div class="min-w-0 flex-1">
+                      <div class="flex items-center space-x-1">
+                        <span class="font-bold text-xs text-slate-900 dark:text-white truncate group-hover:text-indigo-500 dark:group-hover:text-indigo-400 transition-colors" :title="ch.name">{{ ch.name }}</span>
+                        <i class="ph-fill ph-check-circle text-emerald-500 text-[10px]"></i>
+                      </div>
+                      <div class="text-[10px] text-slate-400 font-mono truncate">{{ ch.handle }}</div>
+                    </div>
+                  </div>
+
+                  <!-- Rank Badge -->
+                  <span class="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 text-[10px] font-mono font-bold flex-shrink-0">
+                    #{{ subIdx + 4 }}
+                  </span>
+                </div>
+
+                <!-- Stats Matrix -->
+                <div class="grid grid-cols-3 gap-1.5 mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800/80 text-center">
+                  <div class="bg-slate-50 dark:bg-slate-900/50 p-1.5 rounded-lg">
+                    <span class="text-[9px] text-slate-400 uppercase font-mono block">Đỉnh</span>
+                    <span class="text-[11px] font-bold text-rose-600 dark:text-rose-400 block font-mono">+{{ formatNumber(ch.peak_vph) }}/h</span>
+                  </div>
+                  <div class="bg-slate-50 dark:bg-slate-900/50 p-1.5 rounded-lg">
+                    <span class="text-[9px] text-slate-400 uppercase font-mono block">Tổng</span>
+                    <span class="text-[11px] font-bold text-blue-600 dark:text-blue-400 block font-mono">+{{ formatNumber(ch.total_channel_vph) }}/h</span>
+                  </div>
+                  <div class="bg-slate-50 dark:bg-slate-900/50 p-1.5 rounded-lg">
+                    <span class="text-[9px] text-slate-400 uppercase font-mono block">Viral</span>
+                    <span class="text-[11px] font-bold text-amber-500 block font-mono">{{ ch.viral_rate }}%</span>
+                  </div>
+                </div>
+
+                <!-- Highlights -->
+                <div class="mt-2.5 flex items-center justify-between gap-1 text-[10px]">
+                  <span v-if="ch.million_count > 0" class="px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-500 font-bold font-mono">
+                    👑 {{ ch.million_count }} &ge; 1M
+                  </span>
+                  <span v-else class="text-slate-400 font-mono">
+                    {{ ch.video_count }} vd
+                  </span>
+                  <span class="text-slate-400 font-mono">
+                    📅 {{ ch.start_date }}
+                  </span>
+                </div>
+              </div>
+
+              <!-- Actions -->
+              <div class="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800 flex items-center space-x-1.5">
+                <button 
+                  type="button"
+                  @click.stop="openChannelModal(ch)"
+                  class="flex-1 py-1.5 px-2 bg-slate-100 dark:bg-slate-800/90 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700/60 rounded-xl text-[11px] font-bold shadow-sm transition flex items-center justify-center space-x-1 cursor-pointer"
+                >
+                  <i class="ph-bold ph-chart-polar text-xs text-indigo-400"></i>
+                  <span>Hồ Sơ</span>
+                </button>
+                <a 
+                  :href="'https://www.youtube.com/' + (ch.handle || '')" 
+                  target="_blank" 
+                  @click.stop
+                  class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-rose-500/20 text-slate-400 hover:text-rose-500 flex items-center justify-center transition flex-shrink-0 cursor-pointer"
+                  title="YouTube"
+                >
+                  <i class="ph-fill ph-youtube-logo text-xs text-rose-500"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
 
       <!-- Channel Table Mode -->
