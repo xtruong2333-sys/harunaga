@@ -114,9 +114,16 @@ def send_discord_alert(webhook_url: str, video_info: dict, channel_name: str, th
         }
         embeds.append(embed2)
 
-    # Tên định danh & Ảnh đại diện Bot Rắn không độc trên Discord
-    bot_username = "Rắn không độc"
-    bot_avatar = "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Snake/3D/snake_3d.png"
+    # Tên định danh & Ảnh đại diện riêng cho từng loại Bot trên Discord
+    if alert_type == "outlier" or outlier_score >= 3.0:
+        bot_username = "chạy đâu con sâu"
+        bot_avatar = "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Bug/3D/bug_3d.png"
+    elif alert_type == "rising" or "mới nổi" in channel_name.lower():
+        bot_username = "chạy đâu con sâu"
+        bot_avatar = "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Bug/3D/bug_3d.png"
+    else:
+        bot_username = "Đi đâu con lợn này"
+        bot_avatar = "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Pig%20face/3D/pig_face_3d.png"
 
     payload = {
         "username": bot_username,
