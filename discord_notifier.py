@@ -134,27 +134,44 @@ def send_discord_alert(webhook_url: str, video_info: dict, channel_name: str, th
 
     success_count = 0
     req_data = json.dumps(payload).encode("utf-8")
+    import time
 
     for target_url in urls:
-        try:
-            request = urllib.request.Request(
-                target_url,
-                data=req_data,
-                headers={
-                    "Content-Type": "application/json",
-                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) CompetitorTracker/2.0"
-                }
-            )
-            with urllib.request.urlopen(request, timeout=15) as response:
-                if response.status in (200, 204):
-                    print(f"✅ [DISCORD] Đã gửi cảnh báo thành công tới: '{title[:30]}...' (+{vph:,} view/h)")
-                    success_count += 1
+        for attempt in range(2):
+            try:
+                request = urllib.request.Request(
+                    target_url,
+                    data=req_data,
+                    headers={
+                        "Content-Type": "application/json",
+                        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) CompetitorTracker/2.0"
+                    }
+                )
+                with urllib.request.urlopen(request, timeout=15) as response:
+                    if response.status in (200, 204):
+                        print(f"✅ [DISCORD] Đã gửi cảnh báo thành công: '{title[:30]}...' (+{vph:,} view/h)")
+                        success_count += 1
+                        time.sleep(1.0)
+                        break
+                    else:
+                        print(f"⚠️ [DISCORD] Phản hồi bất thường từ {target_url[:35]}...: {response.status}")
+                        break
+            except urllib.error.HTTPError as e:
+                if e.code == 429:
+                    try:
+                        err_body = json.loads(e.read().decode('utf-8', errors='ignore'))
+                        wait_sec = float(err_body.get("retry_after", 1.5))
+                    except Exception:
+                        wait_sec = 2.0
+                    print(f"⏳ [DISCORD 429] Bị giới hạn tốc độ, tự động chờ {wait_sec}s rồi gửi lại...")
+                    time.sleep(wait_sec + 0.3)
+                    continue
                 else:
-                    print(f"⚠️ [DISCORD] Phản hồi bất thường từ {target_url[:35]}...: {response.status}")
-        except urllib.error.HTTPError as e:
-            print(f"❌ [DISCORD ERROR] HTTP {e.code}: {e.read().decode('utf-8', errors='ignore')}")
-        except Exception as ex:
-            print(f"❌ [DISCORD ERROR] Lỗi gửi webhook: {ex}")
+                    print(f"❌ [DISCORD ERROR] HTTP {e.code}: {e.read().decode('utf-8', errors='ignore')}")
+                    break
+            except Exception as ex:
+                print(f"❌ [DISCORD ERROR] Lỗi gửi webhook: {ex}")
+                break
 
     return success_count > 0
 
