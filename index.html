@@ -1194,7 +1194,7 @@
     <div id="main-viewport" class="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto bg-slate-50 dark:bg-[#070b14] custom-scrollbar transition-colors duration-200">
       
       <!-- Top Navigation Bar -->
-      <header class="w-full sticky top-0 z-40 flex items-center justify-between px-4 sm:px-6 lg:px-8 py-3 bg-white/98 dark:bg-[#0b101d]/98 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800/80 flex-shrink-0 transition-colors duration-200 shadow-sm">
+      <header :class="(activeDetailChannel || activeAiVideo || showDiscoveryAdminModal || showAddRisingModal || showAccountModal) ? 'z-[1]' : 'z-40'" class="w-full sticky top-0 flex items-center justify-between px-4 sm:px-6 lg:px-8 py-3 bg-white/98 dark:bg-[#0b101d]/98 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800/80 flex-shrink-0 transition-colors duration-200 shadow-sm">
         <!-- Left: Hamburger on Mobile + Radar 24/7 Status + Global Search -->
         <div class="flex items-center space-x-3 flex-1 max-w-2xl">
           <button @click="isSidebarOpen = true" class="lg:hidden p-2 rounded-xl bg-slate-800/80 text-slate-300 hover:text-white transition">
