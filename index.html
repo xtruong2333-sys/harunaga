@@ -417,6 +417,125 @@
       animation: float-crown 3s ease-in-out infinite;
       filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.85));
     }
+
+    /* ============================================================ */
+    /* 10. OLYMPIC PODIUM & FLAME AURA GLOW SYSTEM (TOP 1, 2, 3)    */
+    /* ============================================================ */
+    @keyframes flame-glow-pulse {
+      0%, 100% {
+        opacity: 0.65;
+        filter: blur(16px);
+        transform: scale(1);
+      }
+      50% {
+        opacity: 0.95;
+        filter: blur(24px);
+        transform: scale(1.02);
+      }
+    }
+
+    @keyframes flame-rim-flow {
+      0% { background-position: 0% 0%; }
+      50% { background-position: 100% 100%; }
+      100% { background-position: 0% 0%; }
+    }
+
+    /* Top 1 Flame Rim & Ambient Aura */
+    .podium-top1-rim {
+      background: linear-gradient(135deg, #fef08a 0%, #fbbf24 25%, #f59e0b 50%, #ef4444 75%, #fbbf24 100%);
+      background-size: 200% 200%;
+      animation: flame-rim-flow 3s ease infinite;
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .podium-top1-aura {
+      background: radial-gradient(circle at 50% 30%, rgba(254, 240, 138, 0.75), rgba(245, 158, 11, 0.65) 45%, rgba(239, 68, 68, 0.45) 70%, transparent 92%);
+      animation: flame-glow-pulse 2.8s ease-in-out infinite;
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* TOP 1 HOVER BURST: Ngọn lửa bùng to gấp đôi! */
+    .flame-card-champion {
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .flame-card-champion:hover {
+      transform: translateY(-16px) scale(1.06) !important;
+      z-index: 35 !important;
+    }
+
+    .flame-card-champion:hover .podium-top1-aura {
+      opacity: 1 !important;
+      filter: blur(36px) !important;
+      inset: -28px !important;
+      background: radial-gradient(circle at 50% 30%, rgba(254, 240, 138, 0.95), rgba(245, 158, 11, 0.9) 45%, rgba(239, 68, 68, 0.7) 70%, transparent 95%) !important;
+      animation-duration: 1.4s !important;
+    }
+
+    .flame-card-champion:hover .podium-top1-rim {
+      opacity: 1 !important;
+      inset: -5px !important;
+      filter: drop-shadow(0 0 16px #f59e0b) drop-shadow(0 0 32px #ef4444) !important;
+      animation-duration: 1.4s !important;
+    }
+
+    /* Top 2 Silver Rim & Aura */
+    .podium-top2-rim {
+      background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 35%, #38bdf8 65%, #94a3b8 100%);
+      background-size: 200% 200%;
+      animation: flame-rim-flow 4s ease infinite;
+      transition: all 0.35s ease;
+    }
+
+    .flame-card-silver {
+      transition: transform 0.35s ease;
+    }
+
+    .flame-card-silver:hover {
+      transform: translateY(-8px) scale(1.01) !important;
+      z-index: 25 !important;
+    }
+
+    .flame-card-silver:hover .podium-top2-aura {
+      opacity: 0.85 !important;
+      filter: blur(24px) !important;
+      inset: -14px !important;
+    }
+
+    .flame-card-silver:hover .podium-top2-rim {
+      opacity: 0.95 !important;
+      inset: -3px !important;
+      filter: drop-shadow(0 0 12px #38bdf8) !important;
+    }
+
+    /* Top 3 Bronze Rim & Aura */
+    .podium-top3-rim {
+      background: linear-gradient(135deg, #fbbf24 0%, #d97706 35%, #ea580c 65%, #b45309 100%);
+      background-size: 200% 200%;
+      animation: flame-rim-flow 4s ease infinite;
+      transition: all 0.35s ease;
+    }
+
+    .flame-card-bronze {
+      transition: transform 0.35s ease;
+    }
+
+    .flame-card-bronze:hover {
+      transform: translateY(-8px) scale(1.01) !important;
+      z-index: 25 !important;
+    }
+
+    .flame-card-bronze:hover .podium-top3-aura {
+      opacity: 0.85 !important;
+      filter: blur(24px) !important;
+      inset: -14px !important;
+    }
+
+    .flame-card-bronze:hover .podium-top3-rim {
+      opacity: 0.95 !important;
+      inset: -3px !important;
+      filter: drop-shadow(0 0 12px #f59e0b) !important;
+    }
   </style>
 </head>
 <body class="bg-slate-100 dark:bg-darkBg text-slate-900 dark:text-slate-100 min-h-screen font-sans antialiased selection:bg-rose-500 selection:text-white transition-colors duration-200">
@@ -3258,143 +3377,202 @@
       </div>
 
       <!-- ========================================================================= -->
-      <!-- BỤC VINH QUANG: TOP 3 SIÊU PHẨM QUÁN QUÂN (QUIET LUXURY & OBSIDIAN GLASS)     -->
+      <!-- BỤC VINH QUANG OLYMPIC: TOP 3 SIÊU PHẨM QUÁN QUÂN (2 - 1 - 3 PODIUM)        -->
       <!-- ========================================================================= -->
-      <div class="space-y-3.5">
+      <div class="space-y-4 pt-1">
         <div class="flex items-center justify-between px-1">
           <div class="flex items-center space-x-2">
-            <span class="w-2 h-2 rounded-full bg-amber-400 shadow-sm shadow-amber-400/80 animate-pulse"></span>
-            <span class="text-xs font-black uppercase tracking-widest text-slate-700 dark:text-slate-300 font-mono">BẢNG VÀNG TOP 3 QUÁN QUÂN THỊ TRƯỜNG</span>
+            <span class="w-2.5 h-2.5 rounded-full bg-amber-400 shadow-md shadow-amber-400/80 animate-pulse"></span>
+            <span class="text-xs font-black uppercase tracking-widest text-slate-800 dark:text-slate-200 font-mono flex items-center gap-1.5">
+              <span>BỤC VINH QUANG TOP 3 THỊ TRƯỜNG</span>
+              <span class="text-amber-500 text-xs">👑</span>
+            </span>
           </div>
-          <span class="text-[11px] text-slate-400 font-mono hidden sm:inline">Obsidian Luxury Edition</span>
+          <span class="text-[11px] text-slate-400 font-mono hidden sm:inline flex items-center gap-1">
+            <i class="ph-fill ph-fire text-amber-500"></i> Olympic Podium & Flame Aura
+          </span>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 items-stretch">
+        <!-- OLYMPIC PODIUM GRID: Top 2 (Left) - Top 1 (Center, Big) - Top 3 (Right) -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-7 items-center pt-3">
           
-          <!-- LUXURY CARD: TOP 1, TOP 2, TOP 3 -->
           <div 
             v-for="(v, index) in top15TrendingVideos.slice(0, 3)" 
             :key="'top3-podium-' + v.video_id"
-            class="card-luxury group bg-white dark:bg-[#090d16] border rounded-3xl overflow-hidden transition-all duration-300 flex flex-col justify-between relative hover:-translate-y-1.5 shadow-lg select-none"
-            :class="index === 0 
-              ? 'border-amber-400/50 dark:border-amber-400/40 hover:border-amber-400 dark:hover:border-amber-300 ring-1 ring-amber-400/20 hover:shadow-2xl hover:shadow-amber-500/15' 
-              : (index === 1 
-                ? 'border-slate-300 dark:border-slate-400/30 hover:border-slate-400 dark:hover:border-slate-200 ring-1 ring-slate-400/15 hover:shadow-xl hover:shadow-slate-400/10' 
-                : 'border-amber-600/40 dark:border-amber-600/30 hover:border-amber-500 dark:hover:border-amber-400 ring-1 ring-orange-500/15 hover:shadow-xl hover:shadow-orange-500/10')"
-          >
-            <!-- Ambient Backlight Aura Glow -->
-            <div 
-              class="absolute -top-16 -right-16 w-56 h-56 rounded-full blur-3xl pointer-events-none transition-all duration-500"
-              :class="index === 0 
-                ? 'bg-amber-500/10 group-hover:bg-amber-500/20' 
+            class="group select-none relative transition-all duration-300"
+            :class="[
+              index === 0 
+                ? 'order-1 md:order-2 md:scale-[1.05] md:-translate-y-4 z-20 flame-card-champion' 
                 : (index === 1 
-                  ? 'bg-cyan-500/10 group-hover:bg-cyan-500/15' 
-                  : 'bg-orange-500/10 group-hover:bg-orange-500/15')"
-            ></div>
+                  ? 'order-2 md:order-1 md:scale-[0.98] z-10 flame-card-silver' 
+                  : 'order-3 md:order-3 md:scale-[0.98] z-10 flame-card-bronze')
+            ]"
+          >
+            <!-- ================= TOP 1: BLAZING SOLAR FLAME LAYERS ================= -->
+            <template v-if="index === 0">
+              <!-- Outer Expansive Atmospheric Fire Glow (Bùng nổ cực mạnh khi hover) -->
+              <div class="absolute -inset-4 sm:-inset-6 rounded-[2.5rem] podium-top1-aura blur-2xl opacity-60 group-hover:opacity-100 group-hover:blur-3xl group-hover:-inset-8 transition-all duration-500 pointer-events-none -z-20"></div>
+              
+              <!-- Radiant Fiery Perimeter Rim (Vành đai lửa cuộn sóng quanh thẻ) -->
+              <div class="absolute -inset-[2px] rounded-[1.6rem] podium-top1-rim opacity-85 group-hover:opacity-100 group-hover:-inset-[4px] group-hover:drop-shadow-[0_0_20px_#f59e0b] transition-all duration-300 pointer-events-none -z-10"></div>
+            </template>
 
-            <div class="relative z-10">
-              <!-- Cinematic 16:9 Thumbnail with Frosted Micro-Pills -->
-              <div class="relative aspect-video w-full overflow-hidden bg-slate-900 rounded-t-3xl">
-                <img :src="v.thumbnail" :alt="v.title" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-700 ease-out">
-                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+            <!-- ================= TOP 2: CELESTIAL SILVER FLAME LAYERS ================= -->
+            <template v-else-if="index === 1">
+              <div class="absolute -inset-3 rounded-[2rem] bg-cyan-400/20 blur-xl opacity-40 podium-top2-aura transition-all duration-500 pointer-events-none -z-20"></div>
+              <div class="absolute -inset-[1.5px] rounded-[1.55rem] podium-top2-rim opacity-60 group-hover:opacity-90 group-hover:-inset-[2.5px] transition-all duration-300 pointer-events-none -z-10"></div>
+            </template>
 
-                <!-- Minimalist Frosted Glass Rank Badge -->
-                <div class="absolute top-3 left-3 z-20">
-                  <div 
-                    class="flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-black tracking-wider shadow-lg backdrop-blur-md"
-                    :class="index === 0 
-                      ? 'bg-slate-950/85 border border-amber-400/60 text-amber-300' 
-                      : (index === 1 
-                        ? 'bg-slate-950/85 border border-slate-300/50 text-slate-200' 
-                        : 'bg-slate-950/85 border border-amber-600/50 text-amber-200')"
-                  >
-                    <i v-if="index === 0" class="ph-fill ph-crown text-amber-400 text-xs"></i>
-                    <i v-else-if="index === 1" class="ph-fill ph-medal text-slate-300 text-xs"></i>
-                    <i v-else class="ph-fill ph-medal text-orange-400 text-xs"></i>
-                    <span class="font-mono">{{ index === 0 ? '#01 CHAMPION' : (index === 1 ? '#02 RUNNER-UP' : '#03 THIRD') }}</span>
-                  </div>
-                </div>
+            <!-- ================= TOP 3: EMBER BRONZE FLAME LAYERS ================= -->
+            <template v-else>
+              <div class="absolute -inset-3 rounded-[2rem] bg-orange-500/20 blur-xl opacity-40 podium-top3-aura transition-all duration-500 pointer-events-none -z-20"></div>
+              <div class="absolute -inset-[1.5px] rounded-[1.55rem] podium-top3-rim opacity-60 group-hover:opacity-90 group-hover:-inset-[2.5px] transition-all duration-300 pointer-events-none -z-10"></div>
+            </template>
 
-                <!-- Minimalist High-Tech Velocity Badge -->
-                <div class="absolute top-3 right-3 flex-shrink-0 z-20">
-                  <div class="flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-slate-950/85 backdrop-blur-md border border-rose-500/40 text-rose-400 font-mono text-[11px] font-black shadow-lg">
-                    <span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping"></span>
-                    <span>+{{ formatNumber(v.effective_vph) }}/h</span>
-                  </div>
-                </div>
-
-                <!-- Channel Handle Badge -->
-                <div class="absolute bottom-2.5 left-3 max-w-[70%] z-20">
-                  <span class="bg-black/75 backdrop-blur-md border border-white/10 text-white text-[10px] font-semibold px-2 py-0.5 rounded-md flex items-center space-x-1 truncate shadow-sm">
-                    <i class="ph-fill ph-youtube-logo text-rose-500 flex-shrink-0 text-xs"></i>
-                    <span class="truncate">{{ v.channel_name }}</span>
-                  </span>
-                </div>
-              </div>
-
-              <!-- Content Body -->
-              <div class="p-4 sm:p-5 space-y-3 select-text">
-                <a :href="v.url" target="_blank" class="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 hover:text-amber-500 dark:hover:text-amber-300 transition-colors line-clamp-2 leading-relaxed" :title="v.title">
-                  {{ v.title }}
-                </a>
-
-                <div class="pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs">
-                  <span class="text-slate-400 text-[11px]">Lượt xem: <strong class="text-slate-900 dark:text-slate-200 font-mono font-bold">{{ formatNumber(v.views) }}</strong></span>
-                  <span class="font-black text-rose-600 dark:text-rose-400 font-mono">
-                    +{{ formatNumber(metricTimeUnit === 'day' ? (v.effective_vph * 24) : v.effective_vph) }}{{ metricTimeUnit === 'day' ? '/ngày' : '/h' }}
-                  </span>
-                </div>
-
-                <div class="flex items-center justify-between text-[11px] flex-wrap gap-1">
-                  <!-- Clean Outlier Tag -->
-                  <span 
-                    class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold font-mono tracking-tight"
-                    :class="index === 0 
-                      ? 'bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-300' 
-                      : (index === 1 
-                        ? 'bg-slate-500/10 border border-slate-500/20 text-slate-600 dark:text-slate-300' 
-                        : 'bg-orange-500/10 border border-orange-500/20 text-orange-600 dark:text-orange-300')"
-                  >
-                    <span>✦ Gấp x{{ v.outlier_score }} lần TB kênh</span>
-                  </span>
-                  <span class="text-[10px] text-slate-400 font-mono">
-                    Median: <strong class="text-slate-600 dark:text-slate-300">{{ formatNumber(v.channel_median) }}</strong>
-                  </span>
-                </div>
-              </div>
+            <!-- Floating Grand Crown Pill on top of Top 1 -->
+            <div v-if="index === 0" class="absolute -top-3.5 left-1/2 -translate-x-1/2 z-30 pointer-events-none whitespace-nowrap">
+              <span class="px-4 py-1 rounded-full bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 text-slate-950 font-black text-[11px] shadow-xl shadow-amber-500/50 uppercase tracking-wider font-mono flex items-center gap-1.5 border border-yellow-200">
+                <i class="ph-fill ph-crown text-slate-950 text-xs"></i>
+                <span>QUÁN QUÂN VÔ ĐỊCH</span>
+                <i class="ph-fill ph-fire text-rose-600 text-xs"></i>
+              </span>
             </div>
 
-            <!-- Obsidian Luxury Actions -->
-            <div class="px-4 pb-4 sm:px-5 sm:pb-5 space-y-2 relative z-10">
-              <button 
-                @click="openAiModal(v)"
-                class="w-full flex items-center justify-center space-x-2 py-2.5 rounded-2xl text-xs font-black transition-all duration-200 cursor-pointer group/btn shadow-md"
-                :class="index === 0 
-                  ? 'bg-slate-900/95 dark:bg-[#0e1424] hover:bg-slate-800 text-amber-300 border border-amber-400/40 hover:border-amber-400 hover:shadow-amber-500/15' 
-                  : (index === 1 
-                    ? 'bg-slate-900/95 dark:bg-[#0e1424] hover:bg-slate-800 text-slate-200 border border-slate-300/30 hover:border-slate-300 hover:shadow-slate-400/10' 
-                    : 'bg-slate-900/95 dark:bg-[#0e1424] hover:bg-slate-800 text-amber-200 border border-amber-600/30 hover:border-amber-500 hover:shadow-orange-500/10')"
-              >
-                <i v-if="index === 0" class="ph-fill ph-crown text-amber-400 text-sm group-hover/btn:scale-110 transition-transform"></i>
-                <i v-else class="ph-fill ph-sparkle text-sm group-hover/btn:scale-110 transition-transform"></i>
-                <span>{{ index === 0 ? 'Phân Tích Kịch Bản Quán Quân' : (index === 1 ? 'Phân Tích Kịch Bản Á Quân' : 'Phân Tích Kịch Bản Top 3') }}</span>
-                <i class="ph-bold ph-arrow-right text-xs opacity-60 group-hover/btn:translate-x-1 transition-transform"></i>
-              </button>
-
-              <div class="flex items-center space-x-2">
-                <a :href="v.url" target="_blank" class="flex-1 py-2 bg-slate-100 dark:bg-slate-800/70 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-semibold text-center transition flex items-center justify-center space-x-1 cursor-pointer">
-                  <span>Xem YouTube</span>
-                  <i class="ph-bold ph-arrow-up-right text-xs"></i>
-                </a>
-                <button 
-                  @click.stop="toggleSaveIdea(v)" 
-                  class="px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-1 cursor-pointer"
-                  :class="isSaved(v.video_id) ? 'bg-amber-400 text-slate-950 font-black' : 'bg-slate-100 dark:bg-slate-800/70 text-slate-500 hover:text-amber-400'"
+            <!-- Inner Solid Card Body (Obsidian Glass, Zero bleed, 100% crisp typography) -->
+            <div 
+              class="card-luxury bg-white dark:bg-[#090d16] border rounded-3xl overflow-hidden transition-all duration-300 flex flex-col justify-between relative shadow-2xl h-full"
+              :class="index === 0 
+                ? 'border-amber-400/90 dark:border-amber-400/80 shadow-amber-500/20' 
+                : (index === 1 
+                  ? 'border-slate-300 dark:border-slate-400/40 shadow-slate-400/10' 
+                  : 'border-amber-600/50 dark:border-amber-600/40 shadow-orange-500/10')"
+            >
+              
+              <div class="relative z-10">
+                <!-- Cinematic Thumbnail -->
+                <div 
+                  class="relative w-full overflow-hidden bg-slate-900 rounded-t-3xl"
+                  :class="index === 0 ? 'aspect-[16/9.5]' : 'aspect-video'"
                 >
-                  <i :class="isSaved(v.video_id) ? 'ph-fill ph-bookmark-simple' : 'ph-bold ph-bookmark-simple'"></i>
-                  <span>{{ isSaved(v.video_id) ? 'Đã lưu' : 'Lưu' }}</span>
-                </button>
+                  <img :src="v.thumbnail" :alt="v.title" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-700 ease-out">
+                  <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent"></div>
+
+                  <!-- Frosted Glass Rank Badge -->
+                  <div class="absolute top-3 left-3 z-20">
+                    <div 
+                      class="flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-black tracking-wider shadow-lg backdrop-blur-md"
+                      :class="index === 0 
+                        ? 'bg-slate-950/90 border border-amber-400/90 text-amber-300 shadow-amber-500/30' 
+                        : (index === 1 
+                          ? 'bg-slate-950/85 border border-slate-300/60 text-slate-200' 
+                          : 'bg-slate-950/85 border border-amber-600/60 text-amber-200')"
+                    >
+                      <i v-if="index === 0" class="ph-fill ph-crown text-amber-400 text-sm"></i>
+                      <i v-else-if="index === 1" class="ph-fill ph-medal text-slate-300 text-xs"></i>
+                      <i v-else class="ph-fill ph-medal text-orange-400 text-xs"></i>
+                      <span class="font-mono">{{ index === 0 ? '#01 CHAMPION' : (index === 1 ? '#02 RUNNER-UP' : '#03 THIRD') }}</span>
+                    </div>
+                  </div>
+
+                  <!-- Velocity Badge -->
+                  <div class="absolute top-3 right-3 flex-shrink-0 z-20">
+                    <div 
+                      class="flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-slate-950/90 backdrop-blur-md font-mono text-[11px] font-black shadow-lg"
+                      :class="index === 0 ? 'border border-amber-400/80 text-amber-300' : 'border border-rose-500/40 text-rose-400'"
+                    >
+                      <i class="ph-fill ph-fire" :class="index === 0 ? 'text-amber-400 animate-pulse' : 'text-rose-500'"></i>
+                      <span>+{{ formatNumber(v.effective_vph) }}/h</span>
+                    </div>
+                  </div>
+
+                  <!-- Channel Handle Badge -->
+                  <div class="absolute bottom-2.5 left-3 max-w-[70%] z-20">
+                    <span class="bg-black/80 backdrop-blur-md border border-white/10 text-white text-[10px] font-semibold px-2 py-0.5 rounded-md flex items-center space-x-1 truncate shadow-sm">
+                      <i class="ph-fill ph-youtube-logo text-rose-500 flex-shrink-0 text-xs"></i>
+                      <span class="truncate">{{ v.channel_name }}</span>
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Content Body -->
+                <div 
+                  class="space-y-3 select-text"
+                  :class="index === 0 ? 'p-5 sm:p-5.5' : 'p-4 sm:p-4.5'"
+                >
+                  <a 
+                    :href="v.url" 
+                    target="_blank" 
+                    class="font-bold text-slate-900 dark:text-slate-100 hover:text-amber-500 dark:hover:text-amber-300 transition-colors line-clamp-2 leading-relaxed" 
+                    :class="index === 0 ? 'text-sm sm:text-[15px]' : 'text-xs sm:text-sm'"
+                    :title="v.title"
+                  >
+                    {{ v.title }}
+                  </a>
+
+                  <div class="pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs">
+                    <span class="text-slate-400 text-[11px]">Lượt xem: <strong class="text-slate-900 dark:text-slate-200 font-mono font-bold">{{ formatNumber(v.views) }}</strong></span>
+                    <span 
+                      class="font-black font-mono"
+                      :class="index === 0 ? 'text-amber-500 dark:text-amber-400 text-sm' : 'text-rose-600 dark:text-rose-400'"
+                    >
+                      +{{ formatNumber(metricTimeUnit === 'day' ? (v.effective_vph * 24) : v.effective_vph) }}{{ metricTimeUnit === 'day' ? '/ngày' : '/h' }}
+                    </span>
+                  </div>
+
+                  <div class="flex items-center justify-between text-[11px] flex-wrap gap-1">
+                    <span 
+                      class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold font-mono tracking-tight"
+                      :class="index === 0 
+                        ? 'bg-amber-500/15 border border-amber-500/30 text-amber-600 dark:text-amber-300 font-black' 
+                        : (index === 1 
+                          ? 'bg-slate-500/10 border border-slate-500/20 text-slate-600 dark:text-slate-300' 
+                          : 'bg-orange-500/10 border border-orange-500/20 text-orange-600 dark:text-orange-300')"
+                    >
+                      <span>{{ index === 0 ? '👑' : '✦' }} Gấp x{{ v.outlier_score }} lần TB kênh</span>
+                    </span>
+                    <span class="text-[10px] text-slate-400 font-mono">
+                      Median: <strong class="text-slate-600 dark:text-slate-300">{{ formatNumber(v.channel_median) }}</strong>
+                    </span>
+                  </div>
+                </div>
               </div>
+
+              <!-- Obsidian Luxury Actions -->
+              <div 
+                class="space-y-2 relative z-10"
+                :class="index === 0 ? 'px-5 pb-5' : 'px-4 pb-4 sm:px-4.5 sm:pb-4.5'"
+              >
+                <button 
+                  @click="openAiModal(v)"
+                  class="w-full flex items-center justify-center space-x-2 rounded-2xl text-xs font-black transition-all duration-200 cursor-pointer group/btn shadow-md"
+                  :class="index === 0 
+                    ? 'bg-slate-950 dark:bg-[#0e1424] hover:bg-slate-800 text-amber-300 border border-amber-400/70 hover:border-amber-300 hover:shadow-amber-500/30 py-3' 
+                    : (index === 1 
+                      ? 'bg-slate-950 dark:bg-[#0e1424] hover:bg-slate-800 text-slate-200 border border-slate-300/30 hover:border-slate-300 hover:shadow-slate-400/10 py-2.5' 
+                      : 'bg-slate-950 dark:bg-[#0e1424] hover:bg-slate-800 text-amber-200 border border-amber-600/30 hover:border-amber-500 hover:shadow-orange-500/10 py-2.5')"
+                >
+                  <i v-if="index === 0" class="ph-fill ph-crown text-amber-400 text-sm group-hover/btn:scale-125 transition-transform"></i>
+                  <i v-else class="ph-fill ph-sparkle text-sm group-hover/btn:scale-110 transition-transform"></i>
+                  <span>{{ index === 0 ? '👑 Phân Tích Kịch Bản Quán Quân' : (index === 1 ? 'Phân Tích Kịch Bản Á Quân' : 'Phân Tích Kịch Bản Top 3') }}</span>
+                  <i class="ph-bold ph-arrow-right text-xs opacity-60 group-hover/btn:translate-x-1 transition-transform"></i>
+                </button>
+
+                <div class="flex items-center space-x-2">
+                  <a :href="v.url" target="_blank" class="flex-1 py-2 bg-slate-100 dark:bg-slate-800/70 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl text-xs font-semibold text-center transition flex items-center justify-center space-x-1 cursor-pointer">
+                    <span>Xem YouTube</span>
+                    <i class="ph-bold ph-arrow-up-right text-xs"></i>
+                  </a>
+                  <button 
+                    @click.stop="toggleSaveIdea(v)" 
+                    class="px-3.5 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-1 cursor-pointer"
+                    :class="isSaved(v.video_id) ? 'bg-amber-400 text-slate-950 font-black' : 'bg-slate-100 dark:bg-slate-800/70 text-slate-500 hover:text-amber-400'"
+                  >
+                    <i :class="isSaved(v.video_id) ? 'ph-fill ph-bookmark-simple' : 'ph-bold ph-bookmark-simple'"></i>
+                    <span>{{ isSaved(v.video_id) ? 'Đã lưu' : 'Lưu' }}</span>
+                  </button>
+                </div>
+              </div>
+
             </div>
 
           </div>
@@ -3403,99 +3581,101 @@
       </div>
 
       <!-- ========================================================================= -->
-      <!-- ĐƯỜNG PHÂN CÁCH ĐẲNG CẤP & BẢNG XẾP HẠNG TOP #4 ĐẾN TOP #15               -->
+      <!-- ĐƯỜNG PHÂN CÁCH ĐẲNG CẤP & BẢNG XẾP HẠNG GỌN GÀNG (TOP #04 - #15)         -->
       <!-- ========================================================================= -->
-      <div v-if="top15TrendingVideos.length > 3" class="space-y-4 pt-3">
+      <div v-if="top15TrendingVideos.length > 3" class="space-y-4 pt-4">
         
         <div class="flex items-center space-x-4">
           <div class="h-px flex-1 bg-gradient-to-r from-transparent via-slate-200 dark:via-slate-800 to-slate-200 dark:to-slate-800"></div>
-          <div class="flex items-center space-x-2 px-3.5 py-1 rounded-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-[11px] font-bold text-slate-500 dark:text-slate-400 tracking-wider uppercase font-mono shadow-sm">
+          <div class="flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-[11px] font-bold text-slate-500 dark:text-slate-400 tracking-wider uppercase font-mono shadow-sm">
             <i class="ph-bold ph-list-numbers text-indigo-500"></i>
             <span>BẢNG XẾP HẠNG TIẾP THEO (TOP #04 - #15)</span>
           </div>
           <div class="h-px flex-1 bg-gradient-to-r from-slate-200 dark:from-slate-800 via-slate-200 dark:via-slate-800 to-transparent"></div>
         </div>
 
-        <!-- Standard Grid Cards for #4 - #15 -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+        <!-- Compact Standard 4-Col Grid Cards for #4 - #15 (Subordinate to Podium) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-4">
           <div 
             v-for="(v, subIdx) in top15TrendingVideos.slice(3)" 
             :key="'trend-' + v.video_id"
-            class="card-luxury group bg-white dark:bg-[#0c1222] border border-slate-200 dark:border-slate-800 hover:border-indigo-400/60 dark:hover:border-indigo-500/60 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between relative"
+            class="card-luxury group bg-white dark:bg-[#0c1222] border border-slate-200/90 dark:border-slate-800/90 hover:border-indigo-400/50 dark:hover:border-indigo-500/50 rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col justify-between relative select-none hover:-translate-y-1"
           >
             <!-- Rank Badge -->
-            <div class="absolute top-2.5 left-2.5 z-20">
-              <div class="flex items-center space-x-1 px-2.5 py-1 rounded-xl text-xs font-black shadow-xl backdrop-blur-md bg-slate-950/85 text-purple-300 border border-purple-500/40">
-                <span class="text-[10px] text-slate-400 font-mono">TOP</span>
-                <span>#{{ subIdx + 4 }}</span>
+            <div class="absolute top-2 left-2 z-20">
+              <div class="flex items-center space-x-1 px-2 py-0.5 rounded-lg text-[11px] font-black shadow-lg backdrop-blur-md bg-slate-950/85 text-slate-300 border border-slate-700/50">
+                <span class="text-[9px] text-slate-400 font-mono">TOP</span>
+                <span class="font-mono text-amber-400">#{{ subIdx + 4 }}</span>
               </div>
             </div>
 
             <div>
               <!-- Thumbnail -->
               <div class="relative aspect-video w-full overflow-hidden bg-slate-900">
-                <img :src="v.thumbnail" :alt="v.title" loading="lazy" class="w-full h-full object-cover group-hover:scale-108 transition-all duration-700">
-                <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent"></div>
+                <img :src="v.thumbnail" :alt="v.title" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-all duration-500">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
 
-                <div class="absolute top-2.5 right-2.5 flex-shrink-0">
-                  <div class="flex items-center space-x-1 bg-gradient-to-r from-rose-600 to-amber-600 text-white font-black text-[10px] sm:text-[11px] px-2.5 py-0.5 rounded-full shadow-lg border border-rose-400/50 animate-pulse whitespace-nowrap">
-                    <i class="ph-fill ph-fire text-amber-300"></i>
+                <div class="absolute top-2 right-2 flex-shrink-0 z-20">
+                  <div class="flex items-center space-x-1 bg-slate-950/85 backdrop-blur-md text-rose-400 font-mono text-[10px] font-black px-2 py-0.5 rounded-full shadow-md border border-rose-500/30">
+                    <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
                     <span>+{{ formatNumber(v.effective_vph) }}/h</span>
                   </div>
                 </div>
 
-                <div class="absolute bottom-2.5 left-2.5 max-w-[65%]">
-                  <span class="bg-black/70 backdrop-blur-md border border-white/10 text-white text-[11px] font-semibold px-2.5 py-0.5 rounded-lg flex items-center space-x-1 truncate shadow-sm">
-                    <i class="ph-fill ph-youtube-logo text-rose-500 flex-shrink-0"></i>
+                <div class="absolute bottom-2 left-2 max-w-[70%] z-20">
+                  <span class="bg-black/75 backdrop-blur-md border border-white/10 text-white text-[10px] font-medium px-2 py-0.5 rounded-md flex items-center space-x-1 truncate shadow-sm">
+                    <i class="ph-fill ph-youtube-logo text-rose-500 flex-shrink-0 text-[10px]"></i>
                     <span class="truncate">{{ v.channel_name }}</span>
                   </span>
                 </div>
               </div>
 
               <!-- Content Body -->
-              <div class="p-3.5 sm:p-4">
-                <a :href="v.url" target="_blank" class="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 hover:text-purple-600 dark:hover:text-purple-400 transition line-clamp-2 leading-snug group-hover:underline break-words" :title="v.title">
+              <div class="p-3 select-text space-y-2">
+                <a :href="v.url" target="_blank" class="text-xs font-bold text-slate-900 dark:text-slate-100 hover:text-indigo-500 dark:hover:text-indigo-400 transition line-clamp-2 leading-snug" :title="v.title">
                   {{ v.title }}
                 </a>
 
-                <div class="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs">
-                  <span class="text-slate-500 font-medium">Lượt xem: <strong class="text-slate-900 dark:text-slate-200">{{ formatNumber(v.views) }}</strong></span>
-                  <span class="font-black text-rose-600 dark:text-rose-400 font-mono">
-                    +{{ formatNumber(metricTimeUnit === 'day' ? (v.effective_vph * 24) : v.effective_vph) }}{{ metricTimeUnit === 'day' ? '/ngày' : '/h' }}
+                <div class="pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-[11px]">
+                  <span class="text-slate-400 text-[10px]">Views: <strong class="text-slate-800 dark:text-slate-200 font-mono">{{ formatNumber(v.views) }}</strong></span>
+                  <span class="font-bold text-rose-600 dark:text-rose-400 font-mono text-[11px]">
+                    +{{ formatNumber(metricTimeUnit === 'day' ? (v.effective_vph * 24) : v.effective_vph) }}{{ metricTimeUnit === 'day' ? '/d' : '/h' }}
                   </span>
                 </div>
-                <div class="mt-1.5 flex items-center justify-between text-[11px]">
+
+                <div class="flex items-center justify-between text-[10px]">
                   <span 
-                    class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-black font-mono"
-                    :class="(v.outlier_score || 0) >= 10 ? 'bg-amber-400/20 text-amber-600 dark:text-amber-300' : 'bg-rose-500/15 text-rose-600 dark:text-rose-400'"
+                    class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-mono font-bold"
+                    :class="(v.outlier_score || 0) >= 10 ? 'bg-amber-400/15 text-amber-500 border border-amber-500/20' : 'bg-slate-500/10 text-slate-400 border border-slate-500/20'"
                   >
-                    {{ (v.outlier_score || 0) >= 10 ? '👑' : '🔥' }} x{{ v.outlier_score }} vs TB kênh
+                    x{{ v.outlier_score }} vs TB
                   </span>
-                  <span class="text-[10px] text-slate-400 font-mono">
-                    TB: <strong class="text-slate-600 dark:text-slate-400 font-mono">{{ formatNumber(v.channel_median) }}</strong>
+                  <span class="text-slate-400 font-mono text-[10px]">
+                    Med: {{ formatNumber(v.channel_median) }}
                   </span>
                 </div>
               </div>
             </div>
 
             <!-- Actions -->
-            <div class="px-3.5 pb-3.5 sm:px-4 sm:pb-4 space-y-2">
+            <div class="px-3 pb-3 space-y-1.5">
               <button 
                 @click="openAiModal(v)"
-                class="w-full flex items-center justify-center space-x-1.5 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:opacity-95 text-white rounded-xl text-xs font-black shadow-sm transition cursor-pointer"
+                class="w-full flex items-center justify-center space-x-1.5 py-1.5 bg-slate-100 dark:bg-slate-800/90 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700/60 rounded-xl text-[11px] font-bold shadow-sm transition cursor-pointer group/btn"
               >
-                <i class="ph-fill ph-sparkle text-amber-300 text-sm"></i>
-                <span>Xem Kịch Bản Remake</span>
+                <i class="ph-fill ph-sparkle text-indigo-400 text-xs group-hover/btn:scale-110 transition-transform"></i>
+                <span>Phân Tích AI</span>
+                <i class="ph-bold ph-arrow-right text-[10px] opacity-60"></i>
               </button>
 
-              <div class="flex items-center space-x-2">
-                <a :href="v.url" target="_blank" class="flex-1 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-bold text-center transition cursor-pointer">
-                  Xem YouTube ↗
+              <div class="flex items-center space-x-1.5">
+                <a :href="v.url" target="_blank" class="flex-1 py-1 bg-slate-100/80 dark:bg-slate-800/50 hover:bg-slate-200 text-slate-600 dark:text-slate-400 rounded-lg text-[10px] font-semibold text-center transition cursor-pointer">
+                  YouTube ↗
                 </a>
                 <button 
                   @click.stop="toggleSaveIdea(v)" 
-                  class="px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer"
-                  :class="isSaved(v.video_id) ? 'bg-amber-400 text-slate-950' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-amber-500'"
+                  class="px-2 py-1 rounded-lg text-[10px] font-bold transition cursor-pointer flex items-center space-x-0.5"
+                  :class="isSaved(v.video_id) ? 'bg-amber-400 text-slate-950 font-black' : 'bg-slate-100/80 dark:bg-slate-800/50 text-slate-400 hover:text-amber-400'"
                 >
                   <i :class="isSaved(v.video_id) ? 'ph-fill ph-bookmark-simple' : 'ph-bold ph-bookmark-simple'"></i>
                   <span>{{ isSaved(v.video_id) ? 'Đã lưu' : 'Lưu' }}</span>
@@ -3508,7 +3688,7 @@
 
       </div>
 
-        </section>
+    </section>
 
 
     <!-- ========================================================================================= -->
