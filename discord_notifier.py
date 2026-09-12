@@ -114,16 +114,9 @@ def send_discord_alert(webhook_url: str, video_info: dict, channel_name: str, th
         }
         embeds.append(embed2)
 
-    # Tên định danh & Ảnh đại diện riêng cho từng loại Bot trên Discord
-    if alert_type == "outlier" or outlier_score >= 3.0:
-        bot_username = "chạy đâu con sâu"
-        bot_avatar = "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Bug/3D/bug_3d.png"
-    elif alert_type == "rising" or "mới nổi" in channel_name.lower():
-        bot_username = "chạy đâu con sâu"
-        bot_avatar = "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Bug/3D/bug_3d.png"
-    else:
-        bot_username = "Đi đâu con lợn này"
-        bot_avatar = "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Pig%20face/3D/pig_face_3d.png"
+    # Tên định danh & Ảnh đại diện Bot Rắn không độc trên Discord
+    bot_username = "Rắn không độc"
+    bot_avatar = "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Snake/3D/snake_3d.png"
 
     payload = {
         "username": bot_username,
@@ -205,25 +198,23 @@ def send_channel_discovery_alert(webhook_url: str, channel_data: dict, star_vide
     channel_url = f"https://www.youtube.com/channel/{channel_id}" if channel_id.startswith("UC") else f"https://www.youtube.com/{handle}"
     radar_page_url = f"{dashboard_url}#radar" if dashboard_url else "https://xtruong2333-sys.github.io/harunaga/#radar"
 
+    # Tên định danh & Ảnh đại diện Bot Rắn không độc trên Discord
+    bot_username = "Rắn không độc"
+    bot_avatar = "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Snake/3D/snake_3d.png"
+
     # Định dạng theo loại cảnh báo
     if alert_type == "breakout":
         embed_color = 16103179  # Vàng cam đậm #F59E0B
         badge = "🚨 [RADAR BREAKOUT] KÊNH BÙNG NỔ ĐỘT BIẾN"
         desc = f"Kênh **{title}** (`{handle}`) vừa kích hoạt trạng thái **EARLY BREAKOUT**! Tốc độ tăng trưởng và hiệu suất view/sub đang bứt phá phi mã."
-        bot_username = "Radar Đột Biến Breakout"
-        bot_avatar = "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Rocket/3D/rocket_3d.png"
     elif alert_type == "test":
         embed_color = 5793266   # Indigo tím #5865F2
         badge = "🧪 [RADAR TEST] KẾT NỐI DISCORD THÀNH CÔNG"
         desc = f"Hệ thống **YouTube Emerging Channel Radar** đã kết nối thành công với phòng chat Discord của bạn! Khi phát hiện kênh mới hoặc kênh bùng nổ, bot sẽ gửi cảnh báo ngay vào đây."
-        bot_username = "Radar Kênh Mới Nổi"
-        bot_avatar = "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Satellite%20antenna/3D/satellite_antenna_3d.png"
     else:
         embed_color = 1097857   # Xanh ngọc Emerald #10B981
         badge = "🌱 [RADAR] PHÁT HIỆN KÊNH MỚI NỔI TIỀM NĂNG"
         desc = f"Radar vừa quét phát hiện kênh mới **{title}** (`{handle}`) thỏa mãn tiêu chí kênh nhỏ view khủng (<10K subs, hoạt động {active_age} ngày)."
-        bot_username = "Radar Kênh Mới Nổi"
-        bot_avatar = "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Seedling/3D/seedling_3d.png"
 
     preset_text = " • ".join([f"`{p}`" for p in presets[:3]]) if presets else "`EMERGING`"
 
