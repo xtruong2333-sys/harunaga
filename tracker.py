@@ -328,13 +328,13 @@ def run():
                                 target_whs.append(discord_webhook_2)
                             wh_str = ",".join(target_whs) if target_whs else ""
                             a_type = "outlier" if pv.get("outlier_score", 0) >= 3.0 else "viral"
-                            send_discord_alert(wh_str, pv, ch_name, threshold, dashboard_url, a_type)
+                            p_alert_sent = send_discord_alert(wh_str, pv, ch_name, threshold, dashboard_url, a_type)
                             video_history[pvid] = {
                                 "last_views": pv.get("views", 0),
                                 "last_checked": now_iso,
-                                "alerted": True,
-                                "alerted_at": now_iso,
-                                "alerted_vph": pv.get("effective_vph", 0),
+                                "alerted": bool(p_alert_sent),
+                                "alerted_at": now_iso if p_alert_sent else None,
+                                "alerted_vph": pv.get("effective_vph", 0) if p_alert_sent else 0,
                                 "ai_analysis": pv.get("ai_analysis")
                             }
                 all_channels_data.append({
@@ -464,9 +464,9 @@ def run():
                 video_history[vid] = {
                     "last_views": views,
                     "last_checked": now_iso,
-                    "alerted": True if alert_sent or discord_webhook else False,
-                    "alerted_at": now_iso,
-                    "alerted_vph": effective_vph,
+                    "alerted": bool(alert_sent),
+                    "alerted_at": now_iso if alert_sent else None,
+                    "alerted_vph": effective_vph if alert_sent else 0,
                     "ai_analysis": v_entry.get("ai_analysis")
                 }
             else:
