@@ -2140,11 +2140,42 @@
             <div class="bg-white dark:bg-[#0b101d] border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-sm flex flex-col justify-between transition-colors duration-200">
               <div>
                 <div class="flex items-center justify-between pb-3.5 border-b border-slate-800/80 mb-4">
-                  <div class="flex items-center space-x-2.5">
-                    <div class="w-7 h-7 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center text-sm shadow-sm">
+                  <div class="group/tooltip relative inline-flex items-center space-x-2.5 cursor-help">
+                    <div class="w-7 h-7 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center text-sm shadow-sm flex-shrink-0">
                       <i class="ph-fill ph-fire"></i>
                     </div>
-                    <h3 class="text-sm sm:text-base font-black text-slate-900 dark:text-white">Top 5 Video Đang Bùng Nổ View Nhất</h3>
+                    <div class="flex items-center gap-1.5">
+                      <h3 class="text-sm sm:text-base font-black text-slate-900 dark:text-white border-b border-dashed border-rose-400/50 hover:border-rose-400 transition-colors">
+                        Top 5 Video Đang Bùng Nổ View Nhất
+                      </h3>
+                      <i class="ph-bold ph-info text-xs text-rose-400/80 hover:text-rose-400 transition-colors"></i>
+                    </div>
+
+                    <!-- Tooltip Card Giải Thích -->
+                    <div class="absolute left-0 top-full mt-2.5 w-72 sm:w-80 p-3.5 rounded-2xl bg-slate-900/95 dark:bg-[#070b14]/95 text-white border border-rose-500/40 shadow-2xl shadow-black/80 backdrop-blur-xl z-50 opacity-0 pointer-events-none group-hover/tooltip:opacity-100 group-hover/tooltip:pointer-events-auto transition-all duration-200 transform translate-y-1 group-hover/tooltip:translate-y-0 text-left font-normal cursor-default ring-1 ring-white/10" @click.stop>
+                      <div class="absolute -top-1.5 left-8 w-3 h-3 bg-slate-900 dark:bg-[#070b14] border-t border-l border-rose-500/40 transform rotate-45"></div>
+                      <div class="flex items-center justify-between gap-2 mb-2 pb-1.5 border-b border-slate-800">
+                        <div class="flex items-center gap-1.5 text-xs font-black text-rose-400">
+                          <i class="ph-fill ph-fire text-sm"></i>
+                          <span>Video Đang Bùng Nổ</span>
+                        </div>
+                        <span class="text-[9px] px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-bold uppercase tracking-wider">Đột Biến View</span>
+                      </div>
+                      <div class="space-y-2 text-[11px] leading-relaxed text-slate-300">
+                        <div>
+                          <span class="text-white font-bold flex items-center gap-1">
+                            <i class="ph-bold ph-question text-rose-400"></i> Đây là gì?
+                          </span>
+                          <p class="text-slate-300 mt-0.5">Top 5 video của đối thủ có vận tốc tăng trưởng lượt xem (<strong class="text-rose-300">view/h</strong>) cao nhất và vượt ngưỡng view thông thường gấp nhiều lần.</p>
+                        </div>
+                        <div>
+                          <span class="text-white font-bold flex items-center gap-1">
+                            <i class="ph-bold ph-target text-emerald-400"></i> Chức năng & Tác dụng:
+                          </span>
+                          <p class="text-slate-300 mt-0.5">Bắt bài ngay chủ đề và ảnh bìa đang "ăn đề xuất" nóng hổi. Bấm <strong class="text-amber-300">"Gợi Ý Làm Lại (AI)"</strong> ở từng video để lấy ngay kịch bản và góc quay mới làm theo.</p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                   <button @click="navigateFromSidebar('videos')" class="text-xs text-blue-400 hover:text-blue-300 font-bold flex items-center gap-1 cursor-pointer">
                     <span>Xem tất cả</span>
@@ -2238,11 +2269,42 @@
             <div class="bg-white dark:bg-[#0b101d] border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-sm flex flex-col justify-between transition-colors duration-200">
               <div>
                 <div class="flex items-center justify-between pb-3.5 border-b border-slate-800/80 mb-4">
-                  <div class="flex items-center space-x-2.5">
-                    <div class="w-7 h-7 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center text-sm shadow-sm">
+                  <div class="group/tooltip relative inline-flex items-center space-x-2.5 cursor-help">
+                    <div class="w-7 h-7 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center text-sm shadow-sm flex-shrink-0">
                       <i class="ph-fill ph-chart-line-up"></i>
                     </div>
-                    <h3 class="text-sm sm:text-base font-black text-slate-900 dark:text-white">Top 5 Kênh Hút Nhiều Người Xem Nhất</h3>
+                    <div class="flex items-center gap-1.5">
+                      <h3 class="text-sm sm:text-base font-black text-slate-900 dark:text-white border-b border-dashed border-blue-400/50 hover:border-blue-400 transition-colors">
+                        Top 5 Kênh Hút Nhiều Người Xem Nhất
+                      </h3>
+                      <i class="ph-bold ph-info text-xs text-blue-400/80 hover:text-blue-400 transition-colors"></i>
+                    </div>
+
+                    <!-- Tooltip Card Giải Thích -->
+                    <div class="absolute left-0 sm:left-auto sm:right-0 top-full mt-2.5 w-72 sm:w-80 p-3.5 rounded-2xl bg-slate-900/95 dark:bg-[#070b14]/95 text-white border border-blue-500/40 shadow-2xl shadow-black/80 backdrop-blur-xl z-50 opacity-0 pointer-events-none group-hover/tooltip:opacity-100 group-hover/tooltip:pointer-events-auto transition-all duration-200 transform translate-y-1 group-hover/tooltip:translate-y-0 text-left font-normal cursor-default ring-1 ring-white/10" @click.stop>
+                      <div class="absolute -top-1.5 left-8 sm:left-auto sm:right-8 w-3 h-3 bg-slate-900 dark:bg-[#070b14] border-t border-l border-blue-500/40 transform rotate-45"></div>
+                      <div class="flex items-center justify-between gap-2 mb-2 pb-1.5 border-b border-slate-800">
+                        <div class="flex items-center gap-1.5 text-xs font-black text-blue-400">
+                          <i class="ph-fill ph-chart-line-up text-sm"></i>
+                          <span>Kênh Dẫn Đầu Ngách</span>
+                        </div>
+                        <span class="text-[9px] px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 font-bold uppercase tracking-wider">Thị Phần Lớn</span>
+                      </div>
+                      <div class="space-y-2 text-[11px] leading-relaxed text-slate-300">
+                        <div>
+                          <span class="text-white font-bold flex items-center gap-1">
+                            <i class="ph-bold ph-question text-blue-400"></i> Đây là gì?
+                          </span>
+                          <p class="text-slate-300 mt-0.5">Top 5 kênh đối thủ đang hút <strong class="text-blue-300">tổng lượng view/h lớn nhất</strong> trong toàn bộ các kênh theo dõi.</p>
+                        </div>
+                        <div>
+                          <span class="text-white font-bold flex items-center gap-1">
+                            <i class="ph-bold ph-target text-emerald-400"></i> Chức năng & Tác dụng:
+                          </span>
+                          <p class="text-slate-300 mt-0.5">Cho biết những "ông lớn" nào đang giữ chân nhiều khán giả nhất trong ngách. Bạn có thể xem ngay 3 video mới nhất của họ để học hỏi chiến lược ra video.</p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                   <button @click="navigateFromSidebar('channels')" class="text-xs text-blue-400 hover:text-blue-300 font-bold flex items-center gap-1 cursor-pointer">
                     <span>Xem tất cả</span>
