@@ -210,8 +210,11 @@ def run():
     video_history = history.setdefault("videos", {})
 
     discord_webhook = os.environ.get("DISCORD_WEBHOOK_URL", "").strip()
-    if not discord_webhook:
-        print("ℹ️ [DISCORD] Biến môi trường DISCORD_WEBHOOK_URL chưa được truyền (chế độ Test / Quét dữ liệu).")
+    discord_webhook_2 = os.environ.get("DISCORD_WEBHOOK_URL_2", "").strip()
+    if not discord_webhook and not discord_webhook_2:
+        print("ℹ️ [DISCORD] Biến môi trường DISCORD_WEBHOOK_URL hoặc DISCORD_WEBHOOK_URL_2 chưa được truyền.")
+    else:
+        print(f"🔔 [DISCORD] Đã kết nối Webhook: Kênh 1 {'(Có)' if discord_webhook else '(Chưa)'} | Kênh 2 {'(Có)' if discord_webhook_2 else '(Chưa)'}")
 
     gh_repo = os.environ.get("GITHUB_REPOSITORY", "").strip()
     dashboard_url = os.environ.get("DASHBOARD_URL", "")
@@ -253,6 +256,26 @@ def run():
                 for pv in c_videos:
                     if pv.get("is_viral"):
                         viral_videos_count += 1
+                        pvid = pv.get("video_id")
+                        prev_pinfo = video_history.get(pvid)
+                        p_already_alerted = prev_pinfo.get("alerted", False) if prev_pinfo else False
+                        if not p_already_alerted and (discord_webhook or discord_webhook_2):
+                            target_whs = []
+                            if discord_webhook:
+                                target_whs.append(discord_webhook)
+                            if discord_webhook_2 and (pv.get("outlier_score", 0) >= 3.0 or "Clever" in ch_name):
+                                target_whs.append(discord_webhook_2)
+                            wh_str = ",".join(target_whs) if target_whs else ""
+                            a_type = "outlier" if pv.get("outlier_score", 0) >= 3.0 else "viral"
+                            send_discord_alert(wh_str, pv, ch_name, threshold, dashboard_url, a_type)
+                            video_history[pvid] = {
+                                "last_views": pv.get("views", 0),
+                                "last_checked": now_iso,
+                                "alerted": True,
+                                "alerted_at": now_iso,
+                                "alerted_vph": pv.get("effective_vph", 0),
+                                "ai_analysis": pv.get("ai_analysis")
+                            }
                 all_channels_data.append({
                     "name": ch_name,
                     "handle_or_url": handle_or_url,
@@ -366,7 +389,14 @@ def run():
             already_alerted = prev_info.get("alerted", False) if prev_info else False
             
             if is_viral and is_recent and not already_alerted:
-                alert_sent = send_discord_alert(discord_webhook, v_entry, ch_name, threshold, dashboard_url)
+                target_webhooks = []
+                if discord_webhook:
+                    target_webhooks.append(discord_webhook)
+                if discord_webhook_2 and (outlier_score >= 3.0 or "Clever" in ch_name):
+                    target_webhooks.append(discord_webhook_2)
+                alert_type = "outlier" if outlier_score >= 3.0 else ("rising" if "Clever" in ch_name else "viral")
+                wh_str = ",".join(target_webhooks) if target_webhooks else ""
+                alert_sent = send_discord_alert(wh_str, v_entry, ch_name, threshold, dashboard_url, alert_type)
                 
                 # Cập nhật lịch sử cảnh báo
                 video_history[vid] = {
