@@ -3257,116 +3257,277 @@
         </div>
       </div>
 
-      <!-- Top 15 Grid Cards -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-        <div 
-          v-for="(v, index) in top15TrendingVideos" 
-          :key="'trend-' + v.video_id"
-          class="card-luxury group bg-white dark:bg-[#0c1222] border rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between relative"
-          :class="index === 0 
-            ? 'border-amber-400/80 ring-2 ring-amber-400/30' 
-            : (index === 1 
-              ? 'border-slate-300 dark:border-slate-500 ring-2 ring-slate-400/20' 
-              : (index === 2 
-                ? 'border-orange-500/70 ring-2 ring-orange-500/20' 
-                : 'border-slate-200 dark:border-slate-800 hover:border-amber-400/60'))"
-        >
-          <!-- Rank Badge -->
-          <div class="absolute top-2.5 left-2.5 z-20">
+      <!-- ========================================================================= -->
+      <!-- BỤC VINH QUANG: TOP 3 SIÊU PHẨM QUÁN QUÂN DẪN ĐẦU THỊ TRƯỜNG                 -->
+      <!-- ========================================================================= -->
+      <div class="space-y-4">
+        <div class="flex items-center space-x-2">
+          <span class="px-3 py-1 rounded-full bg-gradient-to-r from-amber-500/25 via-amber-500/15 to-transparent border border-amber-500/40 text-amber-500 dark:text-amber-300 text-xs font-black uppercase tracking-wider flex items-center gap-1.5 shadow-sm">
+            <i class="ph-fill ph-crown text-amber-400 text-sm"></i>
+            <span>BỤC VINH QUANG: TOP 3 SIÊU PHẨM DẪN ĐẦU THỊ TRƯỜNG</span>
+          </span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 items-stretch">
+          
+          <!-- PODIUM CARD: TOP 1, TOP 2, TOP 3 -->
+          <div 
+            v-for="(v, index) in top15TrendingVideos.slice(0, 3)" 
+            :key="'top3-podium-' + v.video_id"
+            class="card-luxury group border-2 rounded-3xl overflow-hidden transition-all duration-300 flex flex-col justify-between relative hover:-translate-y-2 select-none"
+            :class="index === 0 
+              ? 'bg-gradient-to-b from-amber-500/[0.08] via-white to-white dark:from-amber-500/[0.12] dark:via-[#0c1222] dark:to-[#0c1222] border-amber-400 dark:border-amber-400 shadow-2xl shadow-amber-500/25 ring-4 ring-amber-400/35 hover:shadow-amber-500/40' 
+              : (index === 1 
+                ? 'bg-gradient-to-b from-slate-300/[0.12] via-white to-white dark:from-slate-400/[0.08] dark:via-[#0c1222] dark:to-[#0c1222] border-slate-300 dark:border-slate-400/90 shadow-xl shadow-slate-400/15 ring-4 ring-slate-300/30 hover:shadow-slate-400/25' 
+                : 'bg-gradient-to-b from-amber-700/[0.12] via-white to-white dark:from-amber-700/[0.12] dark:via-[#0c1222] dark:to-[#0c1222] border-amber-600 dark:border-amber-600/90 shadow-xl shadow-orange-500/15 ring-4 ring-orange-500/30 hover:shadow-orange-500/25')"
+          >
+            <!-- Grand Champion Ribbon Header -->
             <div 
-              class="flex items-center space-x-1 px-2.5 py-1 rounded-xl text-xs font-black shadow-xl backdrop-blur-md"
+              class="py-2 px-3.5 flex items-center justify-between shadow-md"
               :class="index === 0 
-                ? 'bg-amber-400 text-slate-950 ring-2 ring-amber-400' 
+                ? 'bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-600 text-slate-950 font-black' 
                 : (index === 1 
-                  ? 'bg-slate-200 text-slate-950 ring-2 ring-slate-300' 
-                  : (index === 2 
-                    ? 'bg-amber-700 text-white ring-2 ring-orange-500' 
-                    : 'bg-slate-950/85 text-purple-300 border border-purple-500/40'))"
+                  ? 'bg-gradient-to-r from-slate-300 via-slate-100 to-slate-400 text-slate-900 font-black' 
+                  : 'bg-gradient-to-r from-amber-700 via-amber-600 to-orange-600 text-white font-black')"
             >
-              <i v-if="index === 0" class="ph-fill ph-crown text-slate-950 text-sm"></i>
-              <i v-else-if="index === 1" class="ph-fill ph-medal text-slate-950 text-sm"></i>
-              <i v-else-if="index === 2" class="ph-fill ph-medal text-white text-sm"></i>
-              <span v-else class="text-[10px] text-slate-400">TOP</span>
-              <span>#{{ index + 1 }}</span>
+              <div class="flex items-center space-x-1.5 text-xs">
+                <i v-if="index === 0" class="ph-fill ph-crown text-base text-slate-950"></i>
+                <i v-else-if="index === 1" class="ph-fill ph-medal text-base text-slate-900"></i>
+                <i v-else class="ph-fill ph-medal text-base text-white"></i>
+                <span class="tracking-wide">
+                  {{ index === 0 ? 'QUÁN QUÂN #1 • VÔ ĐỊCH TỐC ĐỘ' : (index === 1 ? 'Á QUÂN #2 • SIÊU TĂNG TRƯỞNG' : 'QUÝ QUÂN #3 • ĐỘT BIẾN KHỦNG') }}
+                </span>
+              </div>
+              <span 
+                class="text-[10px] px-2 py-0.5 rounded-full font-mono font-black shadow-sm"
+                :class="index === 0 ? 'bg-slate-950 text-amber-300 animate-pulse' : (index === 1 ? 'bg-slate-900 text-slate-200' : 'bg-slate-950 text-amber-300')"
+              >
+                {{ index === 0 ? 'TOP 1 VIEW/H' : (index === 1 ? 'TOP 2 SPEED' : 'TOP 3 VIRAL') }}
+              </span>
             </div>
-          </div>
 
-          <div>
-            <!-- Thumbnail -->
-            <div class="relative aspect-video w-full overflow-hidden bg-slate-900">
-              <img :src="v.thumbnail" :alt="v.title" loading="lazy" class="w-full h-full object-cover group-hover:scale-108 transition-all duration-700">
-              <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent"></div>
+            <div>
+              <!-- Thumbnail with 3D Medals -->
+              <div class="relative aspect-video w-full overflow-hidden bg-slate-900">
+                <img :src="v.thumbnail" :alt="v.title" loading="lazy" class="w-full h-full object-cover group-hover:scale-108 transition-all duration-700">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent"></div>
 
-              <div class="absolute top-2.5 right-2.5 flex-shrink-0">
-                <div class="flex items-center space-x-1 bg-gradient-to-r from-rose-600 to-amber-600 text-white font-black text-[10px] sm:text-[11px] px-2.5 py-0.5 rounded-full shadow-lg border border-rose-400/50 animate-pulse whitespace-nowrap">
-                  <i class="ph-fill ph-fire text-amber-300"></i>
-                  <span>+{{ formatNumber(v.effective_vph) }}/h</span>
+                <!-- 3D Champion Rank Badge -->
+                <div class="absolute top-2.5 left-2.5 z-20">
+                  <div 
+                    class="flex items-center space-x-1 px-3 py-1.5 rounded-xl text-xs font-black shadow-2xl backdrop-blur-md"
+                    :class="index === 0 
+                      ? 'bg-gradient-to-tr from-amber-400 to-yellow-300 text-slate-950 ring-2 ring-white/70' 
+                      : (index === 1 
+                        ? 'bg-gradient-to-tr from-slate-200 via-slate-100 to-slate-300 text-slate-950 ring-2 ring-white/60' 
+                        : 'bg-gradient-to-tr from-amber-600 via-orange-600 to-amber-700 text-white ring-2 ring-orange-300/40')"
+                  >
+                    <i v-if="index === 0" class="ph-fill ph-crown text-slate-950 text-sm"></i>
+                    <i v-else-if="index === 1" class="ph-fill ph-medal text-slate-950 text-sm"></i>
+                    <i v-else class="ph-fill ph-medal text-white text-sm"></i>
+                    <span>{{ index === 0 ? 'TOP #1 GOLD' : (index === 1 ? 'TOP #2 SILVER' : 'TOP #3 BRONZE') }}</span>
+                  </div>
+                </div>
+
+                <!-- Velocity Pill -->
+                <div class="absolute top-2.5 right-2.5 flex-shrink-0">
+                  <div 
+                    class="flex items-center space-x-1 text-white font-black text-[10px] sm:text-[11px] px-3 py-1 rounded-full shadow-xl whitespace-nowrap"
+                    :class="index === 0 
+                      ? 'bg-gradient-to-r from-rose-600 via-red-500 to-amber-500 border border-amber-300/60 animate-pulse' 
+                      : (index === 1 
+                        ? 'bg-gradient-to-r from-slate-700 via-slate-600 to-slate-800 text-cyan-300 border border-cyan-400/40' 
+                        : 'bg-gradient-to-r from-orange-600 to-amber-600 border border-orange-400/50')"
+                  >
+                    <i class="ph-fill ph-fire" :class="index === 0 ? 'text-yellow-200' : 'text-amber-300'"></i>
+                    <span>+{{ formatNumber(v.effective_vph) }}/h{{ index === 0 ? ' SIÊU TỐC ĐỘ' : '' }}</span>
+                  </div>
+                </div>
+
+                <!-- Channel Name -->
+                <div class="absolute bottom-2.5 left-2.5 max-w-[70%]">
+                  <span class="bg-black/75 backdrop-blur-md border border-white/15 text-white text-[11px] font-semibold px-2.5 py-0.5 rounded-lg flex items-center space-x-1 truncate shadow-sm">
+                    <i class="ph-fill ph-youtube-logo text-rose-500 flex-shrink-0"></i>
+                    <span class="truncate">{{ v.channel_name }}</span>
+                  </span>
                 </div>
               </div>
 
-              <div class="absolute bottom-2.5 left-2.5 max-w-[65%]">
-                <span class="bg-black/70 backdrop-blur-md border border-white/10 text-white text-[11px] font-semibold px-2.5 py-0.5 rounded-lg flex items-center space-x-1 truncate shadow-sm">
-                  <i class="ph-fill ph-youtube-logo text-rose-500 flex-shrink-0"></i>
-                  <span class="truncate">{{ v.channel_name }}</span>
-                </span>
+              <!-- Content Body -->
+              <div class="p-4 sm:p-5 select-text">
+                <a :href="v.url" target="_blank" class="text-xs sm:text-sm font-black text-slate-900 dark:text-white hover:text-indigo-600 dark:hover:text-indigo-300 transition line-clamp-2 leading-snug break-words" :title="v.title">
+                  {{ v.title }}
+                </a>
+
+                <div class="mt-3.5 pt-2.5 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs">
+                  <span class="text-slate-500 font-medium">Lượt xem: <strong class="text-slate-900 dark:text-slate-200 font-bold">{{ formatNumber(v.views) }}</strong></span>
+                  <span class="font-black text-rose-600 dark:text-rose-400 font-mono">
+                    +{{ formatNumber(metricTimeUnit === 'day' ? (v.effective_vph * 24) : v.effective_vph) }}{{ metricTimeUnit === 'day' ? '/ngày' : '/h' }}
+                  </span>
+                </div>
+
+                <div class="mt-2 flex items-center justify-between text-[11px] flex-wrap gap-1">
+                  <!-- Outlier Multiplier Pill -->
+                  <span 
+                    class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-[10px] font-black shadow-sm"
+                    :class="index === 0 
+                      ? 'bg-amber-400/25 border border-amber-400/40 text-amber-700 dark:text-amber-300' 
+                      : (index === 1 
+                        ? 'bg-slate-200 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200' 
+                        : 'bg-orange-500/15 border border-orange-500/30 text-orange-600 dark:text-orange-300')"
+                  >
+                    <span>{{ index === 0 ? '👑' : (index === 1 ? '🥈' : '🥉') }} Gấp x{{ v.outlier_score }} lần TB kênh</span>
+                  </span>
+                  <span class="text-[10px] text-slate-400">
+                    TB: <strong class="text-slate-600 dark:text-slate-400 font-mono">{{ formatNumber(v.channel_median) }}</strong>
+                  </span>
+                </div>
               </div>
             </div>
 
-            <!-- Content Body -->
-            <div class="p-3.5 sm:p-4">
-              <a :href="v.url" target="_blank" class="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 hover:text-purple-600 dark:hover:text-purple-400 transition line-clamp-2 leading-snug group-hover:underline break-words" :title="v.title">
-                {{ v.title }}
-              </a>
-
-              <div class="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs">
-                <span class="text-slate-500 font-medium">Lượt xem: <strong class="text-slate-900 dark:text-slate-200">{{ formatNumber(v.views) }}</strong></span>
-                <span class="font-black text-rose-600 dark:text-rose-400">
-                  +{{ formatNumber(metricTimeUnit === 'day' ? (v.effective_vph * 24) : v.effective_vph) }}{{ metricTimeUnit === 'day' ? '/ngày' : '/h' }}
-                </span>
-              </div>
-              <div class="mt-1.5 flex items-center justify-between text-[11px]">
-                <span 
-                  class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-black"
-                  :class="(v.outlier_score || 0) >= 10 ? 'bg-amber-400/20 text-amber-600 dark:text-amber-300' : 'bg-rose-500/15 text-rose-600 dark:text-rose-400'"
-                >
-                  {{ (v.outlier_score || 0) >= 10 ? '👑' : '🔥' }} x{{ v.outlier_score }} vs TB kênh
-                </span>
-                <span class="text-[10px] text-slate-400">
-                  TB: <strong class="text-slate-600 dark:text-slate-400 font-mono">{{ formatNumber(v.channel_median) }}</strong>
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Actions -->
-          <div class="px-3.5 pb-3.5 sm:px-4 sm:pb-4 space-y-2">
-            <button 
-              @click="openAiModal(v)"
-              class="w-full flex items-center justify-center space-x-1.5 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:opacity-95 text-white rounded-xl text-xs font-black shadow-sm transition cursor-pointer"
-            >
-              <i class="ph-fill ph-sparkle text-amber-300 text-sm"></i>
-              <span>Xem Kịch Bản Remake</span>
-            </button>
-
-            <div class="flex items-center space-x-2">
-              <a :href="v.url" target="_blank" class="flex-1 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-bold text-center transition">
-                Xem YouTube
-              </a>
+            <!-- Actions -->
+            <div class="px-4 pb-4 sm:px-5 sm:pb-5 space-y-2">
               <button 
-                @click.stop="toggleSaveIdea(v)" 
-                class="px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer"
-                :class="isSaved(v.video_id) ? 'bg-amber-400 text-slate-950' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-amber-500'"
+                @click="openAiModal(v)"
+                class="w-full flex items-center justify-center space-x-2 py-2.5 rounded-xl text-xs font-black shadow-lg transition-all cursor-pointer hover:scale-[1.01]"
+                :class="index === 0 
+                  ? 'bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 hover:from-amber-300 hover:to-yellow-300 text-slate-950 shadow-amber-500/30' 
+                  : (index === 1 
+                    ? 'bg-gradient-to-r from-slate-200 via-slate-300 to-slate-400 hover:from-slate-100 hover:to-slate-300 text-slate-900 shadow-slate-400/20' 
+                    : 'bg-gradient-to-r from-amber-600 via-orange-600 to-amber-700 hover:from-amber-500 hover:to-orange-500 text-white shadow-orange-500/20')"
               >
-                <i :class="isSaved(v.video_id) ? 'ph-fill ph-bookmark-simple' : 'ph-bold ph-bookmark-simple'"></i>
-                <span>{{ isSaved(v.video_id) ? 'Đã lưu' : 'Lưu' }}</span>
+                <i v-if="index === 0" class="ph-fill ph-crown text-slate-950 text-base"></i>
+                <i v-else class="ph-fill ph-sparkle text-base"></i>
+                <span>{{ index === 0 ? 'Mổ Xẻ Kịch Bản Quán Quân (AI Studio)' : (index === 1 ? 'Xem Kịch Bản Á Quân (AI Studio)' : 'Xem Kịch Bản Quý Quân (AI Studio)') }}</span>
               </button>
+
+              <div class="flex items-center space-x-2">
+                <a :href="v.url" target="_blank" class="flex-1 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-bold text-center transition cursor-pointer">
+                  Xem YouTube ↗
+                </a>
+                <button 
+                  @click.stop="toggleSaveIdea(v)" 
+                  class="px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer"
+                  :class="isSaved(v.video_id) ? 'bg-amber-400 text-slate-950' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-amber-500'"
+                >
+                  <i :class="isSaved(v.video_id) ? 'ph-fill ph-bookmark-simple' : 'ph-bold ph-bookmark-simple'"></i>
+                  <span>{{ isSaved(v.video_id) ? 'Đã lưu' : 'Lưu' }}</span>
+                </button>
+              </div>
             </div>
+
           </div>
 
         </div>
       </div>
 
-    </section>
+      <!-- ========================================================================= -->
+      <!-- ĐƯỜNG PHÂN CÁCH ĐẲNG CẤP & BẢNG XẾP HẠNG TOP #4 ĐẾN TOP #15               -->
+      <!-- ========================================================================= -->
+      <div v-if="top15TrendingVideos.length > 3" class="space-y-4 pt-4">
+        
+        <div class="flex items-center space-x-3">
+          <div class="h-px flex-1 bg-gradient-to-r from-transparent via-slate-300 dark:via-slate-800 to-slate-200 dark:to-slate-800"></div>
+          <div class="flex items-center space-x-2 px-4 py-1.5 rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 text-xs font-bold uppercase tracking-wider shadow-sm">
+            <i class="ph-bold ph-chart-line-up text-indigo-500 text-sm"></i>
+            <span>Bảng Xếp Hạng Kế Tiếp: Top #4 Đến Top #15</span>
+          </div>
+          <div class="h-px flex-1 bg-gradient-to-r from-slate-200 dark:from-slate-800 via-slate-300 dark:via-slate-800 to-transparent"></div>
+        </div>
+
+        <!-- Standard Grid Cards for #4 - #15 -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+          <div 
+            v-for="(v, subIdx) in top15TrendingVideos.slice(3)" 
+            :key="'trend-' + v.video_id"
+            class="card-luxury group bg-white dark:bg-[#0c1222] border border-slate-200 dark:border-slate-800 hover:border-indigo-400/60 dark:hover:border-indigo-500/60 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between relative"
+          >
+            <!-- Rank Badge -->
+            <div class="absolute top-2.5 left-2.5 z-20">
+              <div class="flex items-center space-x-1 px-2.5 py-1 rounded-xl text-xs font-black shadow-xl backdrop-blur-md bg-slate-950/85 text-purple-300 border border-purple-500/40">
+                <span class="text-[10px] text-slate-400">TOP</span>
+                <span>#{{ subIdx + 4 }}</span>
+              </div>
+            </div>
+
+            <div>
+              <!-- Thumbnail -->
+              <div class="relative aspect-video w-full overflow-hidden bg-slate-900">
+                <img :src="v.thumbnail" :alt="v.title" loading="lazy" class="w-full h-full object-cover group-hover:scale-108 transition-all duration-700">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent"></div>
+
+                <div class="absolute top-2.5 right-2.5 flex-shrink-0">
+                  <div class="flex items-center space-x-1 bg-gradient-to-r from-rose-600 to-amber-600 text-white font-black text-[10px] sm:text-[11px] px-2.5 py-0.5 rounded-full shadow-lg border border-rose-400/50 animate-pulse whitespace-nowrap">
+                    <i class="ph-fill ph-fire text-amber-300"></i>
+                    <span>+{{ formatNumber(v.effective_vph) }}/h</span>
+                  </div>
+                </div>
+
+                <div class="absolute bottom-2.5 left-2.5 max-w-[65%]">
+                  <span class="bg-black/70 backdrop-blur-md border border-white/10 text-white text-[11px] font-semibold px-2.5 py-0.5 rounded-lg flex items-center space-x-1 truncate shadow-sm">
+                    <i class="ph-fill ph-youtube-logo text-rose-500 flex-shrink-0"></i>
+                    <span class="truncate">{{ v.channel_name }}</span>
+                  </span>
+                </div>
+              </div>
+
+              <!-- Content Body -->
+              <div class="p-3.5 sm:p-4">
+                <a :href="v.url" target="_blank" class="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 hover:text-purple-600 dark:hover:text-purple-400 transition line-clamp-2 leading-snug group-hover:underline break-words" :title="v.title">
+                  {{ v.title }}
+                </a>
+
+                <div class="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs">
+                  <span class="text-slate-500 font-medium">Lượt xem: <strong class="text-slate-900 dark:text-slate-200">{{ formatNumber(v.views) }}</strong></span>
+                  <span class="font-black text-rose-600 dark:text-rose-400">
+                    +{{ formatNumber(metricTimeUnit === 'day' ? (v.effective_vph * 24) : v.effective_vph) }}{{ metricTimeUnit === 'day' ? '/ngày' : '/h' }}
+                  </span>
+                </div>
+                <div class="mt-1.5 flex items-center justify-between text-[11px]">
+                  <span 
+                    class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-black"
+                    :class="(v.outlier_score || 0) >= 10 ? 'bg-amber-400/20 text-amber-600 dark:text-amber-300' : 'bg-rose-500/15 text-rose-600 dark:text-rose-400'"
+                  >
+                    {{ (v.outlier_score || 0) >= 10 ? '👑' : '🔥' }} x{{ v.outlier_score }} vs TB kênh
+                  </span>
+                  <span class="text-[10px] text-slate-400">
+                    TB: <strong class="text-slate-600 dark:text-slate-400 font-mono">{{ formatNumber(v.channel_median) }}</strong>
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="px-3.5 pb-3.5 sm:px-4 sm:pb-4 space-y-2">
+              <button 
+                @click="openAiModal(v)"
+                class="w-full flex items-center justify-center space-x-1.5 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:opacity-95 text-white rounded-xl text-xs font-black shadow-sm transition cursor-pointer"
+              >
+                <i class="ph-fill ph-sparkle text-amber-300 text-sm"></i>
+                <span>Xem Kịch Bản Remake</span>
+              </button>
+
+              <div class="flex items-center space-x-2">
+                <a :href="v.url" target="_blank" class="flex-1 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-bold text-center transition cursor-pointer">
+                  Xem YouTube ↗
+                </a>
+                <button 
+                  @click.stop="toggleSaveIdea(v)" 
+                  class="px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer"
+                  :class="isSaved(v.video_id) ? 'bg-amber-400 text-slate-950' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-amber-500'"
+                >
+                  <i :class="isSaved(v.video_id) ? 'ph-fill ph-bookmark-simple' : 'ph-bold ph-bookmark-simple'"></i>
+                  <span>{{ isSaved(v.video_id) ? 'Đã lưu' : 'Lưu' }}</span>
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+        </section>
 
 
     <!-- ========================================================================================= -->
