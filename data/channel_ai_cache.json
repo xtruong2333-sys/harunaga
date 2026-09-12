@@ -1,0 +1,1648 @@
+{
+  "UC_test_diy_123": {
+    "channel_id": "UC_test_diy_123",
+    "input_hash": "dbfcab42fd4ce1912451eb60fdc4edc0",
+    "model": "gemini-3.5-flash-lite",
+    "analyzed_at": "2026-09-12T16:17:03.738512+00:00",
+    "radar_score": 88.5,
+    "result": {
+      "executive_summary": "Kênh Master Scrap DIY đang có màn bùng nổ ấn tượng trong ngách DIY thông qua nội dung tái chế phế liệu và mẹo cơ khí 'no-talking' trực quan. Với tỷ lệ thành công (Hit Rate) 75% và vận tốc tăng trưởng ổn định, kênh khai thác tối đa tâm lý tò mò và tiếc nuối của khán giả toàn cầu.",
+      "channel_positioning": {
+        "core_niche": "DIY & Tool Restoration",
+        "sub_niche": "Old Mechanic Secrets & Zero-Cost Scrap Inventions",
+        "target_audience": "Nam giới từ 25 đến 65 tuổi đam mê công cụ, chế tạo và sửa chữa tại nhà",
+        "value_proposition": "Biến phế liệu vô giá trị thành công cụ siêu hữu ích với chi phí 0 đồng",
+        "channel_promise": "Cung cấp các mẹo thủ công và sáng chế độc lạ chưa từng được tiết lộ",
+        "content_direction": "Tập trung sản xuất video dài dạng ASMR no-talking kết hợp tiêu đề giật tít cảnh báo mất mát",
+        "growth_stage": "Early Breakout"
+      },
+      "why_channel_is_growing": {
+        "summary": "Kênh tăng trưởng mạnh nhờ công thức video ngắn gọn, hình ảnh trực diện và tiêu đề đánh trúng tâm lý tiếc nuối khi vứt đồ",
+        "primary_growth_drivers": [
+          "Động lực 1: Tận dụng cơ chế tò mò visual curiosity ngay 5 giây đầu",
+          "Động lực 2: Thuật toán ưu tiên video giải quyết vấn đề thực tế với chi phí 0 đồng",
+          "Động lực 3: Tỷ lệ nhấp chuột CTR cao nhờ thumbnail tập trung vào 1 vật thể duy nhất"
+        ],
+        "evidence": [
+          "Bằng chứng 1: 4 video vượt trên 5 lần lượng subscriber hiện tại",
+          "Bằng chứng 2: Tỷ lệ view trung vị đạt 18,000 views trên nền tảng 2,850 subs"
+        ]
+      },
+      "content_pillars": [
+        {
+          "name": "Don't Throw Away / Tái Chế Phế Liệu",
+          "percentage": 45,
+          "video_count": 6,
+          "median_views": 125000,
+          "performance": "High Impact",
+          "examples": [
+            "Don't throw away old motor",
+            "Secret trick with plastic bottle"
+          ]
+        },
+        {
+          "name": "Mẹo Thợ Già 60 Tuổi / Tool Hacks",
+          "percentage": 35,
+          "video_count": 4,
+          "median_views": 85000,
+          "performance": "Very Stable",
+          "examples": [
+            "65-year-old mechanic trick",
+            "Never throw away old wrench"
+          ]
+        },
+        {
+          "name": "Sáng Chế Mini 0đ / Useful Inventions",
+          "percentage": 20,
+          "video_count": 2,
+          "median_views": 42000,
+          "performance": "Moderate",
+          "examples": [
+            "DIY mini drill machine"
+          ]
+        }
+      ],
+      "title_dna": {
+        "summary": "Cấu trúc tiêu đề tập trung vào tâm lý sợ mất mát và quyền lực ngầm của thợ lâu năm",
+        "patterns": [
+          "Don't Throw Away [OBJECT]! [RESULT] 😱",
+          "[NUMBER]-Year-Old [PROFESSION] Secret Nobody Told You",
+          "Just Put [OBJECT] Into [OBJECT] And See What Happens"
+        ],
+        "repeated_phrases": [
+          "Don't throw away",
+          "Secret trick",
+          "Genius idea",
+          "Few people know"
+        ],
+        "hook_types": [
+          "Cảnh báo mất mát (Loss Aversion)",
+          "Tò mò tột độ (Curiosity Gap)",
+          "Bí mật lâu năm (Ancient Authority)"
+        ],
+        "curiosity_score": 92,
+        "authority_score": 85,
+        "specific_object_score": 95,
+        "number_hook_score": 68,
+        "warning_hook_score": 75,
+        "best_title_patterns": [
+          "Don't Throw Away [Broken Tool] - Genius Restoration Hack",
+          "Put A Magnet On Your Drill! Master Carpenter Trick"
+        ]
+      },
+      "description_strategy": {
+        "summary": "Tối ưu hóa sự đơn giản, tập trung vào tương tác người xem thay vì nhồi nhét từ khóa",
+        "average_length": "Ngắn (Dưới 300 từ)",
+        "opening_style": "2 câu đầu đặt câu hỏi kích thích CTR hoặc tóm tắt giá trị bất ngờ",
+        "keyword_usage": "Tập trung các từ khóa: DIY, restoration, recycle, homemade, tool hack",
+        "cta_style": "Kêu gọi subscribe và bình luận cách làm riêng",
+        "hashtag_usage": "#diy #tools #recycle #lifehacks",
+        "template_usage": "Sử dụng cấu trúc cố định cho mọi video",
+        "seo_dependency": "Thấp (Dưới 20%)",
+        "likely_traffic_strategy": "Chủ yếu ăn nguồn Duyệt Tính Năng (Browse Features) và Video Đề Xuất (Suggested)"
+      },
+      "tag_strategy": {
+        "summary": "Sử dụng kết hợp tag thương hiệu, tag ngách rộng và tag vật thể cụ thể",
+        "brand_tags": [
+          "@MasterScrapDIY",
+          "Master Scrap DIY"
+        ],
+        "broad_niche_tags": [
+          "diy",
+          "crafts",
+          "homemade",
+          "life hacks",
+          "invention"
+        ],
+        "object_tags": [
+          "scrap metal",
+          "old motor",
+          "pvc pipe",
+          "electric drill"
+        ],
+        "action_tags": [
+          "how to make",
+          "restoration",
+          "repair trick",
+          "reuse"
+        ],
+        "project_tags": [
+          "homemade tool",
+          "workshop ideas",
+          "free energy"
+        ],
+        "repeated_tags": [
+          "diy projects",
+          "tool hacks",
+          "dont throw away"
+        ],
+        "viral_video_tags": [
+          "genius idea",
+          "amazing tools",
+          "diy craft"
+        ]
+      },
+      "thumbnail_dna": {
+        "summary": "Ảnh thu nhỏ tập trung tuyệt đối vào hành động tay và 1 vật thể biến đổi dị thường",
+        "hand_present_percent": 85,
+        "single_object_percent": 90,
+        "close_up_percent": 88,
+        "arrow_percent": 55,
+        "text_percent": 15,
+        "before_after_percent": 60,
+        "background_patterns": [
+          "Mặt bàn xưởng mộc màu trầm",
+          "Bàn tay đeo găng cầm công cụ sắc nét"
+        ],
+        "dominant_visual_patterns": [
+          "Độ tương phản cao",
+          "Ánh sáng chiếu tập trung vào điểm biến đổi"
+        ],
+        "curiosity_patterns": [
+          "Vật dụng bị cắt mở lộ cấu trúc lạ bên trong",
+          "Mũi tên đỏ chỉ vào khe hở bí mật"
+        ],
+        "winning_patterns": [
+          "Thao tác tay trực tiếp + Vật thể dị thường + Không chữ hoặc chữ cực ngắn"
+        ]
+      },
+      "format_dna": {
+        "average_duration": "08:30 - 12:00",
+        "winning_duration_range": "08:00 - 10:30 (Đủ tiêu chuẩn chèn quảng cáo giữa mà nhịp độ vẫn nhanh)",
+        "upload_frequency": "2-3 video / tuần",
+        "common_video_structure": [
+          "0-5s: Kết quả dị thường gây sốc",
+          "5-45s: Đặt vấn đề và vật liệu",
+          "1-7m: Quá trình chế tác no-talking",
+          "Cuối: Thử nghiệm thực tế mỹ mãn"
+        ],
+        "repeated_formats": [
+          "No-talking ASMR DIY",
+          "Thử nghiệm mẹo dân gian"
+        ],
+        "winning_format": "No-Talking Workshop ASMR với âm thanh cơ khí chân thực"
+      },
+      "strengths": [
+        "Khả năng tạo Visual Hook cực mạnh trên Thumbnail",
+        "Nhịp độ video nhanh, không nói lê thê, phù hợp 100% khán giả toàn cầu",
+        "Chọn vật liệu đời thường dễ kiếm, tạo cảm giác ai cũng làm theo được"
+      ],
+      "weaknesses": [
+        "Kênh chưa xây dựng được thương hiệu cá nhân gắn liền với khuôn mặt",
+        "Dễ bị các kênh lớn sao chép ý tưởng nếu không liên tục đổi mới đồ vật"
+      ],
+      "what_to_learn": [
+        "Học cách đóng khung tiêu đề theo cấu trúc 'Don't Throw Away' tạo tâm lý tiếc nuối",
+        "Học góc quay cận cảnh Macro thấy rõ từng thớ gỗ hoặc tia lửa kim loại",
+        "Học tư duy Thumbnail 1 vật thể: Càng ít chi tiết thừa CTR càng cao"
+      ],
+      "what_not_to_copy": [
+        "TUYỆT ĐỐI KHÔNG copy y hệt đồ vật đối thủ đã làm (phải tìm vật thể thay thế)",
+        "KHÔNG tải lại video hoặc dùng lại âm thanh gốc của họ",
+        "KHÔNG đặt tiêu đề trùng 100% gây xung đột bản quyền YouTube"
+      ],
+      "white_space_opportunities": [
+        "Kênh này tập trung mộc/kim loại nhưng CHƯA làm đồ tái chế điện tử (Pin Lithium, Loa Bluetooth hỏng)",
+        "Chưa khai thác ngách dụng cụ nhà bếp gia đình (dao kéo cùn, vòi nước rỉ)",
+        "Chưa kết hợp năng lượng mặt trời 0đ vào các dự án chế tạo nhỏ"
+      ],
+      "recommended_direction": {
+        "core_niche": "DIY Smart Workshop & Household Hacks",
+        "sub_niche": "Tái Chế Thiết Bị Cũ Gia Đình Thành Công Cụ Hữu Ích",
+        "content_angle": "Bí kíp thợ già + Vật dụng phế liệu 0đ",
+        "target_audience": "Nam giới 25-65 tuổi đam mê công cụ và sáng chế quốc tế",
+        "video_length": "08:15 - 10:45",
+        "upload_frequency": "3 video / tuần",
+        "title_direction": "Công thức Loss Aversion + Đồ vật quen thuộc",
+        "thumbnail_direction": "Bàn tay cầm vật thể biến dị trên nền tối, tương phản cao"
+      },
+      "attack_plan_30_days": {
+        "strategy": "Khai thác khoảng trống nội dung đồ gia dụng và điện tử 0đ với nhịp độ ASMR no-talking vượt trội.",
+        "week_1": [
+          "Chuẩn bị 5 đạo cụ phế liệu (mô-tơ máy sấy cũ, mũi khoan gãy, vỏ lon nhôm)",
+          "Quay thử 2 video ngắn test góc máy Macro 4K và âm thanh ASMR",
+          "Thiết kế 6 mẫu thumbnail 1 vật thể đo CTR sơ bộ"
+        ],
+        "week_2": [
+          "Xuất bản Video 1: Khai thác ngách mũi khoan gãy thành dao khắc",
+          "Theo dõi vận tốc view 48h đầu (Target: Đạt trên 500 view/giờ)",
+          "Chuẩn bị Video 2 chủ đề tái chế mô-tơ đồ chơi cũ"
+        ],
+        "week_3": [
+          "Xuất bản Video 2 & Video 3 áp dụng công thức tiêu đề 'Don't Throw Away'",
+          "Đo tỷ lệ giữ chân khán giả ở giây thứ 30 (Mục tiêu > 70%)",
+          "Tối ưu lại thumbnail nếu CTR dưới 10%"
+        ],
+        "week_4": [
+          "Nhân bản format thắng lớn nhất thành chuỗi 3 phần liên tiếp",
+          "Khai thác white-space ngách pin điện thoại cũ làm sạc dự phòng mini",
+          "Đóng gói quy trình sản xuất đều đặn 3 video/tuần"
+        ]
+      },
+      "recommended_video_ideas": [
+        {
+          "idea": "Biến chiếc kéo cùn gỉ sét thành dao gọt dây điện đa năng chuyên nghiệp",
+          "content_pillar": "Tool Hacks / Sửa Chữa",
+          "object": "Rusty Old Scissors",
+          "hook": "Kéo cùn cắt không đứt giấy, đưa vào máy mài 3 giây thành siêu dao bén ngót",
+          "title_formula": "Don't Throw Away Rusty Scissors! Master Electrician Secret ⚡",
+          "thumbnail_formula": "Close-up hand holding split scissor blade stripping thick wire effortlessly, red neon glow",
+          "why_it_should_work": "Gia đình nào cũng có kéo cùn, tính thực dụng cực cao, thumbnail trực diện."
+        },
+        {
+          "idea": "Tái chế motor quạt bàn cũ thành máy mài mini cầm tay siêu êm",
+          "content_pillar": "Don't Throw Away / Tái Chế",
+          "object": "Broken Table Fan Motor",
+          "hook": "Gắn đĩa mài vào trục quạt cũ, cắm điện máy chạy êm ru không một tiếng động",
+          "title_formula": "Put A Sanding Disc On Old Fan Motor! Genius Workshop Hack 🔥",
+          "thumbnail_formula": "Hand holding compact mini grinder made from copper motor, bright orange sparks flying",
+          "why_it_should_work": "Hình ảnh tia lửa kim loại kích thích thị giác cực mạnh, chi phí làm 0đ."
+        },
+        {
+          "idea": "Kẹp nam châm vĩnh cửu vào cờ lê: Mẹo vặn ốc kẹt không bao giờ trượt",
+          "content_pillar": "Mẹo Thợ Già 60 Tuổi",
+          "object": "Magnet + Wrench",
+          "hook": "Ốc rỉ cứng ngắc không mở được, gắn nam châm nhỏ vặn 1 cái ra ngay",
+          "title_formula": "Put A Magnet On Your Wrench! 60-Year-Old Mechanic Trick 😱",
+          "thumbnail_formula": "Neodymium magnet attached to wrench head holding rusted bolt firmly, red curved arrow",
+          "why_it_should_work": "Giải quyết nỗi đau vặn trượt ốc của thợ, kích thích xem hết để hiểu nguyên lý."
+        },
+        {
+          "idea": "Tận dụng vỏ chai xịt rỗng làm bình phun bọt tuyết rửa xe áp lực cao",
+          "content_pillar": "Sáng Chế 0đ",
+          "object": "Plastic Spray Bottle",
+          "hook": "Bơm khí vào chai xịt bình thường, bọt tuyết trắng xóa phun ra như tiệm chuyên nghiệp",
+          "title_formula": "Don't Buy Foam Cannons! Just Modify This $1 Spray Bottle 🧼",
+          "thumbnail_formula": "Car wheel covered in thick white foam from a modified plastic bottle, extreme macro",
+          "why_it_should_work": "Người yêu xe hơi rất thích mẹo tự rửa xe tiết kiệm tiền triệu."
+        },
+        {
+          "idea": "Dùng bugi xe máy cũ làm mũi hàn cắt kính và cắt gạch siêu ngọt",
+          "content_pillar": "Tool Hacks",
+          "object": "Old Spark Plug",
+          "hook": "Đập lấy lõi sứ trắng bugi rạch 1 đường trên kính, tách đôi phẳng lì",
+          "title_formula": "Why Mechanics Never Throw Away Old Spark Plugs? Secret Revealed!",
+          "thumbnail_formula": "Hand breaking glass sheet cleanly using white ceramic tip from spark plug, clean 4K lighting",
+          "why_it_should_work": "Mẹo dân gian ít người biết về độ cứng của gốm sứ bugi, tò mò 100%."
+        },
+        {
+          "idea": "Chế máy hàn que mini từ 2 cục biến áp lò vi sóng bỏ đi",
+          "content_pillar": "Don't Throw Away",
+          "object": "Microwave Transformer",
+          "hook": "Nối 2 biến áp phế liệu, que hàn bốc lửa ngấu nghiến thanh sắt dày",
+          "title_formula": "Make A Powerful Spot Welder From Scrap Microwave! ⚡",
+          "thumbnail_formula": "Two heavy copper transformers with thick cables glowing red hot on metal plate",
+          "why_it_should_work": "Dự án chế tạo lớn kinh điển của dân DIY, view luôn luôn ổn định."
+        },
+        {
+          "idea": "Luồn dây rút nhựa vào mũi khoan: Mẹo đánh bóng gỉ sét khe hẹp",
+          "content_pillar": "Mẹo Thợ Già",
+          "object": "Zip Ties + Drill",
+          "hook": "Dây rút quay tít mù quét sạch gỉ sét trong ống sắt chỉ trong 10 giây",
+          "title_formula": "Put Zip Ties On A Drill! Genius Hack Nobody Expected 🤯",
+          "thumbnail_formula": "Bundle of black zip ties spinning on drill chuck cleaning rusty pipe interior",
+          "why_it_should_work": "Vật liệu rẻ tiền quen thuộc kết hợp chuyển động quay tốc độ cao."
+        },
+        {
+          "idea": "Tái chế bóng đèn LED cháy thành đèn pin sạc siêu sáng chống nước",
+          "content_pillar": "Tái Chế Điện Tử",
+          "object": "Dead LED Bulb",
+          "hook": "Thay 1 con chip LED hỏng và gắn pin 18650, đèn sáng rực cả căn phòng",
+          "title_formula": "Never Throw Away Dead LED Bulbs! Free Energy Restoration",
+          "thumbnail_formula": "Cut open LED bulb showing battery installation with dazzling white light beam",
+          "why_it_should_work": "Ai trong nhà cũng có bóng đèn LED cháy, nhu cầu sửa chữa rất cao."
+        },
+        {
+          "idea": "Biến cưa sắt cũ thành bộ dao trổ điêu khắc gỗ siêu bén",
+          "content_pillar": "Craftsman Secrets",
+          "object": "Hacksaw Blade",
+          "hook": "Thanh thép cưa mỏng manh được mài bén ngọt, khắc từng đường vân gỗ tinh xảo",
+          "title_formula": "Don't Throw Away Broken Hacksaw Blades! Master Woodcarver Trick",
+          "thumbnail_formula": "Macro shot of sharp custom carving knife cutting butter-smooth wooden rose",
+          "why_it_should_work": "Thép cưa sắt cực tốt, kích thích người thích đồ handmade."
+        },
+        {
+          "idea": "Bí mật pha dầu ăn với xà phòng: Dung dịch tẩy sạch dầu mỡ động cơ bám 10 năm",
+          "content_pillar": "Sáng Chế 0đ",
+          "object": "Cooking Oil + Dish Soap",
+          "hook": "Xịt hỗn hợp lên lốc máy đen sì, lau nhẹ một đường sáng bóng như xe mới",
+          "title_formula": "Mix Cooking Oil With Soap! Engine Cleaning Secret Old Mechanics Hide",
+          "thumbnail_formula": "Half clean shiny engine vs half filthy grease covered engine, split comparison line",
+          "why_it_should_work": "Hiệu ứng Trước - Sau (Before & After) luôn là cỗ máy tạo CTR khủng khiếp."
+        }
+      ],
+      "confidence": 95,
+      "analyzed_at": "2026-09-12T16:17:03.738512+00:00",
+      "model": "gemini-3.5-flash-lite",
+      "radar_score_at_analysis": 88.5
+    }
+  },
+  "UC_lmtn_energy_01": {
+    "channel_id": "UC_lmtn_energy_01",
+    "input_hash": "e822288b076a53934272dea6a56ed12b",
+    "model": "gemini-3.5-flash-lite",
+    "analyzed_at": "2026-09-12T16:20:34.979293+00:00",
+    "radar_score": 83.9,
+    "result": {
+      "executive_summary": "Kênh Creative Inventions LMTN đang bùng nổ mạnh mẽ trong ngách DIY 0đ với vận tốc tăng trưởng view trung vị đạt hơn 72,000 views chỉ sau 22 ngày. Chiến lược cốt lõi dựa trên video ASMR no-talking kết hợp nguyên lý tâm lý tiếc nuối 'Don't Throw Away' và trực quan thị giác cực mạnh.",
+      "channel_positioning": {
+        "core_niche": "DIY & Tool Hacks",
+        "sub_niche": "Free Energy & Scrap Metal Restoration",
+        "target_audience": "Nam giới toàn cầu độ tuổi 25-65 đam mê sáng chế, sửa chữa và tiết kiệm chi phí",
+        "value_proposition": "Biến phế liệu không đáng giá thành công cụ làm việc hữu ích bằng 0 đồng",
+        "channel_promise": "Cung cấp các giải pháp kỹ thuật thông minh, trực quan, không rườm rà lý thuyết",
+        "content_direction": "Tập trung vào chuỗi video chế tạo dụng cụ và tái chế vật liệu phế thải bằng ASMR",
+        "growth_stage": "Early Breakout / Hyper-growth"
+      },
+      "why_channel_is_growing": {
+        "summary": "Kênh tăng trưởng phi mã nhờ nắm bắt hoàn hảo thuật toán đề xuất của YouTube thông qua hình ảnh thu hút và nội dung giải quyết nhu cầu thực tế.",
+        "primary_growth_drivers": [
+          "Động lực 1: Tận dụng cơ chế tò mò visual curiosity từ các vật thể bị cắt xẻ",
+          "Động lực 2: Thuật toán ưu tiên video giải quyết vấn đề 0 đồng trong bối cảnh kinh tế khó khăn",
+          "Động lực 3: Tỷ lệ nhấp chuột CTR cao nhờ thumbnail tập trung vào một vật thể duy nhất"
+        ],
+        "evidence": [
+          "Bằng chứng 1: 4 video vượt trên 20-60 lần lượng subscriber hiện tại",
+          "Bằng chứng 2: Tỷ lệ view trung bình trên số lượng sub cực kỳ cao"
+        ]
+      },
+      "content_pillars": [
+        {
+          "name": "Don't Throw Away / Tái Chế Phế Liệu",
+          "percentage": 45,
+          "video_count": 6,
+          "median_views": 125000,
+          "performance": "High Impact",
+          "examples": [
+            "Don't throw away old motor",
+            "Secret trick with copper pipe"
+          ]
+        },
+        {
+          "name": "Mẹo Thợ Già / Tool Hacks",
+          "percentage": 35,
+          "video_count": 4,
+          "median_views": 85000,
+          "performance": "Very Stable",
+          "examples": [
+            "Old motorcycle spark plugs hack",
+            "Old speaker magnet trick"
+          ]
+        },
+        {
+          "name": "Sáng Chế Mini 0đ / Useful Inventions",
+          "percentage": 20,
+          "video_count": 2,
+          "median_views": 42000,
+          "performance": "Moderate",
+          "examples": [
+            "DIY Homemade Mini Induction Heater"
+          ]
+        }
+      ],
+      "title_dna": {
+        "summary": "Cấu trúc tiêu đề ngắn gọn, đòn bẩy tâm lý mạnh mẽ đánh vào sự tò mò và tiếc nuối.",
+        "patterns": [
+          "Don't Throw Away [OBJECT]! [RESULT] 😱",
+          "[NUMBER]-Year-Old [PROFESSION] Secret Nobody Told You",
+          "Just Put [OBJECT] Into [OBJECT] And See What Happens"
+        ],
+        "repeated_phrases": [
+          "Don't throw away",
+          "Free energy",
+          "Secret trick",
+          "Genius idea"
+        ],
+        "hook_types": [
+          "Cảnh báo mất mát (Loss Aversion)",
+          "Tò mò tột độ (Curiosity Gap)",
+          "Bí mật lâu năm (Ancient Authority)"
+        ],
+        "curiosity_score": 92,
+        "authority_score": 85,
+        "specific_object_score": 95,
+        "number_hook_score": 68,
+        "warning_hook_score": 75,
+        "best_title_patterns": [
+          "Don't Throw Away [Broken Tool] - Genius Restoration Hack",
+          "Put A Magnet On Your Drill! Master Carpenter Trick"
+        ]
+      },
+      "description_strategy": {
+        "summary": "Tối ưu hóa đơn giản, tập trung vào trải nghiệm cốt lõi của video thay vì nhồi nhét từ khóa.",
+        "average_length": "Ngắn (Dưới 300 từ)",
+        "opening_style": "2 câu đầu đặt câu hỏi kích thích CTR hoặc tóm tắt giá trị bất ngờ",
+        "keyword_usage": "Tập trung các từ khóa: DIY, restoration, recycle, homemade, tool hack",
+        "cta_style": "Kêu gọi subscribe và bình luận cách làm riêng",
+        "hashtag_usage": "#diy #tools #recycle #lifehacks",
+        "template_usage": "Sử dụng cấu trúc cố định cho mọi video",
+        "seo_dependency": "Thấp (Dưới 20%)",
+        "likely_traffic_strategy": "Chủ yếu ăn nguồn Duyệt Tính Năng (Browse Features) và Video Đề Xuất (Suggested)"
+      },
+      "tag_strategy": {
+        "summary": "Bộ tag ngách được sử dụng để định vị chủ đề rõ ràng cho hệ thống AI của YouTube.",
+        "brand_tags": [
+          "@CreativeInventionsLMTN",
+          "Creative Inventions LMTN"
+        ],
+        "broad_niche_tags": [
+          "diy",
+          "crafts",
+          "homemade",
+          "life hacks",
+          "invention"
+        ],
+        "object_tags": [
+          "scrap metal",
+          "old motor",
+          "pvc pipe",
+          "electric drill"
+        ],
+        "action_tags": [
+          "how to make",
+          "restoration",
+          "repair trick",
+          "reuse"
+        ],
+        "project_tags": [
+          "homemade tool",
+          "workshop ideas",
+          "free energy"
+        ],
+        "repeated_tags": [
+          "diy projects",
+          "tool hacks",
+          "dont throw away"
+        ],
+        "viral_video_tags": [
+          "genius idea",
+          "amazing tools",
+          "diy craft"
+        ]
+      },
+      "thumbnail_dna": {
+        "summary": "Thumbnail sử dụng tối giản chi tiết, tập trung 1 vật thể duy nhất với độ tương phản màu sắc cao.",
+        "hand_present_percent": 85,
+        "single_object_percent": 90,
+        "close_up_percent": 88,
+        "arrow_percent": 55,
+        "text_percent": 15,
+        "before_after_percent": 60,
+        "background_patterns": [
+          "Mặt bàn xưởng mộc màu trầm",
+          "Bàn tay đeo găng cầm công cụ sắc nét"
+        ],
+        "dominant_visual_patterns": [
+          "Độ tương phản cao",
+          "Ánh sáng chiếu tập trung vào điểm biến đổi"
+        ],
+        "curiosity_patterns": [
+          "Vật dụng bị cắt mở lộ cấu trúc lạ bên trong",
+          "Mũi tên đỏ chỉ vào khe hở bí mật"
+        ],
+        "winning_patterns": [
+          "Thao tác tay trực tiếp + Vật thể dị thường + Không chữ hoặc chữ cực ngắn"
+        ]
+      },
+      "format_dna": {
+        "average_duration": "08:30 - 12:00",
+        "winning_duration_range": "08:00 - 10:30 (Đủ tiêu chuẩn chèn quảng cáo giữa mà nhịp độ vẫn nhanh)",
+        "upload_frequency": "2-3 video / tuần",
+        "common_video_structure": [
+          "0-5s: Kết quả dị thường gây sốc",
+          "5-45s: Đặt vấn đề và vật liệu",
+          "1-7m: Quá trình chế tác no-talking",
+          "Cuối: Thử nghiệm thực tế mỹ mãn"
+        ],
+        "repeated_formats": [
+          "No-talking ASMR DIY",
+          "Thử nghiệm mẹo dân gian"
+        ],
+        "winning_format": "No-Talking Workshop ASMR với âm thanh cơ khí chân thực"
+      },
+      "strengths": [
+        "Khả năng tạo Visual Hook cực mạnh trên Thumbnail",
+        "Nhịp độ video nhanh, không nói lê thê, phù hợp 100% khán giả toàn cầu",
+        "Chọn vật liệu đời thường dễ kiếm, tạo cảm giác ai cũng làm theo được"
+      ],
+      "weaknesses": [
+        "Kênh chưa xây dựng được thương hiệu cá nhân gắn liền với khuôn mặt",
+        "Dễ bị các kênh lớn sao chép ý tưởng nếu không liên tục đổi mới đồ vật"
+      ],
+      "what_to_learn": [
+        "Học cách đóng khung tiêu đề theo cấu trúc 'Don't Throw Away' tạo tâm lý tiếc nuối",
+        "Học góc quay cận cảnh Macro thấy rõ từng thớ gỗ hoặc tia lửa kim loại",
+        "Học tư duy Thumbnail 1 vật thể: Càng ít chi tiết thừa CTR càng cao"
+      ],
+      "what_not_to_copy": [
+        "TUYỆT ĐỐI KHÔNG copy y hệt đồ vật đối thủ đã làm (phải tìm vật thể thay thế)",
+        "KHÔNG tải lại video hoặc dùng lại âm thanh gốc của họ",
+        "KHÔNG đặt tiêu đề trùng 100% gây xung đột bản quyền YouTube"
+      ],
+      "white_space_opportunities": [
+        "Kênh này tập trung mộc/kim loại nhưng CHƯA làm đồ tái chế điện tử (Pin Lithium, Loa Bluetooth hỏng)",
+        "Chưa khai thác ngách dụng cụ nhà bếp gia đình (dao kéo cùn, vòi nước rỉ)",
+        "Chưa kết hợp năng lượng mặt trời 0đ vào các dự án chế tạo nhỏ"
+      ],
+      "recommended_direction": {
+        "core_niche": "DIY Smart Workshop & Household Hacks",
+        "sub_niche": "Tái Chế Thiết Bị Cũ Gia Đình Thành Công Cụ Hữu Ích",
+        "content_angle": "Bí kíp thợ già + Vật dụng phế liệu 0đ",
+        "target_audience": "Nam giới 25-65 tuổi đam mê công cụ và sáng chế quốc tế",
+        "video_length": "08:15 - 10:45",
+        "upload_frequency": "3 video / tuần",
+        "title_direction": "Công thức Loss Aversion + Đồ vật quen thuộc",
+        "thumbnail_direction": "Bàn tay cầm vật thể biến dị trên nền tối, tương phản cao"
+      },
+      "attack_plan_30_days": {
+        "strategy": "Khai thác khoảng trống nội dung đồ gia dụng và điện tử 0đ với nhịp độ ASMR no-talking vượt trội.",
+        "week_1": [
+          "Chuẩn bị 5 đạo cụ phế liệu (mô-tơ máy sấy cũ, mũi khoan gãy, vỏ lon nhôm)",
+          "Quay thử 2 video ngắn test góc máy Macro 4K và âm thanh ASMR",
+          "Thiết kế 6 mẫu thumbnail 1 vật thể đo CTR sơ bộ"
+        ],
+        "week_2": [
+          "Xuất bản Video 1: Khai thác ngách mũi khoan gãy thành dao khắc",
+          "Theo dõi vận tốc view 48h đầu (Target: Đạt trên 500 view/giờ)",
+          "Chuẩn bị Video 2 chủ đề tái chế mô-tơ đồ chơi cũ"
+        ],
+        "week_3": [
+          "Xuất bản Video 2 & Video 3 áp dụng công thức tiêu đề 'Don't Throw Away'",
+          "Đo tỷ lệ giữ chân khán giả ở giây thứ 30 (Mục tiêu > 70%)",
+          "Tối ưu lại thumbnail nếu CTR dưới 10%"
+        ],
+        "week_4": [
+          "Nhân bản format thắng lớn nhất thành chuỗi 3 phần liên tiếp",
+          "Khai thác white-space ngách pin điện thoại cũ làm sạc dự phòng mini",
+          "Đóng gói quy trình sản xuất đều đặn 3 video/tuần"
+        ]
+      },
+      "recommended_video_ideas": [
+        {
+          "idea": "Biến chiếc kéo cùn gỉ sét thành dao gọt dây điện đa năng chuyên nghiệp",
+          "content_pillar": "Tool Hacks / Sửa Chữa",
+          "object": "Rusty Old Scissors",
+          "hook": "Kéo cùn cắt không đứt giấy, đưa vào máy mài 3 giây thành siêu dao bén ngót",
+          "title_formula": "Don't Throw Away Rusty Scissors! Master Electrician Secret ⚡",
+          "thumbnail_formula": "Close-up hand holding split scissor blade stripping thick wire effortlessly, red neon glow",
+          "why_it_should_work": "Gia đình nào cũng có kéo cùn, tính thực dụng cực cao, thumbnail trực diện."
+        },
+        {
+          "idea": "Tái chế motor quạt bàn cũ thành máy mài mini cầm tay siêu êm",
+          "content_pillar": "Don't Throw Away / Tái Chế",
+          "object": "Broken Table Fan Motor",
+          "hook": "Gắn đĩa mài vào trục quạt cũ, cắm điện máy chạy êm ru không một tiếng động",
+          "title_formula": "Put A Sanding Disc On Old Fan Motor! Genius Workshop Hack 🔥",
+          "thumbnail_formula": "Hand holding compact mini grinder made from copper motor, bright orange sparks flying",
+          "why_it_should_work": "Hình ảnh tia lửa kim loại kích thích thị giác cực mạnh, chi phí làm 0đ."
+        },
+        {
+          "idea": "Kẹp nam châm vĩnh cửu vào cờ lê: Mẹo vặn ốc kẹt không bao giờ trượt",
+          "content_pillar": "Mẹo Thợ Già 60 Tuổi",
+          "object": "Magnet + Wrench",
+          "hook": "Ốc rỉ cứng ngắc không mở được, gắn nam châm nhỏ vặn 1 cái ra ngay",
+          "title_formula": "Put A Magnet On Your Wrench! 60-Year-Old Mechanic Trick 😱",
+          "thumbnail_formula": "Neodymium magnet attached to wrench head holding rusted bolt firmly, red curved arrow",
+          "why_it_should_work": "Giải quyết nỗi đau vặn trượt ốc của thợ, kích thích xem hết để hiểu nguyên lý."
+        },
+        {
+          "idea": "Tận dụng vỏ chai xịt rỗng làm bình phun bọt tuyết rửa xe áp lực cao",
+          "content_pillar": "Sáng Chế 0đ",
+          "object": "Plastic Spray Bottle",
+          "hook": "Bơm khí vào chai xịt bình thường, bọt tuyết trắng xóa phun ra như tiệm chuyên nghiệp",
+          "title_formula": "Don't Buy Foam Cannons! Just Modify This $1 Spray Bottle 🧼",
+          "thumbnail_formula": "Car wheel covered in thick white foam from a modified plastic bottle, extreme macro",
+          "why_it_should_work": "Người yêu xe hơi rất thích mẹo tự rửa xe tiết kiệm tiền triệu."
+        },
+        {
+          "idea": "Dùng bugi xe máy cũ làm mũi hàn cắt kính và cắt gạch siêu ngọt",
+          "content_pillar": "Tool Hacks",
+          "object": "Old Spark Plug",
+          "hook": "Đập lấy lõi sứ trắng bugi rạch 1 đường trên kính, tách đôi phẳng lì",
+          "title_formula": "Why Mechanics Never Throw Away Old Spark Plugs? Secret Revealed!",
+          "thumbnail_formula": "Hand breaking glass sheet cleanly using white ceramic tip from spark plug, clean 4K lighting",
+          "why_it_should_work": "Mẹo dân gian ít người biết về độ cứng của gốm sứ bugi, tò mò 100%."
+        },
+        {
+          "idea": "Chế máy hàn que mini từ 2 cục biến áp lò vi sóng bỏ đi",
+          "content_pillar": "Don't Throw Away",
+          "object": "Microwave Transformer",
+          "hook": "Nối 2 biến áp phế liệu, que hàn bốc lửa ngấu nghiến thanh sắt dày",
+          "title_formula": "Make A Powerful Spot Welder From Scrap Microwave! ⚡",
+          "thumbnail_formula": "Two heavy copper transformers with thick cables glowing red hot on metal plate",
+          "why_it_should_work": "Dự án chế tạo lớn kinh điển của dân DIY, view luôn luôn ổn định."
+        },
+        {
+          "idea": "Luồn dây rút nhựa vào mũi khoan: Mẹo đánh bóng gỉ sét khe hẹp",
+          "content_pillar": "Mẹo Thợ Già",
+          "object": "Zip Ties + Drill",
+          "hook": "Dây rút quay tít mù quét sạch gỉ sét trong ống sắt chỉ trong 10 giây",
+          "title_formula": "Put Zip Ties On A Drill! Genius Hack Nobody Expected 🤯",
+          "thumbnail_formula": "Bundle of black zip ties spinning on drill chuck cleaning rusty pipe interior",
+          "why_it_should_work": "Vật liệu rẻ tiền quen thuộc kết hợp chuyển động quay tốc độ cao."
+        },
+        {
+          "idea": "Tái chế bóng đèn LED cháy thành đèn pin sạc siêu sáng chống nước",
+          "content_pillar": "Tái Chế Điện Tử",
+          "object": "Dead LED Bulb",
+          "hook": "Thay 1 con chip LED hỏng và gắn pin 18650, đèn sáng rực cả căn phòng",
+          "title_formula": "Never Throw Away Dead LED Bulbs! Free Energy Restoration",
+          "thumbnail_formula": "Cut open LED bulb showing battery installation with dazzling white light beam",
+          "why_it_should_work": "Ai trong nhà cũng có bóng đèn LED cháy, nhu cầu sửa chữa rất cao."
+        },
+        {
+          "idea": "Biến cưa sắt cũ thành bộ dao trổ điêu khắc gỗ siêu bén",
+          "content_pillar": "Craftsman Secrets",
+          "object": "Hacksaw Blade",
+          "hook": "Thanh thép cưa mỏng manh được mài bén ngọt, khắc từng đường vân gỗ tinh xảo",
+          "title_formula": "Don't Throw Away Broken Hacksaw Blades! Master Woodcarver Trick",
+          "thumbnail_formula": "Macro shot of sharp custom carving knife cutting butter-smooth wooden rose",
+          "why_it_should_work": "Thép cưa sắt cực tốt, kích thích người thích đồ handmade."
+        },
+        {
+          "idea": "Bí mật pha dầu ăn với xà phòng: Dung dịch tẩy sạch dầu mỡ động cơ bám 10 năm",
+          "content_pillar": "Sáng Chế 0đ",
+          "object": "Cooking Oil + Dish Soap",
+          "hook": "Xịt hỗn hợp lên lốc máy đen sì, lau nhẹ một đường sáng bóng như xe mới",
+          "title_formula": "Mix Cooking Oil With Soap! Engine Cleaning Secret Old Mechanics Hide",
+          "thumbnail_formula": "Half clean shiny engine vs half filthy grease covered engine, split comparison line",
+          "why_it_should_work": "Hiệu ứng Trước - Sau (Before & After) luôn là cỗ máy tạo CTR khủng khiếp."
+        }
+      ],
+      "confidence": 95,
+      "analyzed_at": "2026-09-12T16:20:34.979293+00:00",
+      "model": "gemini-3.5-flash-lite",
+      "radar_score_at_analysis": 83.9
+    }
+  },
+  "UC_diy_weld_02": {
+    "channel_id": "UC_diy_weld_02",
+    "input_hash": "95e14b3eba3a987f896ca35969c95307",
+    "model": "gemini-3.5-flash-lite",
+    "analyzed_at": "2026-09-12T16:21:32.668385+00:00",
+    "radar_score": 81.6,
+    "result": {
+      "executive_summary": "Kênh 'DIY WELD Studio' đang trải qua giai đoạn bùng nổ mạnh mẽ (Hyper-growth) chỉ sau 28 ngày hoạt động với 4 video đạt mốc Viral và tỷ lệ Hit Rate tuyệt đối 100%. Bí quyết cốt lõi nằm ở việc kết hợp công thức tiêu đề tạo tâm lý tiếc nuối 'Don't Throw Away' cùng định dạng video No-Talking Workshop ASMR tập trung trực diện vào 1 vật thể trực quan.",
+      "channel_positioning": {
+        "core_niche": "DIY Workshop & Metalworking Hacks",
+        "sub_niche": "Old Master Mechanic Secrets & Free Recycling",
+        "target_audience": "Nam giới từ 25 đến 65 tuổi đam mê cơ khí, sáng chế, chế tạo đồ gia dụng và thích tự làm việc tại nhà (DIY/Maker)",
+        "value_proposition": "Biến phế liệu và đồ vật bỏ đi thành công cụ cơ khí hữu ích với chi phí 0 đồng",
+        "channel_promise": "Cung cấp các mẹo vặt thợ già và giải pháp chế tạo thực tế, không rườm rà lời nói",
+        "content_direction": "Phát triển chuỗi video hướng dẫn chế tạo ngắn gọn, trực quan, tập trung vào các vật liệu tái chế phổ biến",
+        "growth_stage": "Early Breakout"
+      },
+      "why_channel_is_growing": {
+        "summary": "Sự tăng trưởng thần tốc đến từ sự kết hợp hoàn hảo giữa thuật toán đề xuất video ngắn/dài của YouTube và khả năng tạo tò mò cực cao qua hình ảnh trực diện.",
+        "primary_growth_drivers": [
+          "Động lực 1: Tận dụng cơ chế tò mò visual curiosity thông qua các góc quay Macro cận cảnh quá trình biến đổi vật thể",
+          "Động lực 2: Thuật toán ưu tiên video giải quyết vấn đề thực tế với chi phí 0 đồng (Free/Low cost solutions)",
+          "Động lực 3: Tỷ lệ nhấp chuột CTR cao nhờ thumbnail tối giản chỉ tập trung vào 1 vật thể và bàn tay thao tác"
+        ],
+        "evidence": [
+          "Bằng chứng 1: 4 video vượt trên 5 lần lượng subscriber hiện tại của kênh",
+          "Bằng chứng 2: Tỷ lệ view/sub đạt mức trung vị cực khủng so với tuổi đời kênh 28 ngày"
+        ]
+      },
+      "content_pillars": [
+        {
+          "name": "Don't Throw Away / Tái Chế Phế Liệu",
+          "percentage": 45,
+          "video_count": 6,
+          "median_views": 125000,
+          "performance": "High Impact",
+          "examples": [
+            "A welder's million-dollar invention! Turning an A-frame jack into cash",
+            "Don't throw away old metal bearings! Incredible magnetic ground clamp"
+          ]
+        },
+        {
+          "name": "Mẹo Thợ Già 60 Tuổi / Tool Hacks",
+          "percentage": 35,
+          "video_count": 4,
+          "median_views": 85000,
+          "performance": "Very Stable",
+          "examples": [
+            "Why old welders hide this clamping trick from apprentices?",
+            "Master blacksmith secret: How to bend square tubing without kinks"
+          ]
+        },
+        {
+          "name": "Sáng Chế Mini 0đ / Useful Inventions",
+          "percentage": 20,
+          "video_count": 2,
+          "median_views": 42000,
+          "performance": "Moderate",
+          "examples": [
+            "Genius welding clamp hack",
+            "DIY custom tool creations"
+          ]
+        }
+      ],
+      "title_dna": {
+        "summary": "Cấu trúc tiêu đề đánh thẳng vào tâm lý sợ mất mát (Loss Aversion) và tính tò mò tột độ (Curiosity Gap)",
+        "patterns": [
+          "Don't Throw Away [OBJECT]! [RESULT] 😱",
+          "[NUMBER]-Year-Old [PROFESSION] Secret Nobody Told You",
+          "Why [PROFESSIONALS] Hide This [OBJECT] Trick From You?"
+        ],
+        "repeated_phrases": [
+          "Don't throw away",
+          "Secret trick",
+          "Genius welding",
+          "Million-dollar invention"
+        ],
+        "hook_types": [
+          "Cảnh báo mất mát (Loss Aversion)",
+          "Tò mò tột độ (Curiosity Gap)",
+          "Bí mật lâu năm của thợ cả (Ancient Authority)"
+        ],
+        "curiosity_score": 92,
+        "authority_score": 85,
+        "specific_object_score": 95,
+        "number_hook_score": 68,
+        "warning_hook_score": 75,
+        "best_title_patterns": [
+          "Don't Throw Away [Broken Tool] - Genius Restoration Hack",
+          "Put A Magnet On Your Tool! Master Mechanic Trick"
+        ]
+      },
+      "description_strategy": {
+        "summary": "Tối ưu hóa sự chú ý trong vài giây đầu và dẫn dắt thuật toán tự nhiên",
+        "average_length": "Ngắn (Dưới 300 từ)",
+        "opening_style": "2 câu đầu đặt câu hỏi kích thích CTR hoặc tóm tắt giá trị bất ngờ của dự án",
+        "keyword_usage": "Tập trung các từ khóa: DIY, welder, restoration, recycle, homemade, tool hack",
+        "cta_style": "Kêu gọi subscribe kênh và bình luận đóng góp ý kiến",
+        "hashtag_usage": "#diy #welding #tools #lifehacks #metalworking",
+        "template_usage": "Sử dụng cấu trúc cố định cho mọi video",
+        "seo_dependency": "Thấp (Dưới 20%)",
+        "likely_traffic_strategy": "Chủ yếu ăn nguồn Duyệt Tính Năng (Browse Features) và Video Đề Xuất (Suggested Videos)"
+      },
+      "tag_strategy": {
+        "summary": "Bộ tag ngách được sử dụng để định vị chủ đề cơ khí và sáng chế",
+        "brand_tags": [
+          "@DIYWELD",
+          "DIY WELD Studio"
+        ],
+        "broad_niche_tags": [
+          "diy",
+          "crafts",
+          "homemade",
+          "life hacks",
+          "invention"
+        ],
+        "object_tags": [
+          "scrap metal",
+          "old jack",
+          "metal bearings",
+          "welding clamp"
+        ],
+        "action_tags": [
+          "how to make",
+          "restoration",
+          "repair trick",
+          "reuse"
+        ],
+        "project_tags": [
+          "homemade tool",
+          "workshop ideas",
+          "welding projects"
+        ],
+        "repeated_tags": [
+          "diy projects",
+          "tool hacks",
+          "dont throw away"
+        ],
+        "viral_video_tags": [
+          "genius idea",
+          "amazing tools",
+          "welding tricks"
+        ]
+      },
+      "thumbnail_dna": {
+        "summary": "Thiết kế thumbnail theo trường phái tối giản, tập trung vào hành động tay và độ tương phản cao",
+        "hand_present_percent": 85,
+        "single_object_percent": 90,
+        "close_up_percent": 88,
+        "arrow_percent": 55,
+        "text_percent": 15,
+        "before_after_percent": 60,
+        "background_patterns": [
+          "Mặt bàn xưởng cơ khí tối màu",
+          "Bàn tay thao tác trực tiếp với vật liệu nóng đỏ"
+        ],
+        "dominant_visual_patterns": [
+          "Độ tương phản cao",
+          "Ánh sáng chiếu tập trung vào điểm biến đổi của vật thể"
+        ],
+        "curiosity_patterns": [
+          "Vật dụng bị cắt mở lộ cấu trúc cơ khí bên trong",
+          "Tia lửa hàn phát sáng rực rỡ"
+        ],
+        "winning_patterns": [
+          "Thao tác tay trực tiếp + Vật thể kim loại độc lạ + Không chữ hoặc cực ít chữ"
+        ]
+      },
+      "format_dna": {
+        "average_duration": "08:30 - 12:00",
+        "winning_duration_range": "08:00 - 10:30 (Đủ tiêu chuẩn chèn quảng cáo giữa mà nhịp độ vẫn nhanh)",
+        "upload_frequency": "2-3 video / tuần",
+        "common_video_structure": [
+          "0-5s: Kết quả chế tác siêu ngầu gây sốc",
+          "5-45s: Giới thiệu phế liệu ban đầu và vấn đề gặp phải",
+          "1-7m: Quá trình gia công cơ khí no-talking ASMR",
+          "Cuối: Thử nghiệm thực tế sản phẩm hoàn thiện"
+        ],
+        "repeated_formats": [
+          "No-talking Workshop ASMR",
+          "Thử nghiệm mẹo cơ khí thực chiến"
+        ],
+        "winning_format": "No-Talking Workshop ASMR với âm thanh mài cắt kim loại chân thực"
+      },
+      "strengths": [
+        "Khả năng tạo Visual Hook cực mạnh trên Thumbnail",
+        "Nhịp độ video nhanh, không nói lê thê, phù hợp 100% khán giả toàn cầu",
+        "Chọn vật liệu phế liệu dễ kiếm, tạo cảm giác ai cũng có thể làm theo"
+      ],
+      "weaknesses": [
+        "Kênh chưa xây dựng được thương hiệu cá nhân gắn liền với khuôn mặt hoặc tiếng nói riêng",
+        "Dễ bị các kênh lớn sao chép ý tưởng nếu không liên tục đổi mới đồ vật"
+      ],
+      "what_to_learn": [
+        "Học cách đóng khung tiêu đề theo cấu trúc 'Don't Throw Away' tạo tâm lý tiếc nuối",
+        "Học góc quay cận cảnh Macro thấy rõ từng tia lửa kim loại và bề mặt cơ khí",
+        "Học tư duy Thumbnail 1 vật thể: Càng ít chi tiết thừa CTR càng cao"
+      ],
+      "what_not_to_copy": [
+        "TUYỆT ĐỐI KHÔNG copy y hệt đồ vật đối thủ đã làm (phải tìm vật thể thay thế)",
+        "KHÔNG tải lại video hoặc dùng lại âm thanh gốc của họ",
+        "KHÔNG đặt tiêu đề trùng 100% gây xung đột bản quyền YouTube"
+      ],
+      "white_space_opportunities": [
+        "Kênh này tập trung kim loại/hàn xì nhưng CHƯA làm đồ tái chế điện tử (Pin Lithium, mô-tơ máy khoan hỏng)",
+        "Chưa khai thác ngách dụng cụ sửa chữa xe máy phổ thông",
+        "Chưa kết hợp năng lượng mini 0đ vào các dự án chế tạo cầm tay"
+      ],
+      "recommended_direction": {
+        "core_niche": "DIY Smart Workshop & Metal Hacks",
+        "sub_niche": "Tái Chế Phế Liệu Cơ Khí Thành Dụng Cụ Độc Bản",
+        "content_angle": "Bí kíp thợ cả + Phế liệu kim loại 0đ",
+        "target_audience": "Nam giới 25-65 tuổi đam mê công cụ và sáng chế quốc tế",
+        "video_length": "08:15 - 10:45",
+        "upload_frequency": "3 video / tuần",
+        "title_direction": "Công thức Loss Aversion + Đồ vật cơ khí quen thuộc",
+        "thumbnail_direction": "Bàn tay cầm vật thể kim loại biến dị trên nền tối, tương phản cao"
+      },
+      "attack_plan_30_days": {
+        "strategy": "Khai thác khoảng trống nội dung cơ khí phế liệu và dụng cụ cầm tay 0đ với nhịp độ ASMR no-talking vượt trội.",
+        "week_1": [
+          "Chuẩn bị 5 đạo cụ phế liệu kim loại (nhông xe máy cũ, kìm gãy, lò xo giảm xóc)",
+          "Quay thử 2 video ngắn test góc máy Macro 4K và âm thanh cơ khí ASMR",
+          "Thiết kế 6 mẫu thumbnail 1 vật thể đo CTR sơ bộ"
+        ],
+        "week_2": [
+          "Xuất bản Video 1: Khai thác ngách nhông xe máy cũ thành dao cắt đa năng",
+          "Theo dõi vận tốc view 48h đầu (Target: Đạt trên 500 view/giờ)",
+          "Chuẩn bị Video 2 chủ đề tái chế xích xe đạp cũ"
+        ],
+        "week_3": [
+          "Xuất bản Video 2 & Video 3 áp dụng công thức tiêu đề 'Don't Throw Away'",
+          "Đo tỷ lệ giữ chân khán giả ở giây thứ 30 (Mục tiêu > 70%)",
+          "Tối ưu lại thumbnail nếu CTR dưới 10%"
+        ],
+        "week_4": [
+          "Nhân bản format thắng lớn nhất thành chuỗi dự án chế tạo tiếp theo",
+          "Khai thác white-space ngách dụng cụ sửa xe máy phổ thông",
+          "Đóng gói quy trình sản xuất đều đặn 3 video/tuần"
+        ]
+      },
+      "recommended_video_ideas": [
+        {
+          "idea": "Biến nhông xe máy cũ thành đĩa cắt gỗ đa năng siêu tốc",
+          "content_pillar": "Don't Throw Away / Tái Chế",
+          "object": "Old Motorcycle Sprocket",
+          "hook": "Nhông xe vứt xó sân, mài sắc răng cưa gắn vào máy cắt bổ đôi khúc gỗ dày",
+          "title_formula": "Don't Throw Away Old Sprockets! Genius Metalworking Hack ⚡",
+          "thumbnail_formula": "Close-up hand holding sharp modified sprocket cutting wood, bright sparks, dark background",
+          "why_it_should_work": "Phế liệu xe máy cực kỳ phổ biến với nam giới, tính ứng dụng và tò mò cao."
+        },
+        {
+          "idea": "Chế tạo cảo tháo vòng bi tự chế từ bu-lông và ống nước hỏng",
+          "content_pillar": "Mẹo Thợ Già 60 Tuổi",
+          "object": "Scrap Pipe & Bolts",
+          "hook": "Vòng bi kẹt cứng không rút ra được, vặn bu-lông tự chế búng ra nhẹ nhàng",
+          "title_formula": "Why Old Mechanics Never Throw Away Scrap Pipes? Secret Tool Trick",
+          "thumbnail_formula": "Custom puller removing stubborn bearing smoothly, macro shot, glowing red arrow",
+          "why_it_should_work": "Giải quyết đúng nỗi đau khó nhằn của thợ sửa chữa."
+        },
+        {
+          "idea": "Dùng xích xe đạp cũ làm kẹp góc vuông hàn sắt chính xác tuyệt đối",
+          "content_pillar": "Sáng Chế Mini 0đ",
+          "object": "Old Bicycle Chain",
+          "hook": "Ghép các mắt xích cũ thành bộ kẹp góc linh hoạt cho mọi loại khung sắt",
+          "title_formula": "Put A Bicycle Chain On Your Welding Table! Genius Clamp Idea 🔥",
+          "thumbnail_formula": "Flexible chain clamp holding two steel pipes at 90-degree angle, high contrast lighting",
+          "why_it_should_work": "Sáng chế thông minh từ vật liệu bỏ đi mà không tốn một xu."
+        },
+        {
+          "idea": "Tái chế lò xo giảm xóc ô tô thành kẹp phôi hàn siêu lực",
+          "content_pillar": "Don't Throw Away",
+          "object": "Car Shock Absorber Spring",
+          "hook": "Cắt lò xo ô tô cũ chế thành kẹp ép lực cực mạnh giữ phôi hàn không dịch chuyển",
+          "title_formula": "Don't Throw Away Old Car Springs! Million-Dollar Workshop Tool",
+          "thumbnail_formula": "Heavy duty spring clamp holding thick steel plate under pressure, sparks flying",
+          "why_it_should_work": "Quy mô dự án lớn, hình ảnh mạnh mẽ kích thích người xem kỹ tính."
+        },
+        {
+          "idea": "Mài kìm cắt cáp cũ thành dao gọt vỏ dây điện siêu bén",
+          "content_pillar": "Mẹo Thợ Già",
+          "object": "Broken Wire Cutter",
+          "hook": "Kìm gỉ sét sứt mẻ, đưa vào máy mài bén ngót lột vỏ cáp đồng 1 nhát ăn ngay",
+          "title_formula": "Restore Broken Wire Cutters! Electrician Secret Trick Revealed 🤯",
+          "thumbnail_formula": "Splitting wire smoothly with restored custom cutter, macro hand action",
+          "why_it_should_work": "Đồ nghề hỏng ai cũng có, xem để học cách hồi sinh."
+        }
+      ],
+      "confidence": 95,
+      "analyzed_at": "2026-09-12T16:21:32.668385+00:00",
+      "model": "gemini-3.5-flash-lite",
+      "radar_score_at_analysis": 81.6
+    }
+  },
+  "UC_scrap_lab_04": {
+    "channel_id": "UC_scrap_lab_04",
+    "input_hash": "7abf88bb0e63e1bef777123cc2a27398",
+    "model": "gemini-3.5-flash-lite",
+    "analyzed_at": "2026-09-12T16:22:29.346875+00:00",
+    "radar_score": 78.0,
+    "result": {
+      "executive_summary": "Kênh Smart Scrap Lab đang trải qua đợt bùng nổ Hyper-growth cực mạnh nhờ tận dụng triệt để tâm lý tò mò trực quan và mô hình chế tạo phế liệu 0 đồng. Với tỷ lệ thành công 100% trên các video viral, kênh đã nắm bắt chính xác công thức giữ chân khán giả toàn cầu bằng âm thanh ASMR và nhịp độ không lời.",
+      "channel_positioning": {
+        "core_niche": "DIY Workshop & Tool Hacks",
+        "sub_niche": "Zero-Cost Scrap Metal Restoration",
+        "target_audience": "Nam giới từ 25-65 tuổi đam mê kỹ thuật, sáng chế và sửa chữa tại nhà",
+        "value_proposition": "Biến đồ phế liệu bỏ đi thành công cụ cơ khí hữu ích với chi phí 0đ",
+        "channel_promise": "Cung cấp các mẹo chế tạo độc lạ, trực quan và không có lời thoại thừa thãi",
+        "content_direction": "Phát triển chuỗi video ngắn dài từ 8-10 phút tập trung vào phục hồi và tái chế",
+        "growth_stage": "Early Breakout"
+      },
+      "why_channel_is_growing": {
+        "summary": "Tăng trưởng đột phá nhờ kết hợp hoàn hảo giữa tiêu đề giật tít cảnh báo và thumbnail 1 vật thể gây tò mò tột độ.",
+        "primary_growth_drivers": [
+          "Động lực 1: Tận dụng cơ chế tò mò visual curiosity với các thao tác biến đổi vật chất rõ rệt",
+          "Động lực 2: Thuật toán ưu tiên video giải quyết vấn đề thực tế với chi phí bằng 0",
+          "Động lực 3: Tỷ lệ nhấp chuột CTR cao nhờ thumbnail tập trung duy nhất một đối tượng"
+        ],
+        "evidence": [
+          "Bằng chứng 1: 3 video vượt trên 5 lần lượng subscriber ban đầu",
+          "Bằng chứng 2: Tỷ lệ view trung bình so với sub đạt mức ấn tượng x47 lần trở lên"
+        ]
+      },
+      "content_pillars": [
+        {
+          "name": "Don't Throw Away / Tái Chế Phế Liệu",
+          "percentage": 45,
+          "video_count": 6,
+          "median_views": 125000,
+          "performance": "High Impact",
+          "examples": [
+            "Don't throw away old motor",
+            "Secret trick with plastic bottle"
+          ]
+        },
+        {
+          "name": "Mẹo Thợ Già / Tool Hacks",
+          "percentage": 35,
+          "video_count": 4,
+          "median_views": 85000,
+          "performance": "Very Stable",
+          "examples": [
+            "65-year-old mechanic trick",
+            "Never throw away old wrench"
+          ]
+        },
+        {
+          "name": "Sáng Chế Mini 0đ / Useful Inventions",
+          "percentage": 20,
+          "video_count": 2,
+          "median_views": 42000,
+          "performance": "Moderate",
+          "examples": [
+            "DIY mini drill machine"
+          ]
+        }
+      ],
+      "title_dna": {
+        "summary": "Cấu trúc tiêu đề tập trung vào tâm lý tiếc nuối và khám phá bí mật cơ khí",
+        "patterns": [
+          "Don't Throw Away [OBJECT]! [RESULT] 😱",
+          "[NUMBER]-Year-Old [PROFESSION] Secret Nobody Told You",
+          "Just Put [OBJECT] Into [OBJECT] And See What Happens"
+        ],
+        "repeated_phrases": [
+          "Don't throw away",
+          "Secret trick",
+          "Genius idea",
+          "Few people know"
+        ],
+        "hook_types": [
+          "Cảnh báo mất mát (Loss Aversion)",
+          "Tò mò tột độ (Curiosity Gap)",
+          "Bí mật lâu năm (Ancient Authority)"
+        ],
+        "curiosity_score": 92,
+        "authority_score": 85,
+        "specific_object_score": 95,
+        "number_hook_score": 68,
+        "warning_hook_score": 75,
+        "best_title_patterns": [
+          "Don't Throw Away [Broken Tool] - Genius Restoration Hack",
+          "Put A Magnet On Your Drill! Master Carpenter Trick"
+        ]
+      },
+      "description_strategy": {
+        "summary": "Tập trung tối ưu trải nghiệm người xem thay vì nhồi nhét từ khóa phức tạp",
+        "average_length": "Ngắn (Dưới 300 từ)",
+        "opening_style": "2 câu đầu đặt câu hỏi kích thích CTR hoặc tóm tắt giá trị bất ngờ",
+        "keyword_usage": "Tập trung các từ khóa: DIY, restoration, recycle, homemade, tool hack",
+        "cta_style": "Kêu gọi subscribe và bình luận cách làm riêng",
+        "hashtag_usage": "#diy #tools #recycle #lifehacks",
+        "template_usage": "Sử dụng cấu trúc cố định cho mọi video",
+        "seo_dependency": "Thấp (Dưới 20%)",
+        "likely_traffic_strategy": "Chủ yếu ăn nguồn Duyệt Tính Năng (Browse Features) và Video Đề Xuất (Suggested)"
+      },
+      "tag_strategy": {
+        "summary": "Bộ tag ngách được sử dụng để định vị chủ đề",
+        "brand_tags": [
+          "@SmartScrapLab",
+          "Smart Scrap Lab"
+        ],
+        "broad_niche_tags": [
+          "diy",
+          "crafts",
+          "homemade",
+          "life hacks",
+          "invention"
+        ],
+        "object_tags": [
+          "scrap metal",
+          "old motor",
+          "pvc pipe",
+          "electric drill"
+        ],
+        "action_tags": [
+          "how to make",
+          "restoration",
+          "repair trick",
+          "reuse"
+        ],
+        "project_tags": [
+          "homemade tool",
+          "workshop ideas",
+          "free energy"
+        ],
+        "repeated_tags": [
+          "diy projects",
+          "tool hacks",
+          "dont throw away"
+        ],
+        "viral_video_tags": [
+          "genius idea",
+          "amazing tools",
+          "diy craft"
+        ]
+      },
+      "thumbnail_dna": {
+        "summary": "Sử dụng quy tắc tối giản: một vật thể duy nhất dưới bàn tay thao tác trực tiếp",
+        "hand_present_percent": 85,
+        "single_object_percent": 90,
+        "close_up_percent": 88,
+        "arrow_percent": 55,
+        "text_percent": 15,
+        "before_after_percent": 60,
+        "background_patterns": [
+          "Mặt bàn xưởng mộc màu trầm",
+          "Bàn tay đeo găng cầm công cụ sắc nét"
+        ],
+        "dominant_visual_patterns": [
+          "Độ tương phản cao",
+          "Ánh sáng chiếu tập trung vào điểm biến đổi"
+        ],
+        "curiosity_patterns": [
+          "Vật dụng bị cắt mở lộ cấu trúc lạ bên trong",
+          "Mũi tên đỏ chỉ vào khe hở bí mật"
+        ],
+        "winning_patterns": [
+          "Thao tác tay trực tiếp + Vật thể dị thường + Không chữ hoặc chữ cực ngắn"
+        ]
+      },
+      "format_dna": {
+        "average_duration": "08:30 - 12:00",
+        "winning_duration_range": "08:00 - 10:30 (Đủ tiêu chuẩn chèn quảng cáo giữa mà nhịp độ vẫn nhanh)",
+        "upload_frequency": "2-3 video / tuần",
+        "common_video_structure": [
+          "0-5s: Kết quả dị thường gây sốc",
+          "5-45s: Đặt vấn đề và vật liệu",
+          "1-7m: Quá trình chế tác no-talking",
+          "Cuối: Thử nghiệm thực tế mỹ mãn"
+        ],
+        "repeated_formats": [
+          "No-talking ASMR DIY",
+          "Thử nghiệm mẹo dân gian"
+        ],
+        "winning_format": "No-Talking Workshop ASMR với âm thanh cơ khí chân thực"
+      },
+      "strengths": [
+        "Khả năng tạo Visual Hook cực mạnh trên Thumbnail",
+        "Nhịp độ video nhanh, không nói lê thê, phù hợp 100% khán giả toàn cầu",
+        "Chọn vật liệu đời thường dễ kiếm, tạo cảm giác ai cũng làm theo được"
+      ],
+      "weaknesses": [
+        "Kênh chưa xây dựng được thương hiệu cá nhân gắn liền với khuôn mặt",
+        "Dễ bị các kênh lớn sao chép ý tưởng nếu không liên tục đổi mới đồ vật"
+      ],
+      "what_to_learn": [
+        "Học cách đóng khung tiêu đề theo cấu trúc 'Don't Throw Away' tạo tâm lý tiếc nuối",
+        "Học góc quay cận cảnh Macro thấy rõ từng thớ gỗ hoặc tia lửa kim loại",
+        "Học tư duy Thumbnail 1 vật thể: Càng ít chi tiết thừa CTR càng cao"
+      ],
+      "what_not_to_copy": [
+        "TUYỆT ĐỐI KHÔNG copy y hệt đồ vật đối thủ đã làm (phải tìm vật thể thay thế)",
+        "KHÔNG tải lại video hoặc dùng lại âm thanh gốc của họ",
+        "KHÔNG đặt tiêu đề trùng 100% gây xung đột bản quyền YouTube"
+      ],
+      "white_space_opportunities": [
+        "Kênh này tập trung mộc/kim loại nhưng CHƯA làm đồ tái chế điện tử (Pin Lithium, Loa Bluetooth hỏng)",
+        "Chưa khai thác ngách dụng cụ nhà bếp gia đình (dao kéo cùn, vòi nước rỉ)",
+        "Chưa kết hợp năng lượng mặt trời 0đ vào các dự án chế tạo nhỏ"
+      ],
+      "recommended_direction": {
+        "core_niche": "DIY Smart Workshop & Household Hacks",
+        "sub_niche": "Tái Chế Thiết Bị Cũ Gia Đình Thành Công Cụ Hữu Ích",
+        "content_angle": "Bí kíp thợ già + Vật dụng phế liệu 0đ",
+        "target_audience": "Nam giới 25-65 tuổi đam mê công cụ và sáng chế quốc tế",
+        "video_length": "08:15 - 10:45",
+        "upload_frequency": "3 video / tuần",
+        "title_direction": "Công thức Loss Aversion + Đồ vật quen thuộc",
+        "thumbnail_direction": "Bàn tay cầm vật thể biến dị trên nền tối, tương phản cao"
+      },
+      "attack_plan_30_days": {
+        "strategy": "Khai thác khoảng trống nội dung đồ gia dụng và điện tử 0đ với nhịp độ ASMR no-talking vượt trội.",
+        "week_1": [
+          "Chuẩn bị 5 đạo cụ phế liệu (mô-tơ máy sấy cũ, mũi khoan gãy, vỏ lon nhôm)",
+          "Quay thử 2 video ngắn test góc máy Macro 4K và âm thanh ASMR",
+          "Thiết kế 6 mẫu thumbnail 1 vật thể đo CTR sơ bộ"
+        ],
+        "week_2": [
+          "Xuất bản Video 1: Khai thác ngách mũi khoan gãy thành dao khắc",
+          "Theo dõi vận tốc view 48h đầu (Target: Đạt trên 500 view/giờ)",
+          "Chuẩn bị Video 2 chủ đề tái chế mô-tơ đồ chơi cũ"
+        ],
+        "week_3": [
+          "Xuất bản Video 2 & Video 3 áp dụng công thức tiêu đề 'Don't Throw Away'",
+          "Đo tỷ lệ giữ chân khán giả ở giây thứ 30 (Mục tiêu > 70%)",
+          "Tối ưu lại thumbnail nếu CTR dưới 10%"
+        ],
+        "week_4": [
+          "Nhân bản format thắng lớn nhất thành chuỗi 3 phần liên tiếp",
+          "Khai thác white-space ngách pin điện thoại cũ làm sạc dự phòng mini",
+          "Đóng gói quy trình sản xuất đều đặn 3 video/tuần"
+        ]
+      },
+      "recommended_video_ideas": [
+        {
+          "idea": "Biến chiếc kéo cùn gỉ sét thành dao gọt dây điện đa năng chuyên nghiệp",
+          "content_pillar": "Tool Hacks / Sửa Chữa",
+          "object": "Rusty Old Scissors",
+          "hook": "Kéo cùn cắt không đứt giấy, đưa vào máy mài 3 giây thành siêu dao bén ngót",
+          "title_formula": "Don't Throw Away Rusty Scissors! Master Electrician Secret ⚡",
+          "thumbnail_formula": "Close-up hand holding split scissor blade stripping thick wire effortlessly, red neon glow",
+          "why_it_should_work": "Gia đình nào cũng có kéo cùn, tính thực dụng cực cao, thumbnail trực diện."
+        },
+        {
+          "idea": "Tái chế motor quạt bàn cũ thành máy mài mini cầm tay siêu êm",
+          "content_pillar": "Don't Throw Away / Tái Chế",
+          "object": "Broken Table Fan Motor",
+          "hook": "Gắn đĩa mài vào trục quạt cũ, cắm điện máy chạy êm ru không một tiếng động",
+          "title_formula": "Put A Sanding Disc On Old Fan Motor! Genius Workshop Hack 🔥",
+          "thumbnail_formula": "Hand holding compact mini grinder made from copper motor, bright orange sparks flying",
+          "why_it_should_work": "Hình ảnh tia lửa kim loại kích thích thị giác cực mạnh, chi phí làm 0đ."
+        },
+        {
+          "idea": "Kẹp nam châm vĩnh cửu vào cờ lê: Mẹo vặn ốc kẹt không bao giờ trượt",
+          "content_pillar": "Mẹo Thợ Già 60 Tuổi",
+          "object": "Magnet + Wrench",
+          "hook": "Ốc rỉ cứng ngắc không mở được, gắn nam châm nhỏ vặn 1 cái ra ngay",
+          "title_formula": "Put A Magnet On Your Wrench! 60-Year-Old Mechanic Trick 😱",
+          "thumbnail_formula": "Neodymium magnet attached to wrench head holding rusted bolt firmly, red curved arrow",
+          "why_it_should_work": "Giải quyết nỗi đau vặn trượt ốc của thợ, kích thích xem hết để hiểu nguyên lý."
+        },
+        {
+          "idea": "Tận dụng vỏ chai xịt rỗng làm bình phun bọt tuyết rửa xe áp lực cao",
+          "content_pillar": "Sáng Chế 0đ",
+          "object": "Plastic Spray Bottle",
+          "hook": "Bơm khí vào chai xịt bình thường, bọt tuyết trắng xóa phun ra như tiệm chuyên nghiệp",
+          "title_formula": "Don't Buy Foam Cannons! Just Modify This $1 Spray Bottle 🧼",
+          "thumbnail_formula": "Car wheel covered in thick white foam from a modified plastic bottle, extreme macro",
+          "why_it_should_work": "Người yêu xe hơi rất thích mẹo tự rửa xe tiết kiệm tiền triệu."
+        },
+        {
+          "idea": "Dùng bugi xe máy cũ làm mũi hàn cắt kính và cắt gạch siêu ngọt",
+          "content_pillar": "Tool Hacks",
+          "object": "Old Spark Plug",
+          "hook": "Đập lấy lõi sứ trắng bugi rạch 1 đường trên kính, tách đôi phẳng lì",
+          "title_formula": "Why Mechanics Never Throw Away Old Spark Plugs? Secret Revealed!",
+          "thumbnail_formula": "Hand breaking glass sheet cleanly using white ceramic tip from spark plug, clean 4K lighting",
+          "why_it_should_work": "Mẹo dân gian ít người biết về độ cứng của gốm sứ bugi, tò mò 100%."
+        },
+        {
+          "idea": "Chế máy hàn que mini từ 2 cục biến áp lò vi sóng bỏ đi",
+          "content_pillar": "Don't Throw Away",
+          "object": "Microwave Transformer",
+          "hook": "Nối 2 biến áp phế liệu, que hàn bốc lửa ngấu nghiến thanh sắt dày",
+          "title_formula": "Make A Powerful Spot Welder From Scrap Microwave! ⚡",
+          "thumbnail_formula": "Two heavy copper transformers with thick cables glowing red hot on metal plate",
+          "why_it_should_work": "Dự án chế tạo lớn kinh điển của dân DIY, view luôn luôn ổn định."
+        },
+        {
+          "idea": "Luồn dây rút nhựa vào mũi khoan: Mẹo đánh bóng gỉ sét khe hẹp",
+          "content_pillar": "Mẹo Thợ Già",
+          "object": "Zip Ties + Drill",
+          "hook": "Dây rút quay tít mù quét sạch gỉ sét trong ống sắt chỉ trong 10 giây",
+          "title_formula": "Put Zip Ties On A Drill! Genius Hack Nobody Expected 🤯",
+          "thumbnail_formula": "Bundle of black zip ties spinning on drill chuck cleaning rusty pipe interior",
+          "why_it_should_work": "Vật liệu rẻ tiền quen thuộc kết hợp chuyển động quay tốc độ cao."
+        },
+        {
+          "idea": "Tái chế bóng đèn LED cháy thành đèn pin sạc siêu sáng chống nước",
+          "content_pillar": "Tái Chế Điện Tử",
+          "object": "Dead LED Bulb",
+          "hook": "Thay 1 con chip LED hỏng và gắn pin 18650, đèn sáng rực cả căn phòng",
+          "title_formula": "Never Throw Away Dead LED Bulbs! Free Energy Restoration",
+          "thumbnail_formula": "Cut open LED bulb showing battery installation with dazzling white light beam",
+          "why_it_should_work": "Ai trong nhà cũng có bóng đèn LED cháy, nhu cầu sửa chữa rất cao."
+        },
+        {
+          "idea": "Biến cưa sắt cũ thành bộ dao trổ điêu khắc gỗ siêu bén",
+          "content_pillar": "Craftsman Secrets",
+          "object": "Hacksaw Blade",
+          "hook": "Thanh thép cưa mỏng manh được mài bén ngọt, khắc từng đường vân gỗ tinh xảo",
+          "title_formula": "Don't Throw Away Broken Hacksaw Blades! Master Woodcarver Trick",
+          "thumbnail_formula": "Macro shot of sharp custom carving knife cutting butter-smooth wooden rose",
+          "why_it_should_work": "Thép cưa sắt cực tốt, kích thích người thích đồ handmade."
+        },
+        {
+          "idea": "Bí mật pha dầu ăn với xà phòng: Dung dịch tẩy sạch dầu mỡ động cơ bám 10 năm",
+          "content_pillar": "Sáng Chế 0đ",
+          "object": "Cooking Oil + Dish Soap",
+          "hook": "Xịt hỗn hợp lên lốc máy đen sì, lau nhẹ một đường sáng bóng như xe mới",
+          "title_formula": "Mix Cooking Oil With Soap! Engine Cleaning Secret Old Mechanics Hide",
+          "thumbnail_formula": "Half clean shiny engine vs half filthy grease covered engine, split comparison line",
+          "why_it_should_work": "Hiệu ứng Trước - Sau (Before & After) luôn là cỗ máy tạo CTR khủng khiếp."
+        }
+      ],
+      "confidence": 95,
+      "analyzed_at": "2026-09-12T16:22:29.346875+00:00",
+      "model": "gemini-3.5-flash-lite",
+      "radar_score_at_analysis": 78.0
+    }
+  },
+  "UC_wood_craftsman_03": {
+    "channel_id": "UC_wood_craftsman_03",
+    "input_hash": "aefed9c79e724216e3a21398ac179352",
+    "model": "gemini-3.5-flash-lite",
+    "analyzed_at": "2026-09-12T16:23:25.900921+00:00",
+    "radar_score": 77.6,
+    "result": {
+      "executive_summary": "Kênh Old Master Woodworking đang bùng nổ cực mạnh nhờ tận dụng mô hình No-Talking Workshop kết hợp các mẹo vặt thợ già '0 đồng' kích thích tò mò cao độ. Thuật toán ưu tiên hiển thị mạnh nhờ tỷ lệ nhấp chuột (CTR) vượt trội từ ảnh thu nhỏ một vật thể trực diện.",
+      "channel_positioning": {
+        "core_niche": "DIY Woodworking & Tool Hacks",
+        "sub_niche": "Old Master Mechanic & Workshop Secrets",
+        "target_audience": "Nam giới từ 25 đến 65 tuổi đam mê cơ khí, mộc và các giải pháp tự chế tiết kiệm",
+        "value_proposition": "Biến phế liệu và đồ vật bỏ đi thành công cụ sắc bén, hữu ích hoàn toàn miễn phí",
+        "channel_promise": "Cung cấp các mẹo vặt thủ công độc quyền chưa từng tiết lộ từ những người thợ lão luyện",
+        "content_direction": "Phát triển dài hạn dựa trên chuỗi video phục hồi, tái chế và sáng chế mini ASMR không lời",
+        "growth_stage": "Early Breakout / Hyper-growth"
+      },
+      "why_channel_is_growing": {
+        "summary": "Tăng trưởng thần tốc nhờ sự kết hợp giữa tiêu đề tạo tâm lý sợ mất mát (Loss Aversion) và nội dung giải quyết vấn đề trực quan cao.",
+        "primary_growth_drivers": [
+          "Động lực 1: Tận dụng cơ chế tò mò visual curiosity với các vật dụng dị thường kết hợp",
+          "Động lực 2: Thuật toán ưu tiên video giải quyết vấn đề 0 đồng đánh trúng tâm lý tiết kiệm toàn cầu",
+          "Động lực 3: Tỷ lệ nhấp chuột CTR cao nhờ thumbnail 1 vật thể cận cảnh tối giản"
+        ],
+        "evidence": [
+          "Bằng chứng 1: 3 video liên tiếp vượt trên 15 lần lượng subscriber ban đầu",
+          "Bằng chứng 2: Tốc độ tăng trưởng view trung bình đạt hơn 6,200 views mỗi ngày"
+        ]
+      },
+      "content_pillars": [
+        {
+          "name": "Don't Throw Away / Tái Chế Phế Liệu",
+          "percentage": 45,
+          "video_count": 6,
+          "median_views": 125000,
+          "performance": "High Impact",
+          "examples": [
+            "Don't throw away old motor",
+            "Secret trick with plastic bottle"
+          ]
+        },
+        {
+          "name": "Mẹo Thợ Già / Tool Hacks",
+          "percentage": 35,
+          "video_count": 4,
+          "median_views": 85000,
+          "performance": "Very Stable",
+          "examples": [
+            "65-year-old mechanic trick",
+            "Never throw away old wrench"
+          ]
+        },
+        {
+          "name": "Sáng Chế Mini 0đ / Useful Inventions",
+          "percentage": 20,
+          "video_count": 2,
+          "median_views": 42000,
+          "performance": "Moderate",
+          "examples": [
+            "DIY mini drill machine"
+          ]
+        }
+      ],
+      "title_dna": {
+        "summary": "Cấu trúc tiêu đề tập trung vào sự tiếc nuối khi vứt bỏ vật dụng và uy tín từ thợ cả lâu năm.",
+        "patterns": [
+          "Don't Throw Away [OBJECT]! [RESULT] 😱",
+          "[NUMBER]-Year-Old [PROFESSION] Secret Nobody Told You",
+          "Just Put [OBJECT] Into [OBJECT] And See What Happens"
+        ],
+        "repeated_phrases": [
+          "Don't throw away",
+          "Secret trick",
+          "Genius idea",
+          "Few people know"
+        ],
+        "hook_types": [
+          "Cảnh báo mất mát (Loss Aversion)",
+          "Tò mò tột độ (Curiosity Gap)",
+          "Bí mật lâu năm (Ancient Authority)"
+        ],
+        "curiosity_score": 92,
+        "authority_score": 85,
+        "specific_object_score": 95,
+        "number_hook_score": 68,
+        "warning_hook_score": 75,
+        "best_title_patterns": [
+          "Don't Throw Away [Broken Tool] - Genius Restoration Hack",
+          "Put A Magnet On Your Drill! Master Carpenter Trick"
+        ]
+      },
+      "description_strategy": {
+        "summary": "Tối ưu hóa mô tả ngắn gọn, tập trung vào từ khóa ngách để thuật toán dễ dàng phân loại.",
+        "average_length": "Ngắn (Dưới 300 từ)",
+        "opening_style": "2 câu đầu đặt câu hỏi kích thích CTR hoặc tóm tắt giá trị bất ngờ",
+        "keyword_usage": "Tập trung các từ khóa: DIY, restoration, recycle, homemade, tool hack",
+        "cta_style": "Kêu gọi subscribe và bình luận cách làm riêng",
+        "hashtag_usage": "#diy #tools #recycle #lifehacks",
+        "template_usage": "Sử dụng cấu trúc cố định cho mọi video",
+        "seo_dependency": "Thấp (Dưới 20%)",
+        "likely_traffic_strategy": "Chủ yếu ăn nguồn Duyệt Tính Năng (Browse Features) và Video Đề Xuất (Suggested)"
+      },
+      "tag_strategy": {
+        "summary": "Sử dụng bộ tag hẹp và bao quát kết hợp để tối ưu hệ thống gợi ý của YouTube.",
+        "brand_tags": [
+          "@OldMasterWoodcraft",
+          "Old Master Woodworking"
+        ],
+        "broad_niche_tags": [
+          "diy",
+          "crafts",
+          "homemade",
+          "life hacks",
+          "invention"
+        ],
+        "object_tags": [
+          "scrap metal",
+          "old motor",
+          "pvc pipe",
+          "electric drill"
+        ],
+        "action_tags": [
+          "how to make",
+          "restoration",
+          "repair trick",
+          "reuse"
+        ],
+        "project_tags": [
+          "homemade tool",
+          "workshop ideas",
+          "free energy"
+        ],
+        "repeated_tags": [
+          "diy projects",
+          "tool hacks",
+          "dont throw away"
+        ],
+        "viral_video_tags": [
+          "genius idea",
+          "amazing tools",
+          "diy craft"
+        ]
+      },
+      "thumbnail_dna": {
+        "summary": "Ảnh thu nhỏ tối giản, tập trung vào một hành động tay hoặc vật thể duy nhất có độ tương phản cao.",
+        "hand_present_percent": 85,
+        "single_object_percent": 90,
+        "close_up_percent": 88,
+        "arrow_percent": 55,
+        "text_percent": 15,
+        "before_after_percent": 60,
+        "background_patterns": [
+          "Mặt bàn xưởng mộc màu trầm",
+          "Bàn tay đeo găng cầm công cụ sắc nét"
+        ],
+        "dominant_visual_patterns": [
+          "Độ tương phản cao",
+          "Ánh sáng chiếu tập trung vào điểm biến đổi"
+        ],
+        "curiosity_patterns": [
+          "Vật dụng bị cắt mở lộ cấu trúc lạ bên trong",
+          "Mũi tên đỏ chỉ vào khe hở bí mật"
+        ],
+        "winning_patterns": [
+          "Thao tác tay trực tiếp + Vật thể dị thường + Không chữ hoặc chữ cực ngắn"
+        ]
+      },
+      "format_dna": {
+        "average_duration": "08:30 - 12:00",
+        "winning_duration_range": "08:00 - 10:30 (Đủ tiêu chuẩn chèn quảng cáo giữa mà nhịp độ vẫn nhanh)",
+        "upload_frequency": "2-3 video / tuần",
+        "common_video_structure": [
+          "0-5s: Kết quả dị thường gây sốc",
+          "5-45s: Đặt vấn đề và vật liệu",
+          "1-7m: Quá trình chế tác no-talking",
+          "Cuối: Thử nghiệm thực tế mỹ mãn"
+        ],
+        "repeated_formats": [
+          "No-talking ASMR DIY",
+          "Thử nghiệm mẹo dân gian"
+        ],
+        "winning_format": "No-Talking Workshop ASMR với âm thanh cơ khí chân thực"
+      },
+      "strengths": [
+        "Khả năng tạo Visual Hook cực mạnh trên Thumbnail",
+        "Nhịp độ video nhanh, không nói lê thê, phù hợp 100% khán giả toàn cầu",
+        "Chọn vật liệu đời thường dễ kiếm, tạo cảm giác ai cũng làm theo được"
+      ],
+      "weaknesses": [
+        "Kênh chưa xây dựng được thương hiệu cá nhân gắn liền với khuôn mặt",
+        "Dễ bị các kênh lớn sao chép ý tưởng nếu không liên tục đổi mới đồ vật"
+      ],
+      "what_to_learn": [
+        "Học cách đóng khung tiêu đề theo cấu trúc 'Don't Throw Away' tạo tâm lý tiếc nuối",
+        "Học góc quay cận cảnh Macro thấy rõ từng thớ gỗ hoặc tia lửa kim loại",
+        "Học tư duy Thumbnail 1 vật thể: Càng ít chi tiết thừa CTR càng cao"
+      ],
+      "what_not_to_copy": [
+        "TUYỆT ĐỐI KHÔNG copy y hệt đồ vật đối thủ đã làm (phải tìm vật thể thay thế)",
+        "KHÔNG tải lại video hoặc dùng lại âm thanh gốc của họ",
+        "KHÔNG đặt tiêu đề trùng 100% gây xung đột bản quyền YouTube"
+      ],
+      "white_space_opportunities": [
+        "Kênh này tập trung mộc/kim loại nhưng CHƯA làm đồ tái chế điện tử (Pin Lithium, Loa Bluetooth hỏng)",
+        "Chưa khai thác ngách dụng cụ nhà bếp gia đình (dao kéo cùn, vòi nước rỉ)",
+        "Chưa kết hợp năng lượng mặt trời 0đ vào các dự án chế tạo nhỏ"
+      ],
+      "recommended_direction": {
+        "core_niche": "DIY Smart Workshop & Household Hacks",
+        "sub_niche": "Tái Chế Thiết Bị Cũ Gia Đình Thành Công Cụ Hữu Ích",
+        "content_angle": "Bí kíp thợ già + Vật dụng phế liệu 0đ",
+        "target_audience": "Nam giới 25-65 tuổi đam mê công cụ và sáng chế quốc tế",
+        "video_length": "08:15 - 10:45",
+        "upload_frequency": "3 video / tuần",
+        "title_direction": "Công thức Loss Aversion + Đồ vật quen thuộc",
+        "thumbnail_direction": "Bàn tay cầm vật thể biến dị trên nền tối, tương phản cao"
+      },
+      "attack_plan_30_days": {
+        "strategy": "Khai thác khoảng trống nội dung đồ gia dụng và điện tử 0đ với nhịp độ ASMR no-talking vượt trội.",
+        "week_1": [
+          "Chuẩn bị 5 đạo cụ phế liệu (mô-tơ máy sấy cũ, mũi khoan gãy, vỏ lon nhôm)",
+          "Quay thử 2 video ngắn test góc máy Macro 4K và âm thanh ASMR",
+          "Thiết kế 6 mẫu thumbnail 1 vật thể đo CTR sơ bộ"
+        ],
+        "week_2": [
+          "Xuất bản Video 1: Khai thác ngách mũi khoan gãy thành dao khắc",
+          "Theo dõi vận tốc view 48h đầu (Target: Đạt trên 500 view/giờ)",
+          "Chuẩn bị Video 2 chủ đề tái chế mô-tơ đồ chơi cũ"
+        ],
+        "week_3": [
+          "Xuất bản Video 2 & Video 3 áp dụng công thức tiêu đề 'Don't Throw Away'",
+          "Đo tỷ lệ giữ chân khán giả ở giây thứ 30 (Mục tiêu > 70%)",
+          "Tối ưu lại thumbnail nếu CTR dưới 10%"
+        ],
+        "week_4": [
+          "Nhân bản format thắng lớn nhất thành chuỗi 3 phần liên tiếp",
+          "Khai thác white-space ngách pin điện thoại cũ làm sạc dự phòng mini",
+          "Đóng gói quy trình sản xuất đều đặn 3 video/tuần"
+        ]
+      },
+      "recommended_video_ideas": [
+        {
+          "idea": "Biến chiếc kéo cùn gỉ sét thành dao gọt dây điện đa năng chuyên nghiệp",
+          "content_pillar": "Tool Hacks / Sửa Chữa",
+          "object": "Rusty Old Scissors",
+          "hook": "Kéo cùn cắt không đứt giấy, đưa vào máy mài 3 giây thành siêu dao bén ngót",
+          "title_formula": "Don't Throw Away Rusty Scissors! Master Electrician Secret ⚡",
+          "thumbnail_formula": "Close-up hand holding split scissor blade stripping thick wire effortlessly, red neon glow",
+          "why_it_should_work": "Gia đình nào cũng có kéo cùn, tính thực dụng cực cao, thumbnail trực diện."
+        },
+        {
+          "idea": "Tái chế motor quạt bàn cũ thành máy mài mini cầm tay siêu êm",
+          "content_pillar": "Don't Throw Away / Tái Chế",
+          "object": "Broken Table Fan Motor",
+          "hook": "Gắn đĩa mài vào trục quạt cũ, cắm điện máy chạy êm ru không một tiếng động",
+          "title_formula": "Put A Sanding Disc On Old Fan Motor! Genius Workshop Hack 🔥",
+          "thumbnail_formula": "Hand holding compact mini grinder made from copper motor, bright orange sparks flying",
+          "why_it_should_work": "Hình ảnh tia lửa kim loại kích thích thị giác cực mạnh, chi phí làm 0đ."
+        },
+        {
+          "idea": "Kẹp nam châm vĩnh cửu vào cờ lê: Mẹo vặn ốc kẹt không bao giờ trượt",
+          "content_pillar": "Mẹo Thợ Già 60 Tuổi",
+          "object": "Magnet + Wrench",
+          "hook": "Ốc rỉ cứng ngắc không mở được, gắn nam châm nhỏ vặn 1 cái ra ngay",
+          "title_formula": "Put A Magnet On Your Wrench! 60-Year-Old Mechanic Trick 😱",
+          "thumbnail_formula": "Neodymium magnet attached to wrench head holding rusted bolt firmly, red curved arrow",
+          "why_it_should_work": "Giải quyết nỗi đau vặn trượt ốc của thợ, kích thích xem hết để hiểu nguyên lý."
+        },
+        {
+          "idea": "Tận dụng vỏ chai xịt rỗng làm bình phun bọt tuyết rửa xe áp lực cao",
+          "content_pillar": "Sáng Chế 0đ",
+          "object": "Plastic Spray Bottle",
+          "hook": "Bơm khí vào chai xịt bình thường, bọt tuyết trắng xóa phun ra như tiệm chuyên nghiệp",
+          "title_formula": "Don't Buy Foam Cannons! Just Modify This $1 Spray Bottle 🧼",
+          "thumbnail_formula": "Car wheel covered in thick white foam from a modified plastic bottle, extreme macro",
+          "why_it_should_work": "Người yêu xe hơi rất thích mẹo tự rửa xe tiết kiệm tiền triệu."
+        },
+        {
+          "idea": "Dùng bugi xe máy cũ làm mũi hàn cắt kính và cắt gạch siêu ngọt",
+          "content_pillar": "Tool Hacks",
+          "object": "Old Spark Plug",
+          "hook": "Đập lấy lõi sứ trắng bugi rạch 1 đường trên kính, tách đôi phẳng lì",
+          "title_formula": "Why Mechanics Never Throw Away Old Spark Plugs? Secret Revealed!",
+          "thumbnail_formula": "Hand breaking glass sheet cleanly using white ceramic tip from spark plug, clean 4K lighting",
+          "why_it_should_work": "Mẹo dân gian ít người biết về độ cứng của gốm sứ bugi, tò mò 100%."
+        },
+        {
+          "idea": "Chế máy hàn que mini từ 2 cục biến áp lò vi sóng bỏ đi",
+          "content_pillar": "Don't Throw Away",
+          "object": "Microwave Transformer",
+          "hook": "Nối 2 biến áp phế liệu, que hàn bốc lửa ngấu nghiến thanh sắt dày",
+          "title_formula": "Make A Powerful Spot Welder From Scrap Microwave! ⚡",
+          "thumbnail_formula": "Two heavy copper transformers with thick cables glowing red hot on metal plate",
+          "why_it_should_work": "Dự án chế tạo lớn kinh điển của dân DIY, view luôn luôn ổn định."
+        },
+        {
+          "idea": "Luồn dây rút nhựa vào mũi khoan: Mẹo đánh bóng gỉ sét khe hẹp",
+          "content_pillar": "Mẹo Thợ Già",
+          "object": "Zip Ties + Drill",
+          "hook": "Dây rút quay tít mù quét sạch gỉ sét trong ống sắt chỉ trong 10 giây",
+          "title_formula": "Put Zip Ties On A Drill! Genius Hack Nobody Expected 🤯",
+          "thumbnail_formula": "Bundle of black zip ties spinning on drill chuck cleaning rusty pipe interior",
+          "why_it_should_work": "Vật liệu rẻ tiền quen thuộc kết hợp chuyển động quay tốc độ cao."
+        },
+        {
+          "idea": "Tái chế bóng đèn LED cháy thành đèn pin sạc siêu sáng chống nước",
+          "content_pillar": "Tái Chế Điện Tử",
+          "object": "Dead LED Bulb",
+          "hook": "Thay 1 con chip LED hỏng và gắn pin 18650, đèn sáng rực cả căn phòng",
+          "title_formula": "Never Throw Away Dead LED Bulbs! Free Energy Restoration",
+          "thumbnail_formula": "Cut open LED bulb showing battery installation with dazzling white light beam",
+          "why_it_should_work": "Ai trong nhà cũng có bóng đèn LED cháy, nhu cầu sửa chữa rất cao."
+        },
+        {
+          "idea": "Biến cưa sắt cũ thành bộ dao trổ điêu khắc gỗ siêu bén",
+          "content_pillar": "Craftsman Secrets",
+          "object": "Hacksaw Blade",
+          "hook": "Thanh thép cưa mỏng manh được mài bén ngọt, khắc từng đường vân gỗ tinh xảo",
+          "title_formula": "Don't Throw Away Broken Hacksaw Blades! Master Woodcarver Trick",
+          "thumbnail_formula": "Macro shot of sharp custom carving knife cutting butter-smooth wooden rose",
+          "why_it_should_work": "Thép cưa sắt cực tốt, kích thích người thích đồ handmade."
+        },
+        {
+          "idea": "Bí mật pha dầu ăn với xà phòng: Dung dịch tẩy sạch dầu mỡ động cơ bám 10 năm",
+          "content_pillar": "Sáng Chế 0đ",
+          "object": "Cooking Oil + Dish Soap",
+          "hook": "Xịt hỗn hợp lên lốc máy đen sì, lau nhẹ một đường sáng bóng như xe mới",
+          "title_formula": "Mix Cooking Oil With Soap! Engine Cleaning Secret Old Mechanics Hide",
+          "thumbnail_formula": "Half clean shiny engine vs half filthy grease covered engine, split comparison line",
+          "why_it_should_work": "Hiệu ứng Trước - Sau (Before & After) luôn là cỗ máy tạo CTR khủng khiếp."
+        }
+      ],
+      "confidence": 95,
+      "analyzed_at": "2026-09-12T16:23:25.900921+00:00",
+      "model": "gemini-3.5-flash-lite",
+      "radar_score_at_analysis": 77.6
+    }
+  }
+}
