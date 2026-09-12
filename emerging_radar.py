@@ -724,14 +724,19 @@ def run_emerging_radar_pipeline(manual_query: str | None = None, limit_queries: 
     min_subs_allowed = settings.get("min_subscribers", 100)
     max_active_age = settings.get("max_active_age_days", 120)
 
-    # Cấu hình Discord Webhook & Dashboard URL
+    # Cấu hình Discord Webhook & Dashboard URL (Kênh 3 - Kênh Nhỏ View Khủng & Breakout)
     wh_targets = []
     if settings.get("discord_webhook"):
         wh_targets.append(settings.get("discord_webhook"))
-    if os.environ.get("DISCORD_WEBHOOK_URL"):
-        wh_targets.append(os.environ.get("DISCORD_WEBHOOK_URL"))
-    if os.environ.get("DISCORD_WEBHOOK_URL_2"):
-        wh_targets.append(os.environ.get("DISCORD_WEBHOOK_URL_2"))
+    if os.environ.get("DISCORD_WEBHOOK_URL_3"):
+        wh_targets.append(os.environ.get("DISCORD_WEBHOOK_URL_3"))
+    if os.environ.get("RADAR_DISCORD_WEBHOOK"):
+        wh_targets.append(os.environ.get("RADAR_DISCORD_WEBHOOK"))
+    if not wh_targets:
+        if os.environ.get("DISCORD_WEBHOOK_URL"):
+            wh_targets.append(os.environ.get("DISCORD_WEBHOOK_URL"))
+        if os.environ.get("DISCORD_WEBHOOK_URL_2"):
+            wh_targets.append(os.environ.get("DISCORD_WEBHOOK_URL_2"))
     discord_webhook_url = ",".join(list(dict.fromkeys([w.strip() for w in wh_targets if w and w.strip()])))
     notify_on_new = settings.get("discord_notify_on_new", True)
     notify_on_breakout = settings.get("discord_notify_on_breakout", True)
