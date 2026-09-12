@@ -6983,8 +6983,69 @@
         // View Management State
         const currentView = ref('overview'); // 'overview', 'videos', 'channels', 'trends', 'ai', 'bookmarks'
         
-        // Bookmarking Idea Vault persisted in localStorage
-        const savedIdeaIds = ref(JSON.parse(localStorage.getItem('SAVED_IDEA_IDS') || '[]'));
+        // Bookmarking Idea Vault (Phân lập riêng biệt 100% theo từng tài khoản đăng nhập)
+        const getAccountSavedKey = (uname) => {
+          const u = (uname || currentAccount.value?.username || '').trim().toLowerCase();
+          return u ? `SAVED_IDEA_IDS_${u}` : 'SAVED_IDEA_IDS_GUEST';
+        };
+
+        const loadAccountSavedIdeas = () => {
+          const u = (currentAccount.value?.username || '').trim().toLowerCase();
+          const key = getAccountSavedKey(u);
+          try {
+            const raw = localStorage.getItem(key);
+            if (raw !== null) {
+              savedIdeaIds.value = JSON.parse(raw);
+            } else {
+              // Di chuyển dữ liệu cũ từ SAVED_IDEA_IDS sang cho tài khoản truongday nếu có
+              const legacy = localStorage.getItem('SAVED_IDEA_IDS');
+              if (legacy && (u === 'truongday' || !u)) {
+                savedIdeaIds.value = JSON.parse(legacy);
+                localStorage.setItem(key, JSON.stringify(savedIdeaIds.value));
+              } else {
+                savedIdeaIds.value = [];
+              }
+            }
+          } catch (e) {
+            savedIdeaIds.value = [];
+          }
+        };
+
+        const initialSavedIdeas = () => {
+          const u = (currentAccount.value?.username || '').trim().toLowerCase();
+          const key = u ? `SAVED_IDEA_IDS_${u}` : 'SAVED_IDEA_IDS_GUEST';
+          try {
+            const raw = localStorage.getItem(key);
+            if (raw !== null) return JSON.parse(raw);
+            const legacy = localStorage.getItem('SAVED_IDEA_IDS');
+            if (legacy && (u === 'truongday' || !u)) {
+              const parsed = JSON.parse(legacy);
+              localStorage.setItem(key, JSON.stringify(parsed));
+              return parsed;
+            }
+          } catch (e) {}
+          return [];
+        };
+
+        const savedIdeaIds = ref(initialSavedIdeas());
+
+        // Tự động nạp lại Kho Ý Tưởng riêng biệt ngay khi tài khoản đăng nhập thay đổi
+        watch(() => currentAccount.value?.username, () => {
+          loadAccountSavedIdeas();
+        });
+
+        const saveCurrentAccountIdeas = () => {
+          const key = getAccountSavedKey();
+          localStorage.setItem(key, JSON.stringify(savedIdeaIds.value));
+          // Đồng bộ lên Firebase Firestore nếu đang kết nối Cloud
+          if (firestoreDb && currentAccount.value?.username) {
+            try {
+              firestoreDb.collection('users').doc(currentAccount.value.username.toLowerCase()).set({
+                saved_ideas: savedIdeaIds.value
+              }, { merge: true }).catch(() => {});
+            } catch (err) {}
+          }
+        };
 
         const isSaved = (videoId) => {
           return savedIdeaIds.value.includes(videoId);
@@ -6995,20 +7056,29 @@
           const idx = savedIdeaIds.value.indexOf(video.video_id);
           if (idx === -1) {
             savedIdeaIds.value.push(video.video_id);
-            localStorage.setItem('SAVED_IDEA_IDS', JSON.stringify(savedIdeaIds.value));
+            saveCurrentAccountIdeas();
             showToast(`⭐ Đã lưu video vào Kho Ý Tưởng!`);
           } else {
             savedIdeaIds.value.splice(idx, 1);
-            localStorage.setItem('SAVED_IDEA_IDS', JSON.stringify(savedIdeaIds.value));
+            saveCurrentAccountIdeas();
             showToast(`Đã bỏ lưu video.`);
           }
         };
 
         const clearAllSavedIdeas = () => {
-          if (confirm("Bạn có chắc chắn muốn xóa toàn bộ video trong Kho Ý Tưởng không?")) {
+          const uname = currentAccount.value?.username || '';
+          if (confirm(`Bạn có chắc chắn muốn xóa toàn bộ video trong Kho Ý Tưởng của tài khoản ${uname ? `"${uname}"` : ''} không?`)) {
             savedIdeaIds.value = [];
-            localStorage.removeItem('SAVED_IDEA_IDS');
-            showToast("Đã làm trống Kho Ý Tưởng!");
+            const key = getAccountSavedKey();
+            localStorage.removeItem(key);
+            if (firestoreDb && currentAccount.value?.username) {
+              try {
+                firestoreDb.collection('users').doc(currentAccount.value.username.toLowerCase()).set({
+                  saved_ideas: []
+                }, { merge: true }).catch(() => {});
+              } catch (err) {}
+            }
+            showToast("Đã làm trống Kho Ý Tưởng của tài khoản!");
           }
         };
 
@@ -9540,7 +9610,7 @@ ${r.growth_verdict}
           const ideaId = 'rising_' + ch.id;
           if (!savedIdeaIds.value.includes(ideaId)) {
             savedIdeaIds.value.push(ideaId);
-            localStorage.setItem('SAVED_IDEAS_LIST', JSON.stringify(savedIdeaIds.value));
+            saveCurrentAccountIdeas();
             showToast(`Đã lưu ý tưởng từ kênh ${ch.name} vào Kho Ý Tưởng!`);
           } else {
             showToast("Ý tưởng này đã có trong Kho Ý Tưởng của bạn.");
