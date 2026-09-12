@@ -4862,8 +4862,21 @@
             class="flex-1 py-2 px-2 sm:px-3 rounded-xl transition flex items-center justify-center space-x-1.5 whitespace-nowrap"
           >
             <i class="ph-bold ph-radar text-sm"></i>
-            <span>⚡ 3. Quét & Làm Mới Data</span>
+            <span>⚡ 3. Quét Data</span>
             <span class="w-2 h-2 rounded-full bg-emerald-500 flex-shrink-0"></span>
+          </button>
+
+          <!-- Tab 4: Webhook Discord (2 Kênh) -->
+          <button 
+            @click="adminTab = 'discord'"
+            :class="adminTab === 'discord' 
+              ? 'bg-white dark:bg-slate-900 text-[#5865F2] font-black shadow-sm ring-1 ring-[#5865F2]/40' 
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'"
+            class="flex-1 py-2 px-2 sm:px-3 rounded-xl transition flex items-center justify-center space-x-1.5 whitespace-nowrap cursor-pointer"
+          >
+            <i class="ph-bold ph-discord-logo text-sm text-[#5865F2]"></i>
+            <span>🔔 4. Discord (2 Kênh)</span>
+            <span v-if="discordWebhook1 || discordWebhook2" class="w-2 h-2 rounded-full bg-emerald-500 flex-shrink-0 animate-pulse"></span>
           </button>
         </div>
 
@@ -5289,6 +5302,132 @@
                 <strong>Bảo mật 100%:</strong> Các mã Token và API Key được lưu trực tiếp trong bộ nhớ trình duyệt cá nhân của bạn (<code class="font-mono text-purple-600 dark:text-purple-400">localStorage</code>), không bao giờ bị lưu hay gửi ra máy chủ trung gian.
               </p>
             </div>
+
+          <!-- ============================================================================== -->
+          <!-- MỤC 4: CẤU HÌNH THÔNG BÁO DISCORD (2 KÊNH / 2 PHÒNG) (active when adminTab === 'discord') -->
+          <!-- ============================================================================== -->
+          <div v-if="adminTab === 'discord'" class="space-y-4">
+            
+            <!-- Banner Giải Thích -->
+            <div class="p-3.5 bg-gradient-to-r from-[#5865F2]/15 via-indigo-950/30 to-purple-950/20 border border-[#5865F2]/30 rounded-2xl flex items-start space-x-3 shadow-sm">
+              <div class="w-8 h-8 rounded-xl bg-[#5865F2]/20 text-[#5865F2] flex items-center justify-center text-lg flex-shrink-0 mt-0.5">
+                <i class="ph-fill ph-discord-logo"></i>
+              </div>
+              <div class="text-xs">
+                <div class="font-bold text-slate-900 dark:text-white text-sm">Hệ Thống 2 Kênh Bắn Cảnh Báo Discord 24/7</div>
+                <div class="text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                  Bot tự động quét 48 đối thủ mỗi 1 giờ. Khi phát hiện video bão view hoặc video đột biến, bot sẽ gửi ngay thẻ bài kèm ảnh thumbnail, tốc độ view/h và gợi ý kịch bản AI vào phòng chat Discord của bạn.
+                </div>
+              </div>
+            </div>
+
+            <!-- PHÒNG 1: Cảnh Báo Video Bão View (Kênh Chính) -->
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-rose-300/50 dark:border-rose-900/50 space-y-2.5">
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-slate-900 dark:text-white text-xs flex items-center space-x-1.5">
+                  <span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse"></span>
+                  <span class="text-rose-600 dark:text-rose-400 font-black uppercase tracking-wide">PHÒNG 1: 🚨 Video Bão View Toàn Thị Trường</span>
+                </span>
+                <span class="text-[10px] text-slate-400 font-mono">Tốc độ &gt; 2.000 view/h</span>
+              </div>
+              <p class="text-[11px] text-slate-500 dark:text-slate-400">
+                Nhận thông báo khi có video của bất kỳ kênh đối thủ nào đang tăng vọt lượt xem vượt ngưỡng.
+              </p>
+              
+              <div class="space-y-2">
+                <div class="relative">
+                  <input 
+                    type="url" 
+                    v-model="discordWebhook1" 
+                    placeholder="https://discord.com/api/webhooks/..." 
+                    class="w-full bg-white dark:bg-black/50 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-white focus:outline-none focus:border-[#5865F2] font-mono"
+                  >
+                </div>
+                <div class="flex items-center gap-2">
+                  <button 
+                    type="button"
+                    @click="testDiscordWebhook(1)" 
+                    :disabled="isTestingDiscord1 || !discordWebhook1"
+                    class="flex-1 py-2 px-3 rounded-xl bg-[#5865F2] hover:bg-[#4752C4] disabled:opacity-50 text-white font-bold text-xs transition flex items-center justify-center space-x-1.5 shadow-sm cursor-pointer"
+                  >
+                    <i :class="isTestingDiscord1 ? 'ph ph-spinner animate-spin' : 'ph-fill ph-paper-plane-tilt'"></i>
+                    <span>{{ isTestingDiscord1 ? 'Đang gửi...' : '🧪 Bấm Gửi Thử Vào Phòng 1 Ngay' }}</span>
+                  </button>
+                  <button 
+                    type="button"
+                    @click="saveDiscordWebhook(1)" 
+                    class="px-3.5 py-2 rounded-xl bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-white hover:bg-slate-300 dark:hover:bg-slate-600 font-bold text-xs transition cursor-pointer"
+                  >
+                    Ghi Nhớ
+                  </button>
+                </div>
+                <div v-if="discordTestStatus1" class="text-xs font-bold pt-1" :class="discordTestStatus1.includes('✅') ? 'text-emerald-500' : 'text-rose-500'">
+                  {{ discordTestStatus1 }}
+                </div>
+              </div>
+            </div>
+
+            <!-- PHÒNG 2: Kênh Mới Nổi & Video Đột Biến Của Bạn (Kênh Thứ 2) -->
+            <div class="p-4 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-emerald-300/50 dark:border-emerald-900/50 space-y-2.5">
+              <div class="flex items-center justify-between">
+                <span class="font-bold text-slate-900 dark:text-white text-xs flex items-center space-x-1.5">
+                  <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                  <span class="text-emerald-600 dark:text-emerald-400 font-black uppercase tracking-wide">PHÒNG 2: 🌱 Kênh Mới Nổi & Video Đột Biến</span>
+                </span>
+                <span class="text-[10px] text-slate-400 font-mono">Đột biến x3+ hoặc Clever Home Hacks</span>
+              </div>
+              <p class="text-[11px] text-slate-500 dark:text-slate-400">
+                Nhận cảnh báo các video đột biến gấp 3 lần bình thường, kênh nhỏ &lt;10k sub và video của kênh chính bạn!
+              </p>
+              
+              <div class="space-y-2">
+                <div class="relative">
+                  <input 
+                    type="url" 
+                    v-model="discordWebhook2" 
+                    placeholder="https://discord.com/api/webhooks/... (Phòng thứ 2)" 
+                    class="w-full bg-white dark:bg-black/50 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-white focus:outline-none focus:border-emerald-500 font-mono"
+                  >
+                </div>
+                <div class="flex items-center gap-2">
+                  <button 
+                    type="button"
+                    @click="testDiscordWebhook(2)" 
+                    :disabled="isTestingDiscord2 || !discordWebhook2"
+                    class="flex-1 py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-bold text-xs transition flex items-center justify-center space-x-1.5 shadow-sm cursor-pointer"
+                  >
+                    <i :class="isTestingDiscord2 ? 'ph ph-spinner animate-spin' : 'ph-fill ph-paper-plane-tilt'"></i>
+                    <span>{{ isTestingDiscord2 ? 'Đang gửi...' : '🧪 Bấm Gửi Thử Vào Phòng 2 Ngay' }}</span>
+                  </button>
+                  <button 
+                    type="button"
+                    @click="saveDiscordWebhook(2)" 
+                    class="px-3.5 py-2 rounded-xl bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-white hover:bg-slate-300 dark:hover:bg-slate-600 font-bold text-xs transition cursor-pointer"
+                  >
+                    Ghi Nhớ
+                  </button>
+                </div>
+                <div v-if="discordTestStatus2" class="text-xs font-bold pt-1" :class="discordTestStatus2.includes('✅') ? 'text-emerald-500' : 'text-rose-500'">
+                  {{ discordTestStatus2 }}
+                </div>
+              </div>
+            </div>
+
+            <!-- Hướng Dẫn 3 Bước Lấy Link Webhook Trong 30 Giây -->
+            <div class="p-3.5 bg-slate-100 dark:bg-slate-900/60 rounded-2xl border border-slate-200 dark:border-slate-800 text-xs space-y-2">
+              <div class="font-bold text-slate-800 dark:text-slate-200 flex items-center space-x-1.5">
+                <i class="ph-bold ph-question text-amber-500"></i>
+                <span>Chưa biết cách lấy Link Webhook Discord? Xem 3 bước cực nhanh:</span>
+              </div>
+              <ol class="space-y-1.5 text-[11px] text-slate-500 dark:text-slate-400 list-decimal list-inside leading-relaxed">
+                <li>Vào Discord của bạn, bấm dấu <strong>+</strong> tạo phòng chat mới (ví dụ: <code class="text-indigo-500 dark:text-indigo-300 bg-slate-200 dark:bg-slate-800 px-1 py-0.5 rounded">#bao-view</code> hoặc <code class="text-emerald-500 dark:text-emerald-300 bg-slate-200 dark:bg-slate-800 px-1 py-0.5 rounded">#kenh-moi-noi</code>).</li>
+                <li>Rê chuột vào tên phòng &rarr; Bấm biểu tượng ⚙️ <strong>Cài Đặt Kênh (Edit Channel)</strong> &rarr; Chọn mục <strong>Tích hợp (Integrations)</strong> &rarr; Bấm <strong>Webhooks</strong>.</li>
+                <li>Bấm <strong>Tạo Webhook (New Webhook)</strong> &rarr; Bấm <strong>Sao chép URL Webhook (Copy Webhook URL)</strong> &rarr; Dán vào ô ở trên và bấm nút <strong>Gửi Thử</strong>!</li>
+              </ol>
+            </div>
+
+          </div>
+
 
           </div>
 
@@ -6888,7 +7027,13 @@
         const activeAiVideo = ref(null);
         const activeBlueprint = ref(null);
         const showAdminModal = ref(false);
-        const adminTab = ref('status'); // 'status', 'channels', 'keys'
+        const adminTab = ref('status'); // 'status', 'channels', 'keys', 'discord'
+        const discordWebhook1 = ref(localStorage.getItem('DISCORD_WEBHOOK_URL') || '');
+        const discordWebhook2 = ref(localStorage.getItem('DISCORD_WEBHOOK_URL_2') || '');
+        const isTestingDiscord1 = ref(false);
+        const isTestingDiscord2 = ref(false);
+        const discordTestStatus1 = ref('');
+        const discordTestStatus2 = ref('');
         const modalTab = ref('split'); // 'split', 'script', 'chat'
         const showKeyPrompt = ref(false);
         const geminiApiKey = ref(localStorage.getItem('GEMINI_API_KEY') || atob('QVEuQWI4Uk42TDdxSGZqUHQxMUtWeTlqNGpwcjR6VjY1SGljZE1tVTgzZk9yUlpVQWUyMFE='));
@@ -7996,6 +8141,89 @@ Nhiệm vụ: Trả lời hoặc viết lại/tinh chỉnh kịch bản theo yê
             alert(`Lỗi lưu lên GitHub: ${err.message}`);
           } finally {
             isSaving.value = false;
+          }
+        };
+
+        const saveDiscordWebhook = (channelNum) => {
+          if (channelNum === 1) {
+            localStorage.setItem('DISCORD_WEBHOOK_URL', discordWebhook1.value.trim());
+            showToast("✅ Đã ghi nhớ Webhook Phòng 1!");
+          } else {
+            localStorage.setItem('DISCORD_WEBHOOK_URL_2', discordWebhook2.value.trim());
+            showToast("✅ Đã ghi nhớ Webhook Phòng 2!");
+          }
+        };
+
+        const testDiscordWebhook = async (channelNum) => {
+          const url = channelNum === 1 ? discordWebhook1.value.trim() : discordWebhook2.value.trim();
+          if (!url || !url.startsWith("https://discord.com/api/webhooks/")) {
+            showToast("⚠️ Vui lòng dán đúng đường link Webhook bắt đầu bằng https://discord.com/api/webhooks/");
+            return;
+          }
+
+          if (channelNum === 1) {
+            isTestingDiscord1.value = true;
+            discordTestStatus1.value = 'Đang gửi tin nhắn thử nghiệm...';
+          } else {
+            isTestingDiscord2.value = true;
+            discordTestStatus2.value = 'Đang gửi tin nhắn thử nghiệm...';
+          }
+
+          try {
+            const payload = {
+              content: channelNum === 1
+                ? "🚨 **[TEST THÀNH CÔNG]** Cảnh báo Video Bão View từ hệ thống Bắt Bài Đối Thủ!"
+                : "🌱 **[TEST THÀNH CÔNG]** Cảnh báo Kênh Mới Nổi & Video Đột Biến từ hệ thống Bắt Bài Đối Thủ!",
+              embeds: [
+                {
+                  title: channelNum === 1
+                    ? "🚨 [TEST CẢNH BÁO PHÒNG 1] Never Throw Away Waste Oil Recycling! Genius DIY Idea"
+                    : "🌱 [TEST CẢNH BÁO PHÒNG 2] Video Đột Biến: Attach an Old Toothbrush to a Plastic Bottle",
+                  url: "https://xtruong2333-sys.github.io/harunaga/",
+                  color: channelNum === 1 ? 16724787 : 1097857,
+                  description: "✅ **Chúc mừng bạn! Webhook Discord đã kết nối hoàn hảo với hệ thống Bắt Bài Đối Thủ.**\n\nTừ bây giờ, cứ mỗi 1 tiếng bot sẽ tự động quét 48 kênh đối thủ. Khi phát hiện video tăng view nhanh hoặc video đột biến, bot sẽ bắn cảnh báo kèm kịch bản AI ngay vào phòng này!",
+                  fields: [
+                    { name: "📺 Kênh Đối Thủ", value: "**Clever Home Hacks**", inline: true },
+                    { name: "⚡ Tốc Độ Tăng Trưởng", value: "🔥 **+2,500 view/h**", inline: true },
+                    { name: "👑 Độ Đột Biến", value: "**Gấp 4.2x bình thường**", inline: true },
+                    { name: "💡 Gợi Ý Kịch Bản AI", value: "Tái chế chai nhựa cũ và bàn chải thành vòi phun nước mini thông minh.", inline: false }
+                  ],
+                  footer: { text: "Bắt Bài Đối Thủ 24/7 • Harunaga Studio by Truongday" },
+                  timestamp: new Date().toISOString()
+                }
+              ]
+            };
+
+            const res = await fetch(url, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload)
+            });
+
+            if (res.ok || res.status === 204) {
+              if (channelNum === 1) {
+                discordTestStatus1.value = "✅ Gửi thành công! Hãy mở Discord kiểm tra tin nhắn.";
+                localStorage.setItem('DISCORD_WEBHOOK_URL', url);
+              } else {
+                discordTestStatus2.value = "✅ Gửi thành công! Hãy mở Discord kiểm tra tin nhắn.";
+                localStorage.setItem('DISCORD_WEBHOOK_URL_2', url);
+              }
+              showToast("🎉 Đã gửi tin nhắn test tới Discord thành công!");
+            } else {
+              const errText = await res.text();
+              const errSnippet = `❌ Lỗi Discord: HTTP ${res.status}`;
+              if (channelNum === 1) discordTestStatus1.value = errSnippet;
+              else discordTestStatus2.value = errSnippet;
+              showToast(errSnippet);
+            }
+          } catch (err) {
+            const errSnippet = `❌ Lỗi kết nối: ${err.message}`;
+            if (channelNum === 1) discordTestStatus1.value = errSnippet;
+            else discordTestStatus2.value = errSnippet;
+            showToast(errSnippet);
+          } finally {
+            if (channelNum === 1) isTestingDiscord1.value = false;
+            else isTestingDiscord2.value = false;
           }
         };
 
@@ -9216,6 +9444,14 @@ ${r.growth_verdict}
 
         return {
           risingChannels,
+          discordWebhook1,
+          discordWebhook2,
+          isTestingDiscord1,
+          isTestingDiscord2,
+          discordTestStatus1,
+          discordTestStatus2,
+          saveDiscordWebhook,
+          testDiscordWebhook,
           risingSubNicheFilter,
           risingAgeFilter,
           risingSortBy,
