@@ -111,14 +111,14 @@ def send_discord_alert(webhook_url: str, video_info: dict, channel_name: str, th
 
     # Tên định danh & Ảnh đại diện riêng cho từng loại Bot trên Discord
     if alert_type == "outlier" or outlier_score >= 3.0:
-        bot_username = "👑 Bắt Vị Kịch Bản AI"
-        bot_avatar = "https://cdn-icons-png.flaticon.com/512/4712/4712035.png"
+        bot_username = "chạy đâu con sâu"
+        bot_avatar = "https://cdn-icons-png.flaticon.com/512/809/809957.png"
     elif alert_type == "rising" or "mới nổi" in channel_name.lower():
-        bot_username = "🌱 Săn Kênh Mới Nổi"
-        bot_avatar = "https://cdn-icons-png.flaticon.com/512/10433/10433049.png"
+        bot_username = "chạy đâu con sâu"
+        bot_avatar = "https://cdn-icons-png.flaticon.com/512/809/809957.png"
     else:
-        bot_username = "⚡ Radar Bão View 24/7"
-        bot_avatar = "https://cdn-icons-png.flaticon.com/512/866/866218.png"
+        bot_username = "Đi đâu con lợn này"
+        bot_avatar = "https://cdn-icons-png.flaticon.com/512/2619/2619277.png"
 
     payload = {
         "username": bot_username,
