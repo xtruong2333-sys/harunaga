@@ -125,11 +125,12 @@
 
     /* 2. Luxury Card Hover Lift & Depth */
     .card-luxury {
-      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease;
+      transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.25s ease;
       will-change: transform, box-shadow;
+      position: relative;
     }
     .card-luxury:hover {
-      transform: translateY(-4px);
+      transform: translateY(-6px);
     }
 
     /* 3. Viral Pulse Glow */
@@ -2721,10 +2722,10 @@
         <div 
           v-for="v in filteredVideos" 
           :key="v.video_id"
-          class="card-luxury group bg-white dark:bg-[#0c1222] border rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl dark:hover:shadow-purple-950/30 transition-all duration-300 flex flex-col justify-between"
+          class="card-luxury group bg-white dark:bg-[#0c1222] border rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl dark:hover:shadow-purple-950/40 transition-all duration-300 flex flex-col justify-between"
           :class="v.is_viral 
-            ? 'border-rose-400 dark:border-rose-700/80 ring-1 ring-rose-400/40 shadow-rose-900/20' 
-            : 'border-slate-200 dark:border-slate-800 hover:border-purple-400 dark:hover:border-purple-600/70'"
+            ? 'border-rose-400 dark:border-rose-700/80 ring-1 ring-rose-400/40 shadow-rose-900/20 hover:border-rose-500 hover:ring-2 hover:ring-rose-400/50 hover:shadow-rose-500/25' 
+            : 'border-slate-200/90 dark:border-slate-800/90 hover:border-purple-500 dark:hover:border-purple-500/90 hover:ring-2 hover:ring-purple-400/35 dark:hover:ring-purple-500/30 hover:shadow-purple-500/15'"
         >
           <div>
             <!-- 16:9 Thumbnail Container -->
@@ -2737,20 +2738,25 @@
               >
               <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent"></div>
 
-              <!-- Floating Play Hover Overlay -->
+              <!-- Floating Cinematic Play Hover Overlay -->
               <a 
                 :href="v.url" 
                 target="_blank"
-                class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300"
+                class="absolute inset-0 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 bg-slate-950/40 backdrop-blur-[2px] transition-all duration-300 ease-out z-10 cursor-pointer"
                 title="Mở xem trên YouTube"
               >
-                <div class="w-12 h-12 rounded-full bg-rose-600 text-white flex items-center justify-center shadow-xl backdrop-blur-md ring-4 ring-white/30 transform scale-90 group-hover:scale-100 transition">
-                  <i class="ph-fill ph-play text-xl ml-0.5"></i>
+                <div class="w-14 h-14 rounded-full bg-gradient-to-tr from-rose-600 via-red-500 to-amber-500 text-white flex items-center justify-center shadow-2xl shadow-rose-600/70 ring-4 ring-white/30 transform scale-75 group-hover:scale-100 transition-all duration-300 ease-out group-hover:rotate-6">
+                  <i class="ph-fill ph-play text-2xl ml-1 drop-shadow"></i>
                 </div>
+                <span class="mt-2.5 text-[11px] font-black text-white bg-black/75 backdrop-blur-md px-3.5 py-1 rounded-full border border-white/20 shadow-xl transform translate-y-2 group-hover:translate-y-0 transition-all duration-300 flex items-center space-x-1.5">
+                  <i class="ph-fill ph-youtube-logo text-rose-400 text-xs"></i>
+                  <span>Xem YouTube</span>
+                  <i class="ph-bold ph-arrow-square-out text-[10px] text-slate-300"></i>
+                </span>
               </a>
 
               <!-- Top Left: Outlier Multiplier Badge (Chuẩn 1of10) -->
-              <div class="absolute top-2.5 left-2.5 flex items-center gap-1 z-10 pointer-events-none">
+              <div class="absolute top-2.5 left-2.5 flex items-center gap-1 z-10 pointer-events-none group-hover:scale-105 transition-transform duration-300">
                 <div 
                   v-if="(v.outlier_score || 0) >= 10" 
                   class="flex items-center space-x-1 bg-gradient-to-r from-amber-500 via-rose-500 to-purple-600 text-white font-black text-[10px] px-2 py-0.5 rounded-full shadow-lg border border-amber-300/40 ring-1 ring-amber-400/40 whitespace-nowrap"
@@ -2775,7 +2781,7 @@
               </div>
 
               <!-- Top Right: Velocity Pill Badge -->
-              <div class="absolute top-2.5 right-2.5 flex-shrink-0 pointer-events-none">
+              <div class="absolute top-2.5 right-2.5 flex-shrink-0 pointer-events-none group-hover:scale-105 transition-transform duration-300">
                 <div 
                   v-if="v.is_viral" 
                   class="flex items-center space-x-1 bg-gradient-to-r from-rose-600 via-purple-600 to-amber-600 text-white font-black text-[10px] sm:text-[11px] px-2.5 py-0.5 rounded-full shadow-lg border border-white/20 animate-pulse whitespace-nowrap"
@@ -2818,7 +2824,7 @@
                 :href="v.url" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                class="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 hover:text-purple-600 dark:hover:text-purple-400 transition line-clamp-2 leading-snug group-hover:underline break-words"
+                class="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors duration-200 line-clamp-2 leading-snug break-words"
                 :title="v.title"
               >
                 {{ v.title }}
@@ -2874,9 +2880,9 @@
             <!-- Primary Action: Open AI Studio -->
             <button 
               @click="openAiModal(v)"
-              class="w-full flex items-center justify-center space-x-1.5 py-2.5 bg-gradient-to-r from-purple-600 via-indigo-600 to-rose-600 hover:opacity-95 text-white rounded-2xl text-xs font-black shadow-md shadow-purple-950/30 transition cursor-pointer"
+              class="w-full flex items-center justify-center space-x-1.5 py-2.5 bg-gradient-to-r from-purple-600 via-indigo-600 to-rose-600 hover:from-purple-500 hover:via-indigo-500 hover:to-rose-500 text-white rounded-2xl text-xs font-black shadow-md shadow-purple-950/30 group-hover:shadow-lg group-hover:shadow-purple-600/35 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 cursor-pointer group/btn"
             >
-              <i class="ph-fill ph-sparkle text-amber-300 text-sm flex-shrink-0"></i>
+              <i class="ph-fill ph-sparkle text-amber-300 text-sm flex-shrink-0 group-hover/btn:rotate-12 group-hover/btn:scale-125 transition-transform duration-300"></i>
               <span>{{ v.ai_analysis ? 'Xem Kịch Bản Gợi Ý (AI)' : '💡 Gợi Ý Làm Video (AI Remake)' }}</span>
             </button>
 
@@ -2886,7 +2892,7 @@
                 :href="v.url" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                class="flex-1 flex items-center justify-center space-x-1 py-1.5 bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-bold transition"
+                class="flex-1 flex items-center justify-center space-x-1.5 py-2 bg-slate-100 dark:bg-slate-800/80 hover:bg-rose-500/15 hover:text-rose-600 dark:hover:text-rose-400 hover:border-rose-400/40 border border-transparent text-slate-700 dark:text-slate-200 rounded-xl text-xs font-bold transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
               >
                 <i class="ph-bold ph-arrow-square-out text-sm flex-shrink-0"></i>
                 <span>Xem YouTube</span>
@@ -2897,12 +2903,12 @@
                 @click.stop="toggleSaveIdea(v)" 
                 type="button"
                 :title="isSaved(v.video_id) ? 'Đã lưu vào Kho Ý Tưởng' : 'Lưu video này vào Kho Ý Tưởng'"
-                class="flex items-center space-x-1 px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer"
+                class="flex items-center space-x-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer hover:scale-[1.05] active:scale-[0.95]"
                 :class="isSaved(v.video_id) 
-                  ? 'bg-amber-400 text-slate-950 font-black shadow-sm' 
-                  : 'bg-slate-100 dark:bg-slate-800/80 hover:bg-amber-400/20 text-slate-600 dark:text-slate-300 hover:text-amber-500'"
+                  ? 'bg-amber-400 text-slate-950 font-black shadow-sm hover:bg-amber-300' 
+                  : 'bg-slate-100 dark:bg-slate-800/80 hover:bg-amber-400/20 text-slate-600 dark:text-slate-300 hover:text-amber-500 border border-transparent hover:border-amber-400/30'"
               >
-                <i :class="isSaved(v.video_id) ? 'ph-fill ph-bookmark-simple' : 'ph-bold ph-bookmark-simple'"></i>
+                <i :class="isSaved(v.video_id) ? 'ph-fill ph-bookmark-simple text-amber-950' : 'ph-bold ph-bookmark-simple'"></i>
                 <span>{{ isSaved(v.video_id) ? 'Đã lưu' : 'Lưu' }}</span>
               </button>
             </div>
