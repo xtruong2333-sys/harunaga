@@ -8181,18 +8181,31 @@ Nhiệm vụ: Trả lời hoặc viết lại/tinh chỉnh kịch bản theo yê
 
         const saveDiscordWebhook = (channelNum) => {
           if (channelNum === 1) {
-            localStorage.setItem('DISCORD_WEBHOOK_URL', discordWebhook1.value.trim());
+            let u1 = (discordWebhook1.value || '').trim();
+            if (u1 && !u1.startsWith('http://') && !u1.startsWith('https://')) u1 = 'https://' + u1;
+            discordWebhook1.value = u1;
+            localStorage.setItem('DISCORD_WEBHOOK_URL', u1);
             showToast("✅ Đã ghi nhớ Webhook Phòng 1!");
           } else {
-            localStorage.setItem('DISCORD_WEBHOOK_URL_2', discordWebhook2.value.trim());
+            let u2 = (discordWebhook2.value || '').trim();
+            if (u2 && !u2.startsWith('http://') && !u2.startsWith('https://')) u2 = 'https://' + u2;
+            discordWebhook2.value = u2;
+            localStorage.setItem('DISCORD_WEBHOOK_URL_2', u2);
             showToast("✅ Đã ghi nhớ Webhook Phòng 2!");
           }
         };
 
         const testDiscordWebhook = async (channelNum) => {
-          const url = channelNum === 1 ? discordWebhook1.value.trim() : discordWebhook2.value.trim();
-          if (!url || !url.startsWith("https://discord.com/api/webhooks/")) {
-            showToast("⚠️ Vui lòng dán đúng đường link Webhook bắt đầu bằng https://discord.com/api/webhooks/");
+          let rawUrl = (channelNum === 1 ? discordWebhook1.value : discordWebhook2.value) || '';
+          let url = rawUrl.trim();
+          if (url && !url.startsWith('http://') && !url.startsWith('https://')) {
+            url = 'https://' + url;
+          }
+          if (channelNum === 1) discordWebhook1.value = url;
+          else discordWebhook2.value = url;
+
+          if (!url || !url.includes('/api/webhooks/')) {
+            showToast("⚠️ Vui lòng dán đúng đường link Webhook Discord (chứa /api/webhooks/)!");
             return;
           }
 
