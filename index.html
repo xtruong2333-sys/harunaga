@@ -9703,8 +9703,18 @@
               total_videos: data.total_videos || 0,
               viral_count: data.viral_count || 0
             };
-            lastUpdatedFormatted.value = data.last_updated_formatted || '';
             lastUpdatedIso.value = data.last_updated || '';
+            if (data.last_updated) {
+              try {
+                const d = new Date(data.last_updated);
+                const pad = (n) => String(n).padStart(2, '0');
+                lastUpdatedFormatted.value = `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())} - ${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} (Giờ VN)`;
+              } catch (e) {
+                lastUpdatedFormatted.value = data.last_updated_formatted || '';
+              }
+            } else {
+              lastUpdatedFormatted.value = data.last_updated_formatted || '';
+            }
             let loadedChannels = data.channels || [];
 
             // Hợp nhất các kênh tùy chỉnh đã thêm từ localStorage
