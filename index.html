@@ -917,7 +917,7 @@
     <!-- ========================================================================================= -->
     <!-- 1. PERMANENT LEFT SIDEBAR (Desktop - Cố định bên trái)                                   -->
     <!-- ========================================================================================= -->
-    <aside class="w-64 flex-shrink-0 bg-white dark:bg-[#0b101d] border-r border-slate-200 dark:border-slate-800/80 flex-col justify-between p-4 z-30 select-none overflow-y-auto custom-scrollbar hidden lg:flex transition-colors duration-200">
+    <aside class="w-[270px] flex-shrink-0 bg-white dark:bg-[#0b101d] border-r border-slate-200 dark:border-slate-800/80 flex-col justify-between p-4 z-30 select-none overflow-y-auto custom-scrollbar hidden lg:flex transition-colors duration-200">
       
       <div class="space-y-6">
         <!-- Logo Brand: Radar Circle Target with YouTube Play -->
@@ -946,10 +946,10 @@
             :class="currentView === 'overview' 
               ? 'bg-blue-50 dark:bg-[#131b2e] text-blue-600 dark:text-blue-400 font-bold border border-blue-200 dark:border-blue-500/40 shadow-sm shadow-blue-500/10 dark:shadow-blue-950/50' 
               : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/40 border border-transparent'"
-            class="w-full px-3.5 py-2.5 rounded-xl transition flex items-center space-x-2.5 cursor-pointer text-left"
+            class="w-full px-3 py-2.5 rounded-xl transition flex items-center space-x-2.5 cursor-pointer text-left"
           >
-            <i class="ph-fill ph-house text-base" :class="currentView === 'overview' ? 'text-blue-400' : 'text-slate-400'"></i>
-            <span>Tổng Quan Thị Trường</span>
+            <i class="ph-fill ph-house text-base flex-shrink-0" :class="currentView === 'overview' ? 'text-blue-500 dark:text-blue-400' : 'text-slate-400'"></i>
+            <span class="whitespace-nowrap">Tổng Quan Thị Trường</span>
           </button>
 
           <!-- 2. Radar Video -->
@@ -958,13 +958,15 @@
             :class="currentView === 'videos' 
               ? 'bg-blue-50 dark:bg-[#131b2e] text-blue-600 dark:text-blue-400 font-bold border border-blue-200 dark:border-blue-500/40 shadow-sm shadow-blue-500/10 dark:shadow-blue-950/50' 
               : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/40 border border-transparent'"
-            class="w-full px-3.5 py-2.5 rounded-xl transition flex items-center justify-between cursor-pointer text-left"
+            class="w-full px-3 py-2.5 rounded-xl transition flex items-center justify-between cursor-pointer text-left"
           >
-            <div class="flex items-center space-x-2.5">
-              <i class="ph-fill ph-film-strip text-base" :class="currentView === 'videos' ? 'text-blue-400' : 'text-slate-400'"></i>
-              <span>Tất Cả Video Hot</span>
+            <div class="flex items-center space-x-2.5 min-w-0">
+              <i class="ph-fill ph-film-strip text-base flex-shrink-0" :class="currentView === 'videos' ? 'text-blue-500 dark:text-blue-400' : 'text-slate-400'"></i>
+              <span class="whitespace-nowrap">Tất Cả Video Hot</span>
             </div>
-            <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-rose-500/15 text-rose-400 font-black">{{ stats.total_videos }}</span>
+            <span class="text-[11px] px-2 py-0.5 min-w-[28px] h-5 inline-flex items-center justify-center rounded-full font-bold bg-rose-100 text-rose-700 border border-rose-200/60 dark:border-transparent dark:bg-rose-500/20 dark:text-rose-400 flex-shrink-0 whitespace-nowrap shadow-xs">
+              {{ stats.total_videos }}
+            </span>
           </button>
 
           <!-- 3. Đua Top Kênh -->
@@ -973,13 +975,15 @@
             :class="currentView === 'channels' 
               ? 'bg-blue-50 dark:bg-[#131b2e] text-blue-600 dark:text-blue-400 font-bold border border-blue-200 dark:border-blue-500/40 shadow-sm shadow-blue-500/10 dark:shadow-blue-950/50' 
               : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/40 border border-transparent'"
-            class="w-full px-3.5 py-2.5 rounded-xl transition flex items-center justify-between cursor-pointer text-left"
+            class="w-full px-3 py-2.5 rounded-xl transition flex items-center justify-between cursor-pointer text-left"
           >
-            <div class="flex items-center space-x-2.5">
-              <i class="ph-fill ph-chart-line-up text-base" :class="currentView === 'channels' ? 'text-blue-400' : 'text-slate-400'"></i>
-              <span>Bảng Xếp Hạng Kênh</span>
+            <div class="flex items-center space-x-2.5 min-w-0">
+              <i class="ph-fill ph-chart-line-up text-base flex-shrink-0" :class="currentView === 'channels' ? 'text-blue-500 dark:text-blue-400' : 'text-slate-400'"></i>
+              <span class="whitespace-nowrap">Bảng Xếp Hạng Kênh</span>
             </div>
-            <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-blue-500/15 text-blue-400 font-black">{{ stats.total_channels }}</span>
+            <span class="text-[11px] px-2 py-0.5 min-w-[28px] h-5 inline-flex items-center justify-center rounded-full font-bold bg-blue-100 text-blue-700 border border-blue-200/60 dark:border-transparent dark:bg-blue-500/20 dark:text-blue-400 flex-shrink-0 whitespace-nowrap shadow-xs">
+              {{ stats.total_channels }}
+            </span>
           </button>
 
           <!-- 4. Xu Hướng Hot -->
@@ -988,13 +992,15 @@
             :class="currentView === 'trends' 
               ? 'bg-blue-50 dark:bg-[#131b2e] text-blue-600 dark:text-blue-400 font-bold border border-blue-200 dark:border-blue-500/40 shadow-sm shadow-blue-500/10 dark:shadow-blue-950/50' 
               : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/40 border border-transparent'"
-            class="w-full px-3.5 py-2.5 rounded-xl transition flex items-center justify-between cursor-pointer text-left"
+            class="w-full px-3 py-2.5 rounded-xl transition flex items-center justify-between cursor-pointer text-left"
           >
-            <div class="flex items-center space-x-2.5">
-              <i class="ph-fill ph-fire text-base" :class="currentView === 'trends' ? 'text-amber-400' : 'text-slate-400'"></i>
-              <span>Top 15 Video Hot Nhất</span>
+            <div class="flex items-center space-x-2.5 min-w-0">
+              <i class="ph-fill ph-fire text-base flex-shrink-0" :class="currentView === 'trends' ? 'text-amber-500 dark:text-amber-400' : 'text-slate-400'"></i>
+              <span class="whitespace-nowrap">Top 15 Video Hot</span>
             </div>
-            <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-400 font-black">Top 15</span>
+            <span class="text-[11px] px-2 py-0.5 min-w-[28px] h-5 inline-flex items-center justify-center rounded-full font-bold bg-amber-100 text-amber-800 border border-amber-200/60 dark:border-transparent dark:bg-amber-500/20 dark:text-amber-400 flex-shrink-0 whitespace-nowrap shadow-xs">
+              15
+            </span>
           </button>
 
           <!-- 4.5. Kênh Mới Nổi (<10k Sub) -->
@@ -1004,13 +1010,15 @@
             :class="currentView === 'rising_channels' 
               ? 'bg-emerald-50 dark:bg-[#0d231e] text-emerald-600 dark:text-emerald-400 font-bold border border-emerald-300 dark:border-emerald-500/50 shadow-sm shadow-emerald-500/10' 
               : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/40 border border-transparent'"
-            class="w-full px-3.5 py-2.5 rounded-xl transition flex items-center justify-between cursor-pointer text-left select-none"
+            class="w-full px-3 py-2.5 rounded-xl transition flex items-center justify-between cursor-pointer text-left select-none"
           >
-            <div class="flex items-center space-x-2.5">
-              <i class="ph-fill ph-plant text-base" :class="currentView === 'rising_channels' ? 'text-emerald-400' : 'text-slate-400'"></i>
-              <span>Kênh Nhỏ View Khủng</span>
+            <div class="flex items-center space-x-2.5 min-w-0">
+              <i class="ph-fill ph-plant text-base flex-shrink-0" :class="currentView === 'rising_channels' ? 'text-emerald-500 dark:text-emerald-400' : 'text-slate-400'"></i>
+              <span class="whitespace-nowrap">Kênh Nhỏ View Khủng</span>
             </div>
-            <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-500 dark:text-emerald-400 font-black animate-pulse">MỚI</span>
+            <span class="text-[10px] px-2 py-0.5 h-5 inline-flex items-center justify-center rounded-full font-black bg-emerald-100 text-emerald-700 border border-emerald-200/60 dark:border-transparent dark:bg-emerald-500/25 dark:text-emerald-400 tracking-wider animate-pulse flex-shrink-0 whitespace-nowrap shadow-xs">
+              MỚI
+            </span>
           </button>
 
           <!-- 5. Kho AI Remake -->
@@ -1019,13 +1027,15 @@
             :class="currentView === 'ai' 
               ? 'bg-blue-50 dark:bg-[#131b2e] text-blue-600 dark:text-blue-400 font-bold border border-blue-200 dark:border-blue-500/40 shadow-sm shadow-blue-500/10 dark:shadow-blue-950/50' 
               : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/40 border border-transparent'"
-            class="w-full px-3.5 py-2.5 rounded-xl transition flex items-center justify-between cursor-pointer text-left"
+            class="w-full px-3 py-2.5 rounded-xl transition flex items-center justify-between cursor-pointer text-left"
           >
-            <div class="flex items-center space-x-2.5">
-              <i class="ph-fill ph-sparkle text-base" :class="currentView === 'ai' ? 'text-purple-400' : 'text-slate-400'"></i>
-              <span>Gợi Ý Làm Video (AI)</span>
+            <div class="flex items-center space-x-2.5 min-w-0">
+              <i class="ph-fill ph-sparkle text-base flex-shrink-0" :class="currentView === 'ai' ? 'text-purple-500 dark:text-purple-400' : 'text-slate-400'"></i>
+              <span class="whitespace-nowrap">Gợi Ý Làm Video (AI)</span>
             </div>
-            <span v-if="aiVideosList.length > 0" class="text-[10px] px-1.5 py-0.5 rounded-full bg-purple-500/15 text-purple-400 font-black">{{ aiVideosList.length }}</span>
+            <span v-if="aiVideosList.length > 0" class="text-[11px] px-2 py-0.5 min-w-[28px] h-5 inline-flex items-center justify-center rounded-full font-bold bg-purple-100 text-purple-700 border border-purple-200/60 dark:border-transparent dark:bg-purple-500/20 dark:text-purple-400 flex-shrink-0 whitespace-nowrap shadow-xs">
+              {{ aiVideosList.length }}
+            </span>
           </button>
 
           <!-- 6. Kho Ý Tưởng -->
@@ -1034,13 +1044,20 @@
             :class="currentView === 'bookmarks' 
               ? 'bg-blue-50 dark:bg-[#131b2e] text-blue-600 dark:text-blue-400 font-bold border border-blue-200 dark:border-blue-500/40 shadow-sm shadow-blue-500/10 dark:shadow-blue-950/50' 
               : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/40 border border-transparent'"
-            class="w-full px-3.5 py-2.5 rounded-xl transition flex items-center justify-between cursor-pointer text-left"
+            class="w-full px-3 py-2.5 rounded-xl transition flex items-center justify-between cursor-pointer text-left"
           >
-            <div class="flex items-center space-x-2.5">
-              <i class="ph-fill ph-bookmark-simple text-base" :class="currentView === 'bookmarks' ? 'text-amber-400' : 'text-slate-400'"></i>
-              <span>Video Đã Lưu</span>
+            <div class="flex items-center space-x-2.5 min-w-0">
+              <i class="ph-fill ph-bookmark-simple text-base flex-shrink-0" :class="currentView === 'bookmarks' ? 'text-amber-500 dark:text-amber-400' : 'text-slate-400'"></i>
+              <span class="whitespace-nowrap">Video Đã Lưu</span>
             </div>
-            <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-400 font-black">{{ savedIdeaIds.length }}</span>
+            <span 
+              class="text-[11px] px-2 py-0.5 min-w-[28px] h-5 inline-flex items-center justify-center rounded-full font-bold flex-shrink-0 whitespace-nowrap shadow-xs transition-colors"
+              :class="savedIdeaIds.length > 0 
+                ? 'bg-amber-100 text-amber-800 border border-amber-200/60 dark:border-transparent dark:bg-amber-500/20 dark:text-amber-400' 
+                : 'bg-slate-100 text-slate-500 border border-slate-200/70 dark:border-transparent dark:bg-slate-800/80 dark:text-slate-400'"
+            >
+              {{ savedIdeaIds.length }}
+            </span>
           </button>
         </nav>
       </div>
@@ -1135,27 +1152,32 @@
           </button>
           <button @click="navigateFromSidebar('videos')" :class="currentView === 'videos' ? 'bg-[#131b2e] text-blue-400 font-bold' : 'text-slate-400'" class="w-full px-3 py-2 rounded-xl flex items-center justify-between">
             <div class="flex items-center space-x-2.5"><i class="ph-fill ph-film-strip text-base"></i><span>Tất Cả Video Hot</span></div>
-            <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-rose-500/15 text-rose-400">{{ stats.total_videos }}</span>
+            <span class="text-[11px] px-2 py-0.5 min-w-[28px] h-5 inline-flex items-center justify-center rounded-full font-bold bg-rose-100 text-rose-700 dark:bg-rose-500/20 dark:text-rose-400">{{ stats.total_videos }}</span>
           </button>
           <button @click="navigateFromSidebar('channels')" :class="currentView === 'channels' ? 'bg-[#131b2e] text-blue-400 font-bold' : 'text-slate-400'" class="w-full px-3 py-2 rounded-xl flex items-center justify-between">
             <div class="flex items-center space-x-2.5"><i class="ph-fill ph-chart-line-up text-base"></i><span>Bảng Xếp Hạng Kênh</span></div>
-            <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-blue-500/15 text-blue-400">{{ stats.total_channels }}</span>
+            <span class="text-[11px] px-2 py-0.5 min-w-[28px] h-5 inline-flex items-center justify-center rounded-full font-bold bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400">{{ stats.total_channels }}</span>
           </button>
           <button @click="navigateFromSidebar('trends')" :class="currentView === 'trends' ? 'bg-[#131b2e] text-blue-400 font-bold' : 'text-slate-400'" class="w-full px-3 py-2 rounded-xl flex items-center justify-between">
-            <div class="flex items-center space-x-2.5"><i class="ph-fill ph-fire text-base"></i><span>Top 15 Video Hot Nhất</span></div>
-            <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-400">Top 15</span>
+            <div class="flex items-center space-x-2.5"><i class="ph-fill ph-fire text-base"></i><span>Top 15 Video Hot</span></div>
+            <span class="text-[11px] px-2 py-0.5 min-w-[28px] h-5 inline-flex items-center justify-center rounded-full font-bold bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-400">15</span>
           </button>
           <button type="button" @click="navigateFromSidebar('rising_channels')" :class="currentView === 'rising_channels' ? 'bg-[#0d231e] text-emerald-400 font-bold' : 'text-slate-400'" class="w-full px-3 py-2 rounded-xl flex items-center justify-between">
             <div class="flex items-center space-x-2.5"><i class="ph-fill ph-plant text-base"></i><span>Kênh Nhỏ View Khủng</span></div>
-            <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-black">MỚI</span>
+            <span class="text-[10px] px-2 py-0.5 h-5 inline-flex items-center justify-center rounded-full font-black bg-emerald-100 text-emerald-700 dark:bg-emerald-500/25 dark:text-emerald-400 tracking-wider">MỚI</span>
           </button>
           <button @click="navigateFromSidebar('ai')" :class="currentView === 'ai' ? 'bg-[#131b2e] text-blue-400 font-bold' : 'text-slate-400'" class="w-full px-3 py-2 rounded-xl flex items-center justify-between">
             <div class="flex items-center space-x-2.5"><i class="ph-fill ph-sparkle text-base"></i><span>Gợi Ý Làm Video (AI)</span></div>
-            <span v-if="aiVideosList.length > 0" class="text-[10px] px-1.5 py-0.5 rounded-full bg-purple-500/15 text-purple-400">{{ aiVideosList.length }}</span>
+            <span v-if="aiVideosList.length > 0" class="text-[11px] px-2 py-0.5 min-w-[28px] h-5 inline-flex items-center justify-center rounded-full font-bold bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-400">{{ aiVideosList.length }}</span>
           </button>
           <button @click="navigateFromSidebar('bookmarks')" :class="currentView === 'bookmarks' ? 'bg-[#131b2e] text-blue-400 font-bold' : 'text-slate-400'" class="w-full px-3 py-2 rounded-xl flex items-center justify-between">
             <div class="flex items-center space-x-2.5"><i class="ph-fill ph-bookmark-simple text-base"></i><span>Video Đã Lưu</span></div>
-            <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-amber-500/15 text-amber-400">{{ savedIdeaIds.length }}</span>
+            <span 
+              class="text-[11px] px-2 py-0.5 min-w-[28px] h-5 inline-flex items-center justify-center rounded-full font-bold"
+              :class="savedIdeaIds.length > 0 ? 'bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-400' : 'bg-slate-100 text-slate-500 dark:bg-slate-800/80 dark:text-slate-400'"
+            >
+              {{ savedIdeaIds.length }}
+            </span>
           </button>
         </nav>
       </div>
