@@ -4839,7 +4839,7 @@
             class="flex-1 py-2 px-2 sm:px-3 rounded-xl transition flex items-center justify-center space-x-1.5 whitespace-nowrap cursor-pointer"
           >
             <i class="ph-bold ph-key text-sm"></i>
-            <span>🔑 1. Nhập Các Loại Key</span>
+            <span>🔑 {{ getTabNumber('keys') }}. Nhập Các Loại Key</span>
             <i v-if="githubToken && geminiApiKey" class="ph-fill ph-check-circle text-emerald-500 text-xs flex-shrink-0"></i>
           </button>
 
@@ -4853,7 +4853,7 @@
             class="flex-1 py-2 px-2 sm:px-3 rounded-xl transition flex items-center justify-center space-x-1.5 whitespace-nowrap cursor-pointer"
           >
             <i class="ph-bold ph-youtube-logo text-sm"></i>
-            <span>📺 2. Thêm / Xóa Kênh</span>
+            <span>📺 {{ getTabNumber('channels') }}. Thêm / Xóa Kênh</span>
             <span class="text-[10px] px-1.5 py-0.2 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold flex-shrink-0">{{ editableChannels.length }}</span>
           </button>
 
@@ -4866,7 +4866,7 @@
             class="flex-1 py-2 px-2 sm:px-3 rounded-xl transition flex items-center justify-center space-x-1.5 whitespace-nowrap cursor-pointer"
           >
             <i class="ph-bold ph-radar text-sm"></i>
-            <span>⚡ 3. Quét Data</span>
+            <span>⚡ {{ getTabNumber('status') }}. Quét Data</span>
             <span class="w-2 h-2 rounded-full bg-emerald-500 flex-shrink-0"></span>
           </button>
 
@@ -4880,7 +4880,7 @@
             class="flex-1 py-2 px-2 sm:px-3 rounded-xl transition flex items-center justify-center space-x-1.5 whitespace-nowrap cursor-pointer"
           >
             <i class="ph-bold ph-discord-logo text-sm text-[#5865F2]"></i>
-            <span>🔔 4. Discord (2 Kênh)</span>
+            <span>🔔 {{ getTabNumber('discord') }}. Discord (2 Kênh)</span>
             <span v-if="discordWebhook1 || discordWebhook2" class="w-2 h-2 rounded-full bg-emerald-500 flex-shrink-0 animate-pulse"></span>
           </button>
         </div>
@@ -8019,6 +8019,26 @@ Nhiệm vụ: Trả lời hoặc viết lại/tinh chỉnh kịch bản theo yê
           }
         };
 
+        // Đánh số thứ tự Tab tự động linh hoạt theo số lượng mục mà cấp bậc hiện tại được xem
+        const getTabNumber = (tabKey) => {
+          let num = 0;
+          if (userRole.value === 'admin') {
+            num++;
+            if (tabKey === 'keys') return num;
+          }
+          if (userRole.value === 'admin' || userRole.value === 'member') {
+            num++;
+            if (tabKey === 'channels') return num;
+          }
+          num++;
+          if (tabKey === 'status') return num;
+          if (userRole.value === 'admin') {
+            num++;
+            if (tabKey === 'discord') return num;
+          }
+          return num;
+        };
+
         // Admin Panel & Data Management Methods
         const openDataManagementModal = (tab = 'keys') => {
           openAdminModal(tab);
@@ -9731,6 +9751,7 @@ ${r.growth_verdict}
           copyTitles,
           openAiModal,
           openAdminModal,
+          getTabNumber,
           openDataManagementModal,
           saveToken,
           addChannel,
