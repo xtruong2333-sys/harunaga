@@ -4304,7 +4304,7 @@
                     :alt="ch.title" 
                     class="w-11 h-11 rounded-2xl object-cover border border-slate-700/50 shadow-md"
                     loading="lazy"
-                    @error="(e) => { e.target.src = 'https://i.ytimg.com/vi/g4TdOHZcETw/hqdefault.jpg'; }"
+                    @error="(e) => { e.target.onerror = null; e.target.src = 'https://api.dicebear.com/7.x/bottts/svg?seed=' + encodeURIComponent(ch.title || 'channel'); }"
                   />
                   <div v-else class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center font-black text-white text-base shadow-md">
                     {{ ch.title.charAt(0).toUpperCase() }}
@@ -4321,7 +4321,7 @@
                   </h4>
                   <div class="flex items-center space-x-1 text-[11px] text-slate-400 font-mono">
                     <span class="truncate">{{ ch.handle }}</span>
-                    <a :href="'https://www.youtube.com/channel/' + ch.channel_id" target="_blank" class="hover:text-blue-400" title="Mở trên YouTube">
+                    <a :href="'https://www.youtube.com/' + (ch.handle ? ch.handle : ('channel/' + ch.channel_id))" target="_blank" class="hover:text-blue-400" title="Mở trên YouTube">
                       <i class="ph-bold ph-arrow-up-right text-[10px]"></i>
                     </a>
                   </div>
@@ -4486,22 +4486,37 @@
                 <span>Video Châm Ngòi Bùng Nổ</span>
               </div>
 
-              <div class="relative rounded-xl overflow-hidden mb-2 aspect-video bg-black/40 border border-slate-700/50">
+              <a 
+                :href="ch.star_video.url || ('https://www.youtube.com/watch?v=' + ch.star_video.video_id)" 
+                target="_blank" 
+                class="block relative rounded-xl overflow-hidden mb-2 aspect-video bg-black/40 border border-slate-700/50 group/vid cursor-pointer"
+                title="Mở xem video trên YouTube"
+              >
                 <img 
                   :src="ch.star_video.thumbnail" 
                   :alt="ch.star_video.title" 
-                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  class="w-full h-full object-cover group-hover/vid:scale-105 transition-transform duration-300"
                   loading="lazy"
-                  @error="(e) => { e.target.src = 'https://i.ytimg.com/vi/g4TdOHZcETw/hqdefault.jpg'; }"
+                  @error="(e) => { e.target.onerror = null; e.target.src = 'https://i.ytimg.com/vi/g4TdOHZcETw/hqdefault.jpg'; }"
                 />
+                <div class="absolute inset-0 bg-black/25 opacity-0 group-hover/vid:opacity-100 transition-opacity flex items-center justify-center">
+                  <span class="w-9 h-9 rounded-full bg-rose-600/90 text-white flex items-center justify-center shadow-lg transform group-hover/vid:scale-110 transition">
+                    <i class="ph-fill ph-play text-base ml-0.5"></i>
+                  </span>
+                </div>
                 <div class="absolute bottom-1.5 right-1.5 bg-black/80 backdrop-blur-md px-1.5 py-0.5 rounded text-[10px] text-white font-mono font-bold">
                   {{ ch.star_video.duration || '09:20' }}
                 </div>
-              </div>
+              </a>
 
-              <h5 class="text-xs font-bold text-slate-800 dark:text-slate-200 line-clamp-2 mb-1.5" :title="ch.star_video.title">
+              <a 
+                :href="ch.star_video.url || ('https://www.youtube.com/watch?v=' + ch.star_video.video_id)" 
+                target="_blank" 
+                class="text-xs font-bold text-slate-800 dark:text-slate-200 hover:text-emerald-400 line-clamp-2 mb-1.5 transition block cursor-pointer" 
+                :title="ch.star_video.title"
+              >
                 {{ ch.star_video.title }}
-              </h5>
+              </a>
 
               <div class="flex items-center justify-between text-[11px] font-mono">
                 <span class="font-bold text-slate-600 dark:text-slate-400">
@@ -4571,6 +4586,7 @@
                 :src="activeDetailChannel.thumbnail" 
                 :alt="activeDetailChannel.title" 
                 class="w-12 h-12 rounded-2xl object-cover border border-slate-700/60 shadow-md flex-shrink-0"
+                @error="(e) => { e.target.onerror = null; e.target.src = 'https://api.dicebear.com/7.x/bottts/svg?seed=' + encodeURIComponent(activeDetailChannel.title || 'channel'); }"
               />
               <div v-else class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white font-black text-lg flex-shrink-0">
                 {{ activeDetailChannel.title.charAt(0).toUpperCase() }}
@@ -4595,7 +4611,7 @@
                   <span>&bull;</span>
                   <span>{{ activeDetailChannel.active_age_days }} ngày hoạt động</span>
                   <span>&bull;</span>
-                  <a :href="'https://www.youtube.com/channel/' + activeDetailChannel.channel_id" target="_blank" class="hover:text-white flex items-center gap-0.5 text-blue-400">
+                  <a :href="'https://www.youtube.com/' + (activeDetailChannel.handle ? activeDetailChannel.handle : ('channel/' + activeDetailChannel.channel_id))" target="_blank" class="hover:text-white flex items-center gap-0.5 text-blue-400">
                     <span>Mở YouTube</span>
                     <i class="ph-bold ph-arrow-up-right text-[10px]"></i>
                   </a>
@@ -4888,7 +4904,7 @@
                       class="hover:bg-slate-800/40 transition"
                     >
                       <td class="p-3">
-                        <img :src="v.thumbnail" :alt="v.title" class="w-14 h-9 rounded-lg object-cover bg-black flex-shrink-0" />
+                        <img :src="v.thumbnail" :alt="v.title" class="w-14 h-9 rounded-lg object-cover bg-black flex-shrink-0" loading="lazy" @error="(e) => { e.target.onerror = null; e.target.src = 'https://i.ytimg.com/vi/g4TdOHZcETw/hqdefault.jpg'; }" />
                       </td>
                       <td class="p-3 min-w-[240px]">
                         <a :href="v.url" target="_blank" class="font-bold text-slate-100 hover:text-emerald-400 line-clamp-2">
@@ -5479,6 +5495,143 @@
               Lưu Cấu Hình
             </button>
           </div>
+        </div>
+      </div>
+
+      <!-- ===================================================================== -->
+      <!-- MODAL: THÊM KÊNH THỦ CÔNG VÀO RADAR (v-if="showAddRisingModal")         -->
+      <!-- ===================================================================== -->
+      <div 
+        v-if="showAddRisingModal" 
+        class="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm select-text"
+      >
+        <div class="bg-[#0b101d] border border-slate-800 rounded-3xl w-full max-w-xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden text-white">
+          <!-- Modal Header -->
+          <div class="px-6 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-900/90">
+            <div class="flex items-center space-x-2.5">
+              <span class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-base">
+                <i class="ph-bold ph-plus-circle"></i>
+              </span>
+              <div>
+                <h3 class="text-sm font-black text-white">Thêm Kênh Vào Radar Theo Dõi</h3>
+                <p class="text-[11px] text-slate-400">Nạp kênh mới nổi để chấm điểm Radar Score &amp; bóc tách AI</p>
+              </div>
+            </div>
+            <button type="button" @click="showAddRisingModal = false" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition cursor-pointer">
+              <i class="ph-bold ph-x text-lg"></i>
+            </button>
+          </div>
+
+          <!-- Modal Body Form -->
+          <form @submit.prevent="submitAddRisingChannel" class="p-6 overflow-y-auto custom-scrollbar space-y-4 text-xs">
+            <div>
+              <label class="block font-bold text-slate-300 mb-1">Tên Kênh YouTube: <span class="text-rose-400">*</span></label>
+              <input 
+                type="text" 
+                v-model="newRisingForm.name" 
+                required 
+                placeholder="VD: Smart Inventions Studio"
+                class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+              />
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block font-bold text-slate-300 mb-1">Handle (@username):</label>
+                <input 
+                  type="text" 
+                  v-model="newRisingForm.handle" 
+                  placeholder="VD: @SmartInventions"
+                  class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 font-mono"
+                />
+              </div>
+              <div>
+                <label class="block font-bold text-slate-300 mb-1">Lượng Subscribers:</label>
+                <input 
+                  type="text" 
+                  v-model="newRisingForm.subs" 
+                  placeholder="VD: 2.5K hoặc 2500"
+                  class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 font-mono"
+                />
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block font-bold text-slate-300 mb-1">Tuổi Kênh (ngày hoạt động):</label>
+                <input 
+                  type="number" 
+                  v-model.number="newRisingForm.age_days" 
+                  placeholder="VD: 25"
+                  class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 font-mono"
+                />
+              </div>
+              <div>
+                <label class="block font-bold text-slate-300 mb-1">Ngách Nội Dung:</label>
+                <select 
+                  v-model="newRisingForm.niche" 
+                  class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-white focus:outline-none focus:border-emerald-500"
+                >
+                  <option value="craftsman">DIY &amp; Sáng Chế 0đ</option>
+                  <option value="welding">Hàn Xì &amp; Cơ Khí Mini</option>
+                  <option value="scrap">Tái Chế Phế Liệu</option>
+                  <option value="woodworking">Mẹo Mộc &amp; Chế Tác Gỗ</option>
+                  <option value="tools">Mẹo Dụng Cụ Cầm Tay</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Star Video Info -->
+            <div class="p-3.5 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-3">
+              <span class="text-[11px] font-bold text-emerald-400 block uppercase tracking-wide">⚡ Video Bùng Nổ / Video Đại Diện</span>
+              <div>
+                <label class="block font-medium text-slate-400 mb-1 text-[11px]">Tiêu đề video bão view:</label>
+                <input 
+                  type="text" 
+                  v-model="newRisingForm.video_title" 
+                  placeholder="VD: Don't Throw Away Old Motor! Genius Hack"
+                  class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+                />
+              </div>
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block font-medium text-slate-400 mb-1 text-[11px]">Lượt xem video:</label>
+                  <input 
+                    type="number" 
+                    v-model.number="newRisingForm.video_views" 
+                    placeholder="VD: 85000"
+                    class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-white font-mono"
+                  />
+                </div>
+                <div>
+                  <label class="block font-medium text-slate-400 mb-1 text-[11px]">Vận tốc view/giờ (VPH):</label>
+                  <input 
+                    type="number" 
+                    v-model.number="newRisingForm.video_vph" 
+                    placeholder="VD: 3500"
+                    class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-white font-mono"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div class="pt-3 border-t border-slate-800 flex items-center justify-end space-x-2">
+              <button 
+                type="button" 
+                @click="showAddRisingModal = false" 
+                class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl transition cursor-pointer"
+              >
+                Hủy Bỏ
+              </button>
+              <button 
+                type="submit" 
+                class="px-5 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold rounded-xl shadow-lg shadow-emerald-500/20 transition cursor-pointer flex items-center space-x-1.5"
+              >
+                <i class="ph-bold ph-check"></i>
+                <span>Thêm Vào Radar &amp; Chấm Điểm</span>
+              </button>
+            </div>
+          </form>
         </div>
       </div>
 
@@ -9226,6 +9379,20 @@
           return num.toLocaleString();
         };
 
+        const formatDate = (dateStr) => {
+          if (!dateStr) return 'N/A';
+          try {
+            const d = new Date(dateStr);
+            if (isNaN(d.getTime())) return String(dateStr);
+            const day = String(d.getDate()).padStart(2, '0');
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const year = d.getFullYear();
+            return `${day}/${month}/${year}`;
+          } catch (e) {
+            return String(dateStr);
+          }
+        };
+
         const timeSinceUpdate = computed(() => {
           if (!lastUpdatedIso.value) return '';
           const diffMs = new Date() - new Date(lastUpdatedIso.value);
@@ -11394,6 +11561,7 @@ Nhiệm vụ: Trả lời hoặc viết lại/tinh chỉnh kịch bản theo yê
           addNewDiscoveryQuery,
           deleteDiscoveryQuery,
           saveDiscoverySettings,
+          formatDate,
 
           risingChannels,
           discordWebhook1,
