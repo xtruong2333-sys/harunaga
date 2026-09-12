@@ -15,7 +15,7 @@
   "ai_delta_threshold": 15,
   "max_ai_analyses_per_day": 10,
   "radar_breakout_threshold": 75,
-  "discord_webhook": "",
+  "discord_webhook": "https://discordapp.com/api/webhooks/1548270614899462186/1XQkXrgWDpQMEZp5whHlpdHciqncUpNGhktVgl",
   "discord_notify_on_new": true,
   "discord_notify_on_breakout": true
 }
