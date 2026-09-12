@@ -5326,7 +5326,7 @@
               <div class="flex items-center justify-between">
                 <span class="font-bold text-slate-900 dark:text-white text-xs flex items-center space-x-1.5">
                   <span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse"></span>
-                  <span class="text-rose-600 dark:text-rose-400 font-black uppercase tracking-wide">PHÒNG 1: 🚨 Video Bão View Toàn Thị Trường</span>
+                  <span class="text-rose-600 dark:text-rose-400 font-black uppercase tracking-wide">PHÒNG 1: ⚡ Radar Bão View 24/7 (#🚨・bão-view-thị-trường)</span>
                 </span>
                 <span class="text-[10px] text-slate-400 font-mono">Tốc độ &gt; 2.000 view/h</span>
               </div>
@@ -5339,7 +5339,7 @@
                   <input 
                     type="url" 
                     v-model="discordWebhook1" 
-                    placeholder="https://discord.com/api/webhooks/..." 
+                    placeholder="https://discord.com/api/webhooks/... (Dán link kênh #🚨・bão-view-thị-trường)" 
                     class="w-full bg-white dark:bg-black/50 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-white focus:outline-none focus:border-[#5865F2] font-mono"
                   >
                 </div>
@@ -5372,7 +5372,7 @@
               <div class="flex items-center justify-between">
                 <span class="font-bold text-slate-900 dark:text-white text-xs flex items-center space-x-1.5">
                   <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-                  <span class="text-emerald-600 dark:text-emerald-400 font-black uppercase tracking-wide">PHÒNG 2: 🌱 Kênh Mới Nổi & Video Đột Biến</span>
+                  <span class="text-emerald-600 dark:text-emerald-400 font-black uppercase tracking-wide">PHÒNG 2: 👑 Bắt Vị Kịch Bản AI (#👑・siêu-đột-biến-x3)</span>
                 </span>
                 <span class="text-[10px] text-slate-400 font-mono">Đột biến x3+ hoặc Clever Home Hacks</span>
               </div>
@@ -5385,7 +5385,7 @@
                   <input 
                     type="url" 
                     v-model="discordWebhook2" 
-                    placeholder="https://discord.com/api/webhooks/... (Phòng thứ 2)" 
+                    placeholder="https://discord.com/api/webhooks/... (Dán link kênh #👑・siêu-đột-biến-x3)" 
                     class="w-full bg-white dark:bg-black/50 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-white focus:outline-none focus:border-emerald-500 font-mono"
                   >
                 </div>
@@ -8207,6 +8207,10 @@ Nhiệm vụ: Trả lời hoặc viết lại/tinh chỉnh kịch bản theo yê
 
           try {
             const payload = {
+              username: channelNum === 1 ? "⚡ Radar Bão View 24/7" : "👑 Bắt Vị Kịch Bản AI",
+              avatar_url: channelNum === 1
+                ? "https://cdn-icons-png.flaticon.com/512/866/866218.png"
+                : "https://cdn-icons-png.flaticon.com/512/4712/4712035.png",
               content: channelNum === 1
                 ? "🚨 **[TEST THÀNH CÔNG]** Cảnh báo Video Bão View từ hệ thống Bắt Bài Đối Thủ!"
                 : "🌱 **[TEST THÀNH CÔNG]** Cảnh báo Kênh Mới Nổi & Video Đột Biến từ hệ thống Bắt Bài Đối Thủ!",
