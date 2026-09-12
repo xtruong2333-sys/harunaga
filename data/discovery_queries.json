@@ -1,0 +1,302 @@
+[
+  {
+    "id": "dq_01",
+    "query": "don't throw away",
+    "category": "recycle",
+    "enabled": true,
+    "priority": 10,
+    "last_scanned_at": "2026-09-12T16:17:15.860529+00:00",
+    "last_result_count": 15,
+    "created_at": "2026-09-12T00:00:00Z"
+  },
+  {
+    "id": "dq_02",
+    "query": "DIY invention",
+    "category": "invention",
+    "enabled": true,
+    "priority": 10,
+    "last_scanned_at": "2026-09-12T16:17:15.860529+00:00",
+    "last_result_count": 15,
+    "created_at": "2026-09-12T00:00:00Z"
+  },
+  {
+    "id": "dq_03",
+    "query": "DIY projects",
+    "category": "general_diy",
+    "enabled": true,
+    "priority": 9,
+    "last_scanned_at": "2026-09-12T16:17:15.860529+00:00",
+    "last_result_count": 15,
+    "created_at": "2026-09-12T00:00:00Z"
+  },
+  {
+    "id": "dq_04",
+    "query": "creative idea",
+    "category": "general_diy",
+    "enabled": true,
+    "priority": 9,
+    "last_scanned_at": null,
+    "last_result_count": 0,
+    "created_at": "2026-09-12T00:00:00Z"
+  },
+  {
+    "id": "dq_05",
+    "query": "homemade tool",
+    "category": "craftsman",
+    "enabled": true,
+    "priority": 10,
+    "last_scanned_at": "2026-09-12T16:17:15.860529+00:00",
+    "last_result_count": 15,
+    "created_at": "2026-09-12T00:00:00Z"
+  },
+  {
+    "id": "dq_06",
+    "query": "amazing invention",
+    "category": "invention",
+    "enabled": true,
+    "priority": 8,
+    "last_scanned_at": null,
+    "last_result_count": 0,
+    "created_at": "2026-09-12T00:00:00Z"
+  },
+  {
+    "id": "dq_07",
+    "query": "plastic bottle idea",
+    "category": "recycle",
+    "enabled": true,
+    "priority": 8,
+    "last_scanned_at": null,
+    "last_result_count": 0,
+    "created_at": "2026-09-12T00:00:00Z"
+  },
+  {
+    "id": "dq_08",
+    "query": "scrap metal ideas",
+    "category": "craftsman",
+    "enabled": true,
+    "priority": 9,
+    "last_scanned_at": null,
+    "last_result_count": 0,
+    "created_at": "2026-09-12T00:00:00Z"
+  },
+  {
+    "id": "dq_09",
+    "query": "old motor reuse",
+    "category": "electronics",
+    "enabled": true,
+    "priority": 8,
+    "last_scanned_at": null,
+    "last_result_count": 0,
+    "created_at": "2026-09-12T00:00:00Z"
+  },
+  {
+    "id": "dq_10",
+    "query": "PVC pipe ideas",
+    "category": "craftsman",
+    "enabled": true,
+    "priority": 8,
+    "last_scanned_at": null,
+    "last_result_count": 0,
+    "created_at": "2026-09-12T00:00:00Z"
+  },
+  {
+    "id": "dq_11",
+    "query": "welding project",
+    "category": "craftsman",
+    "enabled": true,
+    "priority": 7,
+    "last_scanned_at": null,
+    "last_result_count": 0,
+    "created_at": "2026-09-12T00:00:00Z"
+  },
+  {
+    "id": "dq_12",
+    "query": "repair trick",
+    "category": "mechanic",
+    "enabled": true,
+    "priority": 9,
+    "last_scanned_at": null,
+    "last_result_count": 0,
+    "created_at": "2026-09-12T00:00:00Z"
+  },
+  {
+    "id": "dq_13",
+    "query": "woodworking trick",
+    "category": "craftsman",
+    "enabled": true,
+    "priority": 8,
+    "last_scanned_at": null,
+    "last_result_count": 0,
+    "created_at": "2026-09-12T00:00:00Z"
+  },
+  {
+    "id": "dq_14",
+    "query": "old speaker DIY",
+    "category": "electronics",
+    "enabled": true,
+    "priority": 7,
+    "last_scanned_at": null,
+    "last_result_count": 0,
+    "created_at": "2026-09-12T00:00:00Z"
+  },
+  {
+    "id": "dq_15",
+    "query": "electronics DIY",
+    "category": "electronics",
+    "enabled": true,
+    "priority": 8,
+    "last_scanned_at": null,
+    "last_result_count": 0,
+    "created_at": "2026-09-12T00:00:00Z"
+  },
+  {
+    "id": "dq_16",
+    "query": "reuse plastic",
+    "category": "recycle",
+    "enabled": true,
+    "priority": 7,
+    "last_scanned_at": null,
+    "last_result_count": 0,
+    "created_at": "2026-09-12T00:00:00Z"
+  },
+  {
+    "id": "dq_17",
+    "query": "recycling ideas",
+    "category": "recycle",
+    "enabled": true,
+    "priority": 8,
+    "last_scanned_at": null,
+    "last_result_count": 0,
+    "created_at": "2026-09-12T00:00:00Z"
+  },
+  {
+    "id": "dq_18",
+    "query": "creative recycling",
+    "category": "recycle",
+    "enabled": true,
+    "priority": 8,
+    "last_scanned_at": null,
+    "last_result_count": 0,
+    "created_at": "2026-09-12T00:00:00Z"
+  },
+  {
+    "id": "dq_19",
+    "query": "useful invention",
+    "category": "invention",
+    "enabled": true,
+    "priority": 9,
+    "last_scanned_at": null,
+    "last_result_count": 0,
+    "created_at": "2026-09-12T00:00:00Z"
+  },
+  {
+    "id": "dq_20",
+    "query": "home made machine",
+    "category": "craftsman",
+    "enabled": true,
+    "priority": 8,
+    "last_scanned_at": null,
+    "last_result_count": 0,
+    "created_at": "2026-09-12T00:00:00Z"
+  },
+  {
+    "id": "dq_21",
+    "query": "tool hacks",
+    "category": "craftsman",
+    "enabled": true,
+    "priority": 10,
+    "last_scanned_at": "2026-09-12T16:17:15.860529+00:00",
+    "last_result_count": 15,
+    "created_at": "2026-09-12T00:00:00Z"
+  },
+  {
+    "id": "dq_22",
+    "query": "mechanic tricks",
+    "category": "mechanic",
+    "enabled": true,
+    "priority": 9,
+    "last_scanned_at": null,
+    "last_result_count": 0,
+    "created_at": "2026-09-12T00:00:00Z"
+  },
+  {
+    "id": "dq_23",
+    "query": "old tools restoration",
+    "category": "craftsman",
+    "enabled": true,
+    "priority": 8,
+    "last_scanned_at": null,
+    "last_result_count": 0,
+    "created_at": "2026-09-12T00:00:00Z"
+  },
+  {
+    "id": "dq_24",
+    "query": "free energy experiment",
+    "category": "energy",
+    "enabled": true,
+    "priority": 8,
+    "last_scanned_at": null,
+    "last_result_count": 0,
+    "created_at": "2026-09-12T00:00:00Z"
+  },
+  {
+    "id": "dq_25",
+    "query": "old electronics reuse",
+    "category": "electronics",
+    "enabled": true,
+    "priority": 7,
+    "last_scanned_at": null,
+    "last_result_count": 0,
+    "created_at": "2026-09-12T00:00:00Z"
+  },
+  {
+    "id": "dq_26",
+    "query": "creative crafts",
+    "category": "general_diy",
+    "enabled": true,
+    "priority": 7,
+    "last_scanned_at": null,
+    "last_result_count": 0,
+    "created_at": "2026-09-12T00:00:00Z"
+  },
+  {
+    "id": "dq_27",
+    "query": "plastic can crafts",
+    "category": "recycle",
+    "enabled": true,
+    "priority": 7,
+    "last_scanned_at": null,
+    "last_result_count": 0,
+    "created_at": "2026-09-12T00:00:00Z"
+  },
+  {
+    "id": "dq_28",
+    "query": "metal recycling",
+    "category": "recycle",
+    "enabled": true,
+    "priority": 7,
+    "last_scanned_at": null,
+    "last_result_count": 0,
+    "created_at": "2026-09-12T00:00:00Z"
+  },
+  {
+    "id": "dq_29",
+    "query": "DIY electronics project",
+    "category": "electronics",
+    "enabled": true,
+    "priority": 8,
+    "last_scanned_at": null,
+    "last_result_count": 0,
+    "created_at": "2026-09-12T00:00:00Z"
+  },
+  {
+    "id": "dq_30",
+    "query": "amazing tools",
+    "category": "craftsman",
+    "enabled": true,
+    "priority": 8,
+    "last_scanned_at": null,
+    "last_result_count": 0,
+    "created_at": "2026-09-12T00:00:00Z"
+  }
+]
