@@ -1,0 +1,98 @@
+{
+  "UC-73P87iZAfZ05it7mjgbLg": {
+    "2026-09-12": {
+      "date": "2026-09-12",
+      "subscriber_count": 9130,
+      "views_90d": 2619842,
+      "median_views_90d": 31870,
+      "viral_repeat_count": 5,
+      "hit_rate": 0.6,
+      "radar_score": 67.6,
+      "created_at": "2026-09-12T16:17:40.080264+00:00"
+    }
+  },
+  "UC0F7NMQPTNyNQ_1sF7BFa9A": {
+    "2026-09-12": {
+      "date": "2026-09-12",
+      "subscriber_count": 2640,
+      "views_90d": 1076327,
+      "median_views_90d": 8508,
+      "viral_repeat_count": 4,
+      "hit_rate": 0.6,
+      "radar_score": 60.6,
+      "created_at": "2026-09-12T16:17:43.243232+00:00"
+    }
+  },
+  "UCNU6wftNOiq-jNUHm4VExTg": {
+    "2026-09-12": {
+      "date": "2026-09-12",
+      "subscriber_count": 2060,
+      "views_90d": 42872,
+      "median_views_90d": 654,
+      "viral_repeat_count": 1,
+      "hit_rate": 0.07,
+      "radar_score": 25.4,
+      "created_at": "2026-09-12T16:17:49.559291+00:00"
+    }
+  },
+  "UC6Pwlmx5P1gRxwQCZgS8JBg": {
+    "2026-09-12": {
+      "date": "2026-09-12",
+      "subscriber_count": 1250,
+      "views_90d": 6089,
+      "median_views_90d": 494,
+      "viral_repeat_count": 0,
+      "hit_rate": 0.0,
+      "radar_score": 6.4,
+      "created_at": "2026-09-12T16:17:50.997105+00:00"
+    }
+  },
+  "UC_lmtn_energy_01": {
+    "2026-09-12": {
+      "date": "2026-09-12",
+      "subscriber_count": 1800,
+      "views_90d": 306900,
+      "median_views_90d": 72850.0,
+      "viral_repeat_count": 4,
+      "hit_rate": 1.0,
+      "radar_score": 83.9,
+      "created_at": "2026-09-12T16:19:37.972352+00:00"
+    }
+  },
+  "UC_diy_weld_02": {
+    "2026-09-12": {
+      "date": "2026-09-12",
+      "subscriber_count": 2400,
+      "views_90d": 323600,
+      "median_views_90d": 74700.0,
+      "viral_repeat_count": 4,
+      "hit_rate": 1.0,
+      "radar_score": 81.6,
+      "created_at": "2026-09-12T16:19:37.973348+00:00"
+    }
+  },
+  "UC_wood_craftsman_03": {
+    "2026-09-12": {
+      "date": "2026-09-12",
+      "subscriber_count": 3100,
+      "views_90d": 293500,
+      "median_views_90d": 88000.0,
+      "viral_repeat_count": 3,
+      "hit_rate": 1.0,
+      "radar_score": 77.6,
+      "created_at": "2026-09-12T16:19:37.973348+00:00"
+    }
+  },
+  "UC_scrap_lab_04": {
+    "2026-09-12": {
+      "date": "2026-09-12",
+      "subscriber_count": 1420,
+      "views_90d": 214500,
+      "median_views_90d": 67200.0,
+      "viral_repeat_count": 3,
+      "hit_rate": 1.0,
+      "radar_score": 78.0,
+      "created_at": "2026-09-12T16:19:37.973348+00:00"
+    }
+  }
+}
