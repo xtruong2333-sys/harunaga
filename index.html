@@ -11024,7 +11024,14 @@ Nhiệm vụ: Trả lời hoặc viết lại/tinh chỉnh kịch bản theo yê
             });
 
             if (res.status === 204 || res.ok) {
-              showToast('⚡ Đã kích hoạt bot quét trên GitHub thành công!');
+              showToast('⚡ Đã kích hoạt bot quét! Tự động làm mới dữ liệu sau ~100 giây...', 8000);
+              // Đếm ngược và tự động reload dữ liệu sau khi bot quét xong
+              setTimeout(() => showToast('⏳ Bot đang quét... còn ~70 giây', 4000), 30000);
+              setTimeout(() => showToast('⏳ Sắp xong... còn ~40 giây', 4000), 60000);
+              setTimeout(async () => {
+                await loadData();
+                showToast('✅ Dữ liệu đã tự động cập nhật sau khi quét!', 5000);
+              }, 100000);
             } else {
               let msg = 'Lỗi kích hoạt';
               try {
