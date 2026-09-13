@@ -3427,7 +3427,7 @@
                     <i class="ph-bold ph-arrow-right text-xs opacity-60 group-hover/btn:translate-x-1 transition-transform"></i>
                   </button>
                   <a 
-                    :href="'https://www.youtube.com/' + (ch.handle || '')" 
+                    :href="getChannelUrl(ch)" 
                     target="_blank" 
                     @click.stop
                     class="w-10 h-10 rounded-2xl bg-slate-100 dark:bg-slate-800/80 hover:bg-rose-500/20 hover:border-rose-500/40 text-slate-500 dark:text-slate-300 hover:text-rose-500 flex items-center justify-center transition border border-transparent shadow-sm flex-shrink-0 cursor-pointer"
@@ -3539,7 +3539,7 @@
                   <span>Hồ Sơ</span>
                 </button>
                 <a 
-                  :href="'https://www.youtube.com/' + (ch.handle || '')" 
+                  :href="getChannelUrl(ch)" 
                   target="_blank" 
                   @click.stop
                   class="w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-rose-500/20 text-slate-400 hover:text-rose-500 flex items-center justify-center transition flex-shrink-0 cursor-pointer"
@@ -4411,7 +4411,7 @@
                   </h4>
                   <div class="flex items-center space-x-1 text-[11px] text-slate-400 font-mono">
                     <span class="truncate">{{ ch.handle }}</span>
-                    <a :href="'https://www.youtube.com/' + (ch.handle ? ch.handle : ('channel/' + ch.channel_id))" target="_blank" class="hover:text-blue-400" title="Mở trên YouTube">
+                    <a :href="getChannelUrl(ch)" target="_blank" class="hover:text-blue-400" title="Mở trên YouTube">
                       <i class="ph-bold ph-arrow-up-right text-[10px]"></i>
                     </a>
                   </div>
@@ -4702,7 +4702,7 @@
                   <span>&bull;</span>
                   <span>{{ activeDetailChannel.active_age_days }} ngày hoạt động</span>
                   <span>&bull;</span>
-                  <a :href="'https://www.youtube.com/' + (activeDetailChannel.handle ? activeDetailChannel.handle : ('channel/' + activeDetailChannel.channel_id))" target="_blank" class="hover:text-white flex items-center gap-0.5 text-blue-400">
+                  <a :href="getChannelUrl(activeDetailChannel)" target="_blank" class="hover:text-white flex items-center gap-0.5 text-blue-400">
                     <span>Mở YouTube</span>
                     <i class="ph-bold ph-arrow-up-right text-[10px]"></i>
                   </a>
@@ -8233,7 +8233,7 @@
               <!-- Header Buttons -->
               <div class="flex items-center space-x-2 flex-shrink-0">
                 <a 
-                  :href="'https://www.youtube.com/' + (selectedChannelProfile.handle || '')" 
+                  :href="getChannelUrl(selectedChannelProfile)" 
                   target="_blank" 
                   class="hidden sm:inline-flex items-center space-x-1.5 px-3.5 py-2 bg-rose-600/90 hover:bg-rose-600 text-white text-xs font-black rounded-xl transition shadow-sm"
                 >
@@ -10256,6 +10256,23 @@ const copyTextToClipboard = (textToCopy, message = 'Đã sao chép vào bộ nh�
           }
         };
 
+        const getChannelUrl = (ch) => {
+          if (!ch) return 'https://www.youtube.com';
+          if (ch.url && typeof ch.url === 'string' && ch.url.startsWith('http')) return ch.url;
+          let h = (ch.handle || ch.handle_or_url || '').trim();
+          if (h) {
+            if (h.startsWith('http://') || h.startsWith('https://')) return h;
+            if (h.startsWith('@')) return 'https://www.youtube.com/' + h;
+            if (h.startsWith('UC')) return 'https://www.youtube.com/channel/' + h;
+            return 'https://www.youtube.com/@' + h;
+          }
+          const cid = (ch.channel_id || '').trim();
+          if (cid && cid.startsWith('UC')) {
+            return 'https://www.youtube.com/channel/' + cid;
+          }
+          return 'https://www.youtube.com';
+        };
+
         const generateAiBlueprint = async (video, force = false) => {
           const targetVideo = video || activeAiVideo.value;
           if (!targetVideo) return;
@@ -12235,7 +12252,8 @@ Nhiệm vụ: Trả lời hoặc viết lại/tinh chỉnh kịch bản theo yê
           selectedChannelProfile,
           activeChannelModalTab,
           openChannelModal,
-          closeChannelModal
+          closeChannelModal,
+          getChannelUrl
         };
       }
     });
