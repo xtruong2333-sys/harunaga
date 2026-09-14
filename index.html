@@ -2869,6 +2869,22 @@
               <span>🔖 Đã Lưu</span>
               <span v-if="savedIdeaIds.length > 0" class="text-[10px] px-1.5 py-0.2 rounded-full" :class="filterTab === 'saved' ? 'bg-white/20' : 'bg-emerald-500/10 text-emerald-500'">{{ savedIdeaIds.length }}</span>
             </button>
+
+            <button 
+              @click="filterTab = 'long_form'"
+              :class="filterTab === 'long_form' ? 'bg-indigo-600 text-white font-black shadow-sm' : 'bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'"
+              class="px-3 py-1.5 rounded-xl transition flex items-center space-x-1 cursor-pointer whitespace-nowrap"
+            >
+              <span>🎬 Video Dài</span>
+            </button>
+
+            <button 
+              @click="filterTab = 'shorts'"
+              :class="filterTab === 'shorts' ? 'bg-rose-600 text-white font-black shadow-sm' : 'bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'"
+              class="px-3 py-1.5 rounded-xl transition flex items-center space-x-1 cursor-pointer whitespace-nowrap"
+            >
+              <span>📱 Shorts</span>
+            </button>
           </div>
 
           <div class="text-xs text-slate-400 flex items-center gap-2">
@@ -2981,9 +2997,14 @@
                 </span>
               </div>
 
-              <!-- Bottom Right: Publish Time Badge -->
-              <div class="absolute bottom-2.5 right-2.5 text-[10px] font-medium text-slate-300 bg-black/70 backdrop-blur-md px-1.5 py-0.5 rounded shadow-sm whitespace-nowrap">
-                {{ v.hours_ago_formatted }}
+              <!-- Bottom Right: Publish Time Badge & Format -->
+              <div class="absolute bottom-2.5 right-2.5 flex items-center gap-1">
+                <span v-if="v.content_type === 'SHORT'" class="text-[9px] font-black text-white bg-rose-600/90 backdrop-blur-md px-1.5 py-0.5 rounded shadow-sm whitespace-nowrap">
+                  📱 SHORT
+                </span>
+                <span class="text-[10px] font-medium text-slate-300 bg-black/70 backdrop-blur-md px-1.5 py-0.5 rounded shadow-sm whitespace-nowrap">
+                  {{ v.hours_ago_formatted }}
+                </span>
               </div>
             </div>
 
@@ -7007,7 +7028,18 @@
                   <i class="ph ph-list-bullets text-indigo-500 text-sm"></i>
                   <span>Danh sách kênh đối thủ đang theo dõi ({{ editableChannels.length }})</span>
                 </h4>
-                <span class="text-[11px] text-slate-400">Bấm 🗑️ để bớt kênh</span>
+                <div class="flex items-center space-x-2">
+                  <button 
+                    type="button"
+                    @click="exportChannelsJson" 
+                    class="px-2.5 py-1 rounded-lg bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-[11px] font-bold text-slate-700 dark:text-slate-300 transition flex items-center space-x-1 cursor-pointer"
+                    title="Tải xuống file sao lưu danh sách kênh channels.json"
+                  >
+                    <i class="ph-bold ph-download-simple"></i>
+                    <span>📥 Xuất Sao Lưu JSON</span>
+                  </button>
+                  <span class="text-[11px] text-slate-400">Bấm 🗑️ để bớt kênh</span>
+                </div>
               </div>
 
               <div class="space-y-2 max-h-48 overflow-y-auto pr-1">
@@ -10012,6 +10044,10 @@
           } else if (filterTab.value === 'saved') {
             const savedSet = new Set(savedIdeaIds.value || []);
             list = list.filter(v => savedSet.has(v.video_id));
+          } else if (filterTab.value === 'long_form') {
+            list = list.filter(v => (v.content_type || 'LONG_FORM') !== 'SHORT');
+          } else if (filterTab.value === 'shorts') {
+            list = list.filter(v => v.content_type === 'SHORT');
           }
 
           list.sort((a, b) => {
@@ -11224,6 +11260,80 @@ Nhiệm vụ: Trả lời hoặc viết lại/tinh chỉnh kịch bản theo yê
           triggerManualScan();
         };
 
+        const exportChannelsJson = () => {
+          const cleanChannels = editableChannels.value.map(c => ({
+            name: (c.name || '').trim(),
+            handle_or_url: (c.handle_or_url || c.handle || '').trim(),
+            min_views_per_hour: Number(c.min_views_per_hour || c.threshold) || 5000,
+            ...(c.avatar ? { avatar: c.avatar } : {})
+          }));
+          const blob = new Blob([JSON.stringify(cleanChannels, null, 2)], { type: 'application/json' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `channels_backup_${new Date().toISOString().slice(0, 10)}.json`;
+          a.click();
+          URL.revokeObjectURL(url);
+          showToast('✅ Đã tải xuống file sao lưu danh sách kênh!');
+        };
+
+        const pollWorkflowRun = (token) => {
+          const startTime = Date.now();
+          let attempts = 0;
+          const maxAttempts = 25; // 25 * 6s = 150s
+
+          const timer = setInterval(async () => {
+            attempts++;
+            try {
+              const runUrl = `https://api.github.com/repos/${repoOwner.value}/${repoName.value}/actions/runs?per_page=3`;
+              const rRes = await fetch(runUrl, {
+                headers: {
+                  'Authorization': `Bearer ${token}`,
+                  'Accept': 'application/vnd.github.v3+json'
+                }
+              });
+              if (rRes.ok) {
+                const rData = await rRes.json();
+                const latestRun = (rData.workflow_runs || []).find(r => 
+                  r.name === '24/7 Competitor Video Tracker' &&
+                  (new Date(r.created_at).getTime() >= startTime - 30000)
+                );
+
+                if (latestRun) {
+                  if (latestRun.status === 'in_progress') {
+                    showToast('🤖 Bot đang quét 47 kênh & nạp dữ liệu trên GitHub Cloud...', 4000);
+                  } else if (latestRun.status === 'completed') {
+                    clearInterval(timer);
+                    isTriggering.value = false;
+                    if (latestRun.conclusion === 'success') {
+                      showToast('🎉 Quét hoàn tất thành công! Đang tải số liệu mới nhất...', 4000);
+                      setTimeout(async () => {
+                        await loadData();
+                        await loadEmergingRadarData();
+                        showToast('✅ Dữ liệu trên web đã được cập nhật mới nhất!', 4000);
+                      }, 2500);
+                    } else {
+                      showToast(`⚠️ Quá trình quét kết thúc với kết quả: ${latestRun.conclusion}`, 5000);
+                      await loadData();
+                    }
+                    return;
+                  }
+                }
+              }
+            } catch (err) {
+              console.warn('Lỗi polling run:', err);
+            }
+
+            if (attempts >= maxAttempts) {
+              clearInterval(timer);
+              isTriggering.value = false;
+              showToast('⏳ Đã hoàn tất chu kỳ quét! Đang tải lại dữ liệu...', 4000);
+              await loadData();
+              await loadEmergingRadarData();
+            }
+          }, 6000);
+        };
+
         const triggerManualScan = async () => {
           if (userRole.value === 'normal') {
             showToast('⚠️ Bạn chưa đủ quyền hạn! Tính năng quét thủ công chỉ dành riêng cho Thành Viên VIP 💎 và Admin 👑.', 6000);
@@ -11253,15 +11363,10 @@ Nhiệm vụ: Trả lời hoặc viết lại/tinh chỉnh kịch bản theo yê
             });
 
             if (res.status === 204 || res.ok) {
-              showToast('⚡ Đã kích hoạt bot quét! Tự động làm mới dữ liệu sau ~100 giây...', 8000);
-              // Đếm ngược và tự động reload dữ liệu sau khi bot quét xong
-              setTimeout(() => showToast('⏳ Bot đang quét... còn ~70 giây', 4000), 30000);
-              setTimeout(() => showToast('⏳ Sắp xong... còn ~40 giây', 4000), 60000);
-              setTimeout(async () => {
-                await loadData();
-                showToast('✅ Dữ liệu đã tự động cập nhật sau khi quét!', 5000);
-              }, 100000);
+              showToast('⚡ Đã kích hoạt bot quét! Đang theo dõi tiến trình trực tiếp từ GitHub Actions...', 6000);
+              pollWorkflowRun(token);
             } else {
+              isTriggering.value = false;
               let msg = 'Lỗi kích hoạt';
               try {
                 const data = await res.json();
@@ -11273,10 +11378,9 @@ Nhiệm vụ: Trả lời hoặc viết lại/tinh chỉnh kịch bản theo yê
               throw new Error(msg);
             }
           } catch (err) {
+            isTriggering.value = false;
             console.error(err);
             alert(`Không thể kích hoạt quét: ${err.message}`);
-          } finally {
-            isTriggering.value = false;
           }
         };
 
@@ -12603,7 +12707,8 @@ Nhiệm vụ: Trả lời hoặc viết lại/tinh chỉnh kịch bản theo yê
           activeChannelModalTab,
           openChannelModal,
           closeChannelModal,
-          getChannelUrl
+          getChannelUrl,
+          exportChannelsJson
         };
       }
     });
