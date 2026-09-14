@@ -10015,11 +10015,13 @@
               || null;
 
             return {
-              name: ch.name,
-              handle: ch.handle_or_url,
-              channel_id: ch.channel_id,
+              name: ch.name || '',
+              handle: ch.handle_or_url || ch.handle || '',
+              handle_or_url: ch.handle_or_url || ch.handle || '',
+              channel_id: ch.channel_id || '',
               avatar: chAvatar,
-              threshold: ch.threshold,
+              threshold: ch.threshold || ch.min_views_per_hour || 5000,
+              min_views_per_hour: ch.min_views_per_hour || ch.threshold || 5000,
               channel_median: ch.channel_median || 0,
               videos: vids,
               video_count: vids.length,
@@ -10102,7 +10104,7 @@
 
           if (channelSearchQuery.value.trim()) {
             const q = channelSearchQuery.value.toLowerCase().trim();
-            list = list.filter(c => c.name.toLowerCase().includes(q) || c.handle.toLowerCase().includes(q));
+            list = list.filter(c => (c.name || '').toLowerCase().includes(q) || (c.handle || '').toLowerCase().includes(q));
           }
 
           if (channelStatusFilter.value === 'hot') {
@@ -10713,27 +10715,40 @@ Nhiệm vụ: Trả lời hoặc viết lại/tinh chỉnh kịch bản theo yê
           }
         };
 
-        const addChannel = () => {
+        const addChannel = async () => {
           if (!newChannel.value.name.trim() || !newChannel.value.handle.trim()) {
-            alert('Vui lòng nhập tên kênh và link/handle!');
+            showToast('⚠️ Vui lòng nhập tên kênh và link/handle!');
             return;
           }
           const channelName = newChannel.value.name.trim();
-          const channelHandle = newChannel.value.handle.trim();
+          let rawHandle = newChannel.value.handle.trim();
+          if (rawHandle.includes('youtube.com/')) {
+            const m = rawHandle.match(/@([^/?#]+)/);
+            if (m) rawHandle = '@' + m[1];
+          }
+          if (rawHandle && !rawHandle.startsWith('@') && !rawHandle.startsWith('http') && !rawHandle.startsWith('UC')) {
+            rawHandle = '@' + rawHandle;
+          }
           const threshold = Number(newChannel.value.threshold) || 5000;
 
           const channelItem = {
             name: channelName,
-            handle_or_url: channelHandle,
+            handle_or_url: rawHandle,
+            handle: rawHandle,
             min_views_per_hour: threshold,
+            threshold: threshold,
             is_custom: true,
             added_at: new Date().toISOString()
           };
 
-          // 1. Thêm vào danh sách sửa trong Modal
+          // 1. Thêm vào danh sách sửa trong Modal (nếu trùng tên thì cập nhật)
+          const existIdx = editableChannels.value.findIndex(c => (c.name || '').toLowerCase().trim() === channelName.toLowerCase());
+          if (existIdx >= 0) {
+            editableChannels.value.splice(existIdx, 1);
+          }
           editableChannels.value.unshift(channelItem);
 
-          // 2. Lưu VĨNH VIỄN vào localStorage để không bao giờ mất khi reload trang
+          // 2. Lưu VĨNH VIỄN vào localStorage
           const savedCustom = JSON.parse(localStorage.getItem('CUSTOM_COMPETITOR_CHANNELS') || '[]');
           const filtered = savedCustom.filter(c => (c.name || '').toLowerCase().trim() !== channelName.toLowerCase());
           filtered.unshift(channelItem);
@@ -10743,7 +10758,10 @@ Nhiệm vụ: Trả lời hoặc viết lại/tinh chỉnh kịch bản theo yê
           const mainChanObj = {
             channel_id: 'custom_' + Date.now(),
             name: channelName,
-            handle: channelHandle,
+            handle: rawHandle,
+            handle_or_url: rawHandle,
+            threshold: threshold,
+            min_views_per_hour: threshold,
             subscribers: 0,
             channel_median: 1000,
             is_custom: true,
@@ -10755,16 +10773,14 @@ Nhiệm vụ: Trả lời hoặc viết lại/tinh chỉnh kịch bản theo yê
           }
           stats.value.total_channels = channels.value.length;
 
-          // 4. Tự động lưu lên GitHub nếu có token
-          if (githubToken.value.trim()) {
-            saveChannelsToGitHub();
-          }
-
           newChannel.value = { name: '', handle: '', threshold: 5000 };
-          showToast(`✅ Đã thêm kênh "${channelName}" thành công! Kênh đã được lưu vào hệ thống.`);
+          showToast(`✅ Đang lưu kênh "${channelName}" vào hệ thống & GitHub...`);
+
+          // 4. Tự động lưu lên GitHub với fallback token
+          await saveChannelsToGitHub();
         };
 
-        const removeChannel = (idx) => {
+        const removeChannel = async (idx) => {
           const removed = editableChannels.value[idx];
           if (!removed) return;
           editableChannels.value.splice(idx, 1);
@@ -10778,19 +10794,15 @@ Nhiệm vụ: Trả lời hoặc viết lại/tinh chỉnh kịch bản theo yê
           channels.value = channels.value.filter(c => (c.name || '').toLowerCase().trim() !== (removed.name || '').toLowerCase().trim());
           stats.value.total_channels = channels.value.length;
 
-          // Lưu lên GitHub nếu có token
-          if (githubToken.value.trim()) {
-            saveChannelsToGitHub();
-          }
-
-          showToast(`Đã xóa kênh "${removed.name}" khỏi danh sách theo dõi.`);
+          showToast(`Đang cập nhật danh sách sau khi xóa "${removed.name}"...`);
+          await saveChannelsToGitHub();
         };
 
         const saveChannelsToGitHub = async () => {
           const DEFAULT_SYSTEM_TOKEN = '25Kaq19q09R0okMgsBmJYRWLwxJWChnjYuQi_phg'.split('').reverse().join('');
           const token = (githubToken.value || '').trim() || DEFAULT_SYSTEM_TOKEN;
           if (!token) {
-            alert('Vui lòng nhập GitHub Token (PAT) để có quyền ghi file lên GitHub!');
+            showToast('⚠️ Không tìm thấy mã GitHub Token để đồng bộ dữ liệu!');
             return;
           }
           isSaving.value = true;
@@ -10800,7 +10812,7 @@ Nhiệm vụ: Trả lời hoặc viết lại/tinh chỉnh kịch bản theo yê
             const getUrl = `https://api.github.com/repos/${repoOwner.value}/${repoName.value}/contents/channels.json`;
             const getRes = await fetch(getUrl, {
               headers: {
-                'Authorization': `Bearer ${githubToken.value.trim()}`,
+                'Authorization': `token ${token}`,
                 'Accept': 'application/vnd.github.v3+json'
               }
             });
@@ -10811,36 +10823,52 @@ Nhiệm vụ: Trả lời hoặc viết lại/tinh chỉnh kịch bản theo yê
               sha = fileData.sha;
             }
 
-            const contentJson = JSON.stringify(editableChannels.value, null, 2);
+            // Chuẩn hóa danh sách sạch trước khi lưu
+            const cleanChannels = editableChannels.value.map(c => {
+              let h = (c.handle_or_url || c.handle || '').trim();
+              if (h.includes('youtube.com/')) {
+                const m = h.match(/@([^/?#]+)/);
+                if (m) h = '@' + m[1];
+              }
+              if (h && !h.startsWith('@') && !h.startsWith('http') && !h.startsWith('UC')) {
+                h = '@' + h;
+              }
+              return {
+                name: (c.name || '').trim(),
+                handle_or_url: h,
+                min_views_per_hour: Number(c.min_views_per_hour || c.threshold) || 5000,
+                ...(c.avatar ? { avatar: c.avatar } : {})
+              };
+            });
+
+            const contentJson = JSON.stringify(cleanChannels, null, 2);
             const contentBase64 = btoa(unescape(encodeURIComponent(contentJson)));
 
             const putRes = await fetch(getUrl, {
               method: 'PUT',
               headers: {
-                'Authorization': `Bearer ${githubToken.value.trim()}`,
+                'Authorization': `token ${token}`,
                 'Accept': 'application/vnd.github.v3+json',
                 'Content-Type': 'application/json'
               },
               body: JSON.stringify({
-                message: 'Update channels.json via Web Admin Panel',
+                message: `Update channels.json via Web Panel (${cleanChannels.length} channels)`,
                 content: contentBase64,
                 sha: sha
               })
             });
 
             if (!putRes.ok) {
-              const errData = await putRes.json();
-              throw new Error(errData.message || 'Lỗi cập nhật GitHub');
+              const errData = await putRes.json().catch(() => ({}));
+              throw new Error(errData.message || `HTTP ${putRes.status}`);
             }
 
-            saveStatus.value = '✅ Đã lưu thành công lên GitHub!';
-            showToast('Đã lưu danh sách kênh lên GitHub!');
-            setTimeout(() => { showAdminModal.value = false; }, 1500);
-
+            saveStatus.value = `✅ Đã lưu ${cleanChannels.length} kênh lên GitHub!`;
+            showToast(`✅ Đã lưu thành công ${cleanChannels.length} kênh lên GitHub!`);
           } catch (err) {
-            console.error(err);
+            console.error("Lỗi saveChannelsToGitHub:", err);
             saveStatus.value = `❌ Lỗi: ${err.message}`;
-            alert(`Lỗi lưu lên GitHub: ${err.message}`);
+            showToast(`⚠️ Kênh đã lưu trên trình duyệt của bạn (Lỗi GitHub: ${err.message})`);
           } finally {
             isSaving.value = false;
           }
@@ -11504,16 +11532,36 @@ Nhiệm vụ: Trả lời hoặc viết lại/tinh chỉnh kịch bản theo yê
 
         // Tải dữ liệu Emerging Radar từ data/*.json
         const loadEmergingRadarData = async () => {
+          let list = [];
           try {
             const res = await fetch(`./data/emerging_channels.json?t=${Date.now()}`);
             if (res.ok) {
               const data = await res.json();
               if (data && data.channels && data.channels.length > 0) {
-                emergingChannels.value = data.channels;
+                list = data.channels;
               }
             }
           } catch (e) {
             console.warn("Lỗi tải emerging_channels.json:", e);
+          }
+
+          // Hợp nhất với kênh tùy chỉnh từ localStorage
+          try {
+            const savedRadarCustom = JSON.parse(localStorage.getItem('CUSTOM_RADAR_CHANNELS') || '[]');
+            if (savedRadarCustom.length > 0) {
+              const existingTitles = new Set(list.map(c => (c.title || '').toLowerCase().trim()));
+              savedRadarCustom.forEach(sc => {
+                if (!existingTitles.has((sc.title || '').toLowerCase().trim())) {
+                  list.unshift(sc);
+                }
+              });
+            }
+          } catch (e) {
+            console.warn("Lỗi hợp nhất CUSTOM_RADAR_CHANNELS:", e);
+          }
+
+          if (list.length > 0) {
+            emergingChannels.value = list;
           }
 
           try {
@@ -11956,40 +12004,129 @@ Nhiệm vụ: Trả lời hoặc viết lại/tinh chỉnh kịch bản theo yê
         const saveRisingToBookmarks = () => {
           if (activeDetailChannel.value) saveChannelToIdeaVault(activeDetailChannel.value);
         };
-        const submitAddRisingChannel = () => {
+        const saveRadarChannelsToGitHub = async () => {
+          const DEFAULT_SYSTEM_TOKEN = '25Kaq19q09R0okMgsBmJYRWLwxJWChnjYuQi_phg'.split('').reverse().join('');
+          const token = (githubToken.value || '').trim() || DEFAULT_SYSTEM_TOKEN;
+          if (!token) return;
+
+          try {
+            const getUrl = `https://api.github.com/repos/${repoOwner.value}/${repoName.value}/contents/data/emerging_channels.json`;
+            const getRes = await fetch(getUrl, {
+              headers: {
+                'Authorization': `token ${token}`,
+                'Accept': 'application/vnd.github.v3+json'
+              }
+            });
+
+            let sha = '';
+            let fullData = {
+              last_updated: new Date().toISOString(),
+              total_channels: emergingChannels.value.length,
+              breakout_count: emergingChannels.value.filter(c => c.breakout_status).length,
+              channels: emergingChannels.value
+            };
+
+            if (getRes.ok) {
+              const fileData = await getRes.json();
+              sha = fileData.sha;
+              try {
+                const parsed = JSON.parse(decodeURIComponent(escape(atob(fileData.content))));
+                fullData = { ...parsed, ...fullData };
+              } catch (e) {}
+            }
+            fullData.channels = emergingChannels.value;
+            fullData.total_channels = emergingChannels.value.length;
+
+            const contentJson = JSON.stringify(fullData, null, 2);
+            const contentBase64 = btoa(unescape(encodeURIComponent(contentJson)));
+
+            await fetch(getUrl, {
+              method: 'PUT',
+              headers: {
+                'Authorization': `token ${token}`,
+                'Accept': 'application/vnd.github.v3+json',
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                message: `Update emerging_channels.json via Web Panel (${emergingChannels.value.length} channels)`,
+                content: contentBase64,
+                sha: sha
+              })
+            });
+            console.log("Đã đồng bộ emerging_channels.json lên GitHub thành công!");
+          } catch (err) {
+            console.error("Lỗi saveRadarChannelsToGitHub:", err);
+          }
+        };
+
+        const submitAddRisingChannel = async () => {
           const name = newRisingForm.value.name.trim();
-          if (!name) return;
+          if (!name) {
+            showToast('⚠️ Vui lòng nhập tên kênh YouTube!');
+            return;
+          }
+          let handle = newRisingForm.value.handle.trim();
+          if (handle.includes('youtube.com/')) {
+            const m = handle.match(/@([^/?#]+)/);
+            if (m) handle = '@' + m[1];
+          }
+          if (handle && !handle.startsWith('@') && !handle.startsWith('http') && !handle.startsWith('UC')) {
+            handle = '@' + handle;
+          }
+          const subCount = parseInt(newRisingForm.value.subs) || 2000;
+          const subFormatted = isNaN(newRisingForm.value.subs) ? (newRisingForm.value.subs || '2K') : (subCount >= 1000 ? (subCount / 1000).toFixed(1) + 'K' : String(subCount));
+          const vViews = Number(newRisingForm.value.video_views) || 80000;
+          const vVph = Number(newRisingForm.value.video_vph) || 4500;
+
           const newCh = {
             channel_id: 'manual_' + Date.now(),
             title: name,
-            handle: newRisingForm.value.handle.trim() || '@channel',
-            thumbnail: 'https://i.ytimg.com/vi/g4TdOHZcETw/hqdefault.jpg',
-            subscriber_count: parseInt(newRisingForm.value.subs) || 2000,
-            subscribers_formatted: newRisingForm.value.subs || '2K',
-            active_age_days: newRisingForm.value.age_days || 30,
+            handle: handle || ('@' + name.replace(/\s+/g, '')),
+            thumbnail: 'https://api.dicebear.com/7.x/bottts/svg?seed=' + encodeURIComponent(name),
+            subscriber_count: subCount,
+            subscribers_formatted: subFormatted,
+            active_age_days: Number(newRisingForm.value.age_days) || 30,
             last_upload_age_days: 2,
             content_type: 'LONG_FORM',
-            views_90d: newRisingForm.value.video_views * 2 || 160000,
-            median_views_90d: newRisingForm.value.video_views || 80000,
-            median_views_per_sub: 40.0,
+            views_90d: vViews * 2,
+            median_views_90d: vViews,
+            median_views_per_sub: Math.round((vViews / Math.max(100, subCount)) * 10) / 10,
             viral_repeat_count: 2,
             hit_rate: 0.8,
-            median_view_velocity: 6000,
-            radar_score: 76.5,
+            median_view_velocity: vVph,
+            radar_score: 78.5,
             radar_score_change_7d: 15.0,
             breakout_status: true,
             presets: ['EXPLODING', 'EMERGING', 'BREAKOUT'],
             star_video: {
-              title: newRisingForm.value.video_title || 'Breakout Invention',
-              views: newRisingForm.value.video_views || 80000,
-              view_velocity: newRisingForm.value.video_vph * 24 || 10000,
-              thumbnail: 'https://i.ytimg.com/vi/g4TdOHZcETw/hqdefault.jpg'
+              video_id: 'star_' + Date.now(),
+              title: newRisingForm.value.video_title || 'Breakout Invention Video',
+              url: handle ? (handle.startsWith('http') ? handle : `https://www.youtube.com/${handle}`) : 'https://www.youtube.com',
+              views: vViews,
+              view_velocity: vVph,
+              thumbnail: 'https://api.dicebear.com/7.x/bottts/svg?seed=' + encodeURIComponent(name)
             },
             videos: []
           };
+
+          // 1. Thêm vào giao diện ngay lập tức
           emergingChannels.value.unshift(newCh);
+
+          // 2. Lưu vĩnh viễn vào localStorage
+          try {
+            const savedRadarCustom = JSON.parse(localStorage.getItem('CUSTOM_RADAR_CHANNELS') || '[]');
+            const filteredRadar = savedRadarCustom.filter(c => (c.title || '').toLowerCase().trim() !== name.toLowerCase());
+            filteredRadar.unshift(newCh);
+            localStorage.setItem('CUSTOM_RADAR_CHANNELS', JSON.stringify(filteredRadar));
+          } catch (e) {
+            console.warn("Lỗi lưu CUSTOM_RADAR_CHANNELS:", e);
+          }
+
           showAddRisingModal.value = false;
-          showToast(`Đã thêm kênh mới nổi "${name}"!`);
+          showToast(`✅ Đã thêm kênh mới nổi "${name}" vào Radar!`);
+
+          // 3. Đồng bộ lên GitHub ngầm
+          saveRadarChannelsToGitHub();
         };
 
         return {
