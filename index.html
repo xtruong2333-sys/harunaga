@@ -2887,15 +2887,37 @@
             </button>
           </div>
 
-          <div class="text-xs text-slate-400 flex items-center gap-2">
-            <span>Hiển thị <strong>{{ filteredVideos.length }}</strong> / {{ allVideos.length }} video</span>
+          <div class="text-xs text-slate-400 flex items-center gap-3">
+            <!-- View Mode Switcher: Grid vs Table -->
+            <div class="flex items-center bg-slate-100 dark:bg-slate-900 p-0.5 rounded-xl border border-slate-200 dark:border-slate-800">
+              <button 
+                @click="setVideoViewMode('grid')" 
+                :class="videoViewMode === 'grid' ? 'bg-white dark:bg-slate-800 text-purple-600 dark:text-purple-400 shadow-sm font-black' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 font-semibold'"
+                class="px-2.5 py-1 rounded-lg text-xs flex items-center gap-1.5 transition cursor-pointer"
+                title="Xem dạng thẻ hình ảnh (Grid View)"
+              >
+                <i class="ph-bold ph-squares-four text-sm"></i>
+                <span class="hidden sm:inline">Dạng Thẻ</span>
+              </button>
+              <button 
+                @click="setVideoViewMode('table')" 
+                :class="videoViewMode === 'table' ? 'bg-white dark:bg-slate-800 text-purple-600 dark:text-purple-400 shadow-sm font-black' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 font-semibold'"
+                class="px-2.5 py-1 rounded-lg text-xs flex items-center gap-1.5 transition cursor-pointer"
+                title="Xem dạng bảng soi nhanh (Table View)"
+              >
+                <i class="ph-bold ph-table text-sm"></i>
+                <span class="hidden sm:inline">Bảng Soi</span>
+              </button>
+            </div>
+
+            <span class="hidden md:inline">Hiển thị <strong>{{ filteredVideos.length }}</strong> / {{ allVideos.length }} video</span>
             <button 
               v-if="isFiltered" 
               @click="resetFilters" 
               class="text-rose-500 hover:underline font-bold flex items-center gap-1 cursor-pointer"
             >
               <i class="ph ph-arrow-counter-clockwise"></i>
-              <span>Đặt lại lọc</span>
+              <span>Đặt lại</span>
             </button>
           </div>
         </div>
@@ -2903,7 +2925,7 @@
       </div>
 
       <!-- Video Grid (Cinematic 16:9 Cards) -->
-      <div v-if="filteredVideos.length > 0" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4 gap-4 sm:gap-5">
+      <div v-if="filteredVideos.length > 0 && videoViewMode === 'grid'" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-4 gap-4 sm:gap-5">
         <div 
           v-for="v in filteredVideos" 
           :key="v.video_id"
@@ -2938,6 +2960,14 @@
                   <span>Xem YouTube</span>
                   <i class="ph-bold ph-arrow-square-out text-[10px] text-slate-300"></i>
                 </span>
+                <button 
+                  @click.stop.prevent="openThumbnailModal(v)"
+                  class="mt-2 text-[10px] font-bold text-slate-200 bg-purple-950/80 hover:bg-purple-600 hover:text-white px-3 py-1 rounded-full border border-purple-500/30 shadow-lg transition flex items-center gap-1 cursor-pointer"
+                  title="Soi Thumbnail HD 1280x720"
+                >
+                  <i class="ph-bold ph-magnifying-glass-plus text-xs"></i>
+                  <span>Soi Thumbnail HD</span>
+                </button>
               </a>
 
               <!-- Top Left: Outlier Multiplier Badge (Chuẩn 1of10) -->
@@ -3010,15 +3040,24 @@
 
             <!-- Content Body -->
             <div class="p-3.5 sm:p-4">
-              <a 
-                :href="v.url" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                class="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors duration-200 line-clamp-2 leading-snug break-words"
-                :title="v.title"
-              >
-                {{ v.title }}
-              </a>
+              <div class="flex items-start justify-between gap-2">
+                <a 
+                  :href="v.url" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  class="text-xs sm:text-sm font-bold text-slate-900 dark:text-slate-100 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors duration-200 line-clamp-2 leading-snug break-words flex-1"
+                  :title="v.title"
+                >
+                  {{ v.title }}
+                </a>
+                <button 
+                  @click.stop.prevent="copyTextToClipboard(v.title, 'Đã sao chép tiêu đề video!')" 
+                  class="p-1 rounded-lg text-slate-400 hover:text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-950/40 transition flex-shrink-0 cursor-pointer"
+                  title="Sao chép tiêu đề"
+                >
+                  <i class="ph-bold ph-copy text-xs"></i>
+                </button>
+              </div>
 
               <div class="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800/80 grid grid-cols-2 gap-2 text-xs">
                 <div>
@@ -3105,6 +3144,197 @@
           </div>
 
         </div>
+      </div>
+
+      <!-- Video Table View (Compact Intelligence) -->
+      <div v-else-if="filteredVideos.length > 0 && videoViewMode === 'table'" class="overflow-x-auto rounded-3xl border border-slate-200 dark:border-slate-800/80 bg-white dark:bg-[#0c1222] shadow-sm">
+        <table class="w-full text-left border-collapse text-xs">
+          <thead>
+            <tr class="border-b border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 bg-slate-50/80 dark:bg-slate-900/60 uppercase tracking-wider text-[10px] font-black">
+              <th class="py-3 px-3.5 w-20">Ảnh bìa</th>
+              <th class="py-3 px-3">Video & Kênh</th>
+              <th class="py-3 px-2 text-center w-20">Định dạng</th>
+              <th class="py-3 px-3 text-right w-24">Lượt xem</th>
+              <th class="py-3 px-3 text-right w-28">Tốc độ (v/h)</th>
+              <th class="py-3 px-2 text-center w-28">Đột biến</th>
+              <th class="py-3 px-2 text-center w-20">Độ Hot</th>
+              <th class="py-3 px-2 text-center w-24">Đã đăng</th>
+              <th class="py-3 px-3 text-center w-36">Thao tác</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 dark:divide-slate-800/60">
+            <tr 
+              v-for="v in filteredVideos" 
+              :key="v.video_id"
+              class="hover:bg-purple-50/50 dark:hover:bg-purple-950/20 transition-colors duration-150 group"
+              :class="v.is_viral ? 'bg-rose-500/[0.03] dark:bg-rose-950/[0.08]' : ''"
+            >
+              <!-- Thumbnail -->
+              <td class="py-2.5 px-3.5 align-middle">
+                <div class="relative w-16 sm:w-20 aspect-video rounded-xl overflow-hidden bg-slate-900 flex-shrink-0 border border-slate-200 dark:border-slate-800 group-hover:shadow-md transition">
+                  <img :src="v.thumbnail" :alt="v.title" loading="lazy" class="w-full h-full object-cover">
+                  <button 
+                    @click.stop="openThumbnailModal(v)" 
+                    class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white transition cursor-pointer"
+                    title="Soi Thumbnail HD 1280x720"
+                  >
+                    <i class="ph-bold ph-magnifying-glass-plus text-xs"></i>
+                  </button>
+                </div>
+              </td>
+
+              <!-- Title & Channel -->
+              <td class="py-2.5 px-3 align-middle max-w-xs md:max-w-md lg:max-w-lg">
+                <div class="space-y-1">
+                  <div class="flex items-start gap-1.5">
+                    <a 
+                      :href="v.url" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      class="font-bold text-slate-900 dark:text-slate-100 hover:text-purple-600 dark:hover:text-purple-400 leading-snug line-clamp-2 transition"
+                      :title="v.title"
+                    >
+                      {{ v.title }}
+                    </a>
+                    <button 
+                      @click.stop="copyTextToClipboard(v.title, 'Đã sao chép tiêu đề video!')" 
+                      class="opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-purple-600 dark:hover:text-purple-400 transition flex-shrink-0 cursor-pointer"
+                      title="Sao chép tiêu đề"
+                    >
+                      <i class="ph-bold ph-copy text-xs"></i>
+                    </button>
+                  </div>
+                  <div class="flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400">
+                    <span class="font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1">
+                      <i class="ph-fill ph-youtube-logo text-rose-500 text-xs"></i>
+                      <span>{{ v.channel_name }}</span>
+                    </span>
+                    <span>•</span>
+                    <span class="font-mono text-[10px] text-slate-400">Mức thường: {{ formatNumber(v.channel_median || 1000) }}</span>
+                  </div>
+                </div>
+              </td>
+
+              <!-- Content Type -->
+              <td class="py-2.5 px-2 text-center align-middle whitespace-nowrap">
+                <span 
+                  v-if="v.content_type === 'SHORT'" 
+                  class="text-[10px] font-black px-2 py-0.5 rounded-full bg-rose-500/15 text-rose-500 border border-rose-500/30 inline-flex items-center gap-0.5"
+                >
+                  <i class="ph-bold ph-lightning"></i>
+                  <span>Shorts</span>
+                </span>
+                <span 
+                  v-else 
+                  class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-500/15 text-indigo-400 border border-indigo-500/30 inline-flex items-center gap-0.5"
+                >
+                  <i class="ph-bold ph-film-slate"></i>
+                  <span>Dài</span>
+                </span>
+              </td>
+
+              <!-- Views -->
+              <td class="py-2.5 px-3 text-right align-middle whitespace-nowrap font-mono font-bold text-slate-800 dark:text-slate-200">
+                {{ formatNumber(v.views) }}
+              </td>
+
+              <!-- Speed VPH -->
+              <td class="py-2.5 px-3 text-right align-middle whitespace-nowrap">
+                <span 
+                  v-if="v.is_viral" 
+                  class="font-black text-rose-500 flex items-center justify-end gap-1 font-mono text-xs"
+                >
+                  <i class="ph-fill ph-fire animate-pulse text-xs"></i>
+                  +{{ formatNumber(v.effective_vph) }}/h
+                </span>
+                <span 
+                  v-else-if="v.effective_vph >= 1000" 
+                  class="font-bold text-amber-500 flex items-center justify-end gap-1 font-mono text-xs"
+                >
+                  <i class="ph-bold ph-trend-up text-xs"></i>
+                  +{{ formatNumber(v.effective_vph) }}/h
+                </span>
+                <span 
+                  v-else 
+                  class="text-slate-500 dark:text-slate-400 font-mono text-xs"
+                >
+                  +{{ formatNumber(v.effective_vph) }}/h
+                </span>
+              </td>
+
+              <!-- Outlier Multiplier -->
+              <td class="py-2.5 px-2 text-center align-middle whitespace-nowrap">
+                <span 
+                  v-if="(v.outlier_score || 0) >= 3" 
+                  class="px-2 py-0.5 rounded-full text-[10px] font-black bg-gradient-to-r from-amber-500/20 to-rose-500/20 text-rose-500 border border-rose-500/30"
+                >
+                  x{{ v.outlier_score }} lần
+                </span>
+                <span 
+                  v-else-if="(v.outlier_score || 0) >= 1.5" 
+                  class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-cyan-500/10 text-cyan-400 border border-cyan-500/30"
+                >
+                  x{{ v.outlier_score }}
+                </span>
+                <span v-else class="text-[10px] text-slate-400">
+                  x{{ v.outlier_score || 1 }}
+                </span>
+              </td>
+
+              <!-- Momentum -->
+              <td class="py-2.5 px-2 text-center align-middle whitespace-nowrap">
+                <span 
+                  class="px-2 py-0.5 rounded-full text-[10px] font-bold" 
+                  :class="(v.momentum_score || 0) >= 70 ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-black' : 'bg-slate-200 dark:bg-slate-800 text-slate-400'"
+                >
+                  {{ v.momentum_score || 0 }}đ
+                </span>
+              </td>
+
+              <!-- Published Ago -->
+              <td class="py-2.5 px-2 text-center align-middle whitespace-nowrap text-[11px] text-slate-400">
+                {{ v.hours_ago_formatted }}
+              </td>
+
+              <!-- Action Buttons -->
+              <td class="py-2.5 px-3 text-center align-middle whitespace-nowrap">
+                <div class="flex items-center justify-center gap-1.5">
+                  <button 
+                    @click="openAiModal(v)" 
+                    class="p-1.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold transition shadow-sm cursor-pointer"
+                    title="Mở AI Studio Kịch Bản"
+                  >
+                    <i class="ph-fill ph-sparkle text-xs"></i>
+                  </button>
+                  <a 
+                    :href="v.url" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    class="p-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-rose-500 hover:text-white text-slate-600 dark:text-slate-300 font-bold transition cursor-pointer"
+                    title="Xem trên YouTube"
+                  >
+                    <i class="ph-bold ph-arrow-square-out text-xs"></i>
+                  </a>
+                  <button 
+                    @click="openThumbnailModal(v)" 
+                    class="p-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-blue-600 hover:text-white text-slate-600 dark:text-slate-300 font-bold transition cursor-pointer"
+                    title="Soi Thumbnail HD"
+                  >
+                    <i class="ph-bold ph-magnifying-glass-plus text-xs"></i>
+                  </button>
+                  <button 
+                    @click.stop="toggleSaveIdea(v)" 
+                    class="p-1.5 rounded-xl transition cursor-pointer"
+                    :class="isSaved(v.video_id) ? 'bg-amber-400 text-slate-950 font-black' : 'bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-amber-400'"
+                    :title="isSaved(v.video_id) ? 'Đã lưu vào Kho Ý Tưởng' : 'Lưu vào Kho Ý Tưởng'"
+                  >
+                    <i :class="isSaved(v.video_id) ? 'ph-fill ph-bookmark-simple' : 'ph-bold ph-bookmark-simple'" class="text-xs"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
 
       <!-- Empty State -->
@@ -6150,10 +6380,91 @@
     </div> <!-- End Right Main Viewport -->
     
     <!-- ========================================================================================= -->
-<!-- ============================================================================ -->
+    <!-- ============================================================================ -->
+    <!-- MODAL 0: THUMBNAIL HD INSPECTOR (SOI ẢNH BÌA 1280x720)                       -->
+    <!-- ============================================================================ -->
+    <div 
+      v-if="selectedThumbnailModal" 
+      @click.self="selectedThumbnailModal = null" 
+      @keydown.escape.window="selectedThumbnailModal = null"
+      class="fixed inset-0 z-[100010] flex items-center justify-center p-3 sm:p-6 bg-slate-950/80 backdrop-blur-md transition-opacity duration-300 select-none"
+    >
+      <div class="bg-white dark:bg-[#090d1a] border border-purple-500/30 ring-1 ring-white/10 rounded-3xl max-w-4xl w-full shadow-2xl overflow-hidden flex flex-col my-auto">
+        <!-- Header -->
+        <div class="p-3.5 sm:p-4 px-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-900/60">
+          <div class="flex items-center space-x-2.5 min-w-0 flex-1">
+            <div class="w-8 h-8 rounded-xl bg-purple-500/10 text-purple-500 flex items-center justify-center flex-shrink-0">
+              <i class="ph-bold ph-image text-lg"></i>
+            </div>
+            <div class="min-w-0 flex-1">
+              <h4 class="text-xs sm:text-sm font-black text-slate-900 dark:text-white truncate">
+                {{ selectedThumbnailModal.title }}
+              </h4>
+              <p class="text-[11px] text-slate-400 flex items-center gap-1.5 mt-0.5">
+                <span>Kênh: <strong class="text-slate-700 dark:text-slate-200">{{ selectedThumbnailModal.channel_name }}</strong></span>
+                <span>•</span>
+                <span class="text-purple-500 font-bold">Chuẩn HD 1280x720</span>
+              </p>
+            </div>
+          </div>
+          <button 
+            @click="selectedThumbnailModal = null" 
+            class="w-8 h-8 rounded-xl bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center transition cursor-pointer flex-shrink-0 ml-2"
+          >
+            <i class="ph-bold ph-x text-sm"></i>
+          </button>
+        </div>
+
+        <!-- Image Body -->
+        <div class="p-3 sm:p-5 bg-slate-950 flex flex-col items-center justify-center">
+          <div class="relative w-full aspect-video rounded-2xl overflow-hidden border border-slate-800 shadow-2xl">
+            <img 
+              :src="'https://i.ytimg.com/vi/' + selectedThumbnailModal.video_id + '/maxresdefault.jpg'" 
+              :alt="selectedThumbnailModal.title"
+              class="w-full h-full object-cover"
+              @error="$event.target.src = selectedThumbnailModal.thumbnail || ('https://i.ytimg.com/vi/' + selectedThumbnailModal.video_id + '/hqdefault.jpg')"
+            >
+          </div>
+        </div>
+
+        <!-- Actions Footer -->
+        <div class="p-3 sm:p-4 px-5 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 flex flex-wrap items-center justify-between gap-2">
+          <div class="text-[11px] text-slate-400">
+            💡 Soi kỹ bố cục, màu sắc và tiêu điểm hình ảnh để học hỏi công thức thumbnail triệu view!
+          </div>
+          <div class="flex items-center gap-2">
+            <a 
+              :href="'https://i.ytimg.com/vi/' + selectedThumbnailModal.video_id + '/maxresdefault.jpg'" 
+              target="_blank" 
+              download 
+              class="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl text-xs transition flex items-center gap-1.5 cursor-pointer shadow-sm"
+            >
+              <i class="ph-bold ph-download-simple"></i>
+              <span>Tải Ảnh HD</span>
+            </a>
+            <button 
+              @click="copyTextToClipboard('https://i.ytimg.com/vi/' + selectedThumbnailModal.video_id + '/maxresdefault.jpg', 'Đã sao chép link ảnh Thumbnail HD!')" 
+              class="px-3 py-1.5 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold rounded-xl text-xs transition flex items-center gap-1.5 cursor-pointer"
+            >
+              <i class="ph-bold ph-link"></i>
+              <span>Copy Link Ảnh</span>
+            </button>
+            <button 
+              @click="openAiModal(selectedThumbnailModal); selectedThumbnailModal = null" 
+              class="px-3 py-1.5 bg-gradient-to-r from-purple-600 to-rose-600 text-white font-bold rounded-xl text-xs transition flex items-center gap-1.5 cursor-pointer shadow-sm"
+            >
+              <i class="ph-fill ph-sparkle"></i>
+              <span>Mở AI Studio</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================================ -->
     <!-- MODAL 1: ENTERPRISE AI CONTENT STUDIO & INTERNATIONAL REMAKE BLUEPRINT       -->
     <!-- ============================================================================ -->
-    <div v-if="activeAiVideo" @click.self="activeAiVideo = null" class="fixed inset-0 z-[100000] flex items-center justify-center p-2 sm:p-4 bg-slate-900/40 dark:bg-slate-950/70 backdrop-blur-md overflow-y-auto transition-opacity duration-300 select-none">
+    <div v-if="activeAiVideo" @click.self="activeAiVideo = null" @keydown.escape.window="activeAiVideo = null" class="fixed inset-0 z-[100000] flex items-center justify-center p-2 sm:p-4 bg-slate-900/40 dark:bg-slate-950/70 backdrop-blur-md overflow-y-auto transition-opacity duration-300 select-none">
       <div class="bg-white dark:bg-[#090d1a] border border-purple-500/30 dark:border-purple-500/30 ring-1 ring-white/10 rounded-[28px] max-w-7xl w-full h-[92vh] max-h-[96vh] flex flex-col shadow-2xl shadow-purple-950/40 relative my-auto overflow-hidden">
         
         <!-- Top Ambient Glow Ribbon -->
@@ -6437,6 +6748,54 @@
                 <p class="text-[11px] text-slate-500 dark:text-slate-400 italic">
                   💡 Đoạn Hook này được tối ưu nhịp thở và tâm lý tò mò để tạo retention rate trên 80% trong 15 giây đầu tiên.
                 </p>
+
+                <!-- ⚡ BỘ 3 MẪU HOOK GIỮ CHÂN 0-5S THEO 3 PHONG CÁCH TÂM LÝ -->
+                <div class="mt-4 pt-3 border-t border-slate-200 dark:border-slate-800 space-y-2.5">
+                  <div class="flex items-center justify-between">
+                    <span class="text-[11px] font-black uppercase tracking-wider text-purple-600 dark:text-purple-400 flex items-center space-x-1">
+                      <i class="ph-bold ph-lightning text-amber-400"></i>
+                      <span>Bộ 3 Mẫu Hook Giữ Chân 0–5s Đột Phá</span>
+                    </span>
+                    <span class="text-[10px] text-slate-400">Chọn 1 để thu âm mở đầu</span>
+                  </div>
+
+                  <div class="grid grid-cols-1 md:grid-cols-3 gap-2.5">
+                    <div 
+                      v-for="(hk, hIdx) in retentionHooks" 
+                      :key="hIdx"
+                      class="p-3 bg-slate-50 dark:bg-slate-800/80 rounded-xl border border-slate-200 dark:border-slate-700/80 flex flex-col justify-between space-y-2 hover:border-purple-500/50 transition"
+                    >
+                      <div class="space-y-1.5">
+                        <div class="flex items-center justify-between">
+                          <span class="text-[10px] font-black text-slate-900 dark:text-white flex items-center gap-1">
+                            <i :class="hIdx === 0 ? 'ph-bold ph-eye text-purple-400' : (hIdx === 1 ? 'ph-bold ph-warning text-rose-400' : 'ph-bold ph-trophy text-emerald-400')"></i>
+                            <span>{{ hk.style }}</span>
+                          </span>
+                          <span class="text-[9px] font-bold px-1.5 py-0.2 rounded bg-white/40 dark:bg-white/10 text-purple-600 dark:text-purple-300">
+                            {{ hk.tag }}
+                          </span>
+                        </div>
+                        <p class="text-xs font-mono text-amber-500 dark:text-amber-300 leading-snug">
+                          "{{ hk.en }}"
+                        </p>
+                        <p class="text-[11px] text-slate-600 dark:text-slate-400 italic leading-snug">
+                          ↳ {{ hk.vi }}
+                        </p>
+                      </div>
+
+                      <div class="pt-1.5 border-t border-slate-200/60 dark:border-slate-700/60 flex items-center justify-end">
+                        <button 
+                          @click="copyTextToClipboard(hk.en, 'Đã sao chép Hook tiếng Anh: ' + hk.style)"
+                          class="px-2 py-1 rounded-lg bg-slate-200 dark:bg-slate-700 hover:bg-purple-600 hover:text-white text-slate-700 dark:text-slate-200 text-[10px] font-bold transition flex items-center gap-1 cursor-pointer"
+                          title="Sao chép câu thoại tiếng Anh"
+                        >
+                          <i class="ph-bold ph-copy"></i>
+                          <span>Copy Hook</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <!-- 3. CẤU TRÚC KỊCH BẢN 3 HỒI (3-ACT SCRIPT ARCHITECTURE) -->
@@ -9637,12 +9996,27 @@
         // Theme State (Dark / Light)
         const isDark = ref(localStorage.getItem('APP_THEME') !== 'light');
 
-        // Tab 1 (Video) Filter & Sort State
+        // Tab 1 (Video) Filter & Sort State & View Mode
         const searchQuery = ref('');
         const selectedChannel = ref('ALL');
         const filterTab = ref('all'); // 'all', 'viral', 'high_speed', 'ai', 'recent'
         const sortBy = ref('vph'); // 'vph', 'views', 'newest'
         const sortOrder = ref('desc'); // 'desc' hoặc 'asc'
+        const videoViewMode = ref(localStorage.getItem('VIDEO_VIEW_MODE') || 'grid'); // 'grid' hoặc 'table'
+        const setVideoViewMode = (mode) => {
+          videoViewMode.value = mode;
+          try {
+            localStorage.setItem('VIDEO_VIEW_MODE', mode);
+          } catch (e) {}
+        };
+
+        const selectedThumbnailModal = ref(null);
+        const openThumbnailModal = (video) => {
+          selectedThumbnailModal.value = video;
+        };
+        const closeThumbnailModal = () => {
+          selectedThumbnailModal.value = null;
+        };
 
         // Tab 2 (Channel) Filter & Sort State & View Mode
         const channelSearchQuery = ref('');
@@ -10007,6 +10381,36 @@
         const risingCount = computed(() => (allVideos.value || []).filter(v => (v.outlier_score || 0) >= 1.5 && (v.outlier_score || 0) < 3).length);
         const momentumHighCount = computed(() => (allVideos.value || []).filter(v => (v.momentum_score || 0) >= 70).length);
         const overviewVideosPreview = computed(() => (filteredVideos.value || []).slice(0, 6));
+
+        const retentionHooks = computed(() => {
+          if (!activeAiVideo.value) return [];
+          const baseTitle = activeAiVideo.value.title || 'this project';
+          const hookScript = (activeBlueprint.value && activeBlueprint.value.english_hook_script) || '';
+          
+          return [
+            {
+              style: 'Tò Mò Cực Đại (Curiosity Gap)',
+              tag: 'Giữ chân 88%',
+              color: 'from-purple-500 to-indigo-600',
+              en: hookScript || `Did you know that 99% of people throw this away without knowing its real secret? Watch till the end!`,
+              vi: `Bạn có biết 99% mọi người vứt bỏ thứ này đi mà không hề hay biết bí mật thực sự của nó? Hãy xem đến cuối cùng!`
+            },
+            {
+              style: 'Cảnh Báo & Gây Sốc (Shock & Direct)',
+              tag: 'Giữ chân 92%',
+              color: 'from-rose-500 to-amber-600',
+              en: `Stop! Whatever you do, do NOT try this until you see the fatal mistake almost everyone makes!`,
+              vi: `Dừng lại! Dù bạn làm gì, TUYỆT ĐỐI ĐỪNG thử điều này cho đến khi bạn thấy sai lầm chết người mà ai cũng mắc phải!`
+            },
+            {
+              style: 'Thách Thức & Giải Pháp (Challenge & Payoff)',
+              tag: 'Giữ chân 85%',
+              color: 'from-emerald-500 to-cyan-600',
+              en: `Everyone claimed this was completely impossible to make at home. So I put it to the ultimate test!`,
+              vi: `Ai cũng khẳng định thứ này hoàn toàn không thể tự làm tại nhà. Vì vậy tôi quyết định mang nó ra thử nghiệm tối thượng!`
+            }
+          ];
+        });
 
         const setMetricTimeUnit = (unit) => {
           metricTimeUnit.value = unit;
@@ -12615,6 +13019,12 @@ Nhiệm vụ: Trả lời hoặc viết lại/tinh chỉnh kịch bản theo yê
           sortBy,
           sortOrder,
           sortLabel,
+          videoViewMode,
+          setVideoViewMode,
+          selectedThumbnailModal,
+          openThumbnailModal,
+          closeThumbnailModal,
+          retentionHooks,
           isFiltered,
           toggleSortOrder,
           channelSearchQuery,
