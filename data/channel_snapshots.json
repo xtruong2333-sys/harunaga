@@ -9,6 +9,16 @@
       "hit_rate": 0.6,
       "radar_score": 67.6,
       "created_at": "2026-09-12T16:17:40.080264+00:00"
+    },
+    "2026-09-14": {
+      "date": "2026-09-14",
+      "subscriber_count": 9130,
+      "views_90d": 2698324,
+      "median_views_90d": 32093,
+      "viral_repeat_count": 5,
+      "hit_rate": 0.53,
+      "radar_score": 65.8,
+      "created_at": "2026-09-14T08:27:47.399671+00:00"
     }
   },
   "UC0F7NMQPTNyNQ_1sF7BFa9A": {
@@ -21,6 +31,16 @@
       "hit_rate": 0.6,
       "radar_score": 60.6,
       "created_at": "2026-09-12T16:17:43.243232+00:00"
+    },
+    "2026-09-14": {
+      "date": "2026-09-14",
+      "subscriber_count": 2660,
+      "views_90d": 1158256,
+      "median_views_90d": 8544,
+      "viral_repeat_count": 4,
+      "hit_rate": 0.6,
+      "radar_score": 60.5,
+      "created_at": "2026-09-14T08:28:03.964845+00:00"
     }
   },
   "UCNU6wftNOiq-jNUHm4VExTg": {
@@ -33,6 +53,16 @@
       "hit_rate": 0.07,
       "radar_score": 25.4,
       "created_at": "2026-09-12T16:17:49.559291+00:00"
+    },
+    "2026-09-14": {
+      "date": "2026-09-14",
+      "subscriber_count": 2060,
+      "views_90d": 41527,
+      "median_views_90d": 410,
+      "viral_repeat_count": 1,
+      "hit_rate": 0.07,
+      "radar_score": 25.1,
+      "created_at": "2026-09-14T08:28:17.103951+00:00"
     }
   },
   "UC6Pwlmx5P1gRxwQCZgS8JBg": {
@@ -45,6 +75,16 @@
       "hit_rate": 0.0,
       "radar_score": 6.4,
       "created_at": "2026-09-12T16:17:50.997105+00:00"
+    },
+    "2026-09-14": {
+      "date": "2026-09-14",
+      "subscriber_count": 1250,
+      "views_90d": 5230,
+      "median_views_90d": 502,
+      "viral_repeat_count": 0,
+      "hit_rate": 0.0,
+      "radar_score": 6.4,
+      "created_at": "2026-09-14T08:27:50.735825+00:00"
     }
   },
   "UC_lmtn_energy_01": {
@@ -93,6 +133,78 @@
       "hit_rate": 1.0,
       "radar_score": 78.0,
       "created_at": "2026-09-12T16:19:37.973348+00:00"
+    }
+  },
+  "UC5OC7z2qslQ78HHi5v5KQ6w": {
+    "2026-09-14": {
+      "date": "2026-09-14",
+      "subscriber_count": 206000,
+      "views_90d": 8781427,
+      "median_views_90d": 119438,
+      "viral_repeat_count": 3,
+      "hit_rate": 0.2,
+      "radar_score": 66.1,
+      "created_at": "2026-09-14T08:28:06.499963+00:00"
+    }
+  },
+  "UCCaAts288MfaUaamlMGmHRQ": {
+    "2026-09-14": {
+      "date": "2026-09-14",
+      "subscriber_count": 430,
+      "views_90d": 163,
+      "median_views_90d": 9,
+      "viral_repeat_count": 0,
+      "hit_rate": 0.0,
+      "radar_score": 7.0,
+      "created_at": "2026-09-14T08:28:09.778464+00:00"
+    }
+  },
+  "UCBBmPZJumPKc1vYJuJT3YIA": {
+    "2026-09-14": {
+      "date": "2026-09-14",
+      "subscriber_count": 2500,
+      "views_90d": 283229,
+      "median_views_90d": 2703,
+      "viral_repeat_count": 3,
+      "hit_rate": 0.27,
+      "radar_score": 33.2,
+      "created_at": "2026-09-14T08:28:23.621659+00:00"
+    }
+  },
+  "UC9l8eLzvmuj-LMTNcWQgHeA": {
+    "2026-09-14": {
+      "date": "2026-09-14",
+      "subscriber_count": 101000,
+      "views_90d": 1932398,
+      "median_views_90d": 12586,
+      "viral_repeat_count": 1,
+      "hit_rate": 0.13,
+      "radar_score": 43.3,
+      "created_at": "2026-09-14T08:28:29.431889+00:00"
+    }
+  },
+  "UCDn7gJGDhhuKY1Fqg_Y5BQw": {
+    "2026-09-14": {
+      "date": "2026-09-14",
+      "subscriber_count": 130000,
+      "views_90d": 670660,
+      "median_views_90d": 9055,
+      "viral_repeat_count": 0,
+      "hit_rate": 0.0,
+      "radar_score": 37.9,
+      "created_at": "2026-09-14T08:28:33.056655+00:00"
+    }
+  },
+  "UC23aH6zBUu1tRa4Pmxfpy5A": {
+    "2026-09-14": {
+      "date": "2026-09-14",
+      "subscriber_count": 93400,
+      "views_90d": 4435128,
+      "median_views_90d": 11218,
+      "viral_repeat_count": 3,
+      "hit_rate": 0.2,
+      "radar_score": 48.8,
+      "created_at": "2026-09-14T08:28:34.238304+00:00"
     }
   }
 }
