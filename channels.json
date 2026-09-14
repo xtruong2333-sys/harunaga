@@ -1,5 +1,10 @@
 [
   {
+    "name": "Playwright Test Channel",
+    "handle_or_url": "@playwrighttest",
+    "min_views_per_hour": 6000
+  },
+  {
     "name": "DIY WELD",
     "handle_or_url": "@Diywelder-e8t",
     "min_views_per_hour": 5000,
