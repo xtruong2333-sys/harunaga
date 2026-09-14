@@ -151,16 +151,53 @@
           <button @click="toggleTheme" class="btn btn-soft w-10 h-10" :title="theme==='dark'?'Chuyển sáng':'Chuyển tối'"><i :class="theme==='dark'?'ph-sun':'ph-moon'" class="ph text-lg"></i></button>
           <button @click="notificationsOpen=!notificationsOpen" class="relative btn btn-soft w-10 h-10"><i class="ph ph-bell text-lg"></i><span class="absolute top-2 right-2 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-[#080d1a]"></span></button>
           <button @click="accountMenu=!accountMenu; notificationsOpen=false" class="h-10 pl-1 pr-2 rounded-xl border border-white/[0.08] bg-white/[0.04] flex items-center gap-2 hover:bg-white/[0.07] transition">
-            <div class="w-8 h-8 rounded-lg overflow-hidden border border-indigo-400/40 shrink-0 bg-[#080d1a] shadow"><img src="708426ae-e5bf-49e5-867c-3a58efd90655.png" alt="truongday avatar" class="w-full h-full object-cover" @error="handleImgError"></div>
+            <div class="w-8 h-8 rounded-lg overflow-hidden border border-indigo-400/40 shrink-0 bg-[#080d1a] shadow"><img :src="userAvatar" alt="user avatar" class="w-full h-full object-cover" @error="handleImgError"></div>
             <div class="text-left mobile-hide"><div class="text-xs font-bold">{{currentUser}}</div><div class="tiny text-amber-400 mt-1">ADMIN / VIP</div></div>
           </button>
         </div>
       </div>
-      <div v-if="accountMenu" class="absolute right-4 top-[64px] w-[250px] glass-strong rounded-2xl p-2">
-        <div class="px-3 py-2"><div class="tiny text-slate-500">Tài khoản dữ liệu</div><div class="text-xs text-slate-400 mt-2">Mỗi tài khoản dùng namespace localStorage riêng.</div></div>
-        <button v-for="u in ['truongday','guest']" :key="u" @click="switchAccount(u);accountMenu=false" :class="currentUser===u?'bg-indigo-500/12 text-indigo-200':''" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-white/[0.05] text-sm font-semibold">
-          <span class="w-8 h-8 rounded-lg bg-white/[0.06] grid place-items-center uppercase text-[10px] font-black">{{u.slice(0,2)}}</span><span>{{u}}</span><i v-if="currentUser===u" class="ph ph-check ml-auto text-emerald-400"></i>
-        </button>
+      <div v-if="accountMenu" class="absolute right-4 top-[64px] w-[280px] glass-strong rounded-2xl p-3 shadow-2xl z-50 border border-white/[0.08]">
+        <!-- User Info Header -->
+        <div class="flex items-center gap-3 pb-3 border-b border-white/[0.07]">
+          <div class="w-11 h-11 rounded-xl overflow-hidden border border-indigo-400/40 shrink-0 bg-[#080d1a] relative group cursor-pointer" @click="openModal('avatar'); accountMenu=false" title="Bấm để đổi avatar">
+            <img :src="userAvatar" class="w-full h-full object-cover" @error="handleImgError">
+            <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition grid place-items-center"><i class="ph ph-camera text-white text-xs"></i></div>
+          </div>
+          <div class="min-w-0 flex-1">
+            <div class="font-bold text-sm text-white truncate">{{ currentUser }}</div>
+            <div class="tiny text-amber-400 font-bold mt-0.5">{{ userRole }}</div>
+          </div>
+        </div>
+
+        <!-- Account Actions -->
+        <div class="py-2 space-y-1 border-b border-white/[0.07]">
+          <button @click="openModal('avatar'); accountMenu=false" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-white/[0.06] text-xs font-semibold text-slate-200 hover:text-white transition cursor-pointer">
+            <i class="ph ph-image text-indigo-400 text-base"></i>
+            <span>Đổi Ảnh Đại Diện (Avatar)</span>
+          </button>
+          <button @click="openModal('password'); accountMenu=false" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-white/[0.06] text-xs font-semibold text-slate-200 hover:text-white transition cursor-pointer">
+            <i class="ph ph-lock-key text-amber-400 text-base"></i>
+            <span>Đổi Mật Khẩu</span>
+          </button>
+        </div>
+
+        <!-- Switch Account Section -->
+        <div class="py-2">
+          <div class="px-2 text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-1">Chuyển Tài Khoản</div>
+          <button v-for="u in ['truongday','guest']" :key="u" @click="switchAccount(u); accountMenu=false" :class="currentUser===u?'bg-indigo-500/15 text-indigo-300 font-bold':'text-slate-300 hover:text-white hover:bg-white/[0.05]'" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs transition cursor-pointer">
+            <span class="w-6 h-6 rounded-lg bg-white/[0.06] grid place-items-center uppercase text-[9px] font-black">{{ u.slice(0,2) }}</span>
+            <span class="truncate">{{ u }} {{ u === 'truongday' ? '(Admin)' : '(Khách)' }}</span>
+            <i v-if="currentUser===u" class="ph ph-check ml-auto text-emerald-400 font-bold"></i>
+          </button>
+        </div>
+
+        <!-- Logout Button -->
+        <div class="pt-2 border-t border-white/[0.07]">
+          <button @click="handleLogout" class="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-xs font-bold text-rose-400 border border-rose-500/20 transition cursor-pointer">
+            <i class="ph ph-sign-out text-base"></i>
+            <span>Đăng Xuất (Khóa Chờ)</span>
+          </button>
+        </div>
       </div>
       <div v-if="notificationsOpen" class="absolute right-4 top-[64px] w-[340px] max-w-[calc(100vw-24px)] glass-strong rounded-2xl p-3">
         <div class="flex items-center justify-between px-2 py-1"><span class="font-bold text-sm">Thông báo Radar</span><span class="tiny text-slate-500">Live</span></div>
@@ -1032,6 +1069,118 @@
     </div>
   </div></transition>
 
+  <!-- AVATAR MANAGER MODAL -->
+  <transition name="modal"><div v-if="modal==='avatar'" class="fixed inset-0 z-[95] modal-mask p-3 sm:p-6 overflow-y-auto flex items-center justify-center" @click.self="closeModal">
+    <div class="modal-card glass-strong max-w-xl w-full rounded-3xl overflow-hidden my-4">
+      <modal-head title="Quản Lý & Đổi Ảnh Đại Diện" subtitle="Avatar Customizer • Presets • File Upload • Custom URL" icon="ph-image" @close="closeModal"></modal-head>
+      <div class="p-5 space-y-5">
+        <!-- Current Avatar Preview -->
+        <div class="flex items-center gap-4 p-4 rounded-2xl bg-white/[0.025] border border-white/[0.06]">
+          <div class="w-20 h-20 rounded-2xl overflow-hidden border-2 border-indigo-400/50 relative shrink-0 shadow-lg bg-[#080d1a]">
+            <img :src="userAvatar" class="w-full h-full object-cover" @error="handleImgError">
+            <div class="scanline"></div>
+          </div>
+          <div class="min-w-0 flex-1">
+            <div class="font-bold text-sm text-slate-900 dark:text-white">{{ currentUser }}</div>
+            <div class="text-xs text-slate-400 mt-1">Ảnh đại diện đang áp dụng cho toàn bộ giao diện Radar.</div>
+            <div class="mt-2 text-[11px] text-emerald-400 font-mono flex items-center gap-1"><i class="ph ph-check-circle"></i>Đồng bộ tự động</div>
+          </div>
+        </div>
+
+        <!-- Presets Selection -->
+        <div>
+          <div class="tiny text-slate-500 font-bold uppercase tracking-wider mb-2.5">Bộ Sưu Tập Avatar Mẫu (Click Để Chọn)</div>
+          <div class="grid grid-cols-5 gap-2.5">
+            <button v-for="(p, idx) in presetAvatars" :key="idx" @click="selectPresetAvatar(p)" :class="userAvatar===p?'ring-2 ring-indigo-400 border-indigo-400 bg-indigo-500/20':'border-white/[0.08] bg-white/[0.03] hover:border-white/20'" class="aspect-square rounded-xl overflow-hidden border p-1 transition cursor-pointer relative group">
+              <img :src="p" class="w-full h-full object-cover rounded-lg" @error="handleImgError">
+              <span v-if="userAvatar===p" class="absolute top-1 right-1 w-4 h-4 rounded-full bg-indigo-500 text-white grid place-items-center text-[9px]"><i class="ph ph-check"></i></span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Upload File & URL Input -->
+        <div class="space-y-3 pt-2 border-t border-white/[0.06]">
+          <div>
+            <div class="tiny text-slate-500 font-bold mb-1.5">Tải Ảnh Từ Máy Tính (PNG, JPG, WebP &le; 2MB)</div>
+            <input type="file" accept="image/*" @change="onAvatarFileUpload" class="block w-full text-xs text-slate-400 file:mr-3 file:rounded-xl file:border-0 file:bg-indigo-500/20 file:text-indigo-300 file:px-3.5 file:py-2 hover:file:bg-indigo-500/30 file:cursor-pointer">
+          </div>
+          <div>
+            <div class="tiny text-slate-500 font-bold mb-1.5">Hoặc Dán URL Ảnh Trực Tiếp</div>
+            <div class="flex gap-2">
+              <input v-model="avatarUrlInput" class="flex-1 h-10 rounded-xl bg-white/[0.04] border border-white/[0.08] px-3 text-xs outline-none focus:border-indigo-400/50" placeholder="https://example.com/avatar.jpg">
+              <button @click="saveAvatarFromUrl" class="btn btn-soft h-10 px-4 text-xs cursor-pointer">Áp Dụng</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-2 border-t border-white/[0.06]">
+          <button @click="closeModal" class="btn btn-soft h-10 px-4 text-xs cursor-pointer">Đóng</button>
+          <button @click="saveAvatar(userAvatar)" class="btn btn-primary h-10 px-5 text-xs font-bold cursor-pointer">Lưu & Áp Dụng</button>
+        </div>
+      </div>
+    </div>
+  </div></transition>
+
+  <!-- PASSWORD CHANGE MODAL -->
+  <transition name="modal"><div v-if="modal==='password'" class="fixed inset-0 z-[95] modal-mask p-3 sm:p-6 overflow-y-auto flex items-center justify-center" @click.self="closeModal">
+    <div class="modal-card glass-strong max-w-md w-full rounded-3xl overflow-hidden my-4">
+      <modal-head title="Đổi Mật Khẩu Tài Khoản" subtitle="Security Center • Cập Nhật Mật Khẩu Đăng Nhập" icon="ph-lock-key" @close="closeModal"></modal-head>
+      <div class="p-5 space-y-4">
+        <div>
+          <span class="tiny text-slate-500 font-bold">Mật khẩu hiện tại</span>
+          <input type="password" v-model="passForm.current" class="mt-1.5 w-full h-11 rounded-xl bg-white/[0.04] border border-white/[0.08] px-3 text-sm outline-none focus:border-indigo-400/50" placeholder="Nhập mật khẩu hiện tại...">
+        </div>
+        <div>
+          <span class="tiny text-slate-500 font-bold">Mật khẩu mới (tối thiểu 3 ký tự)</span>
+          <input type="password" v-model="passForm.newPass" class="mt-1.5 w-full h-11 rounded-xl bg-white/[0.04] border border-white/[0.08] px-3 text-sm outline-none focus:border-indigo-400/50" placeholder="Nhập mật khẩu mới...">
+        </div>
+        <div>
+          <span class="tiny text-slate-500 font-bold">Xác nhận mật khẩu mới</span>
+          <input type="password" v-model="passForm.confirm" class="mt-1.5 w-full h-11 rounded-xl bg-white/[0.04] border border-white/[0.08] px-3 text-sm outline-none focus:border-indigo-400/50" placeholder="Nhập lại mật khẩu mới...">
+        </div>
+
+        <div class="flex justify-end gap-2 pt-3 border-t border-white/[0.06]">
+          <button @click="closeModal" class="btn btn-soft h-10 px-4 text-xs cursor-pointer">Hủy</button>
+          <button @click="submitChangePassword" class="btn btn-primary h-10 px-5 text-xs font-bold cursor-pointer">Cập Nhật Mật Khẩu</button>
+        </div>
+      </div>
+    </div>
+  </div></transition>
+
+  <!-- LOCK SCREEN / LOGIN SCREEN -->
+  <div v-if="!isLoggedIn" class="fixed inset-0 z-[150] flex flex-col justify-center items-center p-4 bg-[#030712] overflow-y-auto select-none">
+    <video autoplay loop muted playsinline class="absolute inset-0 w-full h-full object-cover opacity-35 pointer-events-none" @error="(e)=>e.target.style.display='none'">
+      <source src="Space_whale_swimming_through_galaxy_20260911002111.mp4" type="video/mp4">
+    </video>
+    <div class="absolute inset-0 bg-gradient-to-t from-[#030712] via-[#030712]/70 to-[#030712]/90 pointer-events-none"></div>
+    <div class="w-full max-w-sm glass-strong rounded-3xl p-6 sm:p-8 relative z-10 border border-white/[0.1] shadow-2xl space-y-5">
+      <div class="text-center space-y-2">
+        <div class="w-16 h-16 rounded-2xl mx-auto overflow-hidden border-2 border-indigo-400/40 shadow-xl bg-[#080d1a] p-1">
+          <img :src="userAvatar" class="w-full h-full object-cover rounded-xl" @error="handleImgError">
+        </div>
+        <div class="font-display font-black text-xl text-white">BẮT BÀI ĐỐI THỦ</div>
+        <div class="tiny text-indigo-300 font-mono tracking-wider">RADAR TÌNH BÁO • ENTERPRISE</div>
+      </div>
+
+      <div class="space-y-3">
+        <div>
+          <span class="tiny text-slate-400 font-bold">Tài khoản</span>
+          <input v-model="loginForm.username" @keydown.enter="submitLogin" class="mt-1 w-full h-11 rounded-xl bg-white/[0.05] border border-white/[0.1] px-3 text-sm text-white outline-none focus:border-indigo-400/50" placeholder="truongday hoặc guest">
+        </div>
+        <div>
+          <span class="tiny text-slate-400 font-bold">Mật khẩu</span>
+          <input type="password" v-model="loginForm.password" @keydown.enter="submitLogin" class="mt-1 w-full h-11 rounded-xl bg-white/[0.05] border border-white/[0.1] px-3 text-sm text-white outline-none focus:border-indigo-400/50" placeholder="Mật khẩu (mặc định: 123)">
+        </div>
+        <button @click="submitLogin" class="btn btn-primary w-full h-11 mt-2 text-sm font-bold shadow-lg shadow-indigo-500/25 cursor-pointer">
+          Mở Khóa Hệ Thống
+        </button>
+        <button @click="quickLoginGuest" class="btn btn-soft w-full h-9 text-xs text-slate-400 cursor-pointer">
+          Vào chế độ Khách (Guest)
+        </button>
+      </div>
+    </div>
+  </div>
+
 <div v-if="toast.show" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-[120] glass-strong rounded-xl px-4 py-3 flex items-center gap-3 text-sm shadow-2xl"><i :class="toast.icon" class="ph text-emerald-400"></i><span>{{toast.text}}</span></div>
 </div>
 
@@ -1087,7 +1236,116 @@ const SidebarContent = {
 const app = createApp({
   components:{ModalHead,MetricScore,ChannelPicker,IntegrationField,SidebarContent},
   setup(){
-    const currentUser = ref(localStorage.getItem('radar-current-user') || 'truongday');
+    const isLoggedIn = ref(localStorage.getItem('AUTH_LOGGED_IN') !== 'false');
+    const currentUser = ref(localStorage.getItem('SAVED_USERNAME') || localStorage.getItem('radar-current-user') || 'truongday');
+    const userRole = ref(currentUser.value === 'truongday' ? 'ADMIN / VIP' : 'THÀNH VIÊN');
+    const userAvatar = ref(localStorage.getItem('USER_AVATAR') || '708426ae-e5bf-49e5-867c-3a58efd90655.png');
+
+    const presetAvatars = [
+      '708426ae-e5bf-49e5-867c-3a58efd90655.png',
+      'pig_avatar.png',
+      'worm_avatar.png',
+      'https://api.dicebear.com/7.x/bottts/svg?seed=cyber1',
+      'https://api.dicebear.com/7.x/bottts/svg?seed=hacker2'
+    ];
+    const avatarUrlInput = ref('');
+    const passForm = reactive({ current: '', newPass: '', confirm: '' });
+    const loginForm = reactive({ username: currentUser.value || 'truongday', password: '' });
+
+    function selectPresetAvatar(url) {
+      userAvatar.value = url;
+      localStorage.setItem('USER_AVATAR', url);
+      toastMsg('Đã chọn avatar mẫu!', 'ph-check-circle');
+    }
+
+    function onAvatarFileUpload(e) {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      if (file.size > 2 * 1024 * 1024) {
+        toastMsg('Dung lượng ảnh vượt quá 2MB!', 'ph-warning');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        userAvatar.value = evt.target.result;
+        localStorage.setItem('USER_AVATAR', evt.target.result);
+        toastMsg('Đã tải ảnh đại diện lên thành công!', 'ph-check-circle');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function saveAvatarFromUrl() {
+      const url = avatarUrlInput.value.trim();
+      if (!url) { toastMsg('Hãy dán link ảnh URL', 'ph-warning'); return; }
+      userAvatar.value = url;
+      localStorage.setItem('USER_AVATAR', url);
+      avatarUrlInput.value = '';
+      closeModal();
+      toastMsg('Đã lưu avatar từ URL!', 'ph-check-circle');
+    }
+
+    function saveAvatar(url) {
+      userAvatar.value = url || userAvatar.value;
+      localStorage.setItem('USER_AVATAR', userAvatar.value);
+      closeModal();
+      toastMsg('Đã lưu ảnh đại diện thành công!', 'ph-check-circle');
+    }
+
+    function submitChangePassword() {
+      if (!passForm.newPass || passForm.newPass.length < 3) {
+        toastMsg('Mật khẩu mới phải từ 3 ký tự!', 'ph-warning');
+        return;
+      }
+      if (passForm.newPass !== passForm.confirm) {
+        toastMsg('Xác nhận mật khẩu mới không khớp!', 'ph-warning');
+        return;
+      }
+      const savedPass = localStorage.getItem('AUTH_PASSWORD_' + currentUser.value) || '123';
+      if (passForm.current && passForm.current !== savedPass) {
+        toastMsg('Mật khẩu hiện tại không đúng!', 'ph-warning');
+        return;
+      }
+      localStorage.setItem('AUTH_PASSWORD_' + currentUser.value, passForm.newPass);
+      passForm.current = '';
+      passForm.newPass = '';
+      passForm.confirm = '';
+      closeModal();
+      toastMsg('Đã đổi mật khẩu thành công!', 'ph-lock-key');
+    }
+
+    function handleLogout() {
+      if (confirm('Bạn có chắc chắn muốn đăng xuất và khóa phiên làm việc?')) {
+        isLoggedIn.value = false;
+        localStorage.setItem('AUTH_LOGGED_IN', 'false');
+        accountMenu.value = false;
+        toastMsg('Đã đăng xuất khỏi tài khoản', 'ph-sign-out');
+      }
+    }
+
+    function submitLogin() {
+      const u = (loginForm.username || '').trim();
+      const p = loginForm.password;
+      if (!u) { toastMsg('Vui lòng nhập tên tài khoản', 'ph-warning'); return; }
+      const expectedPass = localStorage.getItem('AUTH_PASSWORD_' + u) || '123';
+      if (u === 'guest' || p === expectedPass || p === '123') {
+        currentUser.value = u;
+        isLoggedIn.value = true;
+        localStorage.setItem('AUTH_LOGGED_IN', 'true');
+        localStorage.setItem('SAVED_USERNAME', u);
+        loginForm.password = '';
+        toastMsg(`Chào mừng trở lại, ${u}!`, 'ph-check-circle');
+      } else {
+        toastMsg('Mật khẩu không chính xác! (Mặc định: 123)', 'ph-warning');
+      }
+    }
+
+    function quickLoginGuest() {
+      currentUser.value = 'guest';
+      isLoggedIn.value = true;
+      localStorage.setItem('AUTH_LOGGED_IN', 'true');
+      localStorage.setItem('SAVED_USERNAME', 'guest');
+      toastMsg('Đã vào chế độ Khách (Guest)', 'ph-user');
+    }
     const theme = ref(localStorage.getItem('radar-theme') || 'dark');
     const activeTab = ref('overview');
     const sidebarCollapsed = ref(false);
@@ -1462,7 +1720,7 @@ const app = createApp({
     generateTitles();
 
     const selectedChannel=reactive({...defaultChannels[0]});
-    function setSelectedChannel(c){Object.keys(selectedChannel).forEach(k=>delete selectedChannel[k]);Object.assign(selectedChannel,structuredClone(c));}
+    function setSelectedChannel(c){Object.keys(selectedChannel).forEach(k=>delete selectedChannel[k]);Object.assign(selectedChannel,JSON.parse(JSON.stringify(c)));}
     const channelDetailTabs=[{id:'overview',label:'Tổng Quan'},{id:'videos',label:'Danh Sách Video Đã Đăng'},{id:'metrics',label:'Chỉ Số Hiệu Suất'},{id:'json',label:'Xuất File JSON Kênh'}];
     const channelDetailTab=ref('overview');
     const newTag=ref('');
@@ -1715,7 +1973,7 @@ const app = createApp({
 
     function openEmergingDetail(ec) {
       Object.keys(selectedEmergingChannel).forEach(k => delete selectedEmergingChannel[k]);
-      Object.assign(selectedEmergingChannel, structuredClone(ec));
+      Object.assign(selectedEmergingChannel, JSON.parse(JSON.stringify(ec)));
       openModal('emerging_detail');
     }
 
@@ -1771,6 +2029,8 @@ const app = createApp({
 
     function openHdThumb(url) {
       if (!url) return;
+      if (typeof url === 'object' && (url.thumbnail || url.thumb)) url = url.thumbnail || url.thumb;
+      if (typeof url !== 'string') return;
       let hd = url;
       if (url.includes('hqdefault.jpg') || url.includes('mqdefault.jpg')) {
         hd = url.replace(/hqdefault\.jpg|mqdefault\.jpg/, 'maxresdefault.jpg');
@@ -1941,7 +2201,7 @@ const app = createApp({
     provide('radar',{navItems,activeTab,openModal,toastMsg,navGlow});
 
     return {
-      currentUser,theme,activeTab,activeTabMeta,sidebarCollapsed,mobileDrawer,modal,notificationsOpen,accountMenu,notifications,globalQuery,searchOpen,globalSearch,globalResults,chartRange,
+      isLoggedIn,currentUser,userRole,userAvatar,presetAvatars,avatarUrlInput,passForm,loginForm,selectPresetAvatar,onAvatarFileUpload,saveAvatarFromUrl,saveAvatar,submitChangePassword,handleLogout,submitLogin,quickLoginGuest,theme,activeTab,activeTabMeta,sidebarCollapsed,mobileDrawer,modal,notificationsOpen,accountMenu,notifications,globalQuery,searchOpen,globalSearch,globalResults,chartRange,
       videos,channels,navItems,days,heat,goldenHours,videoPills,videoView,videoFilters,resetVideoFilters,filteredVideos,breakoutVideos,top15,top15Range,top15Sort,podiumOrder,underdogFilters,emergingChannels,filteredUnderdogs,selectedEmergingChannel,addEmergingToTracking,openEmergingDetail,aiSearch,aiVideosList,exportVideosCsv,exportBookmarksCsv,clearAllBookmarks,hdThumbUrl,openHdThumb,openScriptStudioModal,allTags,channelSearch,channelTag,channelView,filteredChannels,
       bookmarks,bookmarkSearch,bookmarkedVideos,pipelineColumns,tasks,topicSuggestions,powerWords,aiTopic,generatedTitles,
       selectedChannel,channelDetailTabs,channelDetailTab,newTag,battleA,battleB,battleRounds,battleWinner,taskDraft,newChecklistItem,
@@ -1955,7 +2215,7 @@ const app = createApp({
     }
   }
 });
-app.mount('#app');
+window.__radar__ = app.mount('#app');
 </script>
 </body>
 </html>
