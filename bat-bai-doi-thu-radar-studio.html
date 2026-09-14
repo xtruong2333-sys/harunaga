@@ -104,6 +104,104 @@
   @media (max-width:640px){.mobile-hide{display:none!important}.glass,.glass-strong{backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}.panel-hover:hover{transform:none}.podium-card:hover{transform:none}}
   @media (prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
 </style>
+
+<style id="radar-enterprise-v2">
+  /* ===== RADAR ENTERPRISE V2: Military Intelligence × Enterprise SaaS ===== */
+  :root{
+    --bg:#03050a;--panel:#080c14;--panel2:#0b111d;--panel3:#101827;
+    --line:rgba(148,163,184,.115);--line-strong:rgba(148,163,184,.20);
+    --text:#f7f9fc;--muted:#7f8da3;--muted2:#536176;
+    --cyan:#22d3ee;--sky:#38bdf8;--emerald:#34d399;--amber:#fbbf24;--rose:#fb7185;--indigo:#818cf8;
+    --shadow:0 18px 55px rgba(0,0,0,.32),0 1px 0 rgba(255,255,255,.025) inset;
+    --shadow-hover:0 26px 72px rgba(0,0,0,.42),0 1px 0 rgba(255,255,255,.045) inset;
+  }
+  body{background:#03050a;letter-spacing:-.006em}
+  .bg-shell{
+    background:
+      radial-gradient(900px 600px at 84% -12%,rgba(34,211,238,.075),transparent 62%),
+      radial-gradient(700px 520px at 7% 17%,rgba(129,140,248,.07),transparent 64%),
+      radial-gradient(900px 650px at 78% 105%,rgba(52,211,153,.045),transparent 66%),
+      linear-gradient(180deg,#03050a 0%,#050811 48%,#03050a 100%);
+  }
+  .bg-shell:before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.17;background-image:linear-gradient(rgba(148,163,184,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(148,163,184,.026) 1px,transparent 1px);background-size:44px 44px;mask-image:linear-gradient(to bottom,black,transparent 84%)}
+  .bg-shell:after{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.19;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.92' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.18'/%3E%3C/svg%3E");mix-blend-mode:soft-light}
+  .ambient{opacity:.54}.ambient:before,.ambient:after{filter:blur(150px);opacity:.09;animation-duration:28s}
+
+  .command-sidebar{background:linear-gradient(180deg,rgba(5,8,15,.985),rgba(6,10,18,.955) 68%,rgba(5,8,15,.985));border-right-color:rgba(148,163,184,.105)!important;box-shadow:18px 0 50px rgba(0,0,0,.16)}
+  .sidebar-brand{background:linear-gradient(180deg,rgba(255,255,255,.016),transparent)}
+  .command-topbar{background:rgba(3,5,10,.79)!important;border-bottom-color:rgba(148,163,184,.10)!important;box-shadow:0 14px 35px rgba(0,0,0,.13)}
+  .command-topbar:after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;background:linear-gradient(90deg,transparent 0%,rgba(34,211,238,.20) 34%,rgba(129,140,248,.17) 62%,transparent 100%);pointer-events:none}
+  .command-workspace{max-width:1760px;margin:0 auto}
+
+  .glass{background:linear-gradient(180deg,rgba(14,20,32,.76),rgba(7,11,19,.72));border-color:rgba(148,163,184,.11);box-shadow:var(--shadow);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+  .glass-strong{background:linear-gradient(180deg,rgba(10,15,25,.985),rgba(5,9,16,.98));border-color:rgba(148,163,184,.14);box-shadow:0 32px 100px rgba(0,0,0,.58),0 1px 0 rgba(255,255,255,.035) inset}
+  .hairline{border-color:rgba(148,163,184,.105)}
+  .panel-hover{position:relative;isolation:isolate;transition:transform .22s cubic-bezier(.2,.8,.2,1),border-color .22s,box-shadow .22s,background .22s}
+  .panel-hover:hover{transform:translateY(-3px);border-color:rgba(148,163,184,.21);box-shadow:var(--shadow-hover)}
+  .panel-hover:after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:-1;background:radial-gradient(420px circle at 50% -30%,rgba(129,140,248,.06),transparent 62%);opacity:0;transition:opacity .22s}.panel-hover:hover:after{opacity:1}
+
+  .btn{border-radius:10px;font-weight:700;letter-spacing:-.01em;transition:transform .14s ease,background .18s,border-color .18s,box-shadow .18s,color .18s}
+  .btn-soft{background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.025));border-color:rgba(148,163,184,.13);box-shadow:0 1px 0 rgba(255,255,255,.025) inset}
+  .btn-soft:hover{background:linear-gradient(180deg,rgba(255,255,255,.075),rgba(255,255,255,.04));border-color:rgba(148,163,184,.24)}
+  .btn-primary{background:linear-gradient(135deg,#6366f1 0%,#7c3aed 62%,#4f46e5 100%);box-shadow:0 10px 28px rgba(79,70,229,.25),0 1px 0 rgba(255,255,255,.15) inset}
+  .btn-primary:hover{box-shadow:0 15px 38px rgba(79,70,229,.34),0 1px 0 rgba(255,255,255,.17) inset;transform:translateY(-1px)}
+  input,select,textarea{transition:border-color .18s,box-shadow .18s,background .18s;color:var(--text)}
+  input:focus,select:focus,textarea:focus{border-color:rgba(34,211,238,.31)!important;box-shadow:0 0 0 4px rgba(34,211,238,.055);outline:none}
+  select{color-scheme:dark}
+  .kbd{background:rgba(148,163,184,.065);border-color:rgba(148,163,184,.13);border-bottom-color:rgba(148,163,184,.26);color:#94a3b8}
+
+  .nav-item{border-radius:10px!important;color:#78879d!important}
+  .nav-item:hover{background:rgba(148,163,184,.045);color:#dce5f2!important}
+  .nav-item:before{background:radial-gradient(240px circle at var(--mx,50%) 50%,rgba(34,211,238,.085),transparent 62%)}
+  .nav-item.active{background:linear-gradient(90deg,rgba(99,102,241,.16),rgba(34,211,238,.045));border-color:rgba(129,140,248,.20);color:#fff!important;box-shadow:0 8px 24px rgba(0,0,0,.15),0 1px 0 rgba(255,255,255,.025) inset}
+  .nav-item.active:after{left:-1px;top:24%;bottom:24%;width:2px;background:#a5b4fc;box-shadow:0 0 14px rgba(129,140,248,.65)}
+
+  .page-command-head{position:relative;padding:4px 0 2px}
+  .page-command-head:before{content:"";position:absolute;left:-18px;top:4px;width:2px;height:42px;border-radius:999px;background:linear-gradient(#22d3ee,#818cf8);box-shadow:0 0 20px rgba(34,211,238,.28)}
+  .page-command-head h1{font-size:clamp(1.7rem,2.4vw,2.25rem);letter-spacing:-.045em;line-height:1.05}
+  .intel-context{min-height:26px}.intel-chip{display:inline-flex;align-items:center;gap:6px;height:25px;padding:0 9px;border:1px solid rgba(148,163,184,.09);background:rgba(148,163,184,.035);border-radius:999px;color:#718198;font:700 9px/1 'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.08em}.intel-chip i{font-size:12px;color:#64748b}.signal-dot{width:6px;height:6px;border-radius:50%;display:inline-block}.signal-dot-live{background:#34d399;box-shadow:0 0 0 3px rgba(52,211,153,.08),0 0 12px rgba(52,211,153,.55)}
+
+  .kpi-grid{gap:14px}.kpi-card{min-height:145px;border-color:rgba(148,163,184,.115);overflow:hidden}.kpi-card:before{content:"";position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(34,211,238,.26),transparent);opacity:.55}.kpi-card .metric{letter-spacing:-.055em}
+
+  .video-card{border-radius:17px!important;background:linear-gradient(180deg,rgba(13,19,30,.88),rgba(7,11,18,.86));border-color:rgba(148,163,184,.115);box-shadow:0 14px 40px rgba(0,0,0,.22);contain:layout paint}
+  .video-card:before{content:"";position:absolute;top:0;left:18%;right:18%;height:1px;background:linear-gradient(90deg,transparent,rgba(34,211,238,.30),transparent);z-index:4;opacity:.6}
+  .video-card:hover{transform:translateY(-4px);border-color:rgba(34,211,238,.19);box-shadow:0 24px 58px rgba(0,0,0,.38),0 0 0 1px rgba(34,211,238,.035) inset}
+  .video-card .thumb:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(0,0,0,.02),transparent 45%,rgba(3,5,10,.22));box-shadow:inset 0 -1px rgba(255,255,255,.035)}
+  .video-card h3{letter-spacing:-.018em}.video-card .metric{font-variant-numeric:tabular-nums}
+  .scanline{opacity:.15;animation-duration:7s}
+  .load-more-zone:before,.load-more-zone:after{content:"";height:1px;flex:1;max-width:180px;background:linear-gradient(90deg,transparent,rgba(148,163,184,.11))}.load-more-zone:after{transform:scaleX(-1)}.load-more-zone{align-items:center;gap:14px}
+
+  table{border-collapse:separate;border-spacing:0}thead{position:sticky;top:0;z-index:2;backdrop-filter:blur(14px)}tbody tr{transition:background .15s,box-shadow .15s}tbody tr:hover{box-shadow:inset 2px 0 #22d3ee}
+
+  .kanban-col{position:relative;background:linear-gradient(180deg,rgba(10,15,25,.75),rgba(6,10,17,.7));border-color:rgba(148,163,184,.105);transition:border-color .18s,background .18s,box-shadow .18s;min-height:470px}
+  .kanban-col:before{content:"";position:absolute;left:0;right:0;top:46px;height:1px;background:linear-gradient(90deg,transparent,rgba(148,163,184,.09),transparent)}
+  .kanban-col.drag-over{border-color:rgba(34,211,238,.38);background:linear-gradient(180deg,rgba(34,211,238,.055),rgba(6,10,17,.78));box-shadow:inset 0 0 0 1px rgba(34,211,238,.075),0 0 30px rgba(34,211,238,.055)}
+  .task-card{background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.025));border-color:rgba(148,163,184,.10);box-shadow:0 10px 30px rgba(0,0,0,.16)}
+  .task-card:hover{transform:translateY(-2px);border-color:rgba(148,163,184,.22);box-shadow:0 18px 42px rgba(0,0,0,.30)}
+  .task-card.is-dragging{opacity:.42;transform:scale(.98)}
+
+  .modal-mask{background:rgba(0,2,7,.77);backdrop-filter:blur(15px) saturate(.85)}
+  .modal-card{border-radius:20px!important;border-color:rgba(148,163,184,.15)!important;box-shadow:0 36px 130px rgba(0,0,0,.68)!important}
+  .modal-enter-active,.modal-leave-active{transition:opacity .18s ease}.modal-enter-active .modal-card,.modal-leave-active .modal-card{transition:transform .30s cubic-bezier(.16,1,.3,1),opacity .18s}.modal-enter-from .modal-card{transform:translateY(18px) scale(.972);opacity:0}.modal-leave-to .modal-card{transform:translateY(9px) scale(.985);opacity:0}
+
+  .mobile-command-dock{position:fixed;z-index:65;left:10px;right:10px;bottom:max(10px,env(safe-area-inset-bottom));height:62px;padding:5px;display:grid;grid-template-columns:repeat(5,1fr);gap:3px;border:1px solid rgba(148,163,184,.14);border-radius:18px;background:rgba(6,10,17,.91);backdrop-filter:blur(22px);box-shadow:0 18px 55px rgba(0,0,0,.5),0 1px 0 rgba(255,255,255,.035) inset}
+  .mobile-command-dock button{border-radius:13px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:#64748b;font-size:9px;font-weight:700;transition:.16s}.mobile-command-dock button i{font-size:18px}.mobile-command-dock button.active{color:#e9efff;background:linear-gradient(180deg,rgba(99,102,241,.18),rgba(34,211,238,.05));box-shadow:inset 0 0 0 1px rgba(129,140,248,.16)}
+
+  .scrollbar-thin{scrollbar-color:rgba(100,116,139,.26) transparent}.scrollbar-thin::-webkit-scrollbar-thumb{background:rgba(100,116,139,.24)}
+
+  body.light-mode{--bg:#eef3f8;--panel:#f8fafc;--panel2:#fff;--line:rgba(15,23,42,.10);--text:#0f172a;--muted:#64748b}
+  body.light-mode .bg-shell{background:radial-gradient(800px 500px at 80% -10%,rgba(14,165,233,.09),transparent 60%),linear-gradient(180deg,#f7f9fc,#edf2f7)}
+  body.light-mode .bg-shell:before{opacity:.35;background-image:linear-gradient(rgba(15,23,42,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(15,23,42,.03) 1px,transparent 1px)}
+  body.light-mode .bg-shell:after{opacity:.035}.light-mode .command-sidebar,.light-mode .command-topbar{background:rgba(248,250,252,.93)!important}.light-mode .glass{background:rgba(255,255,255,.79);border-color:rgba(15,23,42,.09)}.light-mode .glass-strong{background:rgba(255,255,255,.97)}.light-mode .video-card,.light-mode .kanban-col{background:rgba(255,255,255,.82)}.light-mode .task-card{background:rgba(15,23,42,.025)}
+
+  @media (max-width:1279px){.command-workspace{max-width:none}.page-command-head:before{display:none}}
+  @media (max-width:1023px){.command-topbar{height:64px}.command-workspace{padding-bottom:104px!important}.sticky.top-\[82px\]{top:72px!important}.page-command-head{margin-bottom:18px}.page-command-head h1{font-size:1.75rem}}
+  .podium-card{border-radius:18px!important}.podium-card:nth-child(2){box-shadow:0 24px 72px rgba(0,0,0,.32),0 0 0 1px rgba(251,191,36,.035) inset}.heat-cell{border-radius:5px!important}.shimmer:after{opacity:.55}
+  @media (max-width:640px){
+    .mobile-theme-toggle{display:none!important}.radar-toast{bottom:86px!important;max-width:calc(100vw - 24px);width:max-content}.command-workspace{padding-left:12px!important;padding-right:12px!important;padding-top:16px!important}.intel-context{gap:5px}.intel-chip{font-size:8px;height:23px;padding:0 7px}.kpi-card{min-height:132px}.modal-mask{padding:0!important}.modal-card{width:100%;max-width:none!important;min-height:100dvh;margin:0!important;border-radius:0!important;border-left:0!important;border-right:0!important}.kanban-col{min-height:auto}.panel-hover:hover,.video-card:hover,.task-card:hover{transform:none}.video-card{border-radius:15px!important}.command-topbar .kbd{display:none}
+  }
+</style>
+
 </head>
 <body>
 <div id="app" class="min-h-screen bg-shell relative">
@@ -117,15 +215,15 @@
     </div>
   </transition>
 
-  <aside :class="[sidebarCollapsed?'w-[86px]':'w-[278px]']" class="desktop-only fixed inset-y-0 left-0 z-40 sidebar-surface bg-[#080d1a]/80 backdrop-blur-2xl border-r border-white/[0.08] transition-[width] duration-300 safe-top">
+  <aside :class="[sidebarCollapsed?'w-[76px]':'w-[264px]']" class="command-sidebar desktop-only fixed inset-y-0 left-0 z-40 sidebar-surface bg-[#080d1a]/80 backdrop-blur-2xl border-r border-white/[0.08] transition-[width] duration-300 safe-top">
     <sidebar-content :compact="sidebarCollapsed" @nav="goTab"></sidebar-content>
   </aside>
 
-  <div :class="sidebarCollapsed?'lg:pl-[86px]':'lg:pl-[278px]'" class="main-shell relative z-10 transition-[padding] duration-300 min-h-screen">
-    <header class="topbar-surface sticky top-0 z-30 h-[72px] bg-[#05070f]/72 backdrop-blur-2xl border-b border-white/[0.08] safe-top">
+  <div :class="sidebarCollapsed?'lg:pl-[76px]':'lg:pl-[264px]'" class="main-shell relative z-10 transition-[padding] duration-300 min-h-screen">
+    <header class="command-topbar topbar-surface sticky top-0 z-30 h-[68px] bg-[#05070f]/72 backdrop-blur-2xl border-b border-white/[0.08] safe-top">
       <div class="h-full px-3 sm:px-5 lg:px-6 flex items-center gap-3">
         <button class="lg:hidden btn btn-soft w-10 h-10" @click="mobileDrawer=true" aria-label="Mở menu"><i class="ph ph-list text-xl"></i></button>
-        <button class="desktop-only btn btn-soft w-10 h-10" @click="sidebarCollapsed=!sidebarCollapsed" :aria-label="sidebarCollapsed?'Mở rộng sidebar':'Thu gọn sidebar'"><i :class="sidebarCollapsed?'ph-sidebar-simple':'ph-sidebar-simple-slash'" class="ph text-xl"></i></button>
+        <button class="desktop-only btn btn-soft w-10 h-10" @click="sidebarCollapsed=!sidebarCollapsed" :aria-label="sidebarCollapsed?'Mở rộng sidebar':'Thu gọn sidebar'"><i :class="sidebarCollapsed?'ph-caret-double-right':'ph-caret-double-left'" class="ph text-xl"></i></button>
 
         <div class="relative flex-1 max-w-[620px]">
           <i class="ph ph-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500"></i>
@@ -142,13 +240,13 @@
 
         <div class="ml-auto flex items-center gap-2">
           <div class="desktop-only xl:flex hidden items-center gap-4 mr-2">
-            <div class="flex items-center gap-2 text-xs text-slate-400"><span class="w-2 h-2 rounded-full bg-emerald-400 glow-dot"></span><span class="font-mono font-bold text-white">{{ videos.length }} Video • {{ channels.length }} Kênh</span></div>
+            <div class="flex items-center gap-2 text-xs text-slate-400"><span class="w-2 h-2 rounded-full bg-emerald-400 glow-dot"></span><span class="tiny text-emerald-400">RADAR LIVE</span><span class="font-mono font-bold text-white">{{ videos.length }} signals • {{ channels.length }} targets</span></div>
             <div class="flex items-center gap-2 text-xs text-slate-400"><i class="ph ph-cloud-check text-emerald-400"></i><span>Cloud 24/7 Online</span></div>
           </div>
           <button @click="openModal('simulator')" class="desktop-only btn btn-soft h-10 px-3 text-xs"><i class="ph ph-monitor-play"></i><span class="xl:inline hidden">Giả Lập Feed</span></button>
           <button @click="triggerBotScan" :disabled="isTriggeringScan" class="btn btn-primary h-10 px-3 text-xs bg-gradient-to-r from-rose-600 to-indigo-600 hover:from-rose-500 hover:to-indigo-500 text-white shadow-lg"><i :class="isTriggeringScan?'ph-spinner animate-spin':'ph-rocket-launch'" class="ph text-sm"></i><span class="xl:inline hidden">{{ isTriggeringScan ? 'Đang chạy bot...' : 'Chạy Bot Quét' }}</span></button>
           <button @click="openModal('admin')" class="desktop-only btn btn-soft h-10 px-3 text-xs"><i class="ph ph-gear"></i><span class="xl:inline hidden">Quản Lý & Key</span></button>
-          <button @click="toggleTheme" class="btn btn-soft w-10 h-10" :title="theme==='dark'?'Chuyển sáng':'Chuyển tối'"><i :class="theme==='dark'?'ph-sun':'ph-moon'" class="ph text-lg"></i></button>
+          <button @click="toggleTheme" class="btn btn-soft w-10 h-10 mobile-theme-toggle" :title="theme==='dark'?'Chuyển sáng':'Chuyển tối'"><i :class="theme==='dark'?'ph-sun':'ph-moon'" class="ph text-lg"></i></button>
           <button @click="notificationsOpen=!notificationsOpen" class="relative btn btn-soft w-10 h-10"><i class="ph ph-bell text-lg"></i><span class="absolute top-2 right-2 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-[#080d1a]"></span></button>
           <button @click="accountMenu=!accountMenu; notificationsOpen=false" class="h-10 pl-1 pr-2 rounded-xl border border-white/[0.08] bg-white/[0.04] flex items-center gap-2 hover:bg-white/[0.07] transition">
             <div class="w-8 h-8 rounded-lg overflow-hidden border border-indigo-400/40 shrink-0 bg-[#080d1a] shadow"><img :src="userAvatar" alt="user avatar" class="w-full h-full object-cover" @error="handleImgError"></div>
@@ -207,12 +305,18 @@
       </div>
     </header>
 
-    <main class="px-3 sm:px-5 lg:px-7 py-5 lg:py-7 pb-24">
-      <div class="mb-6 flex flex-col xl:flex-row xl:items-end gap-4 justify-between">
+    <main class="command-workspace px-3 sm:px-5 lg:px-7 py-5 lg:py-7 pb-28">
+      <div class="page-command-head mb-6 flex flex-col xl:flex-row xl:items-end gap-4 justify-between">
         <div>
           <div class="tiny text-indigo-300/80 mb-2">{{activeTabMeta.eyebrow}}</div>
           <h1 class="font-display text-2xl sm:text-3xl font-extrabold tracking-tight">{{activeTabMeta.label}}</h1>
           <p class="text-sm text-slate-500 mt-2 max-w-3xl">{{activeTabMeta.description}}</p>
+          <div class="intel-context mt-3 flex flex-wrap items-center gap-2">
+            <span class="intel-chip"><span class="signal-dot signal-dot-live"></span>{{liveDataSource}}</span>
+            <span class="intel-chip"><i class="ph ph-radar"></i>{{videos.length}} signals</span>
+            <span class="intel-chip"><i class="ph ph-broadcast"></i>{{channels.length}} targets</span>
+            <span class="intel-chip"><i class="ph ph-timer"></i>scan {{scanCountdown}}</span>
+          </div>
         </div>
         <div class="flex gap-2 flex-wrap">
           <button v-if="activeTab==='pipeline'" @click="newTask" class="btn btn-primary h-10 px-4 text-sm"><i class="ph ph-plus"></i>Thêm Ý Tưởng Mới</button>
@@ -224,21 +328,21 @@
 
       <!-- OVERVIEW -->
       <section v-if="activeTab==='overview'" class="space-y-5">
-        <div class="grid sm:grid-cols-2 2xl:grid-cols-4 gap-4">
-          <article class="glass panel-hover rounded-2xl p-5 relative overflow-hidden">
+        <div class="kpi-grid grid sm:grid-cols-2 2xl:grid-cols-4 gap-4">
+          <article class="kpi-card glass panel-hover rounded-2xl p-5 relative overflow-hidden">
             <div class="absolute -right-12 -top-12 w-32 h-32 rounded-full bg-cyan-500/10 blur-2xl"></div>
             <div class="flex justify-between items-start"><div><div class="tiny text-slate-500">Tổng video theo dõi</div><div class="metric text-3xl font-bold mt-3">{{formatNum(videos.length*1267)}}</div></div><span class="w-10 h-10 rounded-xl bg-cyan-500/10 text-cyan-400 grid place-items-center"><i class="ph ph-video-camera text-xl"></i></span></div>
             <div class="mt-4 text-xs"><span class="text-emerald-400 font-bold">+18.6%</span><span class="text-slate-500"> so với 7 ngày trước</span></div>
           </article>
-          <article class="glass panel-hover rounded-2xl p-5">
+          <article class="kpi-card glass panel-hover rounded-2xl p-5">
             <div class="flex justify-between items-start"><div><div class="tiny text-slate-500">Kênh tăng tốc nhanh nhất</div><div class="flex items-center gap-3 mt-3"><img :src="channels[0].avatar" class="w-10 h-10 rounded-xl object-cover" @error="handleImgError"><div><div class="font-bold">{{channels[0].name}}</div><div class="metric text-emerald-400 text-sm">+{{formatNum(channels[0].vph)}} VPH</div></div></div></div><span class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 grid place-items-center"><i class="ph ph-trend-up text-xl"></i></span></div>
             <div class="mt-4 h-1.5 rounded-full bg-white/5 overflow-hidden"><div class="h-full w-[82%] bg-gradient-to-r from-emerald-500 to-cyan-400 rounded-full"></div></div>
           </article>
-          <article class="glass panel-hover rounded-2xl p-5">
+          <article class="kpi-card glass panel-hover rounded-2xl p-5">
             <div class="flex justify-between items-start"><div><div class="tiny text-slate-500">Hút view mạnh nhất 24h</div><div class="metric text-3xl font-bold mt-3">8.42M</div></div><span class="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-400 grid place-items-center"><i class="ph ph-fire text-xl"></i></span></div>
             <div class="mt-4 text-xs text-slate-500"><span class="text-rose-400 font-bold">{{channels[1].name}}</span> đang chiếm 24.7% lưu lượng breakout.</div>
           </article>
-          <article class="glass panel-hover rounded-2xl p-5">
+          <article class="kpi-card glass panel-hover rounded-2xl p-5">
             <div class="flex justify-between items-start"><div><div class="tiny text-slate-500">Phong độ đều nhất</div><div class="metric text-3xl font-bold mt-3">{{channels[2].hitRate}}%</div></div><span class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 grid place-items-center"><i class="ph ph-target text-xl"></i></span></div>
             <div class="mt-4 text-xs text-slate-500">{{channels[2].name}} • hit-rate ổn định trong 30 ngày.</div>
           </article>
@@ -258,7 +362,7 @@
             <div class="flex items-center justify-between"><div><div class="font-bold">Breakout Velocity Radar</div><div class="text-xs text-slate-500 mt-1">Video đang tăng tốc mạnh nhất</div></div><span class="tiny text-rose-400">LIVE</span></div>
             <div class="mt-4 space-y-3">
               <div v-for="(v,i) in breakoutVideos" :key="v.id" class="rounded-xl bg-white/[0.035] border border-white/[0.06] p-3 flex gap-3">
-                <div class="w-20 aspect-video rounded-lg overflow-hidden shrink-0"><img :src="v.thumb" class="w-full h-full object-cover" @error="handleImgError"></div>
+                <div class="w-20 aspect-video rounded-lg overflow-hidden shrink-0"><img :src="v.thumb" class="w-full h-full object-cover" @error="handleImgError" loading="lazy" decoding="async"></div>
                 <div class="min-w-0 flex-1"><div class="text-xs font-bold line-clamp-2">{{v.title}}</div><div class="flex items-center justify-between mt-2"><span class="metric text-[11px] text-rose-400">+{{formatNum(v.vph)}}/h</span><span class="tiny text-slate-600">#{{i+1}}</span></div></div>
               </div>
             </div>
@@ -348,11 +452,11 @@
         </div>
 
         <!-- GRID VIEW -->
-        <div v-if="videoView==='grid'" class="grid sm:grid-cols-2 2xl:grid-cols-3 gap-4">
-          <article v-for="v in filteredVideos" :key="v.id" class="video-card glass panel-hover rounded-2xl overflow-hidden group flex flex-col justify-between">
+        <div v-if="videoView==='grid'" class="grid sm:grid-cols-2 xl:grid-cols-3 gap-4">
+          <article v-for="v in visibleVideos" :key="v.id" class="video-card glass panel-hover rounded-2xl overflow-hidden group flex flex-col justify-between">
             <div>
               <div class="thumb aspect-video relative overflow-hidden bg-slate-900">
-                <img :src="v.thumb" :alt="v.title" @error="handleImgError" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                <img :src="v.thumb" :alt="v.title" @error="handleImgError" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" loading="lazy" decoding="async">
                 <div class="scanline"></div>
                 <div class="absolute inset-x-0 bottom-0 p-3 flex items-end justify-between bg-gradient-to-t from-black/80 via-black/40 to-transparent">
                   <div class="flex gap-1 items-center">
@@ -425,11 +529,11 @@
                 </tr>
               </thead>
               <tbody class="divide-y divide-white/[0.05]">
-                <tr v-for="(v, idx) in filteredVideos" :key="v.id" class="hover:bg-white/[0.025] transition group">
+                <tr v-for="(v, idx) in visibleVideos" :key="v.id" class="hover:bg-white/[0.025] transition group">
                   <td class="p-3 text-center metric text-slate-500 font-bold">#{{ idx + 1 }}</td>
                   <td class="p-3">
                     <div class="w-24 aspect-video rounded-lg overflow-hidden relative cursor-pointer group-hover:ring-2 ring-indigo-500/50 transition bg-slate-900" @click="openHdThumb(v.thumb)">
-                      <img :src="v.thumb" class="w-full h-full object-cover" @error="handleImgError">
+                      <img :src="v.thumb" class="w-full h-full object-cover" @error="handleImgError" loading="lazy" decoding="async">
                       <span v-if="v.breakout" class="absolute top-1 left-1 tiny bg-rose-500 px-1 py-0.5 rounded text-[9px] font-black text-white">HOT</span>
                     </div>
                   </td>
@@ -463,6 +567,14 @@
               </tbody>
             </table>
           </div>
+        </div>
+
+        <div v-if="filteredVideos.length > visibleVideos.length" class="load-more-zone flex justify-center py-3">
+          <button @click="loadMoreVideos" class="btn btn-soft h-11 px-5 text-xs group">
+            <i class="ph ph-caret-double-down text-cyan-400 group-hover:translate-y-0.5 transition-transform"></i>
+            Hiển thị thêm {{Math.min(48, filteredVideos.length-visibleVideos.length)}} video
+            <span class="metric text-slate-500">{{visibleVideos.length}}/{{filteredVideos.length}}</span>
+          </button>
         </div>
 
         <!-- Empty state -->
@@ -531,7 +643,7 @@
                 <i :class="p.rank===1?'ph-crown text-amber-400':p.rank===2?'ph-medal text-slate-300':'ph-trophy text-orange-400'" class="ph text-3xl"></i>
               </div>
               <div class="mt-3 aspect-video rounded-xl overflow-hidden relative bg-slate-900">
-                <img :src="p.thumb" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" @error="handleImgError">
+                <img :src="p.thumb" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" @error="handleImgError" loading="lazy" decoding="async">
                 <span class="absolute bottom-2 right-2 tiny px-2 py-0.5 rounded-md bg-black/70 metric text-white">{{ p.duration }}</span>
               </div>
               <div class="flex items-center gap-2 mt-3">
@@ -561,7 +673,7 @@
           <div v-for="(v,i) in top15.slice(3)" :key="v.id" class="flex items-center gap-3 p-3 sm:p-4 border-t first:border-t-0 border-white/[0.06] hover:bg-white/[0.025] transition group">
             <span class="metric w-10 text-center font-black text-slate-500">#{{i+4}}</span>
             <div class="w-24 sm:w-32 aspect-video rounded-xl overflow-hidden shrink-0 relative bg-slate-900">
-              <img :src="v.thumb" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" @error="handleImgError">
+              <img :src="v.thumb" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" @error="handleImgError" loading="lazy" decoding="async">
               <span class="absolute bottom-1 right-1 tiny px-1.5 py-0.5 rounded bg-black/70 metric text-[10px] text-white">{{ v.duration }}</span>
             </div>
             <div class="min-w-0 flex-1">
@@ -816,7 +928,7 @@
               <div>
                 <!-- Thumb with AI badge -->
                 <div class="thumb aspect-video relative overflow-hidden bg-slate-900">
-                  <img :src="v.thumb" :alt="v.title" @error="handleImgError" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                  <img :src="v.thumb" :alt="v.title" @error="handleImgError" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" loading="lazy" decoding="async">
                   <div class="scanline"></div>
                   <div class="absolute top-2.5 right-2.5">
                     <span class="tiny px-2.5 py-1 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-black shadow-lg flex items-center gap-1">
@@ -899,7 +1011,7 @@
           <article v-for="v in bookmarkedVideos" :key="v.id" class="glass panel-hover rounded-2xl overflow-hidden group flex flex-col justify-between">
             <div>
               <div class="thumb aspect-video relative overflow-hidden bg-slate-900">
-                <img :src="v.thumb" :alt="v.title" @error="handleImgError" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                <img :src="v.thumb" :alt="v.title" @error="handleImgError" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" loading="lazy" decoding="async">
                 <div class="scanline"></div>
                 <span class="absolute bottom-2 right-2 metric text-[10px] px-2 py-0.5 rounded bg-black/70 text-white">{{ v.duration }}</span>
               </div>
@@ -927,11 +1039,11 @@
 
       <!-- PIPELINE -->
       <section v-if="activeTab==='pipeline'" class="space-y-4">
-        <div class="glass rounded-2xl p-4 sm:p-5 relative overflow-hidden"><div class="absolute inset-0 bg-gradient-to-r from-amber-500/[0.07] via-transparent to-indigo-500/[0.05]"></div><div class="relative flex flex-col xl:flex-row gap-4 xl:items-center"><div><div class="tiny text-amber-400">Golden Time Banner</div><div class="font-display text-xl font-bold mt-2">Khung giờ bão view tối ưu từ đối thủ</div><div class="text-xs text-slate-500 mt-1">Chọn một khung giờ để mở nhanh thẻ kế hoạch mới.</div></div><div class="xl:ml-auto flex gap-2 flex-wrap"><button v-for="g in goldenHours" :key="g.time" @click="quickSchedule(g.time)" class="btn btn-soft h-10 px-4 text-xs"><i class="ph ph-crown-simple text-amber-400"></i>{{g.day}} • {{g.time}}</button></div></div></div>
-        <div class="grid xl:grid-cols-4 gap-4 items-start">
-          <div v-for="col in pipelineColumns" :key="col.id" class="kanban-col hairline rounded-2xl p-3">
+        <div class="glass rounded-2xl p-4 sm:p-5 relative overflow-hidden"><div class="absolute inset-0 bg-gradient-to-r from-amber-500/[0.07] via-transparent to-indigo-500/[0.05]"></div><div class="relative flex flex-col xl:flex-row gap-4 xl:items-center"><div><div class="tiny text-amber-400">Golden Time Banner</div><div class="font-display text-xl font-bold mt-2">Khung giờ bão view tối ưu từ đối thủ</div><div class="text-xs text-slate-500 mt-1">Chọn một khung giờ để mở nhanh thẻ kế hoạch mới. Desktop có thể kéo-thả thẻ giữa các giai đoạn; nút ← → vẫn luôn hoạt động.</div></div><div class="xl:ml-auto flex gap-2 flex-wrap"><button v-for="g in goldenHours" :key="g.time" @click="quickSchedule(g.time)" class="btn btn-soft h-10 px-4 text-xs"><i class="ph ph-crown-simple text-amber-400"></i>{{g.day}} • {{g.time}}</button></div></div></div>
+        <div class="grid md:grid-cols-2 xl:grid-cols-4 gap-4 items-start">
+          <div v-for="col in pipelineColumns" :key="col.id" class="kanban-col hairline rounded-2xl p-3" :class="{'drag-over':dragOverStage===col.id}" @dragover.prevent="dragOverStage=col.id" @dragleave="dragOverStage=null" @drop.prevent="onTaskDrop(col.id)">
             <div class="flex items-center gap-2 px-1 mb-3"><span class="w-2.5 h-2.5 rounded-full" :style="{background:col.color,boxShadow:'0 0 16px '+col.color}"></span><div class="font-bold text-sm">{{col.label}}</div><span class="ml-auto metric text-[11px] text-slate-600">{{tasksByStage(col.id).length}}</span></div>
-            <div class="space-y-3"><article v-for="task in tasksByStage(col.id)" :key="task.id" class="task-card rounded-xl bg-white/[0.035] border border-white/[0.07] p-3.5 cursor-pointer" @click="editTask(task)">
+            <div class="space-y-3"><article v-for="task in tasksByStage(col.id)" :key="task.id" class="task-card rounded-xl bg-white/[0.035] border border-white/[0.07] p-3.5 cursor-pointer" :class="{'is-dragging':dragTaskId===task.id}" draggable="true" @dragstart="onTaskDragStart(task,$event)" @dragend="onTaskDragEnd" @click="handleTaskClick(task)">
               <div class="flex items-center gap-2"><span :class="priorityClass(task.priority)" class="tiny px-2 py-1 rounded-md border">{{priorityLabel(task.priority)}}</span><span v-if="task.time" class="ml-auto metric text-[10px] text-slate-500"><i class="ph ph-clock mr-1"></i>{{task.date}} {{task.time}}</span></div>
               <div class="font-bold text-sm mt-3 leading-5">{{task.title}}</div><div v-if="task.source" class="text-[11px] text-slate-500 mt-2 truncate"><i class="ph ph-link mr-1"></i>{{task.source}}</div>
               <div class="mt-3"><div class="flex justify-between text-[10px] text-slate-500"><span>Checklist</span><span class="metric">{{checkProgress(task)}}%</span></div><div class="h-1.5 rounded-full bg-white/5 overflow-hidden mt-1.5"><div class="h-full rounded-full bg-gradient-to-r from-indigo-500 to-emerald-400" :style="{width:checkProgress(task)+'%'}"></div></div></div>
@@ -943,6 +1055,14 @@
       </section>
     </main>
   </div>
+
+  <nav class="mobile-command-dock lg:hidden" aria-label="Điều hướng nhanh">
+    <button @click="goTab('overview')" :class="activeTab==='overview'?'active':''"><i class="ph ph-chart-line-up"></i><span>Tổng quan</span></button>
+    <button @click="goTab('videos')" :class="activeTab==='videos'?'active':''"><i class="ph ph-fire"></i><span>Radar</span></button>
+    <button @click="goTab('ai')" :class="activeTab==='ai'?'active':''"><i class="ph ph-sparkle"></i><span>AI Lab</span></button>
+    <button @click="goTab('pipeline')" :class="activeTab==='pipeline'?'active':''"><i class="ph ph-kanban"></i><span>Pipeline</span></button>
+    <button @click="mobileDrawer=true"><i class="ph ph-dots-three-outline"></i><span>Thêm</span></button>
+  </nav>
 
   <!-- MODALS -->
   <transition name="modal"><div v-if="modal==='simulator'" class="fixed inset-0 z-[90] modal-mask p-2 sm:p-5 overflow-y-auto safe-bottom" @click.self="closeModal"><div class="modal-card glass-strong max-w-6xl mx-auto rounded-3xl overflow-hidden my-4"><modal-head title="Giả Lập YouTube Feed & Squint Lab" subtitle="Thumbnail Simulator • Visual Saliency Diagnostics" icon="ph-monitor-play" @close="closeModal"></modal-head><div class="p-4 sm:p-6 grid xl:grid-cols-[.8fr_1.2fr] gap-5">
@@ -973,7 +1093,7 @@
   <transition name="modal"><div v-if="modal==='channel'" class="fixed inset-0 z-[90] modal-mask p-2 sm:p-5 overflow-y-auto" @click.self="closeModal"><div class="modal-card glass-strong max-w-5xl mx-auto rounded-3xl overflow-hidden my-5"><div class="h-40 relative overflow-hidden bg-gradient-to-r from-indigo-900/70 via-cyan-900/30 to-rose-900/40"><div class="absolute inset-0 opacity-40" style="background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);background-size:30px 30px"></div><button @click="closeModal" class="absolute top-4 right-4 btn btn-soft w-10 h-10 bg-black/20"><i class="ph ph-x"></i></button></div><div class="px-4 sm:px-6 pb-6"><div class="-mt-10 relative flex flex-col sm:flex-row sm:items-end gap-4"><img :src="selectedChannel.avatar" class="w-24 h-24 rounded-3xl border-4 border-[#080d1a] object-cover shadow-xl" @error="handleImgError"><div class="pb-1"><div class="font-display text-2xl font-black">{{selectedChannel.name}}</div><div class="text-sm text-slate-500">{{selectedChannel.handle}}</div></div><a :href="selectedChannel.url" target="_blank" class="btn btn-primary h-10 px-4 text-sm sm:ml-auto"><i class="ph ph-youtube-logo"></i>Mở YouTube</a></div>
     <div class="mt-5 grid sm:grid-cols-4 gap-3"><div class="p-3 rounded-xl bg-white/[0.03]"><div class="tiny text-slate-600">Subscribers</div><div class="metric text-xl font-bold mt-1">{{formatNum(selectedChannel.subs)}}</div></div><div class="p-3 rounded-xl bg-white/[0.03]"><div class="tiny text-slate-600">Views 7D</div><div class="metric text-xl font-bold mt-1">{{formatNum(selectedChannel.views7d)}}</div></div><div class="p-3 rounded-xl bg-white/[0.03]"><div class="tiny text-slate-600">VPH</div><div class="metric text-xl font-bold mt-1 text-cyan-400">{{formatNum(selectedChannel.vph)}}</div></div><div class="p-3 rounded-xl bg-white/[0.03]"><div class="tiny text-slate-600">Hit-rate</div><div class="metric text-xl font-bold mt-1 text-emerald-400">{{selectedChannel.hitRate}}%</div></div></div>
     <div class="mt-5 flex gap-2 border-b border-white/[0.07] overflow-x-auto"><button v-for="t in channelDetailTabs" :key="t.id" @click="channelDetailTab=t.id" :class="channelDetailTab===t.id?'text-white border-indigo-400':'text-slate-500 border-transparent'" class="px-3 py-3 text-xs font-bold border-b-2 whitespace-nowrap">{{t.label}}</button></div>
-    <div class="mt-5"><div v-if="channelDetailTab==='overview'" class="grid lg:grid-cols-2 gap-4"><div class="rounded-2xl bg-white/[0.025] border border-white/[0.06] p-4"><div class="font-bold">Bio & Classification</div><p class="text-sm text-slate-400 leading-6 mt-3">{{selectedChannel.bio}}</p><div class="flex gap-2 mt-4"><span v-for="t in selectedChannel.tags" :key="t" class="tiny px-2 py-1.5 rounded-lg bg-indigo-500/10 text-indigo-300">{{t}}</span></div></div><div class="rounded-2xl bg-white/[0.025] border border-white/[0.06] p-4"><div class="font-bold">Growth Signal</div><div class="mt-4 h-36 flex items-end gap-2"><div v-for="n in selectedChannel.growth" :key="n" class="flex-1 rounded-t bg-gradient-to-t from-indigo-600/30 to-cyan-400/80" :style="{height:n+'%'}"></div></div></div></div><div v-if="channelDetailTab==='videos'" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3"><div v-for="v in videos.filter(x=>x.channelId===selectedChannel.id)" :key="v.id" class="rounded-xl bg-white/[0.025] border border-white/[0.06] overflow-hidden"><img :src="v.thumb" class="w-full aspect-video object-cover" @error="handleImgError"><div class="p-3"><div class="text-sm font-bold line-clamp-2">{{v.title}}</div><div class="metric text-xs text-cyan-400 mt-2">+{{formatNum(v.vph)}} VPH</div></div></div></div><div v-if="channelDetailTab==='metrics'" class="space-y-3"><div v-for="r in battleRounds" :key="r.key" class="flex justify-between p-4 rounded-xl bg-white/[0.025] border border-white/[0.06]"><span class="text-sm text-slate-400">{{r.label}}</span><span class="metric font-bold">{{battleValue(selectedChannel,r)}}</span></div></div><div v-if="channelDetailTab==='json'"><pre class="text-xs bg-black/30 p-4 rounded-xl overflow-auto max-h-[420px]">{{JSON.stringify(selectedChannel,null,2)}}</pre><button @click="downloadJson(selectedChannel,selectedChannel.name+'.json')" class="btn btn-primary h-10 px-4 text-sm mt-3">Xuất JSON Kênh</button></div></div>
+    <div class="mt-5"><div v-if="channelDetailTab==='overview'" class="grid lg:grid-cols-2 gap-4"><div class="rounded-2xl bg-white/[0.025] border border-white/[0.06] p-4"><div class="font-bold">Bio & Classification</div><p class="text-sm text-slate-400 leading-6 mt-3">{{selectedChannel.bio}}</p><div class="flex gap-2 mt-4"><span v-for="t in selectedChannel.tags" :key="t" class="tiny px-2 py-1.5 rounded-lg bg-indigo-500/10 text-indigo-300">{{t}}</span></div></div><div class="rounded-2xl bg-white/[0.025] border border-white/[0.06] p-4"><div class="font-bold">Growth Signal</div><div class="mt-4 h-36 flex items-end gap-2"><div v-for="n in selectedChannel.growth" :key="n" class="flex-1 rounded-t bg-gradient-to-t from-indigo-600/30 to-cyan-400/80" :style="{height:n+'%'}"></div></div></div></div><div v-if="channelDetailTab==='videos'" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3"><div v-for="v in videos.filter(x=>x.channelId===selectedChannel.id)" :key="v.id" class="rounded-xl bg-white/[0.025] border border-white/[0.06] overflow-hidden"><img :src="v.thumb" class="w-full aspect-video object-cover" @error="handleImgError" loading="lazy" decoding="async"><div class="p-3"><div class="text-sm font-bold line-clamp-2">{{v.title}}</div><div class="metric text-xs text-cyan-400 mt-2">+{{formatNum(v.vph)}} VPH</div></div></div></div><div v-if="channelDetailTab==='metrics'" class="space-y-3"><div v-for="r in battleRounds" :key="r.key" class="flex justify-between p-4 rounded-xl bg-white/[0.025] border border-white/[0.06]"><span class="text-sm text-slate-400">{{r.label}}</span><span class="metric font-bold">{{battleValue(selectedChannel,r)}}</span></div></div><div v-if="channelDetailTab==='json'"><pre class="text-xs bg-black/30 p-4 rounded-xl overflow-auto max-h-[420px]">{{JSON.stringify(selectedChannel,null,2)}}</pre><button @click="downloadJson(selectedChannel,selectedChannel.name+'.json')" class="btn btn-primary h-10 px-4 text-sm mt-3">Xuất JSON Kênh</button></div></div>
   </div></div></div></transition>
 
   <transition name="modal"><div v-if="modal==='tags'" class="fixed inset-0 z-[90] modal-mask p-2 sm:p-5 overflow-y-auto" @click.self="closeModal"><div class="modal-card glass-strong max-w-xl mx-auto rounded-3xl overflow-hidden my-10"><modal-head title="Gán Nhãn & Phân Nhóm Kênh" subtitle="Channel Tag Manager" icon="ph-tag" @close="closeModal"></modal-head><div class="p-5"><div class="flex items-center gap-3"><img :src="selectedChannel.avatar" class="w-12 h-12 rounded-xl" @error="handleImgError"><div><div class="font-bold">{{selectedChannel.name}}</div><div class="text-xs text-slate-500">{{selectedChannel.handle}}</div></div></div><div class="mt-5 flex gap-2"><input v-model="newTag" @keydown.enter.prevent="addTag" class="flex-1 h-10 rounded-xl bg-white/[0.04] border border-white/[0.08] px-3 text-sm" placeholder="Thêm nhãn mới..."><button @click="addTag" class="btn btn-primary h-10 px-4 text-sm">Thêm</button></div><div class="mt-4 flex gap-2 flex-wrap"><button v-for="t in selectedChannel.tags" :key="t" @click="removeTag(t)" class="px-3 py-2 rounded-xl bg-indigo-500/10 border border-indigo-400/20 text-indigo-200 text-xs font-bold hover:bg-rose-500/10 hover:border-rose-400/20 hover:text-rose-200 transition">{{t}} <i class="ph ph-x ml-1"></i></button></div></div></div></div></transition>
@@ -1181,7 +1301,7 @@
     </div>
   </div>
 
-<div v-if="toast.show" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-[120] glass-strong rounded-xl px-4 py-3 flex items-center gap-3 text-sm shadow-2xl"><i :class="toast.icon" class="ph text-emerald-400"></i><span>{{toast.text}}</span></div>
+<div v-if="toast.show" class="radar-toast fixed bottom-5 left-1/2 -translate-x-1/2 z-[120] glass-strong rounded-xl px-4 py-3 flex items-center gap-3 text-sm shadow-2xl"><i :class="toast.icon" class="ph text-emerald-400"></i><span>{{toast.text}}</span></div>
 </div>
 
 <script>
@@ -1194,14 +1314,13 @@ const ModalHead = {
 
 const MetricScore = {
   props:['label','value','accent'],
-  computed:{cls(){return {
-      handleImgError, isTriggeringScan, triggerBotScan,
-      isLiveLoading, liveDataSource, loadRealData,cyan:'text-cyan-400',indigo:'text-indigo-400',amber:'text-amber-400',emerald:'text-emerald-400'}[this.accent]||'text-white'}},
+  computed:{cls(){return {cyan:'text-cyan-400',indigo:'text-indigo-400',amber:'text-amber-400',emerald:'text-emerald-400',rose:'text-rose-400'}[this.accent]||'text-white'}},
   template:`<div class="rounded-2xl bg-white/[0.025] border border-white/[0.06] p-4"><div class="tiny text-slate-600">{{label}}</div><div :class="cls" class="metric text-2xl font-black mt-2">{{Math.round(value)}}<span class="text-xs text-slate-600">/100</span></div><div class="h-1.5 rounded-full bg-white/5 overflow-hidden mt-3"><div class="h-full rounded-full bg-current opacity-70" :style="{width:Math.max(2,Math.min(100,value))+'%'}"></div></div></div>`
 };
 
 const ChannelPicker = {
   props:['modelValue','channels','color','label'], emits:['update:modelValue'],
+  setup(){return inject('radar')},
   computed:{channel(){return this.channels.find(c=>c.id===this.modelValue)||this.channels[0]}},
   template:`<div class="rounded-2xl bg-white/[0.025] border border-white/[0.07] p-4"><div class="tiny" :class="color==='rose'?'text-rose-400':'text-cyan-400'">{{label}}</div><div class="flex items-center gap-3 mt-3"><img :src="channel.avatar" class="w-14 h-14 rounded-2xl object-cover" @error="handleImgError"><div class="min-w-0 flex-1"><div class="font-bold truncate">{{channel.name}}</div><select :value="modelValue" @change="$emit('update:modelValue',$event.target.value)" class="mt-1 w-full bg-transparent text-xs text-slate-500 outline-none"><option v-for="c in channels" :value="c.id" :key="c.id" class="bg-[#0b1120]">{{c.name}}</option></select></div></div></div>`
 };
@@ -1215,7 +1334,7 @@ const SidebarContent = {
   props:['compact'], emits:['nav','close'],
   setup(){return inject('radar')},
   template:`<div class="h-full flex flex-col">
-    <div class="h-[72px] flex items-center gap-3 px-4 border-b border-white/[0.07]">
+    <div class="sidebar-brand h-[68px] flex items-center gap-3 px-4 border-b border-white/[0.07]">
       <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-indigo-500 via-violet-500 to-cyan-500 p-[1px] shrink-0 shadow-[0_0_28px_rgba(99,102,241,.22)] overflow-hidden"><img src="708426ae-e5bf-49e5-867c-3a58efd90655.png" alt="Radar Mascot Logo" class="w-full h-full rounded-[14px] object-cover bg-[#080d1a]" @error="handleImgError"></div>
       <div v-if="!compact" class="min-w-0"><div class="font-display font-extrabold text-[13px] tracking-tight truncate">BẮT BÀI ĐỐI THỦ</div><div class="tiny text-indigo-300/75 mt-1 truncate">RADAR TÌNH BÁO</div></div>
     </div>
@@ -1254,7 +1373,7 @@ const app = createApp({
 
     function selectPresetAvatar(url) {
       userAvatar.value = url;
-      localStorage.setItem('USER_AVATAR', url);
+      localStorage.setItem('USER_AVATAR', url); localStorage.setItem(`USER_AVATAR_${currentUser.value}`, url);
       toastMsg('Đã chọn avatar mẫu!', 'ph-check-circle');
     }
 
@@ -1268,7 +1387,7 @@ const app = createApp({
       const reader = new FileReader();
       reader.onload = (evt) => {
         userAvatar.value = evt.target.result;
-        localStorage.setItem('USER_AVATAR', evt.target.result);
+        localStorage.setItem('USER_AVATAR', evt.target.result); localStorage.setItem(`USER_AVATAR_${currentUser.value}`, evt.target.result);
         toastMsg('Đã tải ảnh đại diện lên thành công!', 'ph-check-circle');
       };
       reader.readAsDataURL(file);
@@ -1278,7 +1397,7 @@ const app = createApp({
       const url = avatarUrlInput.value.trim();
       if (!url) { toastMsg('Hãy dán link ảnh URL', 'ph-warning'); return; }
       userAvatar.value = url;
-      localStorage.setItem('USER_AVATAR', url);
+      localStorage.setItem('USER_AVATAR', url); localStorage.setItem(`USER_AVATAR_${currentUser.value}`, url);
       avatarUrlInput.value = '';
       closeModal();
       toastMsg('Đã lưu avatar từ URL!', 'ph-check-circle');
@@ -1286,7 +1405,7 @@ const app = createApp({
 
     function saveAvatar(url) {
       userAvatar.value = url || userAvatar.value;
-      localStorage.setItem('USER_AVATAR', userAvatar.value);
+      localStorage.setItem('USER_AVATAR', userAvatar.value); localStorage.setItem(`USER_AVATAR_${currentUser.value}`, userAvatar.value);
       closeModal();
       toastMsg('Đã lưu ảnh đại diện thành công!', 'ph-check-circle');
     }
@@ -1328,11 +1447,16 @@ const app = createApp({
       if (!u) { toastMsg('Vui lòng nhập tên tài khoản', 'ph-warning'); return; }
       const expectedPass = localStorage.getItem('AUTH_PASSWORD_' + u) || '123';
       if (u === 'guest' || p === expectedPass || p === '123') {
-        currentUser.value = u;
+        const changingAccount = currentUser.value !== u;
+        if (changingAccount) { persist(); currentUser.value = u; resetWorkspaceMemory(); }
+        else currentUser.value = u;
         isLoggedIn.value = true;
         localStorage.setItem('AUTH_LOGGED_IN', 'true');
         localStorage.setItem('SAVED_USERNAME', u);
+        userRole.value=u==='truongday'?'ADMIN / VIP':'THÀNH VIÊN';
+        userAvatar.value=localStorage.getItem(`USER_AVATAR_${u}`)||localStorage.getItem('USER_AVATAR')||DEFAULT_LOGO;
         loginForm.password = '';
+        load();
         toastMsg(`Chào mừng trở lại, ${u}!`, 'ph-check-circle');
       } else {
         toastMsg('Mật khẩu không chính xác! (Mặc định: 123)', 'ph-warning');
@@ -1340,15 +1464,20 @@ const app = createApp({
     }
 
     function quickLoginGuest() {
+      if (currentUser.value !== 'guest') persist();
       currentUser.value = 'guest';
+      resetWorkspaceMemory();
       isLoggedIn.value = true;
       localStorage.setItem('AUTH_LOGGED_IN', 'true');
       localStorage.setItem('SAVED_USERNAME', 'guest');
+      userRole.value='THÀNH VIÊN';
+      userAvatar.value=localStorage.getItem('USER_AVATAR_guest')||localStorage.getItem('USER_AVATAR')||DEFAULT_LOGO;
+      load();
       toastMsg('Đã vào chế độ Khách (Guest)', 'ph-user');
     }
     const theme = ref(localStorage.getItem('radar-theme') || 'dark');
-    const activeTab = ref('overview');
-    const sidebarCollapsed = ref(false);
+    const activeTab = ref(localStorage.getItem('RADAR_ACTIVE_TAB') || 'overview');
+    const sidebarCollapsed = ref(localStorage.getItem('RADAR_SIDEBAR_COLLAPSED') === 'true');
     const mobileDrawer = ref(false);
     const modal = ref(null);
     const notificationsOpen = ref(false);
@@ -1422,6 +1551,14 @@ const app = createApp({
       {id:'production',label:'🎬 3. Đang Quay & Dựng',color:'#8b5cf6'},
       {id:'done',label:'🚀 4. Đã Lên Sóng & Hoàn Thành',color:'#10b981'},
     ];
+    const dragTaskId = ref(null);
+    const dragOverStage = ref(null);
+    let dragSuppressClickUntil = 0;
+    function onTaskDragStart(task,e){dragTaskId.value=task.id;dragOverStage.value=task.stage;if(e?.dataTransfer){e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',task.id)}}
+    function onTaskDragEnd(){dragSuppressClickUntil=Date.now()+220;dragTaskId.value=null;dragOverStage.value=null}
+    function onTaskDrop(stage){const task=tasks.value.find(t=>t.id===dragTaskId.value);if(task&&task.stage!==stage){task.stage=stage;persist();toastMsg(`Đã chuyển sang “${pipelineColumns.find(c=>c.id===stage)?.label||stage}”`,'ph-arrows-left-right')}onTaskDragEnd()}
+    function handleTaskClick(task){if(Date.now()<dragSuppressClickUntil)return;editTask(task)}
+
     const tasks = ref([
       {id:'t1',title:'PVC Joint 50kg — phiên bản stress test',source:'Maker Lab',drive:'',stage:'idea',priority:'urgent',date:nowDate(),time:'19:30',notes:'Tập trung vào khoảnh khắc tải nặng và failure point.',checklist:[{text:'Chốt thumbnail concept',done:true},{text:'Chuẩn bị ống PVC',done:false},{text:'Viết hook 3s',done:false}]},
       {id:'t2',title:'3 mẹo sửa nhựa trong 10 phút',source:'Bright Hacks',drive:'',stage:'script',priority:'high',date:nowDate(),time:'20:00',notes:'Giữ pacing nhanh.',checklist:[{text:'Research đối thủ',done:true},{text:'Draft voice-over',done:true},{text:'Shot list',done:false}]},
@@ -1587,6 +1724,10 @@ const app = createApp({
       };
       return [...a].sort(sorters[videoFilters.sort] || sorters.vph);
     });
+    const videoRenderLimit = ref(48);
+    const visibleVideos = computed(()=>filteredVideos.value.slice(0, videoRenderLimit.value));
+    function loadMoreVideos(){videoRenderLimit.value=Math.min(videoRenderLimit.value+48,filteredVideos.value.length)}
+    watch(videoFilters,()=>{videoRenderLimit.value=48},{deep:true});
     const breakoutVideos = computed(()=>[...videos.value].filter(v=>v.breakout).sort((a,b)=>b.vph-a.vph).slice(0,5));
 
     const top15 = computed(() => {
@@ -1789,58 +1930,86 @@ const app = createApp({
       localStorage.setItem('SAVED_IDEA_IDS', JSON.stringify(bookmarks.value));
       localStorage.setItem(`PIPELINE_TASKS_${user}`, JSON.stringify(tasks.value));
       localStorage.setItem('PIPELINE_TASKS', JSON.stringify(tasks.value));
+      // V2 account-scoped persistence; legacy keys above remain for backward compatibility.
+      localStorage.setItem(`RADAR_CHANNELS_${user}`, JSON.stringify(channels.value));
+      localStorage.setItem(`RADAR_ACCOUNT_SETTINGS_${user}`, JSON.stringify({...settings}));
+      localStorage.setItem(`USER_AVATAR_${user}`, userAvatar.value);
 
-      localStorage.setItem(storageKey(), JSON.stringify({bookmarks:bookmarks.value,tasks:tasks.value,channels:channels.value,settings:{...settings}}));
+      localStorage.setItem(storageKey(), JSON.stringify({bookmarks:bookmarks.value,tasks:tasks.value,channels:channels.value,settings:{...settings},avatar:userAvatar.value,version:2}));
       localStorage.setItem('radar-current-user', user); 
       localStorage.setItem('radar-theme', theme.value);
+      localStorage.setItem('RADAR_UI_VERSION','2');
     }
     function load(){
       const user = currentUser.value || 'truongday';
-      const savedGh = localStorage.getItem('GH_PAT_TOKEN') || localStorage.getItem('GITHUB_TOKEN');
-      if (savedGh) settings.githubToken = savedGh;
-      const savedGem = localStorage.getItem('GEMINI_API_KEY');
-      if (savedGem) settings.geminiKey = savedGem;
-      const d1 = localStorage.getItem('DISCORD_WEBHOOK_URL');
-      const d2 = localStorage.getItem('DISCORD_WEBHOOK_URL_2');
-      const d3 = localStorage.getItem('DISCORD_WEBHOOK_URL_3');
-      if (d1 || d2 || d3) settings.discordWebhooks = [d1 || '', d2 || '', d3 || ''];
+      const scopedSettingsRaw = localStorage.getItem(`RADAR_ACCOUNT_SETTINGS_${user}`);
+      const scopedChannelsRaw = localStorage.getItem(`RADAR_CHANNELS_${user}`);
+      const scopedAvatar = localStorage.getItem(`USER_AVATAR_${user}`);
+      const scopedIdeasRaw = localStorage.getItem(`SAVED_IDEA_IDS_${user}`);
+      const scopedTasksRaw = localStorage.getItem(`PIPELINE_TASKS_${user}`);
+
+      // Main account can migrate legacy integration keys. Other accounts start isolated.
+      if (scopedSettingsRaw) {
+        try { Object.assign(settings, JSON.parse(scopedSettingsRaw)); } catch(e) {}
+      } else if (user === 'truongday') {
+        const savedGh = localStorage.getItem('GH_PAT_TOKEN') || localStorage.getItem('GITHUB_TOKEN');
+        const savedGem = localStorage.getItem('GEMINI_API_KEY');
+        const d1 = localStorage.getItem('DISCORD_WEBHOOK_URL');
+        const d2 = localStorage.getItem('DISCORD_WEBHOOK_URL_2');
+        const d3 = localStorage.getItem('DISCORD_WEBHOOK_URL_3');
+        if (savedGh) settings.githubToken = savedGh;
+        if (savedGem) settings.geminiKey = savedGem;
+        if (d1 || d2 || d3) settings.discordWebhooks = [d1 || '', d2 || '', d3 || ''];
+      }
 
       try {
-        const rawIdeas = localStorage.getItem(`SAVED_IDEA_IDS_${user}`) || localStorage.getItem('SAVED_IDEA_IDS');
-        if (rawIdeas) {
+        const rawIdeas = scopedIdeasRaw !== null ? scopedIdeasRaw : (user === 'truongday' ? localStorage.getItem('SAVED_IDEA_IDS') : null);
+        if (rawIdeas !== null) {
           const parsed = JSON.parse(rawIdeas);
-          if (Array.isArray(parsed) && parsed.length) bookmarks.value = parsed;
+          if (Array.isArray(parsed)) bookmarks.value = parsed;
         }
       } catch(e) {}
 
       try {
-        const rawTasks = localStorage.getItem(`PIPELINE_TASKS_${user}`) || localStorage.getItem('PIPELINE_TASKS');
-        if (rawTasks) {
+        const rawTasks = scopedTasksRaw !== null ? scopedTasksRaw : (user === 'truongday' ? localStorage.getItem('PIPELINE_TASKS') : null);
+        if (rawTasks !== null) {
           const parsed = JSON.parse(rawTasks);
-          if (Array.isArray(parsed) && parsed.length) tasks.value = parsed;
+          if (Array.isArray(parsed)) tasks.value = parsed;
         }
       } catch(e) {}
 
+      try {
+        if (scopedChannelsRaw !== null) {
+          const parsed = JSON.parse(scopedChannelsRaw);
+          if (Array.isArray(parsed) && parsed.length) channels.value = parsed;
+        }
+      } catch(e) {}
+
+      if (scopedAvatar) userAvatar.value = scopedAvatar;
+      else if (user === 'truongday') userAvatar.value = localStorage.getItem('USER_AVATAR') || DEFAULT_LOGO;
+      else userAvatar.value = DEFAULT_LOGO;
+
+      // Composite V1/V2 workspace is a migration fallback, never stronger than scoped V2 keys.
       try{
         const raw = localStorage.getItem(storageKey());
-        if(!raw) return;
-        const d = JSON.parse(raw);
-        if(Array.isArray(d.bookmarks) && d.bookmarks.length && !bookmarks.value.length) bookmarks.value = d.bookmarks;
-        if(Array.isArray(d.tasks) && d.tasks.length && !tasks.value.length) tasks.value = d.tasks;
-        if(d.settings) {
-          if (!settings.githubToken && d.settings.githubToken) settings.githubToken = d.settings.githubToken;
-          if (!settings.geminiKey && d.settings.geminiKey) settings.geminiKey = d.settings.geminiKey;
-          if (d.settings.discordWebhooks && d.settings.discordWebhooks.some(Boolean)) settings.discordWebhooks = d.settings.discordWebhooks;
+        if(raw){
+          const d = JSON.parse(raw);
+          if(scopedIdeasRaw === null && Array.isArray(d.bookmarks)) bookmarks.value = d.bookmarks;
+          if(scopedTasksRaw === null && Array.isArray(d.tasks)) tasks.value = d.tasks;
+          if(scopedChannelsRaw === null && Array.isArray(d.channels) && d.channels.length) channels.value = d.channels;
+          if(!scopedAvatar && d.avatar) userAvatar.value = d.avatar;
+          if(!scopedSettingsRaw && d.settings && user === 'truongday') Object.assign(settings,d.settings);
         }
       } catch(e){ console.warn('Cannot load saved state', e); }
     }
-    function switchAccount(name){persist();currentUser.value=name;channels.value=structuredClone(defaultChannels);bookmarks.value=['v1','v5','v11'];tasks.value=[{id:'t-'+name+'-1',title:'Ý tưởng mới cho '+name,source:'Radar Intelligence',drive:'',stage:'idea',priority:'standard',date:nowDate(),time:'19:30',notes:'Workspace riêng của tài khoản.',checklist:[{text:'Chọn video nguồn',done:false},{text:'Viết hook 3s',done:false}]}];Object.assign(settings,{githubToken:'',githubOwner:'',githubRepo:'',githubBranch:'main',githubPath:'radar-data.json',geminiKey:'',geminiModel:'gemini-2.5-flash',discordWebhooks:['','','']});load();toastMsg(`Đã chuyển sang tài khoản ${name}`,'ph-user-switch')}
+    function resetWorkspaceMemory(){channels.value=structuredClone(defaultChannels);bookmarks.value=[];tasks.value=[];Object.assign(settings,{githubToken:'',githubOwner:'xtruong2333-sys',githubRepo:'harunaga',githubBranch:'main',githubPath:'data/videos.json',geminiKey:'',geminiModel:'gemini-2.5-flash',discordWebhooks:['','','']})}
+    function switchAccount(name){persist();currentUser.value=name;userRole.value=name==='truongday'?'ADMIN / VIP':'THÀNH VIÊN';resetWorkspaceMemory();userAvatar.value=localStorage.getItem(`USER_AVATAR_${name}`)||(name==='truongday'?localStorage.getItem('USER_AVATAR'):null)||DEFAULT_LOGO;localStorage.setItem('SAVED_USERNAME',name);localStorage.setItem('radar-current-user',name);load();toastMsg(`Đã chuyển sang tài khoản ${name}`,'ph-user-switch')}
 
     function formatNum(n){n=Number(n)||0;if(n>=1e9)return (n/1e9).toFixed(n>=1e10?0:1)+'B';if(n>=1e6)return (n/1e6).toFixed(n>=1e7?0:1)+'M';if(n>=1e3)return (n/1e3).toFixed(n>=1e5?0:1)+'K';return String(Math.round(n))}
     function heatStyle(v){const alpha=.05+v/100*.55;let rgb=v>78?'245,158,11':v>58?'244,63,94':v>38?'99,102,241':'14,165,233';return{background:`rgba(${rgb},${alpha})`,boxShadow:v>82?`0 0 12px rgba(${rgb},.22)`:'none'}}
     function toastMsg(text,icon='ph-check-circle'){toast.text=text;toast.icon=icon;toast.show=true;clearTimeout(toastTimer);toastTimer=setTimeout(()=>toast.show=false,2600)}
     function navGlow(e){const r=e.currentTarget.getBoundingClientRect();e.currentTarget.style.setProperty('--mx',((e.clientX-r.left)/r.width*100)+'%')}
-    function goTab(id){activeTab.value=id;mobileDrawer.value=false;searchOpen.value=false;notificationsOpen.value=false;window.scrollTo({top:0,behavior:'smooth'});if(id==='overview')nextTick(renderChart)}
+    function goTab(id){activeTab.value=id;localStorage.setItem('RADAR_ACTIVE_TAB',id);mobileDrawer.value=false;searchOpen.value=false;notificationsOpen.value=false;window.scrollTo({top:0,behavior:'smooth'});if(id==='overview')nextTick(renderChart)}
     function openModal(name){modal.value=name;notificationsOpen.value=false;if(name==='simulator')nextTick(analyzeSimulatorImage)}
     function closeModal(){modal.value=null}
     function toggleTheme(){theme.value=theme.value==='dark'?'light':'dark';document.body.classList.toggle('light-mode',theme.value==='light');persist();nextTick(()=>activeTab.value==='overview'&&renderChart())}
@@ -2195,20 +2364,21 @@ const app = createApp({
       load();document.body.classList.toggle('light-mode',theme.value==='light');renderChart();startCountdown();loadRealData();
       window.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();globalSearch.value?.focus();searchOpen.value=true}if(e.key==='Escape'){modal.value=null;searchOpen.value=false;notificationsOpen.value=false;mobileDrawer.value=false}});
     });
-    watch(activeTab,v=>{if(v==='overview')nextTick(renderChart)});
+    watch(activeTab,v=>{localStorage.setItem('RADAR_ACTIVE_TAB',v);if(v==='overview')nextTick(renderChart)});
+    watch(sidebarCollapsed,v=>localStorage.setItem('RADAR_SIDEBAR_COLLAPSED',String(v)));
     watch([bookmarks,tasks],()=>{}, {deep:true});
 
-    provide('radar',{navItems,activeTab,openModal,toastMsg,navGlow});
+    provide('radar',{navItems,activeTab,openModal,toastMsg,navGlow,handleImgError});
 
     return {
       isLoggedIn,currentUser,userRole,userAvatar,presetAvatars,avatarUrlInput,passForm,loginForm,selectPresetAvatar,onAvatarFileUpload,saveAvatarFromUrl,saveAvatar,submitChangePassword,handleLogout,submitLogin,quickLoginGuest,theme,activeTab,activeTabMeta,sidebarCollapsed,mobileDrawer,modal,notificationsOpen,accountMenu,notifications,globalQuery,searchOpen,globalSearch,globalResults,chartRange,
-      videos,channels,navItems,days,heat,goldenHours,videoPills,videoView,videoFilters,resetVideoFilters,filteredVideos,breakoutVideos,top15,top15Range,top15Sort,podiumOrder,underdogFilters,emergingChannels,filteredUnderdogs,selectedEmergingChannel,addEmergingToTracking,openEmergingDetail,aiSearch,aiVideosList,exportVideosCsv,exportBookmarksCsv,clearAllBookmarks,hdThumbUrl,openHdThumb,openScriptStudioModal,allTags,channelSearch,channelTag,channelView,filteredChannels,
-      bookmarks,bookmarkSearch,bookmarkedVideos,pipelineColumns,tasks,topicSuggestions,powerWords,aiTopic,generatedTitles,
+      videos,channels,navItems,days,heat,goldenHours,videoPills,videoView,videoFilters,resetVideoFilters,filteredVideos,visibleVideos,videoRenderLimit,loadMoreVideos,breakoutVideos,top15,top15Range,top15Sort,podiumOrder,underdogFilters,emergingChannels,filteredUnderdogs,selectedEmergingChannel,addEmergingToTracking,openEmergingDetail,aiSearch,aiVideosList,exportVideosCsv,exportBookmarksCsv,clearAllBookmarks,hdThumbUrl,openHdThumb,openScriptStudioModal,allTags,channelSearch,channelTag,channelView,filteredChannels,
+      bookmarks,bookmarkSearch,bookmarkedVideos,pipelineColumns,tasks,dragTaskId,dragOverStage,onTaskDragStart,onTaskDragEnd,onTaskDrop,handleTaskClick,topicSuggestions,powerWords,aiTopic,generatedTitles,
       selectedChannel,channelDetailTabs,channelDetailTab,newTag,battleA,battleB,battleRounds,battleWinner,taskDraft,newChecklistItem,
       simulatorImageUrl,simulatorTitle,feedMode,squintMode,squintClass,analysisCanvas,canvasMetrics,canvasAdvice,simulatorFeed,
       adminTabs,adminTab,adminNewChannel,systemChecks,scanCountdown,settings,integrationStatus,
       scriptSource,selectedAngle,angleTwists,generatedScript,chatMessages,chatInput,chatBox,aiBusy,toast,
-      formatNum,heatStyle,navGlow,goTab,openModal,closeModal,toggleTheme,isBookmarked,toggleBookmark,channelById,
+      formatNum,heatStyle,navGlow,handleImgError,goTab,openModal,closeModal,toggleTheme,isBookmarked,toggleBookmark,channelById,
       tasksByStage,checkProgress,priorityLabel,priorityClass,newTask,editTask,addChecklistItem,saveTask,deleteTask,moveTask,quickSchedule,addVideoToPipeline,scheduleTitle,
       openChannel,openBattle,openTagManager,addTag,removeTag,removeChannel,adminAddChannel,openGlobalResult,renderChart,onThumbUpload,analyzeSimulatorImage,copyText,downloadJson,exportBookmarks,exportPipeline,
       generateTitles,battleValue,battlePercent,openScriptFromVideo,generateScript,sendChat,downloadScript,testGithub,syncGithub,testGemini,testDiscord,switchAccount,persist
@@ -2216,6 +2386,7 @@ const app = createApp({
   }
 });
 window.__radar__ = app.mount('#app');
+console.info('[Radar V2] Enterprise UI loaded • progressive video rendering • scoped persistence • drag/drop pipeline');
 </script>
 </body>
 </html>
