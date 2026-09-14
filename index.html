@@ -2994,6 +2994,16 @@
             </button>
 
             <button 
+              @click="filterTab = 'early_surge'"
+              :class="filterTab === 'early_surge' ? 'bg-gradient-to-r from-amber-500 to-rose-600 text-white font-black shadow-md' : 'bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'"
+              class="px-3 py-1.5 rounded-xl transition flex items-center space-x-1 cursor-pointer whitespace-nowrap"
+              title="Video mới xuất bản dưới 48 giờ đang có tốc độ view tăng vọt (>= 1k/h và Outlier >= 2.0x)"
+            >
+              <span>🚀 Đang Lên Bão (&le;48h)</span>
+              <span class="text-[10px] px-1.5 py-0.2 rounded-full" :class="filterTab === 'early_surge' ? 'bg-white/25 text-white font-black' : 'bg-rose-500/10 text-rose-500 font-bold'">{{ earlySurgeVideosCount }}</span>
+            </button>
+
+            <button 
               @click="filterTab = 'momentum'"
               :class="filterTab === 'momentum' ? 'bg-emerald-600 text-white font-black shadow-md' : 'bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'"
               class="px-3 py-1.5 rounded-xl transition flex items-center space-x-1 cursor-pointer whitespace-nowrap"
@@ -3672,6 +3682,16 @@
               </button>
             </div>
 
+            <!-- Head-to-Head Battle Trigger -->
+            <button 
+              @click="openBattleModal()" 
+              class="px-3.5 py-2 rounded-2xl bg-gradient-to-r from-rose-600 via-purple-600 to-indigo-600 hover:from-rose-500 hover:to-indigo-500 text-white font-black text-xs flex items-center gap-1.5 shadow-md shadow-purple-600/20 transition cursor-pointer"
+              title="Mở Võ Đài So Kèo Đối Đầu Trực Diện Giữa 2 Kênh"
+            >
+              <i class="ph-fill ph-swords text-amber-300 text-sm"></i>
+              <span>⚔️ So Kèo Kênh</span>
+            </button>
+
           </div>
         </div>
       </div>
@@ -3889,6 +3909,15 @@
                     <span>{{ cIdx === 0 ? '👑 Hồ Sơ Kênh Quán Quân' : (cIdx === 1 ? 'Hồ Sơ Á Quân ✨' : 'Hồ Sơ Top 3 ✨') }}</span>
                     <i class="ph-bold ph-arrow-right text-xs opacity-60 group-hover/btn:translate-x-1 transition-transform"></i>
                   </button>
+                  <button 
+                    type="button" 
+                    @click.stop="openBattleModal(ch)" 
+                    class="h-10 px-3 rounded-2xl bg-rose-500/10 hover:bg-rose-500 hover:text-white text-rose-500 border border-rose-500/30 text-xs font-bold transition flex items-center gap-1 shadow-sm flex-shrink-0 cursor-pointer"
+                    title="Đưa kênh này lên Võ Đài So Kèo"
+                  >
+                    <i class="ph-fill ph-swords text-sm"></i>
+                    <span class="hidden xl:inline">So Kèo</span>
+                  </button>
                   <a 
                     :href="getChannelUrl(ch)" 
                     target="_blank" 
@@ -4027,6 +4056,14 @@
                   <i class="ph-bold ph-chart-polar text-xs text-indigo-400"></i>
                   <span>Hồ Sơ</span>
                 </button>
+                <button 
+                  type="button" 
+                  @click.stop="openBattleModal(ch)" 
+                  class="w-7 h-7 rounded-lg bg-rose-500/10 hover:bg-rose-500 text-rose-500 hover:text-white flex items-center justify-center transition flex-shrink-0 cursor-pointer"
+                  title="So kèo đối đầu với kênh khác"
+                >
+                  <i class="ph-fill ph-swords text-xs"></i>
+                </button>
                 <a 
                   :href="getChannelUrl(ch)" 
                   target="_blank" 
@@ -4135,6 +4172,13 @@
                   </td>
                 </template>
                 <td class="py-3 px-4 text-right whitespace-nowrap">
+                  <button 
+                    @click="openBattleModal(ch)" 
+                    class="px-2.5 py-1.5 bg-rose-50 dark:bg-rose-950/50 hover:bg-rose-600 hover:text-white text-rose-600 dark:text-rose-400 font-bold rounded-xl transition cursor-pointer text-xs mr-1.5 shadow-sm"
+                    title="So kèo đối đầu với kênh khác"
+                  >
+                    ⚔️ So kèo
+                  </button>
                   <button 
                     @click="openChannelModal(ch)"
                     class="px-2.5 py-1.5 bg-indigo-50 dark:bg-indigo-950/50 hover:bg-indigo-600 hover:text-white text-indigo-600 dark:text-indigo-400 font-bold rounded-xl transition cursor-pointer text-xs mr-1.5 shadow-sm"
@@ -6399,6 +6443,136 @@
             </span>
           </div>
         </div>
+      <!-- ========================================================================= -->
+      <!-- PHÒNG THÍ NGHIỆM DNA TIÊU ĐỀ & MÁY TẠO TIÊU ĐỀ TRIỆU VIEW (TITLE DNA)     -->
+      <!-- ========================================================================= -->
+      <div class="bg-white dark:bg-[#0b101d] border border-purple-500/30 rounded-3xl p-5 sm:p-7 shadow-xl space-y-6">
+        <!-- Title & Intro -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-100 dark:border-slate-800/80">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 text-purple-400 border border-purple-500/30 flex items-center justify-center text-xl flex-shrink-0 shadow-sm">
+              <i class="ph-bold ph-dna"></i>
+            </div>
+            <div>
+              <h3 class="text-base sm:text-lg font-black text-slate-900 dark:text-white flex items-center gap-2">
+                <span>Phòng Thí Nghiệm DNA Tiêu Đề & AI Title Remixer</span>
+                <span class="px-2 py-0.5 rounded-full bg-purple-500/15 text-purple-400 border border-purple-500/30 text-[10px] font-black uppercase tracking-wider">
+                  Tâm Lý Học YouTube
+                </span>
+              </h3>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                Bóc tách các từ khóa quyền năng (Power Words) từ video bão view đối thủ & tạo ngay 5 tiêu đề tối ưu CTR theo công thức triệu view.
+              </p>
+            </div>
+          </div>
+          <div class="flex items-center space-x-2 flex-shrink-0">
+            <span class="text-xs font-mono text-purple-400 font-bold bg-purple-500/10 px-3 py-1.5 rounded-xl border border-purple-500/20">
+              ⚡ Thuật toán High-CTR
+            </span>
+          </div>
+        </div>
+
+        <!-- Power Words Cloud -->
+        <div>
+          <div class="flex items-center justify-between mb-2.5">
+            <label class="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+              <i class="ph-fill ph-fire text-amber-400"></i>
+              <span>Top Từ Khóa Quyền Năng (Power Words) Hút View Cao Nhất:</span>
+            </label>
+            <span class="text-[11px] text-slate-400">Bấm vào từ để ghép vào chủ đề</span>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <button 
+              v-for="pw in topPowerWords" 
+              :key="pw.word"
+              @click="insertPowerWord(pw.word)"
+              type="button"
+              class="px-2.5 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-900/90 hover:bg-purple-500/20 text-slate-700 dark:text-slate-300 hover:text-purple-400 border border-slate-200 dark:border-slate-800 hover:border-purple-500/40 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-sm group"
+              :title="'Thêm từ ' + pw.word + ' vào ô nhập'"
+            >
+              <span class="font-mono text-purple-500 dark:text-purple-400 font-black">#{{ pw.word }}</span>
+              <span class="text-[10px] text-slate-400 group-hover:text-slate-200">{{ pw.label }}</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Interactive AI Title Generator Input -->
+        <div class="p-4 bg-slate-50 dark:bg-slate-900/60 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-3">
+          <label class="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center justify-between">
+            <span class="flex items-center gap-1.5">
+              <i class="ph-fill ph-sparkle text-purple-400"></i>
+              <span>Nhập chủ đề hoặc ý tưởng video bạn muốn làm:</span>
+            </span>
+            <span class="text-[10px] text-slate-400 font-mono">Ấn Enter để tạo</span>
+          </label>
+          <div class="flex flex-col sm:flex-row gap-2.5">
+            <div class="relative flex-1">
+              <i class="ph-bold ph-lightbulb absolute left-3.5 top-1/2 -translate-y-1/2 text-purple-400 text-base"></i>
+              <input 
+                type="text" 
+                v-model="customTopicInput" 
+                @keydown.enter.prevent="generateAiTitles()"
+                placeholder="Ví dụ: chế máy cắt cỏ, làm bàn ghế gỗ, mẹo hàn sắt, quạt năng lượng mặt trời..."
+                class="w-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl pl-10 pr-3 py-2.5 text-xs sm:text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500/30 shadow-inner"
+              />
+            </div>
+            <button 
+              @click="generateAiTitles()" 
+              class="px-5 py-2.5 bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-600 hover:opacity-95 text-white text-xs font-black rounded-xl transition shadow-lg shadow-purple-600/25 flex items-center justify-center gap-1.5 cursor-pointer flex-shrink-0"
+            >
+              <i class="ph-bold ph-magic-wand text-sm"></i>
+              <span>Tạo 5 Tiêu Đề Triệu View</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Generated Titles Results -->
+        <div v-if="generatedTitles.length > 0" class="space-y-3">
+          <div class="flex items-center justify-between">
+            <h4 class="text-xs font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+              <i class="ph-fill ph-check-circle text-emerald-400"></i>
+              <span>5 Biến Thể Tiêu Đề Đã Được Tối Ưu CTR & Giữ Chân Khán Giả:</span>
+            </h4>
+            <span class="text-[10px] text-purple-400 font-mono">Bấm nút sao chép để dùng</span>
+          </div>
+
+          <div class="grid grid-cols-1 gap-2.5">
+            <div 
+              v-for="(tItem, tIdx) in generatedTitles" 
+              :key="tIdx"
+              class="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800/80 hover:border-purple-500/50 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 group"
+            >
+              <div class="space-y-1 min-w-0 flex-1">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="px-2 py-0.5 rounded-md text-[10px] font-black uppercase font-mono border" :class="tItem.badgeColor">
+                    {{ tItem.badge }}
+                  </span>
+                  <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400 font-mono">
+                    {{ tItem.formula }}
+                  </span>
+                </div>
+                <div class="text-xs sm:text-sm font-black text-slate-900 dark:text-white pt-0.5 group-hover:text-purple-400 transition-colors">
+                  {{ tItem.title }}
+                </div>
+                <p class="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-1">
+                  💡 {{ tItem.explanation }}
+                </p>
+              </div>
+
+              <div class="flex items-center space-x-2 flex-shrink-0 self-end sm:self-center">
+                <button 
+                  @click="copyGeneratedTitle(tItem.title)" 
+                  class="px-3 py-1.5 rounded-xl bg-purple-500/15 hover:bg-purple-600 hover:text-white text-purple-600 dark:text-purple-300 border border-purple-500/30 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-sm"
+                  title="Sao chép tiêu đề này"
+                >
+                  <i class="ph-bold ph-copy text-xs"></i>
+                  <span>Copy Tiêu Đề</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
 
       <!-- AI Videos Grid -->
@@ -6637,6 +6811,337 @@
       </main>
     </div> <!-- End Right Main Viewport -->
     
+    <!-- ========================================================================================= -->
+    <!-- MODAL: ⚔️ VÕ ĐÀI SO KÈO ĐỐI ĐẦU KÊNH (HEAD-TO-HEAD BATTLE ARENA)             -->
+    <!-- ============================================================================ -->
+    <div 
+      v-if="showBattleModal && battleChannelA && battleChannelB" 
+      @click.self="closeBattleModal" 
+      @keydown.escape.window="closeBattleModal"
+      class="fixed inset-0 z-[100010] flex items-center justify-center p-2 sm:p-4 md:p-6 bg-slate-950/85 backdrop-blur-md transition-opacity duration-300 select-none overflow-y-auto"
+    >
+      <div class="bg-white dark:bg-[#090d1a] border border-rose-500/30 ring-1 ring-white/10 rounded-3xl max-w-4xl w-full shadow-2xl overflow-hidden flex flex-col my-auto max-h-[92vh]">
+        <!-- Battle Top Bar -->
+        <div class="p-4 px-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-gradient-to-r from-rose-950/40 via-purple-950/40 to-cyan-950/40">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-rose-600 via-purple-600 to-cyan-600 text-white flex items-center justify-center text-xl shadow-lg flex-shrink-0">
+              <i class="ph-fill ph-swords"></i>
+            </div>
+            <div>
+              <h3 class="text-sm sm:text-base font-black text-slate-900 dark:text-white flex items-center gap-2">
+                <span>Võ Đài So Kèo Đối Đầu Kênh</span>
+                <span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-400 border border-rose-500/30 text-[10px] font-black uppercase tracking-wider font-mono">
+                  Esports Radar Arena
+                </span>
+              </h3>
+              <p class="text-xs text-slate-400">
+                Bàn cân so sánh thực lực đa chiều & phát hiện điểm mạnh/yếu giữa 2 kênh đối thủ
+              </p>
+            </div>
+          </div>
+          <button 
+            @click="closeBattleModal" 
+            class="w-8 h-8 rounded-xl bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center transition cursor-pointer flex-shrink-0 ml-2"
+          >
+            <i class="ph-bold ph-x text-sm"></i>
+          </button>
+        </div>
+
+        <!-- Scrollable Battle Arena Content -->
+        <div class="p-4 sm:p-6 space-y-6 overflow-y-auto custom-scrollbar flex-1">
+
+          <!-- FIGHTERS HEADER: Corner A (Rose) vs Corner B (Cyan) -->
+          <div class="grid grid-cols-1 md:grid-cols-11 gap-4 items-center bg-slate-50 dark:bg-[#0c1222] p-4 sm:p-5 rounded-3xl border border-slate-200 dark:border-slate-800/80 relative overflow-hidden">
+            <div class="absolute -left-10 -top-10 w-40 h-40 bg-rose-500/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+            <!-- Corner A: Left Fighter -->
+            <div class="md:col-span-5 space-y-3 relative z-10">
+              <div class="flex items-center justify-between">
+                <span class="px-2.5 py-0.5 rounded-full bg-rose-500/15 border border-rose-500/30 text-rose-500 text-[10px] font-black uppercase font-mono">
+                  Góc Đấu Đỏ (Kênh A)
+                </span>
+                <span v-if="battleComparison && battleComparison.winsA > battleComparison.winsB" class="px-2.5 py-0.5 rounded-full bg-amber-400 text-slate-950 text-[10px] font-black uppercase font-mono shadow-sm flex items-center gap-1">
+                  👑 Đang Dẫn Trước ({{ battleComparison.winsA }}/6)
+                </span>
+              </div>
+              <div class="flex items-center space-x-3">
+                <div class="w-12 h-12 rounded-2xl bg-slate-800 border-2 border-rose-500 text-white font-black text-lg flex items-center justify-center overflow-hidden flex-shrink-0 shadow-lg shadow-rose-500/20">
+                  <img v-if="battleChannelA.avatar" :src="battleChannelA.avatar" :alt="battleChannelA.name" class="w-full h-full object-cover">
+                  <span v-else>{{ battleChannelA.name ? battleChannelA.name.charAt(0) : 'A' }}</span>
+                </div>
+                <div class="min-w-0 flex-1">
+                  <select 
+                    v-model="battleChannelAId" 
+                    class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-2.5 py-1.5 text-xs sm:text-sm font-black text-slate-900 dark:text-white focus:outline-none focus:border-rose-500 cursor-pointer"
+                  >
+                    <option v-for="ch in sortedAndFilteredChannels" :key="'a-' + ch.channel_id" :value="ch.channel_id">
+                      {{ ch.name }} ({{ ch.handle }})
+                    </option>
+                  </select>
+                  <div class="text-[11px] text-slate-400 font-mono mt-1 truncate">
+                    <span>{{ battleChannelA.video_count }} video</span>
+                    <span> • </span>
+                    <span class="text-rose-500 font-bold">+{{ formatNumber(battleChannelA.peak_vph) }}/h đỉnh</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Center VS Emblem -->
+            <div class="md:col-span-1 flex items-center justify-center my-2 md:my-0 relative z-10">
+              <div class="w-12 h-12 rounded-full bg-gradient-to-br from-rose-600 via-purple-600 to-cyan-500 text-white font-black text-sm flex items-center justify-center shadow-xl shadow-purple-500/30 ring-4 ring-slate-900/50">
+                VS
+              </div>
+            </div>
+
+            <!-- Corner B: Right Fighter -->
+            <div class="md:col-span-5 space-y-3 relative z-10 text-right md:text-left">
+              <div class="flex items-center justify-between md:flex-row-reverse">
+                <span class="px-2.5 py-0.5 rounded-full bg-cyan-500/15 border border-cyan-500/30 text-cyan-400 text-[10px] font-black uppercase font-mono">
+                  Góc Đấu Xanh (Kênh B)
+                </span>
+                <span v-if="battleComparison && battleComparison.winsB > battleComparison.winsA" class="px-2.5 py-0.5 rounded-full bg-amber-400 text-slate-950 text-[10px] font-black uppercase font-mono shadow-sm flex items-center gap-1">
+                  👑 Đang Dẫn Trước ({{ battleComparison.winsB }}/6)
+                </span>
+              </div>
+              <div class="flex items-center space-x-3 flex-row-reverse md:flex-row">
+                <div class="min-w-0 flex-1">
+                  <select 
+                    v-model="battleChannelBId" 
+                    class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-2.5 py-1.5 text-xs sm:text-sm font-black text-slate-900 dark:text-white focus:outline-none focus:border-cyan-500 cursor-pointer"
+                  >
+                    <option v-for="ch in sortedAndFilteredChannels" :key="'b-' + ch.channel_id" :value="ch.channel_id">
+                      {{ ch.name }} ({{ ch.handle }})
+                    </option>
+                  </select>
+                  <div class="text-[11px] text-slate-400 font-mono mt-1 truncate">
+                    <span>{{ battleChannelB.video_count }} video</span>
+                    <span> • </span>
+                    <span class="text-cyan-400 font-bold">+{{ formatNumber(battleChannelB.peak_vph) }}/h đỉnh</span>
+                  </div>
+                </div>
+                <div class="w-12 h-12 rounded-2xl bg-slate-800 border-2 border-cyan-400 text-white font-black text-lg flex items-center justify-center overflow-hidden flex-shrink-0 shadow-lg shadow-cyan-500/20">
+                  <img v-if="battleChannelB.avatar" :src="battleChannelB.avatar" :alt="battleChannelB.name" class="w-full h-full object-cover">
+                  <span v-else>{{ battleChannelB.name ? battleChannelB.name.charAt(0) : 'B' }}</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- COMPARISON METRICS BARS (VERSUS GAUGE MATRIX) -->
+          <div v-if="battleComparison" class="space-y-3.5">
+            <h4 class="text-xs font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-2">
+              <i class="ph-fill ph-chart-bar text-purple-500"></i>
+              <span>So Sánh Trực Diện 6 Chỉ Số Sức Mạnh Cốt Lõi:</span>
+            </h4>
+
+            <div class="space-y-3 bg-white dark:bg-[#0c1222] p-4 sm:p-5 rounded-3xl border border-slate-200 dark:border-slate-800">
+              
+              <!-- 1. Tốc độ đỉnh (Peak VPH) -->
+              <div class="space-y-1">
+                <div class="flex items-center justify-between text-xs">
+                  <span class="font-mono font-black" :class="battleComparison.peak.winner === 'a' ? 'text-rose-500 text-sm' : 'text-slate-400'">
+                    +{{ formatNumber(battleChannelA.peak_vph) }}/h
+                    <span v-if="battleComparison.peak.winner === 'a'">👑</span>
+                  </span>
+                  <span class="text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Tốc Độ Đỉnh (Peak VPH)</span>
+                  <span class="font-mono font-black" :class="battleComparison.peak.winner === 'b' ? 'text-cyan-400 text-sm' : 'text-slate-400'">
+                    <span v-if="battleComparison.peak.winner === 'b'">👑</span>
+                    +{{ formatNumber(battleChannelB.peak_vph) }}/h
+                  </span>
+                </div>
+                <div class="h-2.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden flex">
+                  <div class="bg-rose-500 h-full transition-all duration-500" :style="{ width: battleComparison.peak.pctA + '%' }"></div>
+                  <div class="bg-cyan-500 h-full transition-all duration-500" :style="{ width: battleComparison.peak.pctB + '%' }"></div>
+                </div>
+              </div>
+
+              <!-- 2. Tổng Lưu Lượng Toàn Kênh (Total Channel VPH) -->
+              <div class="space-y-1">
+                <div class="flex items-center justify-between text-xs">
+                  <span class="font-mono font-black" :class="battleComparison.totalVph.winner === 'a' ? 'text-rose-500 text-sm' : 'text-slate-400'">
+                    +{{ formatNumber(battleChannelA.total_channel_vph) }}/h
+                    <span v-if="battleComparison.totalVph.winner === 'a'">👑</span>
+                  </span>
+                  <span class="text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Lưu Lượng Kênh (Total VPH)</span>
+                  <span class="font-mono font-black" :class="battleComparison.totalVph.winner === 'b' ? 'text-cyan-400 text-sm' : 'text-slate-400'">
+                    <span v-if="battleComparison.totalVph.winner === 'b'">👑</span>
+                    +{{ formatNumber(battleChannelB.total_channel_vph) }}/h
+                  </span>
+                </div>
+                <div class="h-2.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden flex">
+                  <div class="bg-rose-500 h-full transition-all duration-500" :style="{ width: battleComparison.totalVph.pctA + '%' }"></div>
+                  <div class="bg-cyan-500 h-full transition-all duration-500" :style="{ width: battleComparison.totalVph.pctB + '%' }"></div>
+                </div>
+              </div>
+
+              <!-- 3. Tỷ Lệ Bão View (Viral Hit Rate %) -->
+              <div class="space-y-1">
+                <div class="flex items-center justify-between text-xs">
+                  <span class="font-mono font-black" :class="battleComparison.viral.winner === 'a' ? 'text-rose-500 text-sm' : 'text-slate-400'">
+                    {{ battleChannelA.viral_rate }}%
+                    <span v-if="battleComparison.viral.winner === 'a'">👑</span>
+                  </span>
+                  <span class="text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Tỷ Lệ Bão View (%)</span>
+                  <span class="font-mono font-black" :class="battleComparison.viral.winner === 'b' ? 'text-cyan-400 text-sm' : 'text-slate-400'">
+                    <span v-if="battleComparison.viral.winner === 'b'">👑</span>
+                    {{ battleChannelB.viral_rate }}%
+                  </span>
+                </div>
+                <div class="h-2.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden flex">
+                  <div class="bg-rose-500 h-full transition-all duration-500" :style="{ width: battleComparison.viral.pctA + '%' }"></div>
+                  <div class="bg-cyan-500 h-full transition-all duration-500" :style="{ width: battleComparison.viral.pctB + '%' }"></div>
+                </div>
+              </div>
+
+              <!-- 4. Lượt Xem TB / Video -->
+              <div class="space-y-1">
+                <div class="flex items-center justify-between text-xs">
+                  <span class="font-mono font-black" :class="battleComparison.avgViews.winner === 'a' ? 'text-rose-500 text-sm' : 'text-slate-400'">
+                    {{ formatNumber(battleChannelA.avg_views) }} view
+                    <span v-if="battleComparison.avgViews.winner === 'a'">👑</span>
+                  </span>
+                  <span class="text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Lượt Xem TB / Video</span>
+                  <span class="font-mono font-black" :class="battleComparison.avgViews.winner === 'b' ? 'text-cyan-400 text-sm' : 'text-slate-400'">
+                    <span v-if="battleComparison.avgViews.winner === 'b'">👑</span>
+                    {{ formatNumber(battleChannelB.avg_views) }} view
+                  </span>
+                </div>
+                <div class="h-2.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden flex">
+                  <div class="bg-rose-500 h-full transition-all duration-500" :style="{ width: battleComparison.avgViews.pctA + '%' }"></div>
+                  <div class="bg-cyan-500 h-full transition-all duration-500" :style="{ width: battleComparison.avgViews.pctB + '%' }"></div>
+                </div>
+              </div>
+
+              <!-- 5. Tần Suất Ra Video (Độ Đều Đặn) -->
+              <div class="space-y-1">
+                <div class="flex items-center justify-between text-xs">
+                  <span class="font-mono font-black" :class="battleComparison.cadence.winner === 'a' ? 'text-rose-500 text-sm' : 'text-slate-400'">
+                    ~{{ battleChannelA.avg_upload_interval_days || 7 }} ngày/vd
+                    <span v-if="battleComparison.cadence.winner === 'a'">👑</span>
+                  </span>
+                  <span class="text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Tần Suất Ra Video (Đều Hơn)</span>
+                  <span class="font-mono font-black" :class="battleComparison.cadence.winner === 'b' ? 'text-cyan-400 text-sm' : 'text-slate-400'">
+                    <span v-if="battleComparison.cadence.winner === 'b'">👑</span>
+                    ~{{ battleChannelB.avg_upload_interval_days || 7 }} ngày/vd
+                  </span>
+                </div>
+                <div class="h-2.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden flex">
+                  <div class="bg-rose-500 h-full transition-all duration-500" :style="{ width: battleComparison.cadence.pctA + '%' }"></div>
+                  <div class="bg-cyan-500 h-full transition-all duration-500" :style="{ width: battleComparison.cadence.pctB + '%' }"></div>
+                </div>
+              </div>
+
+              <!-- 6. Kỷ Lục Video >= 1M View -->
+              <div class="space-y-1">
+                <div class="flex items-center justify-between text-xs">
+                  <span class="font-mono font-black" :class="battleComparison.millionCount.winner === 'a' ? 'text-rose-500 text-sm' : 'text-slate-400'">
+                    {{ battleChannelA.million_count || 0 }} video
+                    <span v-if="battleComparison.millionCount.winner === 'a'">👑</span>
+                  </span>
+                  <span class="text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Video &ge; 1M Lượt Xem</span>
+                  <span class="font-mono font-black" :class="battleComparison.millionCount.winner === 'b' ? 'text-cyan-400 text-sm' : 'text-slate-400'">
+                    <span v-if="battleComparison.millionCount.winner === 'b'">👑</span>
+                    {{ battleChannelB.million_count || 0 }} video
+                  </span>
+                </div>
+                <div class="h-2.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden flex">
+                  <div class="bg-rose-500 h-full transition-all duration-500" :style="{ width: battleComparison.millionCount.pctA + '%' }"></div>
+                  <div class="bg-cyan-500 h-full transition-all duration-500" :style="{ width: battleComparison.millionCount.pctB + '%' }"></div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- TOP 3 SHOWDOWN: 3 BEST VIDEOS OF EACH -->
+          <div v-if="battleComparison" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Top 3 Videos Channel A -->
+            <div class="space-y-2.5">
+              <div class="flex items-center space-x-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
+                <span class="text-xs font-black uppercase text-slate-800 dark:text-slate-200">Top 3 Video Mạnh Nhất ({{ battleChannelA.name }})</span>
+              </div>
+              <div class="space-y-2">
+                <div 
+                  v-for="(v, vIdx) in battleComparison.topVidsA" 
+                  :key="'a-vid-' + v.video_id"
+                  class="p-2.5 bg-slate-50 dark:bg-[#0c1222] border border-rose-500/20 rounded-2xl flex items-center space-x-2.5 text-xs"
+                >
+                  <img :src="v.thumbnail" :alt="v.title" class="w-16 h-10 object-cover rounded-lg flex-shrink-0 bg-slate-800">
+                  <div class="min-w-0 flex-1">
+                    <div class="font-bold text-slate-900 dark:text-white truncate" :title="v.title">{{ v.title }}</div>
+                    <div class="text-[10px] text-slate-400 font-mono mt-0.5 flex items-center gap-2">
+                      <span class="text-rose-500 font-bold">+{{ formatNumber(v.effective_vph) }}/h</span>
+                      <span>•</span>
+                      <span>{{ formatNumber(v.views) }} view</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Top 3 Videos Channel B -->
+            <div class="space-y-2.5">
+              <div class="flex items-center space-x-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span>
+                <span class="text-xs font-black uppercase text-slate-800 dark:text-slate-200">Top 3 Video Mạnh Nhất ({{ battleChannelB.name }})</span>
+              </div>
+              <div class="space-y-2">
+                <div 
+                  v-for="(v, vIdx) in battleComparison.topVidsB" 
+                  :key="'b-vid-' + v.video_id"
+                  class="p-2.5 bg-slate-50 dark:bg-[#0c1222] border border-cyan-500/20 rounded-2xl flex items-center space-x-2.5 text-xs"
+                >
+                  <img :src="v.thumbnail" :alt="v.title" class="w-16 h-10 object-cover rounded-lg flex-shrink-0 bg-slate-800">
+                  <div class="min-w-0 flex-1">
+                    <div class="font-bold text-slate-900 dark:text-white truncate" :title="v.title">{{ v.title }}</div>
+                    <div class="text-[10px] text-slate-400 font-mono mt-0.5 flex items-center gap-2">
+                      <span class="text-cyan-400 font-bold">+{{ formatNumber(v.effective_vph) }}/h</span>
+                      <span>•</span>
+                      <span>{{ formatNumber(v.views) }} view</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- AI STRATEGIC VERDICT -->
+          <div class="p-4 bg-gradient-to-r from-slate-900 via-purple-950/40 to-slate-900 rounded-2xl border border-purple-500/30 text-xs space-y-1.5">
+            <div class="font-black text-amber-300 flex items-center gap-1.5 uppercase tracking-wide">
+              <i class="ph-fill ph-lightbulb"></i>
+              <span>Nhận Định Chiến Thuật Từ Radar AI:</span>
+            </div>
+            <p class="text-slate-300 leading-relaxed">
+              <strong class="text-rose-400">{{ battleChannelA.name }}</strong> đang chiếm ưu thế về 
+              <span class="text-white font-bold">{{ battleComparison && battleComparison.winsA > battleComparison.winsB ? 'tốc độ tăng trưởng và độ bão view' : 'sự đồng đều' }}</span>, 
+              trong khi <strong class="text-cyan-400">{{ battleChannelB.name }}</strong> 
+              <span class="text-white font-bold">{{ battleComparison && battleComparison.winsB > battleComparison.winsA ? 'có hiệu suất chuyển đổi view cao hơn' : 'đang bám đuổi rất sát' }}</span>. 
+              Hãy học hỏi phong cách thumbnail cận cảnh của kênh dẫn trước để áp dụng cho kịch bản video tiếp theo!
+            </p>
+          </div>
+
+        </div>
+
+        <!-- Footer -->
+        <div class="p-3.5 px-6 bg-slate-50 dark:bg-slate-900/60 border-t border-slate-200 dark:border-slate-800 flex justify-between items-center">
+          <div class="text-[11px] text-slate-400 flex items-center gap-1 font-mono">
+            <i class="ph ph-info"></i>
+            Thay đổi kênh ở góc trên để so sánh bất kỳ cặp đối thủ nào
+          </div>
+          <button 
+            @click="closeBattleModal" 
+            class="px-5 py-2 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-white text-xs font-bold rounded-xl transition cursor-pointer"
+          >
+            Đóng Võ Đài
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- ========================================================================================= -->
     <!-- MODAL: GÁN NHÃN & PHÂN NHÓM KÊNH ĐỐI THỦ (CHANNEL TAG MANAGER)               -->
     <!-- ============================================================================ -->
@@ -10503,6 +11008,195 @@
         const channelSortOrder = ref('desc');
         const channelViewMode = ref('grid'); // 'grid' hoặc 'table'
 
+        // Phase 3: Early Surge State
+        const earlySurgeVideosCount = computed(() => {
+          return (allVideos.value || []).filter(v => (v.hours_since_pub || 999) <= 48 && (v.effective_vph || 0) >= 1000 && (v.outlier_score || 0) >= 2.0).length;
+        });
+
+        // Phase 3: Channel Head-to-Head Battle State
+        const showBattleModal = ref(false);
+        const battleChannelAId = ref('');
+        const battleChannelBId = ref('');
+
+        const battleChannelA = computed(() => {
+          const list = sortedAndFilteredChannels.value || [];
+          if (battleChannelAId.value) {
+            const found = list.find(c => c.channel_id === battleChannelAId.value);
+            if (found) return found;
+          }
+          return list[0] || null;
+        });
+
+        const battleChannelB = computed(() => {
+          const list = sortedAndFilteredChannels.value || [];
+          if (battleChannelBId.value) {
+            const found = list.find(c => c.channel_id === battleChannelBId.value);
+            if (found) return found;
+          }
+          return list.length > 1 ? list[1] : (list[0] || null);
+        });
+
+        const openBattleModal = (chA = null, chB = null) => {
+          const list = sortedAndFilteredChannels.value || [];
+          if (chA) {
+            battleChannelAId.value = chA.channel_id;
+          } else if (list[0]) {
+            battleChannelAId.value = list[0].channel_id;
+          }
+
+          if (chB) {
+            battleChannelBId.value = chB.channel_id;
+          } else if (list.length > 1) {
+            const other = list.find(c => c.channel_id !== battleChannelAId.value) || list[1];
+            battleChannelBId.value = other ? other.channel_id : '';
+          }
+          showBattleModal.value = true;
+        };
+
+        const closeBattleModal = () => {
+          showBattleModal.value = false;
+        };
+
+        const battleComparison = computed(() => {
+          const a = battleChannelA.value;
+          const b = battleChannelB.value;
+          if (!a || !b) return null;
+
+          const compare = (valA, valB, isLowerBetter = false) => {
+            const numA = Number(valA) || 0;
+            const numB = Number(valB) || 0;
+            const total = numA + numB;
+            const pctA = total > 0 ? Math.round((numA / total) * 100) : 50;
+            const pctB = 100 - pctA;
+            let winner = 'tie';
+            if (isLowerBetter) {
+              if (numA < numB) winner = 'a';
+              else if (numB < numA) winner = 'b';
+            } else {
+              if (numA > numB) winner = 'a';
+              else if (numB > numA) winner = 'b';
+            }
+            return { numA, numB, pctA, pctB, winner };
+          };
+
+          const peak = compare(a.peak_vph, b.peak_vph);
+          const totalVph = compare(a.total_channel_vph, b.total_channel_vph);
+          const viral = compare(a.viral_rate, b.viral_rate);
+          const avgViews = compare(a.avg_views, b.avg_views);
+          const cadence = compare(a.avg_upload_interval_days || 7, b.avg_upload_interval_days || 7, true);
+          const millionCount = compare(a.million_count || 0, b.million_count || 0);
+
+          let winsA = 0;
+          let winsB = 0;
+          [peak, totalVph, viral, avgViews, cadence, millionCount].forEach(m => {
+            if (m.winner === 'a') winsA++;
+            if (m.winner === 'b') winsB++;
+          });
+
+          const topVidsA = [...(a.videos || [])].sort((x, y) => (y.effective_vph || 0) - (x.effective_vph || 0)).slice(0, 3);
+          const topVidsB = [...(b.videos || [])].sort((x, y) => (y.effective_vph || 0) - (x.effective_vph || 0)).slice(0, 3);
+
+          return {
+            peak,
+            totalVph,
+            viral,
+            avgViews,
+            cadence,
+            millionCount,
+            winsA,
+            winsB,
+            topVidsA,
+            topVidsB,
+            overallWinner: winsA > winsB ? 'a' : (winsB > winsA ? 'b' : 'tie')
+          };
+        });
+
+        // Phase 3: Title DNA & AI Remixer State
+        const customTopicInput = ref('');
+        const generatedTitles = ref([]);
+        const topPowerWords = ref([
+          { word: 'Million-dollar', label: 'Triệu đô 💰', category: 'Giá trị' },
+          { word: 'Nobody knows', label: 'Bí mật bị giấu 🤫', category: 'Tò mò' },
+          { word: '99% of People', label: 'FOMO tâm lý 😱', category: 'Tâm lý' },
+          { word: 'Invention', label: 'Phát minh đột phá ⚡', category: 'Cơ khí' },
+          { word: 'Shocking', label: 'Gây sốc thị giác 🔥', category: 'Cảm xúc' },
+          { word: 'Don\'t throw away', label: 'Tái sinh đồ cũ ♻️', category: 'Lifehack' },
+          { word: 'Turning into', label: 'Chuyển hóa thần kỳ ✨', category: 'Biến đổi' },
+          { word: 'Secret technique', label: 'Tuyệt chiêu nghề 🛠️', category: 'Chuyên môn' },
+          { word: 'No more bills', label: 'Triệt tiêu chi phí ⚡', category: 'Nỗi đau' },
+          { word: 'Free energy / 220V', label: 'Năng lượng tự chủ 🔋', category: 'Off-grid' },
+          { word: 'Amazing result', label: 'Kết quả khó tin 🎯', category: 'Thỏa mãn' },
+          { word: '60-year-old master', label: 'Kinh nghiệm lão làng 👴', category: 'Uy tín' }
+        ]);
+
+        const generateAiTitles = (overrideTopic = '', notify = true) => {
+          const rawTopic = (typeof overrideTopic === 'string' && overrideTopic ? overrideTopic : customTopicInput.value || '').trim();
+          const topic = rawTopic || 'công cụ tái chế cơ khí';
+          
+          generatedTitles.value = [
+            {
+              formula: 'Khoảng Trống Tò Mò (Curiosity Gap)',
+              badge: 'Tò mò tột độ',
+              badgeColor: 'bg-rose-500/20 text-rose-300 border-rose-500/30',
+              title: `99% of People Don't Know This Trick: How to make ${topic} at home! 😱`,
+              explanation: 'Đánh vào tâm lý sợ bỏ lỡ (FOMO) và con số 99% kích thích người xem muốn chứng minh mình thuộc 1% hiểu biết.'
+            },
+            {
+              formula: 'Biến Đổi Triệu Đô (High-Value Transformation)',
+              badge: 'Triệu đô',
+              badgeColor: 'bg-amber-500/20 text-amber-300 border-amber-500/30',
+              title: `A welder's million-dollar invention! Turning scrap into an amazing ${topic} 🛠️`,
+              explanation: 'Sử dụng đòn bẩy uy tín thợ chuyên nghiệp + sự đối lập giữa phế liệu rẻ tiền và giá trị triệu đô.'
+            },
+            {
+              formula: 'Nỗi Đau Tài Chính & Tự Chủ (Pain & Off-Grid Solution)',
+              badge: 'Tiết kiệm chi phí',
+              badgeColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
+              title: `No More Expensive Bills! Genius DIY ${topic} anyone can build in 10 minutes ⚡`,
+              explanation: 'Giải quyết nỗi đau tốn kém tài chính bằng giải pháp nhanh gọn ai cũng làm được.'
+            },
+            {
+              formula: 'Bí Mật Nghề Lâu Năm (Authority & Secret)',
+              badge: 'Bí quyết ẩn',
+              badgeColor: 'bg-purple-500/20 text-purple-300 border-purple-500/30',
+              title: `The secret technique I learned from a 60-year-old master for ${topic} 🔥`,
+              explanation: 'Mượn danh bảo chứng của nghệ nhân thâm niên để tạo độ tin cậy và tò mò ngay lập tức.'
+            },
+            {
+              formula: 'Thách Thức & Không Tưởng (Challenge & Oddly Satisfying)',
+              badge: 'Bất khả thi',
+              badgeColor: 'bg-blue-500/20 text-blue-300 border-blue-500/30',
+              title: `They laughed when I started making this ${topic} — Wait for the shocking result! 😱`,
+              explanation: 'Mô típ "nghi ngờ -> kết quả ngoạn mục" giữ chân người xem có AVD (Average View Duration) cực cao đến cuối video.'
+            }
+          ];
+          if (notify && typeof showToast === 'function') {
+            showToast('✨ Đã sinh 5 biến thể tiêu đề triệu view chuẩn thuật toán!');
+          }
+        };
+
+        const insertPowerWord = (word) => {
+          if (!customTopicInput.value) {
+            customTopicInput.value = word;
+          } else {
+            customTopicInput.value += ' ' + word;
+          }
+        };
+
+        const copyGeneratedTitle = (title) => {
+          try {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+              navigator.clipboard.writeText(title);
+            }
+          } catch (e) {}
+          if (typeof showToast === 'function') {
+            showToast('📋 Đã sao chép tiêu đề: ' + title);
+          }
+        };
+
+        // Initialize default AI titles without toast
+        generateAiTitles('công cụ cơ khí tự chế', false);
+
         const toastMsg = ref('');
         const savedTokenSuccess = ref(false);
         const savedGeminiSuccess = ref(false);
@@ -11080,6 +11774,8 @@
             list = list.filter(v => v.is_viral);
           } else if (filterTab.value === 'outliers') {
             list = list.filter(v => (v.outlier_score || 0) >= 3.0);
+          } else if (filterTab.value === 'early_surge') {
+            list = list.filter(v => (v.hours_since_pub || 999) <= 48 && (v.effective_vph || 0) >= 1000 && (v.outlier_score || 0) >= 2.0);
           } else if (filterTab.value === 'momentum') {
             list = list.filter(v => (v.momentum_score || 0) >= 70);
           } else if (filterTab.value === 'high_speed') {
@@ -13691,6 +14387,21 @@ Nhiệm vụ: Trả lời hoặc viết lại/tinh chỉnh kịch bản theo yê
           heatmapMode,
           uploadTimeHeatmap,
           exportVideosCsv,
+          earlySurgeVideosCount,
+          showBattleModal,
+          battleChannelAId,
+          battleChannelBId,
+          battleChannelA,
+          battleChannelB,
+          openBattleModal,
+          closeBattleModal,
+          battleComparison,
+          customTopicInput,
+          generatedTitles,
+          topPowerWords,
+          generateAiTitles,
+          insertPowerWord,
+          copyGeneratedTitle,
           isFiltered,
           toggleSortOrder,
           channelSearchQuery,
