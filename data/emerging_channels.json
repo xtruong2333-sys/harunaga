@@ -1,43 +1,9 @@
 {
   "last_updated": "2026-09-14T04:50:48.353Z",
   "last_updated_formatted": "16:19:37 - 12/09/2026 (UTC)",
-  "total_channels": 9,
-  "breakout_count": 5,
+  "total_channels": 8,
+  "breakout_count": 4,
   "channels": [
-    {
-      "channel_id": "manual_1789361447633",
-      "title": "Playwright Radar Channel",
-      "handle": "@playwrightradar",
-      "thumbnail": "https://api.dicebear.com/7.x/bottts/svg?seed=Playwright%20Radar%20Channel",
-      "subscriber_count": 2000,
-      "subscribers_formatted": "2.0K",
-      "active_age_days": 25,
-      "last_upload_age_days": 2,
-      "content_type": "LONG_FORM",
-      "views_90d": 160000,
-      "median_views_90d": 80000,
-      "median_views_per_sub": 40,
-      "viral_repeat_count": 2,
-      "hit_rate": 0.8,
-      "median_view_velocity": 4500,
-      "radar_score": 78.5,
-      "radar_score_change_7d": 15,
-      "breakout_status": true,
-      "presets": [
-        "EXPLODING",
-        "EMERGING",
-        "BREAKOUT"
-      ],
-      "star_video": {
-        "video_id": "star_1789361447633",
-        "title": "Breakout Invention Video",
-        "url": "https://www.youtube.com/@playwrightradar",
-        "views": 80000,
-        "view_velocity": 4500,
-        "thumbnail": "https://api.dicebear.com/7.x/bottts/svg?seed=Playwright%20Radar%20Channel"
-      },
-      "videos": []
-    },
     {
       "channel_id": "UC9l8eLzvmuj-LMTNcWQgHeA",
       "title": "Creative inventions LMTN",
