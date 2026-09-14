@@ -1233,6 +1233,16 @@
             <span class="text-[10px] text-slate-400 font-normal">Online</span>
           </span>
 
+          <!-- Phase 4: Giả Lập Feed Button -->
+          <button 
+            @click="openThumbnailSimulator()" 
+            class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-rose-500/10 via-purple-500/10 to-indigo-500/10 hover:from-rose-500/20 hover:to-indigo-500/20 border border-rose-500/30 text-rose-600 dark:text-rose-400 text-xs font-bold flex items-center gap-1.5 transition cursor-pointer shadow-sm"
+            title="Mô phỏng hiển thị Thumbnail của bạn giữa các video triệu view đối thủ trên YouTube Feed"
+          >
+            <i class="ph-bold ph-monitor-play text-sm text-rose-500"></i>
+            <span class="hidden sm:inline">Giả Lập Feed</span>
+          </button>
+
           <!-- Quản Lý Data & Key Button (Đổi icon & tiêu đề theo cấp bậc tài khoản) -->
           <button 
             @click="openAdminModal()" 
@@ -6561,6 +6571,14 @@
 
               <div class="flex items-center space-x-2 flex-shrink-0 self-end sm:self-center">
                 <button 
+                  @click="openThumbnailSimulator('', tItem.title)" 
+                  class="px-2.5 py-1.5 rounded-xl bg-rose-500/15 hover:bg-rose-600 hover:text-white text-rose-600 dark:text-rose-400 border border-rose-500/30 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-sm"
+                  title="Đưa tiêu đề này vào bộ giả lập YouTube Feed để test cùng thumbnail"
+                >
+                  <i class="ph-bold ph-monitor-play text-xs"></i>
+                  <span>Test Vào Feed</span>
+                </button>
+                <button 
                   @click="copyGeneratedTitle(tItem.title)" 
                   class="px-3 py-1.5 rounded-xl bg-purple-500/15 hover:bg-purple-600 hover:text-white text-purple-600 dark:text-purple-300 border border-purple-500/30 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-sm"
                   title="Sao chép tiêu đề này"
@@ -7137,6 +7155,436 @@
             class="px-5 py-2 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-white text-xs font-bold rounded-xl transition cursor-pointer"
           >
             Đóng Võ Đài
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================================================================= -->
+    <!-- MODAL: YOUTUBE FEED THUMBNAIL SIMULATOR & SQUINT EYE TESTER (PHASE 4)                    -->
+    <!-- ========================================================================================= -->
+    <div 
+      v-if="showThumbnailSimulatorModal" 
+      @click.self="closeThumbnailSimulator" 
+      @keydown.escape.window="closeThumbnailSimulator"
+      class="fixed inset-0 z-[100010] flex items-center justify-center p-2 sm:p-4 md:p-6 bg-slate-950/85 backdrop-blur-md transition-opacity duration-300 select-none overflow-y-auto"
+    >
+      <div class="bg-white dark:bg-[#090d1a] border border-rose-500/30 ring-1 ring-white/10 rounded-3xl max-w-6xl w-full shadow-2xl overflow-hidden flex flex-col my-auto max-h-[94vh]">
+        <!-- Top Header Bar -->
+        <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-800/80 flex items-center justify-between bg-slate-100/50 dark:bg-slate-900/50 flex-shrink-0">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-rose-500/20 to-amber-500/20 text-rose-500 border border-rose-500/30 flex items-center justify-center text-xl flex-shrink-0 shadow-sm">
+              <i class="ph-bold ph-monitor-play"></i>
+            </div>
+            <div>
+              <div class="flex items-center space-x-2">
+                <h3 class="text-base font-black text-slate-900 dark:text-white tracking-wide">
+                  Giả Lập Hiển Thị Thumbnail Trên YouTube Feed
+                </h3>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-rose-500/15 text-rose-400 border border-rose-500/30">
+                  CTR A/B TESTER • SQUINT LAB
+                </span>
+              </div>
+              <p class="text-xs text-slate-500 dark:text-slate-400">
+                Thử nghiệm ảnh thumbnail kẹp giữa các video triệu view đối thủ & soi độ bắt mắt thị giác
+              </p>
+            </div>
+          </div>
+          
+          <div class="flex items-center space-x-3">
+            <!-- Mode Switcher (Mobile vs Desktop) -->
+            <div class="bg-slate-200 dark:bg-slate-950 p-1 rounded-xl flex items-center space-x-1 border border-slate-300 dark:border-slate-800">
+              <button 
+                @click="simFeedMode = 'mobile'"
+                :class="simFeedMode === 'mobile' ? 'bg-rose-500 text-white shadow-md' : 'text-slate-500 hover:text-slate-300'"
+                class="px-3 py-1 rounded-lg text-xs font-bold transition flex items-center space-x-1.5 cursor-pointer"
+              >
+                <i class="ph-bold ph-device-mobile"></i>
+                <span>Mobile Feed</span>
+              </button>
+              <button 
+                @click="simFeedMode = 'desktop'"
+                :class="simFeedMode === 'desktop' ? 'bg-rose-500 text-white shadow-md' : 'text-slate-500 hover:text-slate-300'"
+                class="px-3 py-1 rounded-lg text-xs font-bold transition flex items-center space-x-1.5 cursor-pointer"
+              >
+                <i class="ph-bold ph-desktop"></i>
+                <span>Desktop Grid</span>
+              </button>
+            </div>
+
+            <button 
+              @click="closeThumbnailSimulator"
+              class="w-8 h-8 rounded-xl bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center transition cursor-pointer flex-shrink-0"
+            >
+              <i class="ph-bold ph-x text-sm"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Main Body: Two Columns (Controls/Analytics vs YouTube Feed View) -->
+        <div class="flex-1 overflow-y-auto p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 bg-slate-50/50 dark:bg-[#070a14]">
+          <!-- Left Column (Controls & Analytics) - 5 cols -->
+          <div class="lg:col-span-5 space-y-4">
+            <!-- Upload & Settings Card -->
+            <div class="bg-white dark:bg-[#0c1222] border border-slate-200 dark:border-slate-800/80 rounded-2xl p-4 shadow-sm space-y-3.5">
+              <h4 class="text-xs font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+                <i class="ph-bold ph-sliders text-rose-500"></i>
+                <span>Cấu Hình Thumbnail Nháp</span>
+              </h4>
+
+              <!-- Upload Button / Drag Drop Area -->
+              <div>
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                  Tải ảnh thumbnail từ máy hoặc dán URL:
+                </label>
+                <div class="flex items-center space-x-2">
+                  <label class="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-xl border border-dashed border-rose-500/50 bg-rose-500/5 hover:bg-rose-500/10 text-rose-500 text-xs font-bold cursor-pointer transition">
+                    <i class="ph-bold ph-upload-simple text-sm"></i>
+                    <span>Tải ảnh lên (.jpg, .png)</span>
+                    <input type="file" accept="image/*" @change="handleThumbnailUpload" class="hidden" />
+                  </label>
+                  <button 
+                    @click="simDraftImage = 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=800&auto=format&fit=crop&q=80'; analyzeThumbnailImage(simDraftImage)"
+                    class="px-2.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition"
+                    title="Dùng ảnh mẫu cơ khí"
+                  >
+                    Mẫu 1
+                  </button>
+                  <button 
+                    @click="simDraftImage = 'https://images.unsplash.com/photo-1504917599217-d4dc5ebe6122?w=800&auto=format&fit=crop&q=80'; analyzeThumbnailImage(simDraftImage)"
+                    class="px-2.5 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-bold hover:bg-slate-200 dark:hover:bg-slate-700 transition"
+                    title="Dùng ảnh mẫu thợ hàn"
+                  >
+                    Mẫu 2
+                  </button>
+                </div>
+              </div>
+
+              <!-- Input Title -->
+              <div>
+                <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  Tiêu đề video hiển thị:
+                </label>
+                <textarea 
+                  v-model="simDraftTitle" 
+                  rows="2"
+                  placeholder="Nhập tiêu đề video..."
+                  class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl p-2.5 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-rose-500"
+                ></textarea>
+              </div>
+
+              <!-- Inputs for Channel & Metadata -->
+              <div class="grid grid-cols-3 gap-2">
+                <div>
+                  <label class="text-[10px] font-bold text-slate-500">Tên Kênh</label>
+                  <input v-model="simDraftChannel" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-2 py-1.5 text-xs font-bold text-slate-800 dark:text-slate-200" />
+                </div>
+                <div>
+                  <label class="text-[10px] font-bold text-slate-500">Thời Lượng</label>
+                  <input v-model="simDraftDuration" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-2 py-1.5 text-xs font-mono text-slate-800 dark:text-slate-200" />
+                </div>
+                <div>
+                  <label class="text-[10px] font-bold text-slate-500">Lượt Xem</label>
+                  <input v-model="simDraftViews" class="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-lg px-2 py-1.5 text-xs text-slate-800 dark:text-slate-200" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Vision / Squint Test Buttons -->
+            <div class="bg-white dark:bg-[#0c1222] border border-slate-200 dark:border-slate-800/80 rounded-2xl p-4 shadow-sm space-y-3">
+              <div class="flex items-center justify-between">
+                <h4 class="text-xs font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+                  <i class="ph-bold ph-eye text-indigo-400"></i>
+                  <span>Bộ Kiểm Tra Thị Giác (Squint Test)</span>
+                </h4>
+                <span class="text-[10px] text-slate-400 font-mono">Bấm để đổi lọc</span>
+              </div>
+              
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                <button 
+                  @click="simVisionMode = 'normal'"
+                  :class="simVisionMode === 'normal' ? 'bg-indigo-600 text-white font-bold shadow-md' : 'bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:text-white'"
+                  class="px-2 py-2 rounded-xl text-xs transition flex flex-col items-center justify-center text-center cursor-pointer gap-0.5"
+                >
+                  <i class="ph-bold ph-eye text-sm"></i>
+                  <span class="text-[10px]">Bình thường</span>
+                </button>
+                <button 
+                  @click="simVisionMode = 'blur'"
+                  :class="simVisionMode === 'blur' ? 'bg-amber-600 text-white font-bold shadow-md' : 'bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:text-white'"
+                  class="px-2 py-2 rounded-xl text-xs transition flex flex-col items-center justify-center text-center cursor-pointer gap-0.5"
+                  title="Làm mờ 3px mô phỏng mắt người lướt qua trong 0.3s xem hình khối có nổi bật không"
+                >
+                  <i class="ph-bold ph-drop-half text-sm"></i>
+                  <span class="text-[10px]">Nheo mắt (Blur)</span>
+                </button>
+                <button 
+                  @click="simVisionMode = 'grayscale'"
+                  :class="simVisionMode === 'grayscale' ? 'bg-purple-600 text-white font-bold shadow-md' : 'bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:text-white'"
+                  class="px-2 py-2 rounded-xl text-xs transition flex flex-col items-center justify-center text-center cursor-pointer gap-0.5"
+                  title="Chuyển sang đen trắng để đo tương phản sáng/tối thuần túy"
+                >
+                  <i class="ph-bold ph-circle-half text-sm"></i>
+                  <span class="text-[10px]">Đen trắng</span>
+                </button>
+                <button 
+                  @click="simVisionMode = 'mini'"
+                  :class="simVisionMode === 'mini' ? 'bg-rose-600 text-white font-bold shadow-md' : 'bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:text-white'"
+                  class="px-2 py-2 rounded-xl text-xs transition flex flex-col items-center justify-center text-center cursor-pointer gap-0.5"
+                  title="Thu nhỏ kích thước để xem trên điện thoại cỡ nhỏ"
+                >
+                  <i class="ph-bold ph-arrows-in-simple text-sm"></i>
+                  <span class="text-[10px]">Cỡ Mini 120px</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Eye-Catching Analytics Card -->
+            <div class="bg-white dark:bg-[#0c1222] border border-slate-200 dark:border-slate-800/80 rounded-2xl p-4 shadow-sm space-y-3">
+              <div class="flex items-center justify-between">
+                <h4 class="text-xs font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+                  <i class="ph-bold ph-sparkle text-amber-400"></i>
+                  <span>Thước Đo Độ Bắt Mắt Thị Giác</span>
+                </h4>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-black border font-mono" :class="simMetrics.verdictColor">
+                  {{ simMetrics.verdict }}
+                </span>
+              </div>
+
+              <!-- Score Gauge -->
+              <div class="flex items-center space-x-4 p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800/60">
+                <div class="relative w-14 h-14 rounded-2xl bg-gradient-to-br from-rose-500/20 to-amber-500/20 border border-rose-500/30 flex flex-col items-center justify-center flex-shrink-0">
+                  <span class="text-lg font-black text-rose-500">{{ simMetrics.dominanceScore }}</span>
+                  <span class="text-[8px] font-mono text-slate-400 -mt-1">/100 Điểm</span>
+                </div>
+                <div class="flex-1 space-y-1 text-xs">
+                  <div class="flex justify-between text-slate-600 dark:text-slate-300">
+                    <span>Độ Tương Phản:</span>
+                    <strong class="font-mono text-slate-900 dark:text-white">{{ simMetrics.contrastScore }}</strong>
+                  </div>
+                  <div class="flex justify-between text-slate-600 dark:text-slate-300">
+                    <span>Độ Rực Rỡ (Vibrancy):</span>
+                    <strong class="font-mono text-slate-900 dark:text-white">{{ simMetrics.vibrancyScore }}</strong>
+                  </div>
+                  <div class="flex justify-between text-slate-600 dark:text-slate-300">
+                    <span>Cân Bằng Sáng:</span>
+                    <strong class="font-mono text-slate-900 dark:text-white">{{ simMetrics.luminanceScore }}</strong>
+                  </div>
+                </div>
+              </div>
+
+              <!-- AI Tips List -->
+              <div class="space-y-1.5 text-[11px] text-slate-600 dark:text-slate-300">
+                <div v-for="(tip, tIdx) in simMetrics.tips" :key="tIdx" class="flex items-start gap-1.5">
+                  <i class="ph-bold ph-check-circle text-emerald-400 mt-0.5 flex-shrink-0 text-xs"></i>
+                  <span>{{ tip }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column (YouTube Feed Simulation Arena) - 7 cols -->
+          <div class="lg:col-span-7 flex flex-col items-center justify-start overflow-hidden">
+            <!-- Mobile App View Frame -->
+            <div 
+              v-if="simFeedMode === 'mobile'"
+              :class="{
+                'filter grayscale': simVisionMode === 'grayscale',
+                'filter blur-[3px]': simVisionMode === 'blur',
+                'scale-75 origin-top': simVisionMode === 'mini'
+              }"
+              class="w-full max-w-sm rounded-[32px] bg-[#0f0f0f] text-white border-4 border-slate-800 shadow-2xl overflow-hidden transition-all duration-300"
+            >
+              <!-- Mobile Phone Top Bar -->
+              <div class="px-5 pt-3 pb-2 flex justify-between items-center text-xs font-semibold text-slate-300">
+                <span>9:41</span>
+                <div class="flex items-center space-x-2">
+                  <i class="ph-bold ph-wifi-high"></i>
+                  <i class="ph-bold ph-battery-full text-sm"></i>
+                </div>
+              </div>
+
+              <!-- YouTube App Header -->
+              <div class="px-4 py-2 flex items-center justify-between border-b border-slate-800/60">
+                <div class="flex items-center space-x-1">
+                  <i class="ph-fill ph-youtube-logo text-red-600 text-2xl"></i>
+                  <span class="font-black text-sm tracking-tighter">YouTube</span>
+                </div>
+                <div class="flex items-center space-x-3.5 text-slate-300">
+                  <i class="ph-bold ph-broadcast text-base"></i>
+                  <i class="ph-bold ph-bell text-base"></i>
+                  <i class="ph-bold ph-magnifying-glass text-base"></i>
+                  <div class="w-5 h-5 rounded-full bg-gradient-to-tr from-purple-500 to-rose-500 border border-white/20"></div>
+                </div>
+              </div>
+
+              <!-- Mobile Video Feed Cards List -->
+              <div class="divide-y divide-slate-800/60 max-h-[580px] overflow-y-auto">
+                <!-- Competitor Video 1 -->
+                <div v-if="neighborSimulatorVideos[0]" class="p-3 space-y-2">
+                  <div class="relative aspect-video rounded-xl overflow-hidden bg-slate-900">
+                    <img :src="neighborSimulatorVideos[0].thumbnail || neighborSimulatorVideos[0].thumbnail_url" class="w-full h-full object-cover" />
+                    <span class="absolute bottom-1.5 right-1.5 bg-black/85 text-white text-[10px] font-mono font-bold px-1.5 py-0.5 rounded">
+                      {{ neighborSimulatorVideos[0].duration_str || '14:20' }}
+                    </span>
+                  </div>
+                  <div class="flex space-x-2.5">
+                    <div class="w-8 h-8 rounded-full bg-slate-800 overflow-hidden flex-shrink-0">
+                      <img :src="getChannelAvatar(neighborSimulatorVideos[0].channel_id) || neighborSimulatorVideos[0].channel_avatar || '708426ae-e5bf-49e5-867c-3a58efd90655.png'" class="w-full h-full object-cover" />
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <h5 class="text-xs font-bold line-clamp-2 leading-snug">{{ neighborSimulatorVideos[0].title }}</h5>
+                      <p class="text-[11px] text-slate-400 mt-0.5">{{ neighborSimulatorVideos[0].channel_name || neighborSimulatorVideos[0].channel_title }} • {{ formatNumber(neighborSimulatorVideos[0].views || neighborSimulatorVideos[0].view_count) }} lượt xem • {{ neighborSimulatorVideos[0].hours_ago_formatted || 'Gần đây' }}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- YOUR DRAFT VIDEO CARD (HIGHLIGHTED) -->
+                <div class="p-3 space-y-2 bg-rose-500/10 border-y border-rose-500/40 relative">
+                  <div class="flex items-center justify-between mb-0.5">
+                    <span class="px-2 py-0.5 rounded bg-rose-500 text-white text-[9px] font-black tracking-wider uppercase shadow">
+                      🎯 Thumbnail của bạn đang test
+                    </span>
+                    <span class="text-[9px] text-rose-300 font-mono">Vị trí Feed trung tâm</span>
+                  </div>
+                  <div class="relative aspect-video rounded-xl overflow-hidden bg-slate-900 ring-2 ring-rose-500 shadow-xl">
+                    <img :src="simDraftImage" class="w-full h-full object-cover" />
+                    <span class="absolute bottom-1.5 right-1.5 bg-black/85 text-white text-[10px] font-mono font-bold px-1.5 py-0.5 rounded">
+                      {{ simDraftDuration }}
+                    </span>
+                  </div>
+                  <div class="flex space-x-2.5">
+                    <div class="w-8 h-8 rounded-full bg-rose-600 overflow-hidden flex-shrink-0 border border-white/20">
+                      <img :src="simDraftAvatar" class="w-full h-full object-cover" />
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <h5 class="text-xs font-bold line-clamp-2 leading-snug text-white">{{ simDraftTitle }}</h5>
+                      <p class="text-[11px] text-slate-400 mt-0.5">{{ simDraftChannel }} • {{ simDraftViews }} lượt xem • {{ simDraftTime }}</p>
+                    </div>
+                    <i class="ph-bold ph-dots-three-vertical text-slate-400"></i>
+                  </div>
+                </div>
+
+                <!-- Competitor Video 2 -->
+                <div v-if="neighborSimulatorVideos[1]" class="p-3 space-y-2">
+                  <div class="relative aspect-video rounded-xl overflow-hidden bg-slate-900">
+                    <img :src="neighborSimulatorVideos[1].thumbnail || neighborSimulatorVideos[1].thumbnail_url" class="w-full h-full object-cover" />
+                    <span class="absolute bottom-1.5 right-1.5 bg-black/85 text-white text-[10px] font-mono font-bold px-1.5 py-0.5 rounded">
+                      {{ neighborSimulatorVideos[1].duration_str || '18:05' }}
+                    </span>
+                  </div>
+                  <div class="flex space-x-2.5">
+                    <div class="w-8 h-8 rounded-full bg-slate-800 overflow-hidden flex-shrink-0">
+                      <img :src="getChannelAvatar(neighborSimulatorVideos[1].channel_id) || neighborSimulatorVideos[1].channel_avatar || '708426ae-e5bf-49e5-867c-3a58efd90655.png'" class="w-full h-full object-cover" />
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <h5 class="text-xs font-bold line-clamp-2 leading-snug">{{ neighborSimulatorVideos[1].title }}</h5>
+                      <p class="text-[11px] text-slate-400 mt-0.5">{{ neighborSimulatorVideos[1].channel_name || neighborSimulatorVideos[1].channel_title }} • {{ formatNumber(neighborSimulatorVideos[1].views || neighborSimulatorVideos[1].view_count) }} lượt xem • {{ neighborSimulatorVideos[1].hours_ago_formatted || 'Gần đây' }}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Desktop Grid View Frame -->
+            <div 
+              v-else
+              :class="{
+                'filter grayscale': simVisionMode === 'grayscale',
+                'filter blur-[3px]': simVisionMode === 'blur',
+                'scale-75 origin-top': simVisionMode === 'mini'
+              }"
+              class="w-full rounded-2xl bg-[#0f0f0f] text-white border border-slate-800 p-4 shadow-2xl transition-all duration-300"
+            >
+              <!-- Desktop Header -->
+              <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-800">
+                <div class="flex items-center space-x-2">
+                  <i class="ph-fill ph-youtube-logo text-red-600 text-2xl"></i>
+                  <span class="font-black text-sm tracking-tight">YouTube Desktop</span>
+                </div>
+                <span class="text-xs text-slate-400 font-mono">Chế độ hiển thị lưới duyệt video</span>
+              </div>
+
+              <!-- 3-Column Grid -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                <!-- Competitor Video 1 -->
+                <div v-if="neighborSimulatorVideos[0]" class="space-y-1.5">
+                  <div class="relative aspect-video rounded-xl overflow-hidden bg-slate-900">
+                    <img :src="neighborSimulatorVideos[0].thumbnail || neighborSimulatorVideos[0].thumbnail_url" class="w-full h-full object-cover" />
+                    <span class="absolute bottom-1.5 right-1.5 bg-black/85 text-white text-[10px] font-mono px-1.5 py-0.5 rounded">
+                      {{ neighborSimulatorVideos[0].duration_str || '14:20' }}
+                    </span>
+                  </div>
+                  <div class="flex space-x-2">
+                    <div class="w-8 h-8 rounded-full bg-slate-800 overflow-hidden flex-shrink-0">
+                      <img :src="getChannelAvatar(neighborSimulatorVideos[0].channel_id) || '708426ae-e5bf-49e5-867c-3a58efd90655.png'" class="w-full h-full object-cover" />
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <h5 class="text-xs font-bold line-clamp-2 leading-snug">{{ neighborSimulatorVideos[0].title }}</h5>
+                      <p class="text-[10px] text-slate-400">{{ neighborSimulatorVideos[0].channel_name || neighborSimulatorVideos[0].channel_title }}</p>
+                      <p class="text-[10px] text-slate-500">{{ formatNumber(neighborSimulatorVideos[0].views || neighborSimulatorVideos[0].view_count) }} lượt xem • {{ neighborSimulatorVideos[0].hours_ago_formatted || 'Gần đây' }}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- YOUR DRAFT VIDEO CARD -->
+                <div class="space-y-1.5 p-2 rounded-xl bg-rose-500/10 border-2 border-rose-500 relative shadow-lg">
+                  <div class="absolute -top-2.5 left-2 px-1.5 py-0.5 rounded bg-rose-500 text-white text-[8px] font-black uppercase tracking-wider z-10 shadow">
+                    THUMBNAIL CỦA BẠN
+                  </div>
+                  <div class="relative aspect-video rounded-lg overflow-hidden bg-slate-900">
+                    <img :src="simDraftImage" class="w-full h-full object-cover" />
+                    <span class="absolute bottom-1.5 right-1.5 bg-black/85 text-white text-[10px] font-mono px-1.5 py-0.5 rounded">
+                      {{ simDraftDuration }}
+                    </span>
+                  </div>
+                  <div class="flex space-x-2">
+                    <div class="w-8 h-8 rounded-full bg-rose-600 overflow-hidden flex-shrink-0">
+                      <img :src="simDraftAvatar" class="w-full h-full object-cover" />
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <h5 class="text-xs font-bold line-clamp-2 leading-snug text-white">{{ simDraftTitle }}</h5>
+                      <p class="text-[10px] text-slate-400">{{ simDraftChannel }}</p>
+                      <p class="text-[10px] text-slate-500">{{ simDraftViews }} lượt xem • {{ simDraftTime }}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Competitor Video 2 -->
+                <div v-if="neighborSimulatorVideos[1]" class="space-y-1.5">
+                  <div class="relative aspect-video rounded-xl overflow-hidden bg-slate-900">
+                    <img :src="neighborSimulatorVideos[1].thumbnail || neighborSimulatorVideos[1].thumbnail_url" class="w-full h-full object-cover" />
+                    <span class="absolute bottom-1.5 right-1.5 bg-black/85 text-white text-[10px] font-mono px-1.5 py-0.5 rounded">
+                      {{ neighborSimulatorVideos[1].duration_str || '18:05' }}
+                    </span>
+                  </div>
+                  <div class="flex space-x-2">
+                    <div class="w-8 h-8 rounded-full bg-slate-800 overflow-hidden flex-shrink-0">
+                      <img :src="getChannelAvatar(neighborSimulatorVideos[1].channel_id) || '708426ae-e5bf-49e5-867c-3a58efd90655.png'" class="w-full h-full object-cover" />
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <h5 class="text-xs font-bold line-clamp-2 leading-snug">{{ neighborSimulatorVideos[1].title }}</h5>
+                      <p class="text-[10px] text-slate-400">{{ neighborSimulatorVideos[1].channel_name || neighborSimulatorVideos[1].channel_title }}</p>
+                      <p class="text-[10px] text-slate-500">{{ formatNumber(neighborSimulatorVideos[1].views || neighborSimulatorVideos[1].view_count) }} lượt xem • {{ neighborSimulatorVideos[1].hours_ago_formatted || 'Gần đây' }}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="px-5 py-3 border-t border-slate-200 dark:border-slate-800/80 bg-slate-100/50 dark:bg-slate-900/50 flex items-center justify-between flex-shrink-0">
+          <div class="text-[11px] text-slate-400 flex items-center gap-1.5 font-mono">
+            <i class="ph ph-info"></i>
+            <span>Mẹo: Hãy bật chế độ Nheo Mắt (Squint) hoặc Đen Trắng để kiểm tra độ rõ ràng của chủ thể chính</span>
+          </div>
+          <button 
+            @click="closeThumbnailSimulator"
+            class="px-5 py-2 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-white text-xs font-bold rounded-xl transition cursor-pointer"
+          >
+            Đóng Giả Lập
           </button>
         </div>
       </div>
@@ -11194,6 +11642,154 @@
           }
         };
 
+        // =========================================================================
+        // Phase 4: YouTube Feed Thumbnail Simulator & Eye-Catching Tester
+        // =========================================================================
+        const showThumbnailSimulatorModal = ref(false);
+        const simDraftImage = ref('https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=800&auto=format&fit=crop&q=80');
+        const simDraftTitle = ref('A Welder\'s Million-Dollar Invention! Turning Scrap into an Amazing Tool 🛠️');
+        const simDraftChannel = ref('X-Creations Lab');
+        const simDraftAvatar = ref('708426ae-e5bf-49e5-867c-3a58efd90655.png');
+        const simDraftDuration = ref('12:45');
+        const simDraftViews = ref('128K');
+        const simDraftTime = ref('3 giờ trước');
+        const simFeedMode = ref('mobile'); // 'mobile' | 'desktop'
+        const simVisionMode = ref('normal'); // 'normal' | 'blur' | 'grayscale' | 'mini'
+        const simMetrics = ref({
+          dominanceScore: 86,
+          contrastScore: '7.8:1',
+          vibrancyScore: '78%',
+          luminanceScore: '142/255',
+          verdict: 'Rất Bắt Mắt (High CTR)',
+          verdictColor: 'text-emerald-400 bg-emerald-500/15 border-emerald-500/30',
+          tips: [
+            'Độ tương phản chủ thể và nền cao, giúp thumbnail tách bạch rõ rệt trong YouTube Dark Mode.',
+            'Màu vàng/cam của tia lửa hàn và kim loại tạo điểm nhấn nóng (Hotspot) giật mắt người lướt.',
+            'Khuôn hình trung tâm nhận diện tốt ngay cả khi nheo mắt hoặc xem ở cỡ nhỏ.'
+          ]
+        });
+
+        const openThumbnailSimulator = (initialImage = '', initialTitle = '') => {
+          if (initialImage) simDraftImage.value = initialImage;
+          if (initialTitle) simDraftTitle.value = initialTitle;
+          showThumbnailSimulatorModal.value = true;
+          analyzeThumbnailImage(simDraftImage.value);
+        };
+
+        const closeThumbnailSimulator = () => {
+          showThumbnailSimulatorModal.value = false;
+        };
+
+        const handleThumbnailUpload = (e) => {
+          const file = e.target.files && e.target.files[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = (loadEvt) => {
+            const dataUrl = loadEvt.target.result;
+            simDraftImage.value = dataUrl;
+            analyzeThumbnailImage(dataUrl);
+            if (typeof showToast === 'function') {
+              showToast('🖼️ Đã tải ảnh thumbnail nháp thành công!');
+            }
+          };
+          reader.readAsDataURL(file);
+        };
+
+        const analyzeThumbnailImage = (imgSrc) => {
+          if (!imgSrc) return;
+          try {
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+            img.onload = () => {
+              try {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = 64;
+                canvas.height = 36;
+                ctx.drawImage(img, 0, 0, 64, 36);
+                const imgData = ctx.getImageData(0, 0, 64, 36).data;
+                let totalLuminance = 0;
+                let maxLuminance = 0;
+                let minLuminance = 255;
+                let totalSaturation = 0;
+                let pixelCount = imgData.length / 4;
+
+                for (let i = 0; i < imgData.length; i += 4) {
+                  const r = imgData[i];
+                  const g = imgData[i + 1];
+                  const b = imgData[i + 2];
+                  const lum = 0.299 * r + 0.587 * g + 0.114 * b;
+                  totalLuminance += lum;
+                  if (lum > maxLuminance) maxLuminance = lum;
+                  if (lum < minLuminance) minLuminance = lum;
+
+                  const maxC = Math.max(r, g, b);
+                  const minC = Math.min(r, g, b);
+                  const sat = maxC === 0 ? 0 : (maxC - minC) / maxC;
+                  totalSaturation += sat;
+                }
+
+                const avgLum = Math.round(totalLuminance / pixelCount);
+                const avgSat = Math.round((totalSaturation / pixelCount) * 100);
+                const contrastRange = maxLuminance - minLuminance;
+                const contrastRatio = (contrastRange / 25.5).toFixed(1);
+
+                let score = Math.min(98, Math.max(45, Math.round((contrastRange * 0.45) + (avgSat * 0.35) + (avgLum > 80 && avgLum < 180 ? 20 : 10))));
+
+                let verdict = 'Trung Bình';
+                let verdictColor = 'text-amber-400 bg-amber-500/15 border-amber-500/30';
+                if (score >= 80) {
+                  verdict = 'Rất Bắt Mắt (High CTR)';
+                  verdictColor = 'text-emerald-400 bg-emerald-500/15 border-emerald-500/30';
+                } else if (score < 65) {
+                  verdict = 'Cần Tối Ưu Thêm';
+                  verdictColor = 'text-rose-400 bg-rose-500/15 border-rose-500/30';
+                }
+
+                const tips = [];
+                if (contrastRange > 180) {
+                  tips.push('Độ tương phản cực mạnh, giúp chủ thể nổi bật rõ ràng giữa nền tối và sáng.');
+                } else {
+                  tips.push('Nên tăng tương phản hoặc đổ bóng viền (outline/drop shadow) để chủ thể không bị chìm.');
+                }
+                if (avgSat > 55) {
+                  tips.push('Màu sắc rực rỡ, độ bão hòa cao thu hút mắt người lướt trên màn hình điện thoại.');
+                } else {
+                  tips.push('Có thể bổ sung thêm màu nhấn nóng (vàng, đỏ, cam neon) ở chi tiết quan trọng.');
+                }
+                if (avgLum < 70) {
+                  tips.push('Ảnh hơi tối, nên tăng nhẹ exposure/lighting ở khu vực chủ thể trung tâm.');
+                } else {
+                  tips.push('Độ sáng cân bằng tốt, không bị cháy sáng hay lóa chi tiết.');
+                }
+
+                simMetrics.value = {
+                  dominanceScore: score,
+                  contrastScore: `${contrastRatio}:1`,
+                  vibrancyScore: `${avgSat}%`,
+                  luminanceScore: `${avgLum}/255`,
+                  verdict,
+                  verdictColor,
+                  tips
+                };
+              } catch (innerErr) {}
+            };
+            img.src = imgSrc;
+          } catch (e) {}
+        };
+
+        const neighborSimulatorVideos = computed(() => {
+          const list = (allVideos.value || []).filter(v => (v.thumbnail || v.thumbnail_url));
+          if (list.length >= 4) {
+            return [list[0], list[1], list[2], list[3]];
+          }
+          return list.slice(0, 4);
+        });
+
+        const getChannelAvatar = (chId) => {
+          return (channelAvatarsMap.value && channelAvatarsMap.value[chId]) || '708426ae-e5bf-49e5-867c-3a58efd90655.png';
+        };
+
         // Initialize default AI titles without toast
         generateAiTitles('công cụ cơ khí tự chế', false);
 
@@ -14402,6 +14998,23 @@ Nhiệm vụ: Trả lời hoặc viết lại/tinh chỉnh kịch bản theo yê
           generateAiTitles,
           insertPowerWord,
           copyGeneratedTitle,
+          showThumbnailSimulatorModal,
+          simDraftImage,
+          simDraftTitle,
+          simDraftChannel,
+          simDraftAvatar,
+          simDraftDuration,
+          simDraftViews,
+          simDraftTime,
+          simFeedMode,
+          simVisionMode,
+          simMetrics,
+          openThumbnailSimulator,
+          closeThumbnailSimulator,
+          handleThumbnailUpload,
+          analyzeThumbnailImage,
+          neighborSimulatorVideos,
+          getChannelAvatar,
           isFiltered,
           toggleSortOrder,
           channelSearchQuery,
