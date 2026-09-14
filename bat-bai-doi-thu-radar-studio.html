@@ -41,6 +41,84 @@
   *{box-sizing:border-box}
   html{scroll-behavior:smooth}
   body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,sans-serif;overflow-x:hidden}
+  
+  /* LIGHT MODE COMPREHENSIVE CONTRAST OVERRIDES */
+  body.light-mode {
+    --bg: #f1f5f9;
+    --panel: #ffffff;
+    --panel2: #f8fafc;
+    --line: rgba(15,23,42,0.12);
+    --text: #0f172a;
+    --muted: #475569;
+    --shadow: 0 10px 30px rgba(15,23,42,0.08);
+  }
+  body.light-mode .bg-shell { background: linear-gradient(180deg, #f8fafc, #edf2f7) !important; }
+  body.light-mode .ambient:before, body.light-mode .ambient:after { opacity: 0.05 !important; }
+  body.light-mode .glass {
+    background: rgba(255, 255, 255, 0.92) !important;
+    border-color: rgba(15, 23, 42, 0.12) !important;
+    box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05) !important;
+  }
+  body.light-mode .glass-strong {
+    background: #ffffff !important;
+    border-color: rgba(15, 23, 42, 0.15) !important;
+    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.12) !important;
+  }
+  body.light-mode .sidebar-surface { background: #ffffff !important; border-color: rgba(15, 23, 42, 0.1) !important; }
+  body.light-mode .topbar-surface { background: rgba(255, 255, 255, 0.92) !important; border-color: rgba(15, 23, 42, 0.1) !important; }
+  body.light-mode .text-white { color: #0f172a !important; }
+  body.light-mode .text-slate-200 { color: #1e293b !important; }
+  body.light-mode .text-slate-300 { color: #334155 !important; }
+  body.light-mode .text-slate-400 { color: #475569 !important; }
+  body.light-mode .text-slate-500 { color: #64748b !important; }
+  body.light-mode .text-indigo-200 { color: #3730a3 !important; }
+  body.light-mode .text-indigo-300 { color: #4338ca !important; }
+  body.light-mode .text-indigo-400 { color: #4f46e5 !important; }
+  body.light-mode .text-purple-200 { color: #581c87 !important; }
+  body.light-mode .text-purple-300 { color: #6b21a8 !important; }
+  body.light-mode .text-purple-400 { color: #7e22ce !important; }
+  body.light-mode .text-cyan-300 { color: #0369a1 !important; }
+  body.light-mode .text-cyan-400 { color: #0284c7 !important; }
+  body.light-mode .text-amber-300 { color: #b45309 !important; }
+  body.light-mode .text-amber-400 { color: #d97706 !important; }
+  body.light-mode .text-emerald-400 { color: #047857 !important; }
+  body.light-mode .text-rose-400 { color: #be123c !important; }
+  body.light-mode .border-white\/\[0\.08\], body.light-mode .border-white\/\[0\.07\], body.light-mode .border-white\/\[0\.06\], body.light-mode .border-white\/10 {
+    border-color: rgba(15, 23, 42, 0.13) !important;
+  }
+  body.light-mode .border-purple-500\/20 { border-color: rgba(147, 51, 234, 0.3) !important; }
+  body.light-mode .bg-white\/\[0\.03\], body.light-mode .bg-white\/\[0\.025\], body.light-mode .bg-white\/\[0\.035\], body.light-mode .bg-white\/5 {
+    background: rgba(15, 23, 42, 0.035) !important;
+  }
+  body.light-mode .bg-white\/\[0\.04\] { background: rgba(15, 23, 42, 0.045) !important; }
+  body.light-mode .bg-slate-900, body.light-mode .bg-\[\#080d1a\], body.light-mode .bg-\[\#05070f\], body.light-mode .bg-\[\#0b1120\] {
+    background: #ffffff !important;
+  }
+  body.light-mode .btn-soft {
+    background: rgba(15, 23, 42, 0.045) !important;
+    border-color: rgba(15, 23, 42, 0.14) !important;
+    color: #1e293b !important;
+  }
+  body.light-mode .btn-soft:hover {
+    background: rgba(15, 23, 42, 0.08) !important;
+    color: #0f172a !important;
+  }
+  body.light-mode .btn-soft i { color: #334155 !important; }
+  body.light-mode .nav-item { color: #475569 !important; }
+  body.light-mode .nav-item:hover { color: #0f172a !important; background: rgba(15, 23, 42, 0.04) !important; }
+  body.light-mode .nav-item.active { background: rgba(99, 102, 241, 0.12) !important; color: #4338ca !important; font-weight: 800 !important; }
+  body.light-mode .nav-item.active i { color: #4f46e5 !important; }
+  body.light-mode .intel-chip { background: rgba(15, 23, 42, 0.05) !important; border-color: rgba(15, 23, 42, 0.12) !important; color: #334155 !important; }
+  body.light-mode input, body.light-mode textarea, body.light-mode select {
+    color: #0f172a !important;
+    background: rgba(15, 23, 42, 0.035) !important;
+    border-color: rgba(15, 23, 42, 0.15) !important;
+  }
+  body.light-mode input::placeholder, body.light-mode textarea::placeholder { color: #94a3b8 !important; }
+  body.light-mode .kanban-col { background: rgba(15, 23, 42, 0.02) !important; border-color: rgba(15, 23, 42, 0.10) !important; }
+  body.light-mode .task-card { background: #ffffff !important; border-color: rgba(15, 23, 42, 0.12) !important; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04) !important; }
+  body.light-mode .modal-mask { background: rgba(15, 23, 42, 0.6) !important; }
+
   body.light-mode{color-scheme:light;--bg:#edf2f7;--panel:#f8fafc;--panel2:#ffffff;--line:rgba(15,23,42,.1);--text:#0f172a;--muted:#64748b;--shadow:0 16px 40px rgba(15,23,42,.12)}
   body.light-mode .bg-shell{background:linear-gradient(180deg,#f8fafc,#e7eef7)}
   body.light-mode .glass{background:rgba(255,255,255,.78)}
@@ -313,7 +391,7 @@
           <p class="text-sm text-slate-500 mt-2 max-w-3xl">{{activeTabMeta.description}}</p>
           <div class="intel-context mt-3 flex flex-wrap items-center gap-2">
             <span class="intel-chip"><span class="signal-dot signal-dot-live"></span>{{liveDataSource}}</span>
-            <span class="intel-chip"><i class="ph ph-radar"></i>{{videos.length}} signals</span>
+            <span class="intel-chip"><i class="ph ph-broadcast"></i>{{videos.length}} signals</span>
             <span class="intel-chip"><i class="ph ph-broadcast"></i>{{channels.length}} targets</span>
             <span class="intel-chip"><i class="ph ph-timer"></i>scan {{scanCountdown}}</span>
           </div>
@@ -711,7 +789,7 @@
             <div>
               <div class="flex items-center gap-2">
                 <span class="tiny px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/25 font-black uppercase tracking-wider flex items-center gap-1">
-                  <i class="ph ph-radar text-emerald-400"></i> RADAR SĂN KÊNH ĐỘT BIẾN SỚM
+                  <i class="ph ph-broadcast text-emerald-400"></i> RADAR SĂN KÊNH ĐỘT BIẾN SỚM
                 </span>
                 <span class="tiny text-slate-500 font-mono">6 Trụ Cột Định Lượng</span>
               </div>
@@ -1098,7 +1176,7 @@
 
   <transition name="modal"><div v-if="modal==='tags'" class="fixed inset-0 z-[90] modal-mask p-2 sm:p-5 overflow-y-auto" @click.self="closeModal"><div class="modal-card glass-strong max-w-xl mx-auto rounded-3xl overflow-hidden my-10"><modal-head title="Gán Nhãn & Phân Nhóm Kênh" subtitle="Channel Tag Manager" icon="ph-tag" @close="closeModal"></modal-head><div class="p-5"><div class="flex items-center gap-3"><img :src="selectedChannel.avatar" class="w-12 h-12 rounded-xl" @error="handleImgError"><div><div class="font-bold">{{selectedChannel.name}}</div><div class="text-xs text-slate-500">{{selectedChannel.handle}}</div></div></div><div class="mt-5 flex gap-2"><input v-model="newTag" @keydown.enter.prevent="addTag" class="flex-1 h-10 rounded-xl bg-white/[0.04] border border-white/[0.08] px-3 text-sm" placeholder="Thêm nhãn mới..."><button @click="addTag" class="btn btn-primary h-10 px-4 text-sm">Thêm</button></div><div class="mt-4 flex gap-2 flex-wrap"><button v-for="t in selectedChannel.tags" :key="t" @click="removeTag(t)" class="px-3 py-2 rounded-xl bg-indigo-500/10 border border-indigo-400/20 text-indigo-200 text-xs font-bold hover:bg-rose-500/10 hover:border-rose-400/20 hover:text-rose-200 transition">{{t}} <i class="ph ph-x ml-1"></i></button></div></div></div></div></transition>
 
-  <transition name="modal"><div v-if="modal==='admin'" class="fixed inset-0 z-[90] modal-mask p-2 sm:p-5 overflow-y-auto" @click.self="closeModal"><div class="modal-card glass-strong max-w-6xl mx-auto rounded-3xl overflow-hidden my-5"><modal-head title="Trung Tâm Điều Hành Hệ Thống" subtitle="Admin Hub • Radar Automation • Cloud & AI Integrations" icon="ph-radar" @close="closeModal"></modal-head><div class="p-4 sm:p-6 grid lg:grid-cols-[220px_1fr] gap-5"><div class="space-y-1"><button v-for="t in adminTabs" :key="t.id" @click="adminTab=t.id" :class="adminTab===t.id?'bg-indigo-500/12 border-indigo-400/20 text-white':'border-transparent text-slate-500'" class="w-full text-left px-3 py-3 rounded-xl border text-sm font-semibold transition"><i :class="t.icon" class="ph mr-2"></i>{{t.label}}</button></div><div>
+  <transition name="modal"><div v-if="modal==='admin'" class="fixed inset-0 z-[90] modal-mask p-2 sm:p-5 overflow-y-auto" @click.self="closeModal"><div class="modal-card glass-strong max-w-6xl mx-auto rounded-3xl overflow-hidden my-5"><modal-head title="Trung Tâm Điều Hành Hệ Thống" subtitle="Admin Hub • Radar Automation • Cloud & AI Integrations" icon="ph-sliders-horizontal" @close="closeModal"></modal-head><div class="p-4 sm:p-6 grid lg:grid-cols-[220px_1fr] gap-5"><div class="space-y-1"><button v-for="t in adminTabs" :key="t.id" @click="adminTab=t.id" :class="adminTab===t.id?'bg-indigo-500/12 border-indigo-400/20 text-white':'border-transparent text-slate-500'" class="w-full text-left px-3 py-3 rounded-xl border text-sm font-semibold transition"><i :class="t.icon" class="ph mr-2"></i>{{t.label}}</button></div><div>
     <div v-if="adminTab==='status'" class="space-y-4"><div class="grid sm:grid-cols-3 gap-3"><div class="rounded-2xl bg-emerald-500/[0.06] border border-emerald-400/15 p-4 flex flex-col justify-between"><div><div class="tiny text-emerald-300">Radar Status</div><div class="metric text-2xl font-black mt-2 text-emerald-400">ONLINE 24/7</div></div><button @click="triggerBotScan" :disabled="isTriggeringScan" class="mt-3 btn btn-primary h-8 px-3 text-xs w-full"><i :class="isTriggeringScan?'ph-spinner animate-spin':'ph-rocket-launch'" class="ph mr-1"></i>{{ isTriggeringScan ? 'Đang chạy bot...' : 'Chạy Bot Quét Ngay' }}</button></div><div class="rounded-2xl bg-white/[0.025] border border-white/[0.06] p-4"><div class="tiny text-slate-500">Phiên quét tiếp theo</div><div class="metric text-2xl font-black mt-2">{{scanCountdown}}</div></div><div class="rounded-2xl bg-white/[0.025] border border-white/[0.06] p-4"><div class="tiny text-slate-500">Midnight Sync</div><div class="metric text-2xl font-black mt-2">00:00</div></div></div><div class="rounded-2xl bg-white/[0.025] border border-white/[0.06] p-5"><div class="font-bold">System Pulse</div><div class="mt-4 grid sm:grid-cols-2 gap-3"><div v-for="s in systemChecks" :key="s.label" class="flex items-center justify-between p-3 rounded-xl bg-white/[0.025]"><span class="text-sm text-slate-400">{{s.label}}</span><span class="tiny text-emerald-400">{{s.value}}</span></div></div></div></div>
     <div v-if="adminTab==='channels'" class="space-y-3"><div class="flex gap-2"><input v-model="adminNewChannel" @keydown.enter.prevent="adminAddChannel" class="flex-1 h-10 rounded-xl bg-white/[0.04] border border-white/[0.08] px-3 text-sm" placeholder="Tên / @handle kênh đối thủ"><button @click="adminAddChannel" class="btn btn-primary h-10 px-4 text-sm">Thêm Kênh</button></div><div v-for="c in channels" :key="c.id" class="flex items-center gap-3 p-3 rounded-xl bg-white/[0.025] border border-white/[0.06]"><img :src="c.avatar" class="w-10 h-10 rounded-xl" @error="handleImgError"><div class="flex-1"><div class="font-bold text-sm">{{c.name}}</div><div class="text-xs text-slate-500">{{c.handle}}</div></div><button @click="removeChannel(c.id)" class="btn btn-soft w-9 h-9 text-rose-300"><i class="ph ph-trash"></i></button></div></div>
     <div v-if="adminTab==='github'" class="space-y-4"><integration-field label="GitHub Token" v-model="settings.githubToken" type="password"></integration-field><div class="grid sm:grid-cols-2 gap-3"><integration-field label="Owner" v-model="settings.githubOwner"></integration-field><integration-field label="Repository" v-model="settings.githubRepo"></integration-field><integration-field label="Branch" v-model="settings.githubBranch"></integration-field><integration-field label="File Path" v-model="settings.githubPath"></integration-field></div><div class="flex gap-2"><button @click="testGithub" class="btn btn-soft h-10 px-4 text-sm">Kiểm tra Token</button><button @click="syncGithub" class="btn btn-primary h-10 px-4 text-sm">Đồng bộ dữ liệu</button></div><div v-if="integrationStatus.github" class="text-xs p-3 rounded-xl bg-white/[0.03] border border-white/[0.06]">{{integrationStatus.github}}</div></div>
@@ -1110,7 +1188,7 @@
     <div class="p-4 sm:p-5 flex flex-col"><div class="flex items-center justify-between"><div><div class="font-bold">Director Chat</div><div class="text-xs text-slate-500 mt-1">Tinh chỉnh hook, nhịp dựng, voice-over và CTA.</div></div><span class="tiny" :class="settings.geminiKey?'text-emerald-400':'text-amber-400'">{{settings.geminiKey?'GEMINI ONLINE':'LOCAL COPILOT'}}</span></div><div ref="chatBox" class="flex-1 mt-4 rounded-2xl bg-black/15 border border-white/[0.06] p-3 overflow-auto scrollbar-thin min-h-[420px] max-h-[520px]"><div v-for="m in chatMessages" :key="m.id" :class="m.role==='user'?'ml-auto bg-indigo-500/15 border-indigo-400/20':'mr-auto bg-white/[0.04] border-white/[0.07]'" class="max-w-[88%] rounded-2xl border px-4 py-3 text-sm leading-6 mb-3 whitespace-pre-wrap">{{m.text}}</div></div><div class="mt-3 flex gap-2"><textarea v-model="chatInput" @keydown.enter.exact.prevent="sendChat" rows="2" class="flex-1 rounded-xl bg-white/[0.04] border border-white/[0.08] p-3 text-sm" placeholder="Ví dụ: làm hook mạnh hơn, rút còn 8 phút, thêm CTA mềm..."></textarea><button @click="sendChat" :disabled="aiBusy || !chatInput.trim()" class="btn btn-primary w-12"><i class="ph ph-paper-plane-right text-lg"></i></button></div></div></div></div></div></transition>
 
     <transition name="modal"><div v-if="modal==='emerging_detail'" class="fixed inset-0 z-[90] modal-mask p-2 sm:p-5 overflow-y-auto" @click.self="closeModal"><div class="modal-card glass-strong max-w-4xl mx-auto rounded-3xl overflow-hidden my-5">
-    <modal-head :title="selectedEmergingChannel.name || 'Chi Tiết Kênh Đột Biến'" subtitle="Định Lượng Radar Score 6 Trụ Cột & Chiến Lược AI" icon="ph-radar" @close="closeModal"></modal-head>
+    <modal-head :title="selectedEmergingChannel.name || 'Chi Tiết Kênh Đột Biến'" subtitle="Định Lượng Radar Score 6 Trụ Cột & Chiến Lược AI" icon="ph-chart-line-up" @close="closeModal"></modal-head>
     <div class="p-4 sm:p-6 space-y-5">
       <div class="flex items-center gap-4">
         <img :src="selectedEmergingChannel.avatar" class="w-16 h-16 rounded-2xl object-cover border border-white/10" @error="handleImgError">
@@ -1309,7 +1387,7 @@ const {createApp, ref, reactive, computed, watch, onMounted, nextTick, provide, 
 
 const ModalHead = {
   props:['title','subtitle','icon'], emits:['close'],
-  template:`<div class="px-4 sm:px-6 py-4 border-b border-white/[0.07] flex items-center gap-3 bg-white/[0.018]"><span class="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-300 grid place-items-center"><i :class="icon" class="ph text-xl"></i></span><div class="min-w-0"><div class="font-display font-bold truncate">{{title}}</div><div class="text-[11px] text-slate-500 mt-1 truncate">{{subtitle}}</div></div><button @click="$emit('close')" class="btn btn-soft w-10 h-10 ml-auto"><i class="ph ph-x"></i></button></div>`
+  template:`<div class="px-4 sm:px-6 py-4 border-b border-white/[0.07] flex items-center gap-3 bg-white/[0.018]"><span class="w-10 h-10 rounded-xl bg-indigo-500/15 text-indigo-400 dark:text-indigo-300 grid place-items-center shrink-0 shadow-sm"><i :class="icon" class="ph text-xl text-indigo-500 dark:text-indigo-300"></i></span><div class="min-w-0 flex-1"><div class="font-display font-bold text-slate-900 dark:text-white truncate">{{title}}</div><div class="text-[11px] text-slate-500 mt-0.5 truncate">{{subtitle}}</div></div><button @click="$emit('close')" class="btn btn-soft w-10 h-10 ml-auto cursor-pointer"><i class="ph ph-x text-base"></i></button></div>`
 };
 
 const MetricScore = {
@@ -1493,9 +1571,30 @@ const app = createApp({
     let toastTimer;
 
     const DEFAULT_LOGO = '708426ae-e5bf-49e5-867c-3a58efd90655.png';
+    const VIDEO_FALLBACK_THUMB = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 360' fill='%230f172a'%3E%3Crect width='640' height='360' fill='%23080d1a'/%3E%3Ccircle cx='320' cy='180' r='45' fill='%236366f1' fill-opacity='0.2'/%3E%3Cpath d='M308 160 L342 180 L308 200 Z' fill='%23818cf8'/%3E%3Ctext x='320' y='250' font-family='sans-serif' font-size='14' fill='%2364748b' text-anchor='middle' font-weight='bold' letter-spacing='2'%3ERADAR VIDEO INTEL%3C/text%3E%3C/svg%3E";
     const makeAvatar = s => DEFAULT_LOGO;
     const handleImgError = (e) => {
-      if (e && e.target && e.target.src !== DEFAULT_LOGO) {
+      if (!e || !e.target) return;
+      const src = e.target.src || '';
+      // If it's a YouTube thumbnail, try alternative resolutions first
+      if (src.includes('hqdefault.jpg')) {
+        e.target.src = src.replace('hqdefault.jpg', 'mqdefault.jpg');
+        return;
+      }
+      if (src.includes('mqdefault.jpg')) {
+        e.target.src = src.replace('mqdefault.jpg', 'default.jpg');
+        return;
+      }
+      // If image is an aspect-video container or thumbnail class, use video fallback SVG
+      if (e.target.closest('.thumb') || e.target.closest('.aspect-video') || e.target.alt) {
+        if (e.target.src !== VIDEO_FALLBACK_THUMB) {
+          e.target.onerror = null;
+          e.target.src = VIDEO_FALLBACK_THUMB;
+          return;
+        }
+      }
+      // Otherwise fallback to mascot avatar
+      if (e.target.src !== DEFAULT_LOGO) {
         e.target.onerror = null;
         e.target.src = DEFAULT_LOGO;
       }
@@ -1572,7 +1671,7 @@ const app = createApp({
       githubBranch: localStorage.getItem('GH_BRANCH') || 'main',
       githubPath: 'data/videos.json',
       geminiKey: localStorage.getItem('GEMINI_API_KEY') || '',
-      geminiModel: localStorage.getItem('GEMINI_MODEL') || 'gemini-2.5-flash',
+      geminiModel: (localStorage.getItem('GEMINI_MODEL') && localStorage.getItem('GEMINI_MODEL') !== 'gemini-2.5-flash') ? localStorage.getItem('GEMINI_MODEL') : 'gemini-1.5-flash',
       discordWebhooks: [
         localStorage.getItem('DISCORD_WEBHOOK_URL') || '',
         localStorage.getItem('DISCORD_WEBHOOK_URL_2') || '',
@@ -1974,9 +2073,17 @@ const app = createApp({
         const rawTasks = scopedTasksRaw !== null ? scopedTasksRaw : (user === 'truongday' ? localStorage.getItem('PIPELINE_TASKS') : null);
         if (rawTasks !== null) {
           const parsed = JSON.parse(rawTasks);
-          if (Array.isArray(parsed)) tasks.value = parsed;
+          if (Array.isArray(parsed) && parsed.length > 0) tasks.value = parsed;
         }
       } catch(e) {}
+      if (!tasks.value || tasks.value.length === 0) {
+        tasks.value = [
+          {id:'t1',title:'PVC Joint 50kg — phiên bản stress test',source:'Maker Lab',drive:'',stage:'idea',priority:'urgent',date:nowDate(),time:'19:30',notes:'Tập trung vào khoảnh khắc tải nặng và failure point.',checklist:[{text:'Chốt thumbnail concept',done:true},{text:'Chuẩn bị ống PVC',done:false},{text:'Viết hook 3s',done:false}]},
+          {id:'t2',title:'3 mẹo sửa nhựa trong 10 phút',source:'Bright Hacks',drive:'',stage:'script',priority:'high',date:nowDate(),time:'20:00',notes:'Giữ pacing nhanh.',checklist:[{text:'Research đối thủ',done:true},{text:'Draft voice-over',done:true},{text:'Shot list',done:false}]},
+          {id:'t3',title:'Mini cutting jig từ gỗ thừa',source:'Tiny Workshop',drive:'',stage:'production',priority:'standard',date:nowDate(),time:'20:30',notes:'Cần macro shot đẹp.',checklist:[{text:'Quay A-roll',done:true},{text:'Quay macro',done:false},{text:'Dựng bản nháp',done:false}]},
+          {id:'t4',title:'No-glue connection — final remake',source:'PVC Genius',drive:'',stage:'done',priority:'standard',date:nowDate(),time:'19:30',notes:'Đã publish.',checklist:[{text:'Thumbnail',done:true},{text:'Upload',done:true},{text:'Pinned comment',done:true}]}
+        ];
+      }
 
       try {
         if (scopedChannelsRaw !== null) {
@@ -2002,7 +2109,7 @@ const app = createApp({
         }
       } catch(e){ console.warn('Cannot load saved state', e); }
     }
-    function resetWorkspaceMemory(){channels.value=structuredClone(defaultChannels);bookmarks.value=[];tasks.value=[];Object.assign(settings,{githubToken:'',githubOwner:'xtruong2333-sys',githubRepo:'harunaga',githubBranch:'main',githubPath:'data/videos.json',geminiKey:'',geminiModel:'gemini-2.5-flash',discordWebhooks:['','','']})}
+    function resetWorkspaceMemory(){if(window.__cachedRealChannels && window.__cachedRealChannels.length) { channels.value = structuredClone(window.__cachedRealChannels); } else { channels.value = structuredClone(defaultChannels); } bookmarks.value=[];Object.assign(settings,{githubToken:'',githubOwner:'xtruong2333-sys',githubRepo:'harunaga',githubBranch:'main',githubPath:'data/videos.json',geminiKey:'',geminiModel:'gemini-2.5-flash',discordWebhooks:['','','']})}
     function switchAccount(name){persist();currentUser.value=name;userRole.value=name==='truongday'?'ADMIN / VIP':'THÀNH VIÊN';resetWorkspaceMemory();userAvatar.value=localStorage.getItem(`USER_AVATAR_${name}`)||(name==='truongday'?localStorage.getItem('USER_AVATAR'):null)||DEFAULT_LOGO;localStorage.setItem('SAVED_USERNAME',name);localStorage.setItem('radar-current-user',name);load();toastMsg(`Đã chuyển sang tài khoản ${name}`,'ph-user-switch')}
 
     function formatNum(n){n=Number(n)||0;if(n>=1e9)return (n/1e9).toFixed(n>=1e10?0:1)+'B';if(n>=1e6)return (n/1e6).toFixed(n>=1e7?0:1)+'M';if(n>=1e3)return (n/1e3).toFixed(n>=1e5?0:1)+'K';return String(Math.round(n))}
@@ -2028,6 +2135,7 @@ const app = createApp({
     function deleteTask(id){tasks.value=tasks.value.filter(t=>t.id!==id);persist();closeModal();toastMsg('Đã xóa thẻ','ph-trash')}
     function moveTask(t,dir){const i=pipelineColumns.findIndex(c=>c.id===t.stage);const next=pipelineColumns[i+dir];if(next){t.stage=next.id;persist();toastMsg(`Đã chuyển sang “${next.label}”`,'ph-arrows-left-right')}}
     function quickSchedule(time){resetTaskDraft();taskDraft.time=time;openModal('task')}
+    function quickScheduleStage(stage){resetTaskDraft();taskDraft.stage=stage;openModal('task')}
     function addVideoToPipeline(v){const exists=tasks.value.some(t=>t.source===v.url&&t.title===v.title);if(exists){toastMsg('Video này đã có trong Pipeline','ph-info');return}tasks.value.unshift({id:'t'+Date.now(),title:v.title,source:v.url,drive:'',stage:'idea',priority:v.breakout?'urgent':'high',date:nowDate(),time:'19:30',notes:`Nguồn: ${channelById(v.channelId).name}. VPH hiện tại: ${formatNum(v.vph)}.`,checklist:[{text:'Phân tích hook 3s',done:false},{text:'Lên thumbnail remake',done:false},{text:'Viết script',done:false}]});persist();toastMsg('Đã đưa video vào Pipeline','ph-calendar-check')}
     function scheduleTitle(title){resetTaskDraft();taskDraft.title=title;taskDraft.stage='idea';openModal('task')}
 
@@ -2319,7 +2427,9 @@ const app = createApp({
           }
 
           if (mappedChannels.length > 0) {
-            channels.value = mappedChannels;
+            channels.value = mappedChannels; window.__cachedRealChannels = mappedChannels;
+            localStorage.setItem('RADAR_CHANNELS_' + (currentUser?.value || 'truongday'), JSON.stringify(mappedChannels));
+            localStorage.setItem('RADAR_CHANNELS_DATA', JSON.stringify(mappedChannels));
           }
           if (mappedVideos.length > 0) {
             videos.value = mappedVideos;
@@ -2379,7 +2489,7 @@ const app = createApp({
       adminTabs,adminTab,adminNewChannel,systemChecks,scanCountdown,settings,integrationStatus,
       scriptSource,selectedAngle,angleTwists,generatedScript,chatMessages,chatInput,chatBox,aiBusy,toast,
       formatNum,heatStyle,navGlow,handleImgError,goTab,openModal,closeModal,toggleTheme,isBookmarked,toggleBookmark,channelById,
-      tasksByStage,checkProgress,priorityLabel,priorityClass,newTask,editTask,addChecklistItem,saveTask,deleteTask,moveTask,quickSchedule,addVideoToPipeline,scheduleTitle,
+      tasksByStage,checkProgress,priorityLabel,priorityClass,newTask,editTask,addChecklistItem,saveTask,deleteTask,moveTask,quickSchedule,quickScheduleStage,addVideoToPipeline,scheduleTitle,
       openChannel,openBattle,openTagManager,addTag,removeTag,removeChannel,adminAddChannel,openGlobalResult,renderChart,onThumbUpload,analyzeSimulatorImage,copyText,downloadJson,exportBookmarks,exportPipeline,
       generateTitles,battleValue,battlePercent,openScriptFromVideo,generateScript,sendChat,downloadScript,testGithub,syncGithub,testGemini,testDiscord,switchAccount,persist
     }
