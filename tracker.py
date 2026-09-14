@@ -176,6 +176,7 @@ def fetch_channel_videos(channel_id: str) -> list[dict]:
             media_group = entry.find("media:group", ns)
             views = 0
             thumbnail = f"https://i.ytimg.com/vi/{video_id}/hqdefault.jpg"
+            desc = ""
 
             if media_group is not None:
                 community = media_group.find("media:community", ns)
@@ -191,6 +192,14 @@ def fetch_channel_videos(channel_id: str) -> list[dict]:
                 if thumb_el is not None and "url" in thumb_el.attrib:
                     thumbnail = thumb_el.attrib["url"]
 
+                desc_el = media_group.find("media:description", ns)
+                if desc_el is not None and desc_el.text:
+                    desc = desc_el.text
+
+            # Nhận diện YouTube Shorts vs Video Dài
+            is_short = ("#shorts" in title.lower() or "#short" in title.lower() or "#shorts" in desc.lower())
+            content_type = "SHORT" if is_short else "LONG_FORM"
+
             link = f"https://www.youtube.com/watch?v={video_id}"
 
             videos.append({
@@ -199,7 +208,8 @@ def fetch_channel_videos(channel_id: str) -> list[dict]:
                 "url": link,
                 "thumbnail": thumbnail,
                 "published_at": pub_str,
-                "views": views
+                "views": views,
+                "content_type": content_type
             })
 
         return videos
@@ -259,6 +269,15 @@ def run():
     discord_webhook = os.environ.get("DISCORD_WEBHOOK_URL", "").strip()
     discord_webhook_2 = os.environ.get("DISCORD_WEBHOOK_URL_2", "").strip()
     discord_webhook_3 = os.environ.get("DISCORD_WEBHOOK_URL_3", "").strip() or os.environ.get("RADAR_DISCORD_WEBHOOK", "").strip()
+
+    # Tự động nạp webhook dự phòng từ radar_settings.json nếu biến môi trường chưa được truyền
+    radar_settings_file = os.path.join(DATA_DIR, "radar_settings.json")
+    radar_settings = load_json(radar_settings_file, {})
+    if not discord_webhook_2 and radar_settings.get("discord_webhook_2"):
+        discord_webhook_2 = radar_settings.get("discord_webhook_2").strip()
+    if not discord_webhook_3 and radar_settings.get("discord_webhook"):
+        discord_webhook_3 = radar_settings.get("discord_webhook").strip()
+
     if not discord_webhook and not discord_webhook_2 and not discord_webhook_3:
         print("ℹ️ [DISCORD] Biến môi trường DISCORD_WEBHOOK_URL, DISCORD_WEBHOOK_URL_2 hoặc DISCORD_WEBHOOK_URL_3 chưa được truyền.")
     else:
@@ -414,8 +433,10 @@ def run():
             momentum_score = min(100, max(0, score_outlier + score_velocity + score_recency))
 
             # Tiêu chí báo nổ chuẩn: Đột biến >= 3x HOẶC VPH >= Threshold (trong vòng 7 ngày)
+            # Hỗ trợ cả Late Bloomers (video > 7 ngày nhưng bất ngờ được thuật toán đẩy ăn đề xuất mạnh)
             is_recent = (hours_since_pub <= 168)
-            is_viral = is_recent and (outlier_score >= 3.0 or effective_vph >= threshold)
+            is_late_bloomer = (not is_recent) and (hourly_delta_vph >= threshold * 1.5 and views >= threshold * 2)
+            is_viral = (is_recent or is_late_bloomer) and (outlier_score >= 3.0 or effective_vph >= threshold)
 
             v_entry = {
                 "video_id": vid,
@@ -424,6 +445,7 @@ def run():
                 "thumbnail": v["thumbnail"],
                 "published_at": pub_str,
                 "views": views,
+                "content_type": v.get("content_type", "LONG_FORM"),
                 "hours_since_pub": round(hours_since_pub, 2),
                 "hours_ago_formatted": format_time_ago(hours_since_pub),
                 "lifetime_vph": lifetime_vph,
@@ -453,22 +475,36 @@ def run():
                 if ai_result:
                     v_entry["ai_analysis"] = ai_result
 
-            # Kiểm tra và gửi cảnh báo Discord nếu chưa gửi
+            # Kiểm tra cảnh báo Discord & Cơ chế Milestone Escalation Alert
             already_alerted = prev_info.get("alerted", False) if prev_info else False
+            prev_alerted_vph = prev_info.get("alerted_vph", 0) if prev_info else 0
+            prev_alerted_tier = prev_info.get("alerted_tier", "normal") if prev_info else "normal"
+
+            # Đột phá nâng cấp: Đã báo rồi nhưng tốc độ tăng gấp đôi (+100%) so với lần trước và >= 3000 view/h
+            # HOẶC video bứt phá lên bậc Breakout (>=10x) mà lần trước chưa đạt
+            is_escalation = already_alerted and (
+                (effective_vph >= max(3000, int(prev_alerted_vph * 2.0))) or
+                (viral_tier == "breakout" and prev_alerted_tier != "breakout" and effective_vph >= threshold)
+            )
+
+            should_alert = is_viral and (not already_alerted or is_escalation)
             
-            if is_viral and is_recent and not already_alerted:
+            if should_alert:
                 is_outlier = (outlier_score >= 3.0 or "clever" in ch_name.lower())
                 sent_1 = False
                 sent_2 = False
 
+                alert_kind = "escalation" if is_escalation else ("outlier" if is_outlier else "viral")
+                v_entry["prev_alerted_vph"] = prev_alerted_vph if is_escalation else 0
+
                 # 🐷 PHÒNG 1: Bão View (Đi đâu con lợn này)
                 wh_1 = discord_webhook or discord_webhook_2
                 if wh_1:
-                    sent_1 = send_discord_alert(wh_1, v_entry, ch_name, threshold, dashboard_url, "viral")
+                    sent_1 = send_discord_alert(wh_1, v_entry, ch_name, threshold, dashboard_url, alert_kind)
 
                 # 🐛 PHÒNG 2: Siêu Đột Biến x3 hoặc kênh Clever (chạy đâu con sâu)
                 if discord_webhook_2 and is_outlier and wh_1 != discord_webhook_2:
-                    sent_2 = send_discord_alert(discord_webhook_2, v_entry, ch_name, threshold, dashboard_url, "outlier")
+                    sent_2 = send_discord_alert(discord_webhook_2, v_entry, ch_name, threshold, dashboard_url, "outlier" if not is_escalation else "escalation")
 
                 alert_sent = sent_1 or sent_2
                 
@@ -476,9 +512,10 @@ def run():
                 video_history[vid] = {
                     "last_views": views,
                     "last_checked": now_iso,
-                    "alerted": bool(alert_sent),
-                    "alerted_at": now_iso if alert_sent else None,
-                    "alerted_vph": effective_vph if alert_sent else 0,
+                    "alerted": bool(alert_sent) or already_alerted,
+                    "alerted_at": now_iso if alert_sent else prev_info.get("alerted_at"),
+                    "alerted_vph": effective_vph if alert_sent else prev_alerted_vph,
+                    "alerted_tier": viral_tier if alert_sent else prev_alerted_tier,
                     "ai_analysis": v_entry.get("ai_analysis")
                 }
             else:
@@ -530,12 +567,42 @@ def run():
         print("🚨 HỦY BỎ việc lưu file data/videos.json để bảo vệ dữ liệu hiện có, ngăn chặn xóa trắng giao diện!")
         return
 
+    # 🧹 Tự động thanh lọc lịch sử (Database Pruning): giữ video viral, có AI hoặc trong 60 ngày gần nhất
+    cutoff_dt = now - timedelta(days=60)
+    cleaned_v_history = {}
+    for vid_k, v_meta in video_history.items():
+        if v_meta.get("ai_analysis") or v_meta.get("alerted"):
+            cleaned_v_history[vid_k] = v_meta
+            continue
+        l_chk = v_meta.get("last_checked")
+        if l_chk:
+            try:
+                l_dt = datetime.fromisoformat(l_chk.replace("Z", "+00:00"))
+                if l_dt >= cutoff_dt:
+                    cleaned_v_history[vid_k] = v_meta
+                    continue
+            except Exception:
+                pass
+        if len(cleaned_v_history) < 1500:
+            cleaned_v_history[vid_k] = v_meta
+    history["videos"] = cleaned_v_history
+
     save_json(VIDEOS_FILE, output_payload)
     save_json(HISTORY_FILE, history)
     save_json(AVATARS_FILE, avatars_cache)
 
     print(f"\n✨ [HOÀN TẤT] Đã quét {len(all_channels_data)} kênh, tổng {total_videos_count} video ({viral_videos_count} video viral).")
     print(f"📁 Dữ liệu lưu tại: {VIDEOS_FILE}")
+
+    # 4. Tự động kích hoạt quy trình YouTube Emerging Radar (Kênh Nhỏ View Khủng & Breakout)
+    try:
+        from emerging_radar import run_emerging_radar_pipeline
+        print("\n" + "="*70)
+        print("🛰️ [PIPELINE] Bắt đầu phiên quét radar kênh mới nổi (Emerging Radar)...")
+        print("="*70)
+        run_emerging_radar_pipeline()
+    except Exception as e:
+        print(f"⚠️ [EMERGING RADAR ERROR] Lỗi khi chạy radar kênh mới nổi: {e}")
 
 if __name__ == "__main__":
     run()
