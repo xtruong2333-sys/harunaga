@@ -13,12 +13,12 @@
     "2026-09-14": {
       "date": "2026-09-14",
       "subscriber_count": 9130,
-      "views_90d": 2724714,
-      "median_views_90d": 32109,
+      "views_90d": 2727291,
+      "median_views_90d": 32116,
       "viral_repeat_count": 6,
       "hit_rate": 0.53,
-      "radar_score": 67.2,
-      "created_at": "2026-09-14T20:17:50.968180+00:00"
+      "radar_score": 67.3,
+      "created_at": "2026-09-14T21:15:54.582230+00:00"
     }
   },
   "UC0F7NMQPTNyNQ_1sF7BFa9A": {
@@ -35,12 +35,12 @@
     "2026-09-14": {
       "date": "2026-09-14",
       "subscriber_count": 2670,
-      "views_90d": 1182855,
+      "views_90d": 1188450,
       "median_views_90d": 8563,
       "viral_repeat_count": 4,
       "hit_rate": 0.6,
       "radar_score": 60.4,
-      "created_at": "2026-09-14T20:18:25.750330+00:00"
+      "created_at": "2026-09-14T21:15:45.473017+00:00"
     }
   },
   "UCNU6wftNOiq-jNUHm4VExTg": {
@@ -57,12 +57,12 @@
     "2026-09-14": {
       "date": "2026-09-14",
       "subscriber_count": 2060,
-      "views_90d": 41708,
-      "median_views_90d": 427,
+      "views_90d": 41707,
+      "median_views_90d": 425,
       "viral_repeat_count": 1,
       "hit_rate": 0.07,
       "radar_score": 25.2,
-      "created_at": "2026-09-14T20:17:39.617960+00:00"
+      "created_at": "2026-09-14T21:15:24.931241+00:00"
     }
   },
   "UC6Pwlmx5P1gRxwQCZgS8JBg": {
@@ -84,7 +84,7 @@
       "viral_repeat_count": 0,
       "hit_rate": 0.0,
       "radar_score": 6.4,
-      "created_at": "2026-09-14T20:17:58.321517+00:00"
+      "created_at": "2026-09-14T21:15:36.417153+00:00"
     }
   },
   "UC_lmtn_energy_01": {
@@ -139,12 +139,12 @@
     "2026-09-14": {
       "date": "2026-09-14",
       "subscriber_count": 207000,
-      "views_90d": 8938723,
-      "median_views_90d": 121258,
+      "views_90d": 8950494,
+      "median_views_90d": 121514,
       "viral_repeat_count": 3,
       "hit_rate": 0.2,
       "radar_score": 66.1,
-      "created_at": "2026-09-14T20:18:03.178763+00:00"
+      "created_at": "2026-09-14T21:16:15.719786+00:00"
     }
   },
   "UCCaAts288MfaUaamlMGmHRQ": {
@@ -156,79 +156,91 @@
       "viral_repeat_count": 0,
       "hit_rate": 0.0,
       "radar_score": 7.0,
-      "created_at": "2026-09-14T20:18:18.494882+00:00"
+      "created_at": "2026-09-14T21:16:07.095030+00:00"
     }
   },
   "UCBBmPZJumPKc1vYJuJT3YIA": {
     "2026-09-14": {
       "date": "2026-09-14",
       "subscriber_count": 2500,
-      "views_90d": 294221,
+      "views_90d": 295017,
       "median_views_90d": 2710,
       "viral_repeat_count": 3,
       "hit_rate": 0.27,
-      "radar_score": 33.5,
-      "created_at": "2026-09-14T20:17:56.779767+00:00"
+      "radar_score": 33.6,
+      "created_at": "2026-09-14T21:16:08.806654+00:00"
     }
   },
   "UC9l8eLzvmuj-LMTNcWQgHeA": {
     "2026-09-14": {
       "date": "2026-09-14",
       "subscriber_count": 101000,
-      "views_90d": 2045021,
-      "median_views_90d": 12593,
+      "views_90d": 2052319,
+      "median_views_90d": 12679,
       "viral_repeat_count": 1,
       "hit_rate": 0.13,
-      "radar_score": 42.2,
-      "created_at": "2026-09-14T20:18:28.008179+00:00"
+      "radar_score": 42.4,
+      "created_at": "2026-09-14T21:16:18.086017+00:00"
     }
   },
   "UCDn7gJGDhhuKY1Fqg_Y5BQw": {
     "2026-09-14": {
       "date": "2026-09-14",
       "subscriber_count": 130000,
-      "views_90d": 911824,
+      "views_90d": 934630,
       "median_views_90d": 8501,
       "viral_repeat_count": 0,
       "hit_rate": 0.07,
-      "radar_score": 38.9,
-      "created_at": "2026-09-14T20:18:29.055441+00:00"
+      "radar_score": 39.5,
+      "created_at": "2026-09-14T21:16:19.509076+00:00"
     }
   },
   "UC23aH6zBUu1tRa4Pmxfpy5A": {
     "2026-09-14": {
       "date": "2026-09-14",
       "subscriber_count": 93500,
-      "views_90d": 4571895,
-      "median_views_90d": 9646,
+      "views_90d": 4585194,
+      "median_views_90d": 9742,
       "viral_repeat_count": 3,
       "hit_rate": 0.2,
       "radar_score": 51.2,
-      "created_at": "2026-09-14T20:18:27.008560+00:00"
+      "created_at": "2026-09-14T21:16:17.012039+00:00"
     }
   },
   "UCVL_DSYWvyZ2gzDAI_EWSTw": {
     "2026-09-14": {
       "date": "2026-09-14",
       "subscriber_count": 4920,
-      "views_90d": 103835,
-      "median_views_90d": 5218,
+      "views_90d": 104093,
+      "median_views_90d": 5266,
       "viral_repeat_count": 0,
       "hit_rate": 0.07,
       "radar_score": 20.9,
-      "created_at": "2026-09-14T20:17:42.782259+00:00"
+      "created_at": "2026-09-14T21:16:03.751221+00:00"
     }
   },
   "UCNU0zwdNogJjpDnkRhc2p0A": {
     "2026-09-14": {
       "date": "2026-09-14",
       "subscriber_count": 211,
-      "views_90d": 255517,
-      "median_views_90d": 13835,
+      "views_90d": 257758,
+      "median_views_90d": 13939,
       "viral_repeat_count": 5,
       "hit_rate": 0.93,
       "radar_score": 74.3,
-      "created_at": "2026-09-14T20:18:24.828486+00:00"
+      "created_at": "2026-09-14T21:16:14.468027+00:00"
+    }
+  },
+  "UCWsYu81WnHUhEWQTHKKWNOQ": {
+    "2026-09-14": {
+      "date": "2026-09-14",
+      "subscriber_count": 204,
+      "views_90d": 319906,
+      "median_views_90d": 3859,
+      "viral_repeat_count": 4,
+      "hit_rate": 0.91,
+      "radar_score": 64.0,
+      "created_at": "2026-09-14T21:16:00.594584+00:00"
     }
   }
 }
