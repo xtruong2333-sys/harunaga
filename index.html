@@ -2722,6 +2722,157 @@
               </button>
             </div>
 
+            <!-- ========================================================================= -->
+            <!-- MA TRẬN GIỜ VÀNG XUẤT BẢN VIDEO (BEST UPLOAD TIME HEATMAP)                -->
+            <!-- ========================================================================= -->
+            <div class="bg-white dark:bg-[#0b101d] border border-slate-200 dark:border-slate-800 rounded-3xl p-5 sm:p-6 shadow-sm space-y-5 transition-colors duration-200">
+              
+              <!-- Header with Toggle & Recommendations -->
+              <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 pb-4 border-b border-slate-100 dark:border-slate-800/80">
+                <div class="space-y-1">
+                  <div class="flex items-center space-x-2.5">
+                    <div class="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center text-base shadow-sm flex-shrink-0">
+                      <i class="ph-fill ph-clock-countdown"></i>
+                    </div>
+                    <div>
+                      <h3 class="text-sm sm:text-base font-black text-slate-900 dark:text-white flex items-center gap-2">
+                        <span>Ma Trận Giờ Vàng Xuất Bản Video</span>
+                        <span class="text-[10px] font-black px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-500 border border-amber-500/30 uppercase tracking-wider">
+                          Thuật Toán 24/7
+                        </span>
+                      </h3>
+                      <p class="text-xs text-slate-500 dark:text-slate-400">
+                        Thống kê từ {{ allVideos.length }} video đối thủ: Khung giờ nào đăng video hút nhiều view và dễ bão nhất?
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Mode Switcher & Legend -->
+                <div class="flex items-center gap-3 flex-wrap">
+                  <div class="flex items-center bg-slate-100 dark:bg-slate-900 p-0.5 rounded-xl border border-slate-200 dark:border-slate-800 text-xs">
+                    <button 
+                      @click="heatmapMode = 'all'" 
+                      :class="heatmapMode === 'all' ? 'bg-white dark:bg-slate-800 text-purple-600 dark:text-purple-400 shadow-sm font-black' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 font-medium'"
+                      class="px-3 py-1 rounded-lg transition cursor-pointer"
+                    >
+                      Tất cả video
+                    </button>
+                    <button 
+                      @click="heatmapMode = 'viral'" 
+                      :class="heatmapMode === 'viral' ? 'bg-white dark:bg-slate-800 text-rose-500 shadow-sm font-black' : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 font-medium'"
+                      class="px-3 py-1 rounded-lg transition cursor-pointer flex items-center gap-1"
+                    >
+                      <i class="ph-fill ph-fire text-amber-400"></i>
+                      <span>Chỉ video Bùng Nổ</span>
+                    </button>
+                  </div>
+
+                  <!-- Heat Legend -->
+                  <div class="flex items-center space-x-1.5 text-[10px] text-slate-400">
+                    <span>Ít</span>
+                    <span class="w-3 h-3 rounded-md bg-slate-100 dark:bg-slate-800/80 border border-slate-300 dark:border-slate-700"></span>
+                    <span class="w-3 h-3 rounded-md bg-purple-500/40 border border-purple-500/50"></span>
+                    <span class="w-3 h-3 rounded-md bg-rose-500/60 border border-rose-500/70"></span>
+                    <span class="w-3 h-3 rounded-md bg-gradient-to-r from-amber-400 to-rose-500 shadow-sm animate-pulse"></span>
+                    <span>Giờ Vàng</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Top 3 Recommendations Cards -->
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div 
+                  v-for="(slot, sIdx) in uploadTimeHeatmap.top3Slots" 
+                  :key="sIdx"
+                  class="p-3.5 rounded-2xl border transition-all duration-200 flex items-center justify-between"
+                  :class="sIdx === 0 
+                    ? 'bg-gradient-to-r from-amber-500/10 via-rose-500/10 to-purple-500/10 border-amber-400/40 shadow-sm' 
+                    : (sIdx === 1 ? 'bg-rose-500/5 border-rose-500/30' : 'bg-purple-500/5 border-purple-500/30')"
+                >
+                  <div class="space-y-0.5">
+                    <div class="flex items-center gap-1.5">
+                      <span class="text-[10px] font-black px-1.5 py-0.2 rounded-full uppercase"
+                        :class="sIdx === 0 ? 'bg-amber-400 text-slate-950 font-black' : (sIdx === 1 ? 'bg-rose-500 text-white font-bold' : 'bg-purple-600 text-white font-bold')"
+                      >
+                        {{ sIdx === 0 ? '👑 Giờ Vàng #1' : (sIdx === 1 ? '🥈 Khung Giờ #2' : '🥉 Khung Giờ #3') }}
+                      </span>
+                      <span class="text-xs font-black text-slate-900 dark:text-white">{{ slot.dayName }}</span>
+                    </div>
+                    <div class="text-xs font-mono font-black text-slate-800 dark:text-slate-200 pt-0.5">
+                      ⏰ {{ slot.hour }}
+                    </div>
+                    <div class="text-[10px] text-slate-500 dark:text-slate-400">
+                      Tốc độ TB: <strong class="text-purple-500 dark:text-purple-300 font-mono">+{{ formatNumber(slot.avgVph) }}/h</strong>
+                    </div>
+                  </div>
+
+                  <div class="text-right">
+                    <div class="text-base font-black font-mono text-rose-500">
+                      {{ slot.viralVideos }} video bão
+                    </div>
+                    <div class="text-[10px] text-slate-400">
+                      {{ slot.totalVideos }} video xuất bản
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Heatmap Grid Table -->
+              <div class="overflow-x-auto no-scrollbar rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 p-3 sm:p-4">
+                <div class="min-w-[760px] space-y-2">
+                  <!-- Hour Headers 0h to 23h -->
+                  <div class="grid gap-1 text-[10px] font-mono text-slate-400 text-center items-center" style="grid-template-columns: 80px repeat(24, minmax(0, 1fr));">
+                    <div class="text-left font-bold text-slate-500 uppercase">Thứ</div>
+                    <div v-for="h in 24" :key="h" class="truncate" :title="(h - 1) + ':00'">
+                      {{ (h - 1) % 3 === 0 ? (h - 1) + 'h' : '·' }}
+                    </div>
+                  </div>
+
+                  <!-- 7 Rows for Days of Week -->
+                  <div 
+                    v-for="dRow in uploadTimeHeatmap.matrix" 
+                    :key="dRow.day" 
+                    class="grid gap-1 items-center"
+                    style="grid-template-columns: 80px repeat(24, minmax(0, 1fr));"
+                  >
+                    <!-- Day Name -->
+                    <div class="text-xs font-bold text-slate-700 dark:text-slate-300 truncate pr-1">
+                      {{ dRow.dayName }}
+                    </div>
+
+                    <!-- 24 Hour Blocks -->
+                    <div 
+                      v-for="hSlot in dRow.hours" 
+                      :key="hSlot.hour"
+                      class="aspect-square rounded-md transition-all duration-150 relative group cursor-pointer flex items-center justify-center"
+                      :class="hSlot.level === 4 
+                        ? 'bg-gradient-to-tr from-amber-400 via-rose-500 to-purple-600 shadow-md ring-1 ring-amber-300/60 animate-pulse' 
+                        : (hSlot.level === 3 
+                          ? 'bg-rose-500 text-white shadow-sm' 
+                          : (hSlot.level === 2 
+                            ? 'bg-purple-600/70 text-white' 
+                            : (hSlot.level === 1 
+                              ? 'bg-purple-900/40 dark:bg-purple-950/60 border border-purple-500/20' 
+                              : 'bg-slate-200/70 dark:bg-slate-800/50 hover:bg-slate-300 dark:hover:bg-slate-700/60')))"
+                      :title="`${dRow.dayName} lúc ${hSlot.hour}:00 - ${hSlot.hour + 1}:00\n• Tổng video: ${hSlot.totalVideos}\n• Video bùng nổ: ${hSlot.viralVideos}\n• Tốc độ TB: +${formatNumber(hSlot.avgVph)}/h`"
+                    >
+                      <span v-if="hSlot.viralVideos > 0 && hSlot.level >= 3" class="text-[9px] font-black text-white drop-shadow">
+                        {{ hSlot.viralVideos }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Heatmap Footer Notes -->
+              <div class="text-[11px] text-slate-500 dark:text-slate-400 flex items-center justify-between flex-wrap gap-2 pt-1">
+                <span>💡 <strong>Mẹo thuật toán:</strong> Xuất bản video trước khung giờ vàng 30–45 phút để YouTube kịp index phụ đề và phân phối vào feed người xem lúc cao điểm.</span>
+                <span class="text-slate-400">Dữ liệu tự động cập nhật sau mỗi chu kỳ quét</span>
+              </div>
+
+            </div>
+
           </div>
 
         </section>
@@ -2766,6 +2917,21 @@
                 <option value="ALL">Tất cả kênh ({{ channels.length }})</option>
                 <option v-for="ch in channels" :key="ch.channel_id" :value="ch.channel_id">
                   {{ ch.name }}
+                </option>
+              </select>
+            </div>
+
+            <!-- Tag Filter Selector -->
+            <div class="flex items-center space-x-1.5 bg-slate-50 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-700 rounded-2xl px-3 py-2 text-xs">
+              <i class="ph-bold ph-tag text-purple-500 text-sm"></i>
+              <select 
+                v-model="selectedTagFilter" 
+                class="bg-transparent text-xs sm:text-sm text-slate-800 dark:text-slate-200 font-bold focus:outline-none cursor-pointer pr-1"
+                title="Lọc video theo nhãn kênh phân nhóm"
+              >
+                <option value="ALL">🏷️ Tất cả nhãn kênh</option>
+                <option v-for="tag in allUsedTags" :key="tag" :value="tag">
+                  {{ tag }}
                 </option>
               </select>
             </div>
@@ -2909,6 +3075,16 @@
                 <span class="hidden sm:inline">Bảng Soi</span>
               </button>
             </div>
+
+            <!-- Export Excel Button -->
+            <button 
+              @click="exportVideosCsv" 
+              class="px-2.5 py-1 bg-emerald-500/10 hover:bg-emerald-600 hover:text-white text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-sm"
+              title="Xuất danh sách video đang lọc ra file Excel (.CSV UTF-8)"
+            >
+              <i class="ph-bold ph-microsoft-excel-logo text-sm"></i>
+              <span class="hidden sm:inline">Xuất Excel</span>
+            </button>
 
             <span class="hidden md:inline">Hiển thị <strong>{{ filteredVideos.length }}</strong> / {{ allVideos.length }} video</span>
             <button 
@@ -3426,6 +3602,22 @@
               </select>
             </div>
 
+            <!-- Filter by Tag -->
+            <div class="flex items-center space-x-1.5 bg-slate-50 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-700 rounded-2xl px-3 py-2 text-xs">
+              <i class="ph-bold ph-tag text-indigo-500 text-xs"></i>
+              <span class="text-slate-400">Nhãn:</span>
+              <select 
+                v-model="channelTagFilter" 
+                class="bg-transparent text-xs sm:text-sm text-slate-800 dark:text-slate-200 font-bold focus:outline-none cursor-pointer"
+                title="Lọc kênh theo nhãn tùy chỉnh"
+              >
+                <option value="ALL">Tất cả nhãn</option>
+                <option v-for="tag in allUsedTags" :key="'ch-tbl-filter-' + tag" :value="tag">
+                  {{ tag }}
+                </option>
+              </select>
+            </div>
+
             <!-- Sort By Criteria -->
             <div class="flex items-center space-x-1.5 bg-slate-50 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-700 rounded-2xl px-3 py-2 text-xs">
               <i class="ph-bold ph-sort-ascending text-indigo-500 text-sm"></i>
@@ -3617,6 +3809,26 @@
                     <div class="text-xs text-slate-400 font-mono mt-0.5 truncate">{{ ch.handle }}</div>
                   </div>
 
+                  <!-- Channel Tags Bar -->
+                  <div class="mt-2.5 flex items-center gap-1.5 flex-wrap">
+                    <span 
+                      v-for="tag in getChannelTags(ch.channel_id)" 
+                      :key="'pod-tag-' + ch.channel_id + '-' + tag"
+                      class="px-2 py-0.5 rounded-lg bg-indigo-500/15 border border-indigo-500/30 text-indigo-400 text-[10px] font-bold"
+                    >
+                      {{ tag }}
+                    </span>
+                    <button 
+                      type="button"
+                      @click.stop="openTagModal(ch)"
+                      class="px-2 py-0.5 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-indigo-500/20 text-slate-500 dark:text-slate-400 hover:text-indigo-400 border border-slate-200 dark:border-slate-700/60 text-[10px] font-bold transition flex items-center gap-1 cursor-pointer"
+                      title="Gán nhãn phân nhóm kênh"
+                    >
+                      <i class="ph-bold ph-tag text-[10px]"></i>
+                      <span>{{ getChannelTags(ch.channel_id).length === 0 ? '+ Gán Nhãn' : '+ Thêm' }}</span>
+                    </button>
+                  </div>
+
                   <!-- High-Tech Stats Matrix -->
                   <div class="grid grid-cols-3 gap-2 sm:gap-2.5 mt-4 pt-3.5 border-t border-slate-100 dark:border-slate-800/80 text-center">
                     <div class="bg-slate-50 dark:bg-slate-900/70 p-2.5 rounded-2xl group-hover:bg-rose-500/10 transition-colors border border-slate-100 dark:border-slate-800/60">
@@ -3749,6 +3961,29 @@
                   </span>
                 </div>
 
+                <!-- Channel Tags Bar -->
+                <div class="mt-2 flex items-center gap-1 flex-wrap">
+                  <span 
+                    v-for="tag in getChannelTags(ch.channel_id).slice(0, 2)" 
+                    :key="'sub-tag-' + ch.channel_id + '-' + tag"
+                    class="px-1.5 py-0.5 rounded-md bg-indigo-500/10 border border-indigo-500/20 text-indigo-500 dark:text-indigo-400 text-[9px] font-bold truncate max-w-[110px]"
+                  >
+                    {{ tag }}
+                  </span>
+                  <span v-if="getChannelTags(ch.channel_id).length > 2" class="text-[9px] text-slate-400 font-bold font-mono">
+                    +{{ getChannelTags(ch.channel_id).length - 2 }}
+                  </span>
+                  <button 
+                    type="button"
+                    @click.stop="openTagModal(ch)"
+                    class="px-1.5 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 hover:bg-indigo-500/20 text-slate-400 hover:text-indigo-400 border border-slate-200 dark:border-slate-700/60 text-[9px] font-bold transition flex items-center gap-0.5 cursor-pointer"
+                    title="Gán nhãn phân nhóm kênh"
+                  >
+                    <i class="ph-bold ph-tag text-[9px]"></i>
+                    <span>{{ getChannelTags(ch.channel_id).length === 0 ? '+ Nhãn' : '' }}</span>
+                  </button>
+                </div>
+
                 <!-- Stats Matrix -->
                 <div class="grid grid-cols-3 gap-1.5 mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800/80 text-center">
                   <div class="bg-slate-50 dark:bg-slate-900/50 p-1.5 rounded-lg">
@@ -3816,6 +4051,7 @@
               <tr>
                 <th class="py-3.5 px-4"># Hạng</th>
                 <th class="py-3.5 px-4">Kênh Đối Thủ</th>
+                <th class="py-3.5 px-4">Nhãn Kênh</th>
                 <th class="py-3.5 px-4">Tốc Độ Đỉnh (Peak VPH)</th>
                 <th class="py-3.5 px-4">Tổng View/h Toàn Kênh</th>
                 <th class="py-3.5 px-4">Tỷ Lệ Bùng Nổ</th>
@@ -3854,6 +4090,28 @@
                       <div class="font-bold text-slate-900 dark:text-white truncate">{{ ch.name }}</div>
                       <div class="text-[10px] text-slate-400 font-mono truncate">{{ ch.handle }}</div>
                     </div>
+                  </div>
+                </td>
+                <td class="py-3 px-4">
+                  <div class="flex items-center gap-1 flex-wrap max-w-[220px]">
+                    <span 
+                      v-for="tag in getChannelTags(ch.channel_id).slice(0, 3)" 
+                      :key="'tbl-tag-' + ch.channel_id + '-' + tag"
+                      class="px-2 py-0.5 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-500 dark:text-indigo-400 text-[10px] font-bold"
+                    >
+                      {{ tag }}
+                    </span>
+                    <span v-if="getChannelTags(ch.channel_id).length > 3" class="text-[10px] text-slate-400 font-bold font-mono">
+                      +{{ getChannelTags(ch.channel_id).length - 3 }}
+                    </span>
+                    <button 
+                      @click.stop="openTagModal(ch)"
+                      class="px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 hover:bg-indigo-500/20 text-slate-400 hover:text-indigo-400 text-[10px] font-bold transition flex items-center gap-0.5 cursor-pointer"
+                      title="Gán nhãn phân loại kênh"
+                    >
+                      <i class="ph-bold ph-tag text-[9px]"></i>
+                      <span>{{ getChannelTags(ch.channel_id).length === 0 ? '+ Nhãn' : '+' }}</span>
+                    </button>
                   </div>
                 </td>
                 <td colspan="4" v-if="ch.video_count === 0" class="py-3 px-4 font-bold text-amber-500 text-xs">
@@ -6380,6 +6638,141 @@
     </div> <!-- End Right Main Viewport -->
     
     <!-- ========================================================================================= -->
+    <!-- MODAL: GÁN NHÃN & PHÂN NHÓM KÊNH ĐỐI THỦ (CHANNEL TAG MANAGER)               -->
+    <!-- ============================================================================ -->
+    <div 
+      v-if="activeTagModalChannel" 
+      @click.self="closeTagModal" 
+      @keydown.escape.window="closeTagModal"
+      class="fixed inset-0 z-[100010] flex items-center justify-center p-3 sm:p-6 bg-slate-950/80 backdrop-blur-md transition-opacity duration-300 select-none"
+    >
+      <div class="bg-white dark:bg-[#090d1a] border border-indigo-500/30 ring-1 ring-white/10 rounded-3xl max-w-lg w-full shadow-2xl overflow-hidden flex flex-col my-auto">
+        <!-- Header -->
+        <div class="p-4 px-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-900/60">
+          <div class="flex items-center space-x-3 min-w-0 flex-1">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500/20 to-purple-500/20 text-indigo-400 border border-indigo-500/30 flex items-center justify-center flex-shrink-0">
+              <i class="ph-bold ph-tag text-xl"></i>
+            </div>
+            <div class="min-w-0 flex-1">
+              <h4 class="text-sm font-black text-slate-900 dark:text-white truncate">
+                Gán Nhãn Phân Loại Kênh
+              </h4>
+              <p class="text-[11px] text-slate-400 flex items-center gap-1.5 mt-0.5 truncate">
+                <span>Kênh: <strong class="text-indigo-600 dark:text-indigo-400">{{ activeTagModalChannel.name }}</strong></span>
+                <span class="text-slate-500 font-mono">{{ activeTagModalChannel.handle }}</span>
+              </p>
+            </div>
+          </div>
+          <button 
+            @click="closeTagModal" 
+            class="w-8 h-8 rounded-xl bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 flex items-center justify-center transition cursor-pointer flex-shrink-0 ml-2"
+          >
+            <i class="ph-bold ph-x text-sm"></i>
+          </button>
+        </div>
+
+        <!-- Body -->
+        <div class="p-5 space-y-5 max-h-[70vh] overflow-y-auto">
+          <!-- Current Active Tags for this Channel -->
+          <div>
+            <label class="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center justify-between mb-2">
+              <span class="flex items-center gap-1.5">
+                <i class="ph-fill ph-bookmarks text-indigo-500"></i>
+                <span>Nhãn đang áp dụng:</span>
+              </span>
+              <span class="text-[10px] text-slate-400 font-mono">
+                {{ getChannelTags(activeTagModalChannel.channel_id).length }} nhãn
+              </span>
+            </label>
+            <div v-if="getChannelTags(activeTagModalChannel.channel_id).length > 0" class="flex flex-wrap gap-2 p-3 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-200 dark:border-slate-800/80 min-h-[48px] items-center">
+              <span 
+                v-for="tag in getChannelTags(activeTagModalChannel.channel_id)" 
+                :key="'active-tag-' + tag"
+                class="inline-flex items-center gap-1 px-3 py-1 rounded-xl bg-indigo-500/15 border border-indigo-500/40 text-indigo-600 dark:text-indigo-300 text-xs font-bold shadow-sm"
+              >
+                <span>{{ tag }}</span>
+                <button 
+                  @click="toggleChannelTag(activeTagModalChannel.channel_id, tag)" 
+                  class="w-4 h-4 rounded-full hover:bg-indigo-500/30 text-indigo-400 hover:text-indigo-200 flex items-center justify-center cursor-pointer transition ml-0.5"
+                  title="Gỡ nhãn này"
+                >
+                  <i class="ph-bold ph-x text-[10px]"></i>
+                </button>
+              </span>
+            </div>
+            <div v-else class="p-4 text-center rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 text-slate-400 text-xs">
+              Chưa có nhãn nào. Chọn từ gợi ý bên dưới hoặc tự thêm nhãn mới!
+            </div>
+          </div>
+
+          <!-- Suggested Preset Tags -->
+          <div>
+            <label class="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5 mb-2">
+              <i class="ph-fill ph-sparkle text-amber-400"></i>
+              <span>Nhãn mẫu gợi ý:</span>
+            </label>
+            <div class="flex flex-wrap gap-2">
+              <button 
+                v-for="pt in availablePresetTags" 
+                :key="'preset-' + pt"
+                @click="toggleChannelTag(activeTagModalChannel.channel_id, pt)"
+                type="button"
+                class="px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer border"
+                :class="getChannelTags(activeTagModalChannel.channel_id).includes(pt)
+                  ? 'bg-indigo-600 text-white border-indigo-500 shadow-sm' 
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-indigo-400 hover:text-indigo-500'"
+              >
+                <i :class="getChannelTags(activeTagModalChannel.channel_id).includes(pt) ? 'ph-bold ph-check' : 'ph-bold ph-plus'" class="text-xs"></i>
+                <span>{{ pt }}</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Custom Tag Input -->
+          <div>
+            <label class="text-xs font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5 mb-2">
+              <i class="ph-bold ph-plus-circle text-emerald-500"></i>
+              <span>Thêm nhãn tùy chỉnh riêng:</span>
+            </label>
+            <div class="flex gap-2">
+              <div class="relative flex-1">
+                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-xs">#</span>
+                <input 
+                  type="text" 
+                  v-model="newTagInput" 
+                  @keydown.enter.prevent="handleAddCustomTag"
+                  placeholder="Ví dụ: Doi_Thu_A, Tham_Khao_Ngoai..." 
+                  class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl pl-7 pr-3 py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/30"
+                />
+              </div>
+              <button 
+                @click="handleAddCustomTag"
+                :disabled="!newTagInput.trim()"
+                class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 text-white text-xs font-bold rounded-xl transition flex items-center gap-1 cursor-pointer disabled:cursor-not-allowed shadow-sm"
+              >
+                <i class="ph-bold ph-plus"></i>
+                <span>Thêm</span>
+              </button>
+            </div>
+            <p class="text-[10px] text-slate-400 mt-1.5 flex items-center gap-1">
+              <i class="ph ph-info"></i>
+              Nhãn sẽ tự động lưu trong trình duyệt và dùng để lọc video / phân nhóm đối thủ.
+            </p>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="p-3.5 px-5 bg-slate-50 dark:bg-slate-900/60 border-t border-slate-200 dark:border-slate-800 flex justify-end">
+          <button 
+            @click="closeTagModal" 
+            class="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl transition shadow-md cursor-pointer"
+          >
+            Hoàn tất & Lưu
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- ============================================================================ -->
     <!-- MODAL 0: THUMBNAIL HD INSPECTOR (SOI ẢNH BÌA 1280x720)                       -->
     <!-- ============================================================================ -->
@@ -8695,6 +9088,24 @@
                     <span>•</span>
                     <span class="text-slate-400">Hoạt động: {{ selectedChannelProfile.last_published }}</span>
                   </div>
+
+                  <!-- Channel Custom Tags -->
+                  <div class="flex items-center gap-1.5 mt-2.5 flex-wrap">
+                    <span 
+                      v-for="tag in getChannelTags(selectedChannelProfile.channel_id)" 
+                      :key="'prof-tag-' + selectedChannelProfile.channel_id + '-' + tag"
+                      class="px-2 py-0.5 rounded-lg bg-indigo-500/30 border border-indigo-400/50 text-indigo-200 text-[11px] font-bold"
+                    >
+                      {{ tag }}
+                    </span>
+                    <button 
+                      @click="openTagModal(selectedChannelProfile)" 
+                      class="px-2 py-0.5 rounded-lg bg-white/10 hover:bg-white/20 border border-white/20 text-white text-[11px] font-bold transition flex items-center gap-1 cursor-pointer"
+                    >
+                      <i class="ph-bold ph-tag text-xs"></i>
+                      <span>{{ getChannelTags(selectedChannelProfile.channel_id).length === 0 ? '+ Gán Nhãn Phân Loại' : '+ Đổi Nhãn' }}</span>
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -10018,9 +10429,76 @@
           selectedThumbnailModal.value = null;
         };
 
+        // Phase 2: Channel Custom Tags & Filter State
+        const channelCustomTags = ref(JSON.parse(localStorage.getItem('CHANNEL_CUSTOM_TAGS') || '{}'));
+        const selectedTagFilter = ref('ALL');
+        const availablePresetTags = ref([
+          '#Đối_Thủ_Trực_Tiếp',
+          '#Kênh_Tham_Khảo',
+          '#Kênh_Ngoại',
+          '#Cơ_Khí_Chế_Tạo',
+          '#Ý_Tưởng_Shorts',
+          '#Kênh_Top_Đầu'
+        ]);
+        const activeTagModalChannel = ref(null);
+        const newTagInput = ref('');
+
+        const openTagModal = (ch) => {
+          activeTagModalChannel.value = ch;
+          newTagInput.value = '';
+        };
+
+        const closeTagModal = () => {
+          activeTagModalChannel.value = null;
+        };
+
+        const getChannelTags = (channelId) => {
+          if (!channelId) return [];
+          return channelCustomTags.value[channelId] || [];
+        };
+
+        const toggleChannelTag = (channelId, tag) => {
+          if (!channelId || !tag) return;
+          const current = [...(channelCustomTags.value[channelId] || [])];
+          const idx = current.indexOf(tag);
+          if (idx >= 0) {
+            current.splice(idx, 1);
+          } else {
+            current.push(tag);
+          }
+          channelCustomTags.value = {
+            ...channelCustomTags.value,
+            [channelId]: current
+          };
+          try {
+            localStorage.setItem('CHANNEL_CUSTOM_TAGS', JSON.stringify(channelCustomTags.value));
+          } catch (e) {}
+        };
+
+        const handleAddCustomTag = () => {
+          if (!activeTagModalChannel.value || !newTagInput.value.trim()) return;
+          let tag = newTagInput.value.trim();
+          if (!tag.startsWith('#')) tag = '#' + tag;
+          tag = tag.replace(/\s+/g, '_');
+          toggleChannelTag(activeTagModalChannel.value.channel_id, tag);
+          newTagInput.value = '';
+        };
+
+        const allUsedTags = computed(() => {
+          const tagSet = new Set(availablePresetTags.value);
+          Object.values(channelCustomTags.value || {}).forEach(arr => {
+            if (Array.isArray(arr)) arr.forEach(t => tagSet.add(t));
+          });
+          return Array.from(tagSet);
+        });
+
+        // Phase 2: Heatmap State
+        const heatmapMode = ref('all'); // 'all' hoặc 'viral'
+
         // Tab 2 (Channel) Filter & Sort State & View Mode
         const channelSearchQuery = ref('');
         const channelStatusFilter = ref('ALL'); // 'ALL', 'hot', 'high', 'viral_only', 'recent'
+        const channelTagFilter = ref('ALL'); // Phase 2: Tag filter for channels
         const channelSortBy = ref('peak_vph'); // 'peak_vph', 'total_channel_vph', 'viral_rate', 'avg_views', 'total_views', 'cadence', 'newest'
         const channelSortOrder = ref('desc');
         const channelViewMode = ref('grid'); // 'grid' hoặc 'table'
@@ -10207,6 +10685,7 @@
         const isFiltered = computed(() => {
           return searchQuery.value.trim() !== '' || 
                  selectedChannel.value !== 'ALL' || 
+                 (selectedTagFilter.value && selectedTagFilter.value !== 'ALL') ||
                  filterTab.value !== 'all' || 
                  sortBy.value !== 'vph' || 
                  sortOrder.value !== 'desc';
@@ -10417,12 +10896,176 @@
           localStorage.setItem('METRIC_TIME_UNIT', unit);
         };
 
+        // Phase 2: Ma Trận Giờ Vàng Xuất Bản (Best Upload Time Heatmap)
+        const uploadTimeHeatmap = computed(() => {
+          const matrix = [];
+          const dayNames = ['Chủ Nhật', 'Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7'];
+          
+          for (let d = 0; d < 7; d++) {
+            const hours = [];
+            for (let h = 0; h < 24; h++) {
+              hours.push({
+                day: d,
+                dayName: dayNames[d],
+                hour: h,
+                totalVideos: 0,
+                viralVideos: 0,
+                totalVph: 0,
+                avgVph: 0,
+                level: 0
+              });
+            }
+            matrix.push({ day: d, dayName: dayNames[d], hours });
+          }
+
+          const vids = allVideos.value || [];
+          let maxMetric = 1;
+
+          for (const v of vids) {
+            if (!v.published_at) continue;
+            const pubDate = new Date(v.published_at);
+            if (isNaN(pubDate.getTime())) continue;
+
+            const d = pubDate.getDay();
+            const h = pubDate.getHours();
+
+            if (matrix[d] && matrix[d].hours[h]) {
+              const slot = matrix[d].hours[h];
+              slot.totalVideos++;
+              if (v.is_viral) slot.viralVideos++;
+              slot.totalVph += (v.effective_vph || 0);
+            }
+          }
+
+          const allSlots = [];
+          for (let d = 0; d < 7; d++) {
+            for (let h = 0; h < 24; h++) {
+              const s = matrix[d].hours[h];
+              s.avgVph = s.totalVideos > 0 ? Math.round(s.totalVph / s.totalVideos) : 0;
+              const metric = heatmapMode.value === 'viral' ? s.viralVideos : s.totalVideos;
+              if (metric > maxMetric) maxMetric = metric;
+              allSlots.push(s);
+            }
+          }
+
+          for (const s of allSlots) {
+            const m = heatmapMode.value === 'viral' ? s.viralVideos : s.totalVideos;
+            if (m === 0) s.level = 0;
+            else {
+              const ratio = m / maxMetric;
+              if (ratio >= 0.75) s.level = 4;
+              else if (ratio >= 0.5) s.level = 3;
+              else if (ratio >= 0.25) s.level = 2;
+              else s.level = 1;
+            }
+          }
+
+          // Top 3 best upload slots
+          const sortedSlots = [...allSlots].sort((a, b) => {
+            const scoreA = a.viralVideos * 1000 + a.totalVph;
+            const scoreB = b.viralVideos * 1000 + b.totalVph;
+            return scoreB - scoreA;
+          });
+
+          const top3Slots = sortedSlots.slice(0, 3).map((s, idx) => ({
+            rank: idx + 1,
+            dayName: s.dayName,
+            hour: `${String(s.hour).padStart(2, '0')}:00 - ${String((s.hour + 1) % 24).padStart(2, '0')}:00`,
+            totalVideos: s.totalVideos,
+            viralVideos: s.viralVideos,
+            avgVph: s.avgVph
+          }));
+
+          return {
+            matrix,
+            top3Slots,
+            maxMetric
+          };
+        });
+
+        // Phase 2: Xuất Báo Cáo Excel (CSV UTF-8 BOM)
+        const exportVideosCsv = () => {
+          const list = filteredVideos.value || [];
+          if (list.length === 0) {
+            showToast('⚠️ Không có video nào trong danh sách để xuất file!');
+            return;
+          }
+
+          const headers = [
+            'Xếp Hạng',
+            'Tiêu Đề Video',
+            'Kênh YouTube',
+            'Định Dạng',
+            'Tổng Lượt Xem',
+            'Tốc Độ (View/h)',
+            'Tỷ Lệ Đột Biến',
+            'Điểm Động Lực (0-100)',
+            'Thời Gian Đăng',
+            'Link Video YouTube',
+            'Lý Do Viral Cốt Lõi'
+          ];
+
+          const escapeCsv = (str) => {
+            if (str === null || str === undefined) return '""';
+            const s = String(str).replace(/"/g, '""');
+            return `"${s}"`;
+          };
+
+          const rows = list.map((v, idx) => {
+            const rank = idx + 1;
+            const title = v.title || '';
+            const channel = v.channel_name || '';
+            const format = v.content_type === 'SHORT' ? 'Shorts' : 'Video Dài';
+            const views = v.views || 0;
+            const vph = v.effective_vph || 0;
+            const outlier = v.outlier_score ? `Gấp x${v.outlier_score}` : 'Mức thường';
+            const momentum = v.momentum_score || 0;
+            const published = v.published_at ? new Date(v.published_at).toLocaleString('vi-VN') : (v.hours_ago_formatted || '');
+            const url = v.url || `https://www.youtube.com/watch?v=${v.video_id}`;
+            const reason = (v.ai_analysis && v.ai_analysis.viral_reasons_vi) ? v.ai_analysis.viral_reasons_vi.join(' | ') : '';
+
+            return [
+              rank,
+              escapeCsv(title),
+              escapeCsv(channel),
+              escapeCsv(format),
+              views,
+              vph,
+              escapeCsv(outlier),
+              momentum,
+              escapeCsv(published),
+              escapeCsv(url),
+              escapeCsv(reason)
+            ].join(',');
+          });
+
+          const csvContent = '\uFEFF' + [headers.join(','), ...rows].join('\r\n');
+          const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+          const link = document.createElement('a');
+          const now = new Date();
+          const dateStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+          link.href = URL.createObjectURL(blob);
+          link.setAttribute('download', `Harunaga_Top_Video_Hot_${dateStr}.csv`);
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+
+          showToast(`✅ Đã xuất báo cáo Excel thành công (${list.length} video)!`);
+        };
+
         // Tab 1: Video filtering and sorting
         const filteredVideos = computed(() => {
           let list = [...allVideos.value];
 
           if (selectedChannel.value !== 'ALL') {
             list = list.filter(v => v.channel_id === selectedChannel.value);
+          }
+
+          if (selectedTagFilter.value && selectedTagFilter.value !== 'ALL') {
+            list = list.filter(v => {
+              const tags = channelCustomTags.value[v.channel_id] || [];
+              return tags.includes(selectedTagFilter.value);
+            });
           }
 
           if (searchQuery.value.trim()) {
@@ -10726,6 +11369,13 @@
             list = list.filter(c => c.is_recent_active);
           }
 
+          if (channelTagFilter.value && channelTagFilter.value !== 'ALL') {
+            list = list.filter(c => {
+              const tags = channelCustomTags.value[c.channel_id] || [];
+              return tags.includes(channelTagFilter.value);
+            });
+          }
+
           list.sort((a, b) => {
             let diff = 0;
             if (channelSortBy.value === 'peak_vph') {
@@ -10795,6 +11445,8 @@
         const resetFilters = () => {
           searchQuery.value = '';
           selectedChannel.value = 'ALL';
+          selectedTagFilter.value = 'ALL';
+          channelTagFilter.value = 'ALL';
           filterTab.value = 'all';
           sortBy.value = 'vph';
           sortOrder.value = 'desc';
@@ -13025,10 +13677,25 @@ Nhiệm vụ: Trả lời hoặc viết lại/tinh chỉnh kịch bản theo yê
           openThumbnailModal,
           closeThumbnailModal,
           retentionHooks,
+          channelCustomTags,
+          selectedTagFilter,
+          availablePresetTags,
+          activeTagModalChannel,
+          newTagInput,
+          openTagModal,
+          closeTagModal,
+          getChannelTags,
+          toggleChannelTag,
+          handleAddCustomTag,
+          allUsedTags,
+          heatmapMode,
+          uploadTimeHeatmap,
+          exportVideosCsv,
           isFiltered,
           toggleSortOrder,
           channelSearchQuery,
           channelStatusFilter,
+          channelTagFilter,
           channelSortBy,
           channelSortOrder,
           channelViewMode,
