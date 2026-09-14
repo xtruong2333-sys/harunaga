@@ -34,9 +34,15 @@ def send_discord_alert(webhook_url: str, video_info: dict, channel_name: str, th
     published_ago = video_info.get("hours_ago_formatted", "")
     ai_data = video_info.get("ai_analysis")
     outlier_score = video_info.get("outlier_score", 1.0)
+    prev_vph = video_info.get("prev_alerted_vph", 0)
+    content_type = video_info.get("content_type", "LONG_FORM")
 
     # Tùy chỉnh màu và tiêu đề theo loại cảnh báo
-    if alert_type == "rising" or "mới nổi" in channel_name.lower():
+    if alert_type == "escalation":
+        embed_color = 15844367  # Hồng tím Neon #F14E8B
+        alert_badge = "🚀 SIÊU BÃO TIẾP TỤC NÂNG CẤP TỐC ĐỘ"
+        alert_desc = f"Video của **{channel_name}** đang tiếp tục tăng tốc bùng nổ, vừa tăng từ **+{prev_vph:,}** lên **+{vph:,} view/h** (Đột biến gấp {outlier_score}x)!"
+    elif alert_type == "rising" or "mới nổi" in channel_name.lower():
         embed_color = 1097857  # Xanh ngọc Emerald #10B981
         alert_badge = "🌱 KÊNH MỚI NỔI BÙNG NỔ"
         alert_desc = f"Kênh mới nổi **{channel_name}** vừa có video ăn đề xuất mạnh: **+{vph:,} view/h**!"
@@ -49,20 +55,24 @@ def send_discord_alert(webhook_url: str, video_info: dict, channel_name: str, th
         alert_badge = "🚨 SIÊU BÃO VIEW YOUTUBE"
         alert_desc = f"Video mới của kênh **{channel_name}** đang tăng trưởng vượt ngưỡng **{threshold:,} views/giờ**!"
 
+    alert_fields = [
+        {"name": "📺 Kênh", "value": f"**{channel_name}**", "inline": True},
+        {"name": "⚡ Tốc Độ Xem", "value": f"🔥 **+{vph:,} view/h**" + (f" *(Cũ: +{prev_vph:,})*" if prev_vph else ""), "inline": True},
+        {"name": "👀 Tổng Lượt Xem", "value": f"**{views:,}** views", "inline": True},
+        {"name": "👑 Độ Đột Biến", "value": f"**Gấp {outlier_score}x bình thường**", "inline": True},
+        {"name": "⏱ Thời Gian Đăng", "value": published_ago or "Vừa phát hiện", "inline": True},
+        {"name": "🔗 Xem Trực Tiếp", "value": f"[Mở trên YouTube ↗]({url})", "inline": True}
+    ]
+    if content_type == "SHORT":
+        alert_fields.insert(1, {"name": "📱 Định Dạng", "value": "⚡ **YouTube Shorts**", "inline": True})
+
     # Embed 1: Cảnh báo chính
     embed1 = {
         "title": f"{alert_badge}: {title}",
         "url": url,
         "color": embed_color,
         "description": alert_desc,
-        "fields": [
-            {"name": "📺 Kênh", "value": f"**{channel_name}**", "inline": True},
-            {"name": "⚡ Tốc Độ Xem", "value": f"🔥 **+{vph:,} view/h**", "inline": True},
-            {"name": "👀 Tổng Lượt Xem", "value": f"**{views:,}** views", "inline": True},
-            {"name": "👑 Độ Đột Biến", "value": f"**Gấp {outlier_score}x bình thường**", "inline": True},
-            {"name": "⏱ Thời Gian Đăng", "value": published_ago or "Vừa phát hiện", "inline": True},
-            {"name": "🔗 Xem Trực Tiếp", "value": f"[Mở trên YouTube ↗]({url})", "inline": True}
-        ],
+        "fields": alert_fields,
         "image": {"url": thumbnail},
         "footer": {
             "text": "Bắt Bài Đối Thủ 24/7 • Harunaga Studio by Truongday",
@@ -115,7 +125,10 @@ def send_discord_alert(webhook_url: str, video_info: dict, channel_name: str, th
         embeds.append(embed2)
 
     # Tên định danh & Ảnh đại diện riêng cho từng loại Bot trên Discord
-    if alert_type == "outlier" or outlier_score >= 3.0:
+    if alert_type == "escalation":
+        bot_username = "chạy đâu con sâu"
+        bot_avatar = "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Bug/3D/bug_3d.png"
+    elif alert_type == "outlier" or outlier_score >= 3.0:
         bot_username = "chạy đâu con sâu"
         bot_avatar = "https://raw.githubusercontent.com/microsoft/fluentui-emoji/main/assets/Bug/3D/bug_3d.png"
     elif alert_type == "rising" or "mới nổi" in channel_name.lower():
