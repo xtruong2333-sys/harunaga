@@ -5730,8 +5730,15 @@
                 v-model="newRisingForm.name" 
                 required 
                 placeholder="VD: Smart Inventions Studio"
-                class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+                class="w-full bg-slate-950 border rounded-xl px-3.5 py-2 text-white placeholder-slate-500 focus:outline-none transition"
+                :class="duplicateRisingNameChannel 
+                  ? 'border-rose-500 bg-rose-950/30 text-rose-300 ring-2 ring-rose-500/30 placeholder-rose-400' 
+                  : 'border-slate-700 focus:border-emerald-500'"
               />
+              <p v-if="duplicateRisingNameChannel" class="text-[10px] text-rose-400 font-bold mt-1 flex items-center space-x-1">
+                <i class="ph-bold ph-warning-circle"></i>
+                <span>Trùng tên với kênh "{{ duplicateRisingNameChannel.title || duplicateRisingNameChannel.name }}" đã có trong hệ thống!</span>
+              </p>
             </div>
 
             <div class="grid grid-cols-2 gap-3">
@@ -5741,8 +5748,15 @@
                   type="text" 
                   v-model="newRisingForm.handle" 
                   placeholder="VD: @SmartInventions"
-                  class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 font-mono"
+                  class="w-full bg-slate-950 border rounded-xl px-3.5 py-2 text-white placeholder-slate-500 focus:outline-none transition font-mono"
+                  :class="duplicateRisingHandleChannel 
+                    ? 'border-rose-500 bg-rose-950/30 text-rose-300 ring-2 ring-rose-500/30 placeholder-rose-400' 
+                    : 'border-slate-700 focus:border-emerald-500'"
                 />
+                <p v-if="duplicateRisingHandleChannel" class="text-[10px] text-rose-400 font-bold mt-1 flex items-center space-x-1">
+                  <i class="ph-bold ph-warning-circle"></i>
+                  <span>Trùng link/handle với "{{ duplicateRisingHandleChannel.title || duplicateRisingHandleChannel.name }}"!</span>
+                </p>
               </div>
               <div>
                 <label class="block font-bold text-slate-300 mb-1">Lượng Subscribers:</label>
@@ -5814,6 +5828,14 @@
               </div>
             </div>
 
+            <!-- Cảnh báo nếu trùng lặp -->
+            <div v-if="isRisingDuplicate" class="p-2.5 rounded-xl bg-rose-500/15 border border-rose-500/40 text-rose-400 text-xs font-bold flex items-center space-x-2">
+              <i class="ph-fill ph-prohibit text-base flex-shrink-0"></i>
+              <span>
+                🚫 Không thể thêm: {{ duplicateRisingNameChannel && duplicateRisingHandleChannel ? 'Trùng cả tên và link/handle' : (duplicateRisingNameChannel ? 'Trùng tên kênh' : 'Trùng link/handle') }} đã có trong danh sách! Chỉ cho phép thêm kênh mới hoàn toàn.
+              </span>
+            </div>
+
             <div class="pt-3 border-t border-slate-800 flex items-center justify-end space-x-2">
               <button 
                 type="button" 
@@ -5824,10 +5846,14 @@
               </button>
               <button 
                 type="submit" 
-                class="px-5 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold rounded-xl shadow-lg shadow-emerald-500/20 transition cursor-pointer flex items-center space-x-1.5"
+                :disabled="isRisingDuplicate || !newRisingForm.name.trim()"
+                :class="isRisingDuplicate 
+                  ? 'bg-rose-950/60 border border-rose-500/40 text-rose-400 cursor-not-allowed opacity-60' 
+                  : 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white shadow-lg shadow-emerald-500/20 cursor-pointer'"
+                class="px-5 py-2 font-bold rounded-xl transition flex items-center space-x-1.5"
               >
-                <i class="ph-bold ph-check"></i>
-                <span>Thêm Vào Radar &amp; Chấm Điểm</span>
+                <i :class="isRisingDuplicate ? 'ph-bold ph-prohibit' : 'ph-bold ph-check'"></i>
+                <span>{{ isRisingDuplicate ? '🚫 Đã Trùng Kênh — Không Thể Thêm' : 'Thêm Vào Radar & Chấm Điểm' }}</span>
               </button>
             </div>
           </form>
@@ -7025,38 +7051,78 @@
 
             <!-- Form thêm kênh đối thủ mới -->
             <div class="p-4 bg-slate-50 dark:bg-slate-800/40 rounded-2xl border border-slate-200 dark:border-slate-700/60 space-y-3">
-              <h4 class="font-black text-slate-800 dark:text-slate-300 text-xs uppercase tracking-wider flex items-center space-x-1.5">
-                <i class="ph ph-plus-circle text-indigo-500 text-sm"></i>
-                <span>Thêm Kênh Đối Thủ Mới</span>
-              </h4>
+              <div class="flex items-center justify-between">
+                <h4 class="font-black text-slate-800 dark:text-slate-300 text-xs uppercase tracking-wider flex items-center space-x-1.5">
+                  <i class="ph ph-plus-circle text-indigo-500 text-sm"></i>
+                  <span>Thêm Kênh Đối Thủ Mới</span>
+                </h4>
+                <span class="text-[10px] text-slate-400">Chỉ chấp nhận kênh mới hoàn toàn</span>
+              </div>
               
-              <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                <input 
-                  type="text" 
-                  v-model="newChannel.name" 
-                  placeholder="Tên kênh (ví dụ: MrBeast)" 
-                  class="bg-white dark:bg-black/50 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-white focus:outline-none focus:border-indigo-500"
-                >
-                <input 
-                  type="text" 
-                  v-model="newChannel.handle" 
-                  placeholder="@handle hoặc Link kênh" 
-                  class="bg-white dark:bg-black/50 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-white focus:outline-none focus:border-indigo-500"
-                >
-                <input 
-                  type="number" 
-                  v-model.number="newChannel.threshold" 
-                  placeholder="Ngưỡng view/h (5000)" 
-                  class="bg-white dark:bg-black/50 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-white focus:outline-none focus:border-indigo-500"
-                >
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                <div>
+                  <label class="block text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1">Tên kênh:</label>
+                  <input 
+                    type="text" 
+                    v-model="newChannel.name" 
+                    placeholder="Tên kênh (ví dụ: MrBeast)" 
+                    class="w-full bg-white dark:bg-black/50 border rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-white focus:outline-none transition"
+                    :class="duplicateCompetitorNameChannel 
+                      ? 'border-rose-500 bg-rose-50/20 text-rose-600 dark:text-rose-400 ring-2 ring-rose-500/20 placeholder-rose-300' 
+                      : 'border-slate-300 dark:border-slate-700 focus:border-indigo-500'"
+                  >
+                  <p v-if="duplicateCompetitorNameChannel" class="text-[10px] text-rose-500 dark:text-rose-400 font-bold mt-1 flex items-center space-x-1">
+                    <i class="ph-bold ph-warning-circle"></i>
+                    <span>Trùng tên với kênh "{{ duplicateCompetitorNameChannel.name }}"!</span>
+                  </p>
+                </div>
+
+                <div>
+                  <label class="block text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1">Handle hoặc Link kênh:</label>
+                  <input 
+                    type="text" 
+                    v-model="newChannel.handle" 
+                    placeholder="@handle hoặc Link kênh" 
+                    class="w-full bg-white dark:bg-black/50 border rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-white focus:outline-none transition font-mono"
+                    :class="duplicateCompetitorHandleChannel 
+                      ? 'border-rose-500 bg-rose-50/20 text-rose-600 dark:text-rose-400 ring-2 ring-rose-500/20 placeholder-rose-300' 
+                      : 'border-slate-300 dark:border-slate-700 focus:border-indigo-500'"
+                  >
+                  <p v-if="duplicateCompetitorHandleChannel" class="text-[10px] text-rose-500 dark:text-rose-400 font-bold mt-1 flex items-center space-x-1">
+                    <i class="ph-bold ph-warning-circle"></i>
+                    <span>Trùng link/handle với "{{ duplicateCompetitorHandleChannel.name }}"!</span>
+                  </p>
+                </div>
+
+                <div>
+                  <label class="block text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1">Ngưỡng view/h:</label>
+                  <input 
+                    type="number" 
+                    v-model.number="newChannel.threshold" 
+                    placeholder="Ngưỡng view/h (5000)" 
+                    class="w-full bg-white dark:bg-black/50 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-white focus:outline-none focus:border-indigo-500"
+                  >
+                </div>
+              </div>
+
+              <!-- Cảnh báo nếu trùng lặp -->
+              <div v-if="isCompetitorDuplicate" class="p-2.5 rounded-xl bg-rose-500/15 border border-rose-500/40 text-rose-500 dark:text-rose-400 text-xs font-bold flex items-center space-x-2">
+                <i class="ph-fill ph-prohibit text-base flex-shrink-0"></i>
+                <span>
+                  🚫 Không thể thêm: {{ duplicateCompetitorNameChannel && duplicateCompetitorHandleChannel ? 'Trùng cả tên và link/handle' : (duplicateCompetitorNameChannel ? 'Trùng tên kênh' : 'Trùng link/handle kênh') }} đã có trong danh sách theo dõi! Chỉ cho phép thêm kênh mới hoàn toàn.
+                </span>
               </div>
 
               <button 
                 @click="addChannel" 
-                class="w-full py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 shadow-sm"
+                :disabled="isCompetitorDuplicate || !newChannel.name.trim() || !newChannel.handle.trim()"
+                :class="isCompetitorDuplicate 
+                  ? 'bg-rose-950/40 border border-rose-500/30 text-rose-400 cursor-not-allowed opacity-60' 
+                  : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-sm cursor-pointer'"
+                class="w-full py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5"
               >
-                <i class="ph ph-plus-bold"></i>
-                <span>Thêm Vào Danh Sách</span>
+                <i :class="isCompetitorDuplicate ? 'ph-bold ph-prohibit' : 'ph ph-plus-bold'"></i>
+                <span>{{ isCompetitorDuplicate ? '🚫 Đã Trùng Kênh — Không Thể Thêm' : 'Thêm Vào Danh Sách' }}</span>
               </button>
             </div>
 
@@ -9598,6 +9664,53 @@
         const isTriggering = ref(false);
         const saveStatus = ref('');
 
+        // Helper chuẩn hóa link / handle và tên kênh để chống trùng lặp tuyệt đối
+        const normalizeHandleOrUrl = (raw) => {
+          if (!raw) return '';
+          let str = String(raw).trim().toLowerCase();
+          str = str.replace(/^https?:\/\//, '').replace(/^www\./, '').replace(/^m\./, '');
+          str = str.split('?')[0].split('#')[0].replace(/\/videos\/?$/, '').replace(/\/featured\/?$/, '').replace(/\/about\/?$/, '').replace(/\/+$/, '');
+          const atMatch = str.match(/youtube\.com\/@([^/?#]+)/);
+          if (atMatch) {
+            return '@' + atMatch[1];
+          }
+          str = str.replace(/^youtube\.com\//, '');
+          if (str.startsWith('@')) {
+            return str;
+          }
+          if (str && !str.startsWith('channel/') && !str.startsWith('c/') && !str.startsWith('user/')) {
+            return '@' + str;
+          }
+          return str;
+        };
+
+        const normalizeChannelName = (raw) => {
+          if (!raw) return '';
+          return String(raw).trim().toLowerCase().replace(/\s+/g, ' ');
+        };
+
+        // Kiểm tra trùng lặp cho Form Thêm Kênh Đối Thủ
+        const duplicateCompetitorNameChannel = computed(() => {
+          const inputName = normalizeChannelName(newChannel.value.name);
+          if (!inputName) return null;
+          const list = [...(editableChannels.value || []), ...(channels.value || [])];
+          return list.find(c => normalizeChannelName(c.name) === inputName) || null;
+        });
+
+        const duplicateCompetitorHandleChannel = computed(() => {
+          const inputHandle = normalizeHandleOrUrl(newChannel.value.handle);
+          if (!inputHandle) return null;
+          const list = [...(editableChannels.value || []), ...(channels.value || [])];
+          return list.find(c => {
+            const existingHandle = normalizeHandleOrUrl(c.handle_or_url || c.handle);
+            return existingHandle && existingHandle === inputHandle;
+          }) || null;
+        });
+
+        const isCompetitorDuplicate = computed(() => {
+          return !!duplicateCompetitorNameChannel.value || !!duplicateCompetitorHandleChannel.value;
+        });
+
         const toggleTheme = () => {
           isDark.value = !isDark.value;
           localStorage.setItem('APP_THEME', isDark.value ? 'dark' : 'light');
@@ -10773,9 +10886,21 @@ Nhiệm vụ: Trả lời hoặc viết lại/tinh chỉnh kịch bản theo yê
 
         const addChannel = async () => {
           if (!newChannel.value.name.trim() || !newChannel.value.handle.trim()) {
-            showToast('⚠️ Vui lòng nhập tên kênh và link/handle!');
+            showToast('⚠️ Vui lòng nhập đầy đủ tên kênh và link/handle!');
             return;
           }
+
+          // Chặn tuyệt đối nếu trùng tên hoặc trùng link/handle
+          if (isCompetitorDuplicate.value) {
+            const reason = duplicateCompetitorNameChannel.value && duplicateCompetitorHandleChannel.value
+              ? 'Trùng cả tên và link/handle của kênh'
+              : (duplicateCompetitorNameChannel.value 
+                  ? `Trùng tên với kênh "${duplicateCompetitorNameChannel.value.name}"` 
+                  : `Trùng link/handle với kênh "${duplicateCompetitorHandleChannel.value.name}"`);
+            showToast(`❌ Không thể thêm: ${reason}! Chỉ được thêm kênh mới hoàn toàn.`, 5000);
+            return;
+          }
+
           const channelName = newChannel.value.name.trim();
           let rawHandle = newChannel.value.handle.trim();
           if (rawHandle.includes('youtube.com/')) {
@@ -10797,12 +10922,6 @@ Nhiệm vụ: Trả lời hoặc viết lại/tinh chỉnh kịch bản theo yê
             added_at: new Date().toISOString()
           };
 
-          // 1. Thêm vào danh sách sửa trong Modal (nếu trùng tên thì cập nhật)
-          const existIdx = editableChannels.value.findIndex(c => (c.name || '').toLowerCase().trim() === channelName.toLowerCase());
-          const isDuplicate = existIdx >= 0;
-          if (isDuplicate) {
-            editableChannels.value.splice(existIdx, 1);
-          }
           editableChannels.value.unshift(channelItem);
 
           // 2. Lưu VĨNH VIỄN vào localStorage
@@ -10825,21 +10944,11 @@ Nhiệm vụ: Trả lời hoặc viết lại/tinh chỉnh kịch bản theo yê
             is_pending_scan: true,
             videos: []
           };
-          const existsInMainIdx = channels.value.findIndex(c => (c.name || '').toLowerCase().trim() === channelName.toLowerCase());
-          if (existsInMainIdx >= 0) {
-            channels.value[existsInMainIdx] = { ...channels.value[existsInMainIdx], ...mainChanObj };
-          } else {
-            channels.value.unshift(mainChanObj);
-          }
+          channels.value.unshift(mainChanObj);
           stats.value.total_channels = channels.value.length;
 
           newChannel.value = { name: '', handle: '', threshold: 5000 };
-
-          if (isDuplicate) {
-            showToast(`ℹ️ Kênh "${channelName}" đã có sẵn trong danh sách theo dõi (${editableChannels.value.length} kênh)! Đã cập nhật lại thông tin & đồng bộ lên GitHub.`);
-          } else {
-            showToast(`✅ Đã thêm kênh mới "${channelName}" (Tổng: ${editableChannels.value.length} kênh)! Bot sẽ tự động quét video ở phiên kế tiếp.`);
-          }
+          showToast(`✅ Đã thêm kênh mới "${channelName}" (Tổng: ${editableChannels.value.length} kênh)! Bot sẽ tự động quét video ở phiên kế tiếp.`);
 
           // 4. Tự động lưu lên GitHub với fallback token
           await saveChannelsToGitHub();
@@ -11583,6 +11692,28 @@ Nhiệm vụ: Trả lời hoặc viết lại/tinh chỉnh kịch bản theo yê
           video_vph: 4500
         });
 
+        // Kiểm tra trùng lặp cho Form Radar Kênh Nhỏ View Khủng
+        const duplicateRisingNameChannel = computed(() => {
+          const inputName = normalizeChannelName(newRisingForm.value.name);
+          if (!inputName) return null;
+          const list = [...(emergingChannels.value || []), ...(editableChannels.value || []), ...(channels.value || [])];
+          return list.find(c => normalizeChannelName(c.title || c.name) === inputName) || null;
+        });
+
+        const duplicateRisingHandleChannel = computed(() => {
+          const inputHandle = normalizeHandleOrUrl(newRisingForm.value.handle);
+          if (!inputHandle) return null;
+          const list = [...(emergingChannels.value || []), ...(editableChannels.value || []), ...(channels.value || [])];
+          return list.find(c => {
+            const existingHandle = normalizeHandleOrUrl(c.handle_or_url || c.handle);
+            return existingHandle && existingHandle === inputHandle;
+          }) || null;
+        });
+
+        const isRisingDuplicate = computed(() => {
+          return !!duplicateRisingNameChannel.value || !!duplicateRisingHandleChannel.value;
+        });
+
         const detailTabsList = [
           { key: 'overview', label: 'Tổng Quan', icon: 'ph-fill ph-chart-pie-slice' },
           { key: 'growth', label: 'Tăng Trưởng', icon: 'ph-fill ph-trend-up' },
@@ -12130,6 +12261,17 @@ Nhiệm vụ: Trả lời hoặc viết lại/tinh chỉnh kịch bản theo yê
             showToast('⚠️ Vui lòng nhập tên kênh YouTube!');
             return;
           }
+
+          // Chặn tuyệt đối nếu trùng tên hoặc trùng link/handle
+          if (isRisingDuplicate.value) {
+            const reason = duplicateRisingNameChannel.value && duplicateRisingHandleChannel.value
+              ? 'Trùng cả tên và link/handle của kênh'
+              : (duplicateRisingNameChannel.value 
+                  ? `Trùng tên với kênh "${duplicateRisingNameChannel.value.title || duplicateRisingNameChannel.value.name}"` 
+                  : `Trùng link/handle với kênh "${duplicateRisingHandleChannel.value.title || duplicateRisingHandleChannel.value.name}"`);
+            showToast(`❌ Không thể thêm: ${reason}! Chỉ được thêm kênh mới hoàn toàn.`, 5000);
+            return;
+          }
           let handle = newRisingForm.value.handle.trim();
           if (handle.includes('youtube.com/')) {
             const m = handle.match(/@([^/?#]+)/);
@@ -12429,6 +12571,12 @@ Nhiệm vụ: Trả lời hoặc viết lại/tinh chỉnh kịch bản theo yê
           githubToken,
           editableChannels,
           newChannel,
+          duplicateCompetitorNameChannel,
+          duplicateCompetitorHandleChannel,
+          isCompetitorDuplicate,
+          duplicateRisingNameChannel,
+          duplicateRisingHandleChannel,
+          isRisingDuplicate,
           isSaving,
           isTriggering,
           saveStatus,
