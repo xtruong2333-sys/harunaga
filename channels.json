@@ -1,12 +1,5 @@
 [
   {
-    "name": "Inventor Unknowns",
-    "handle_or_url": "https://www.youtube.com/@InventorUnknowns-268",
-    "min_views_per_hour": 5000,
-    "is_custom": true,
-    "added_at": "2026-09-14T04:17:20.274Z"
-  },
-  {
     "name": "DIY WELD",
     "handle_or_url": "@Diywelder-e8t",
     "min_views_per_hour": 5000,
@@ -270,6 +263,7 @@
     "min_views_per_hour": 5000,
     "avatar": "https://yt3.googleusercontent.com/VRfAnWtgpIHSB6b3kQFwgliWUriJhWM6DaVt1yFzkLNhpj7qTYEUCYXT-wMDobte_z9r8lPboZM=s900-c-k-c0x00ffffff-no-rj"
   },
+
   {
     "name": "Daily Smart Tips",
     "handle_or_url": "@DailySmartTips-2",
