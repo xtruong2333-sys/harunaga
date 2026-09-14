@@ -181,7 +181,7 @@
           <button v-if="activeTab==='pipeline'" @click="newTask" class="btn btn-primary h-10 px-4 text-sm"><i class="ph ph-plus"></i>Thêm Ý Tưởng Mới</button>
           <button v-if="activeTab==='pipeline'" @click="exportPipeline" class="btn btn-soft h-10 px-4 text-sm"><i class="ph ph-download-simple"></i>Xuất Lịch CSV</button>
           <button v-if="activeTab==='bookmarks'" @click="exportBookmarks" class="btn btn-soft h-10 px-4 text-sm"><i class="ph ph-export"></i>Xuất Kho Ý Tưởng</button>
-          <button v-if="activeTab==='ai'" @click="openModal('script')" class="btn btn-primary h-10 px-4 text-sm"><i class="ph ph-magic-wand"></i>Mở AI Script Studio</button>
+          <button v-if="activeTab==='ai'" @click="openScriptStudioModal()" class="btn btn-primary h-10 px-4 text-sm"><i class="ph ph-magic-wand"></i>Mở AI Script Studio</button>
         </div>
       </div>
 
@@ -247,46 +247,193 @@
         </article>
       </section>
 
-      <!-- ALL HOT VIDEOS -->
+            <!-- ALL HOT VIDEOS -->
       <section v-if="activeTab==='videos'" class="space-y-4">
-        <div class="sticky top-[82px] z-20 glass rounded-2xl p-3">
+        <div class="sticky top-[82px] z-20 glass rounded-2xl p-3 space-y-3">
+          <!-- Top Row: Search, Tag, Duration, Sort -->
           <div class="grid md:grid-cols-2 xl:grid-cols-5 gap-2">
-            <label class="relative xl:col-span-2"><i class="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-600"></i><input v-model="videoFilters.q" class="w-full h-10 rounded-xl bg-white/[0.04] border border-white/[0.07] pl-9 pr-3 text-xs outline-none focus:border-indigo-400/50" placeholder="Tìm tiêu đề / từ khóa..."></label>
-            <select v-model="videoFilters.tag" class="h-10 rounded-xl bg-[#0b1120] border border-white/[0.07] px-3 text-xs outline-none"><option value="">Tất cả nhãn</option><option v-for="t in allTags" :key="t">{{t}}</option></select>
-            <select v-model="videoFilters.duration" class="h-10 rounded-xl bg-[#0b1120] border border-white/[0.07] px-3 text-xs outline-none"><option value="">Mọi thời lượng</option><option>Shorts</option><option>Dưới 10p</option><option>10-20p</option><option>Trên 20p</option></select>
-            <select v-model="videoFilters.sort" class="h-10 rounded-xl bg-[#0b1120] border border-white/[0.07] px-3 text-xs outline-none"><option value="views">View cao nhất</option><option value="vph">VPH nhanh nhất</option><option value="new">Mới nhất</option><option value="breakout">Đột phá nhất</option></select>
+            <label class="relative xl:col-span-2">
+              <i class="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-600"></i>
+              <input v-model="videoFilters.q" class="w-full h-10 rounded-xl bg-white/[0.04] border border-white/[0.07] pl-9 pr-3 text-xs outline-none focus:border-indigo-400/50" placeholder="Tìm tiêu đề, từ khóa, tên kênh đối thủ...">
+            </label>
+            <select v-model="videoFilters.tag" class="h-10 rounded-xl bg-[#0b1120] border border-white/[0.07] px-3 text-xs outline-none">
+              <option value="">Tất cả nhãn</option>
+              <option v-for="t in allTags" :key="t">{{t}}</option>
+            </select>
+            <select v-model="videoFilters.duration" class="h-10 rounded-xl bg-[#0b1120] border border-white/[0.07] px-3 text-xs outline-none">
+              <option value="">Mọi thời lượng</option>
+              <option>Shorts</option>
+              <option>Dưới 10p</option>
+              <option>10-20p</option>
+              <option>Trên 20p</option>
+            </select>
+            <select v-model="videoFilters.sort" class="h-10 rounded-xl bg-[#0b1120] border border-white/[0.07] px-3 text-xs outline-none">
+              <option value="vph">VPH nhanh nhất</option>
+              <option value="views">View cao nhất</option>
+              <option value="new">Mới nhất</option>
+              <option value="breakout">Đột phá nhất</option>
+            </select>
           </div>
-          <div class="flex gap-2 mt-2 flex-wrap items-center">
-            <span class="tiny text-slate-600 mr-1">View tối thiểu</span><button v-for="m in [0,1000,10000,50000,100000]" :key="m" @click="videoFilters.minViews=m" :class="videoFilters.minViews===m?'bg-cyan-500/15 text-cyan-300 border-cyan-400/25':'bg-white/[0.03] text-slate-500 border-white/[0.06]'" class="h-7 px-2.5 rounded-lg border text-[11px] font-bold">{{m===0?'Tất cả':formatNum(m)+'+'}}</button>
-            <span class="ml-auto text-xs text-slate-500">{{filteredVideos.length}} video</span>
+
+          <!-- Middle Row: Filter Pills -->
+          <div class="flex gap-2 flex-wrap items-center pt-1 border-t border-white/[0.04]">
+            <span class="tiny text-slate-500 mr-1">Lọc nhanh:</span>
+            <button v-for="p in videoPills" :key="p.id" @click="videoFilters.pill = p.id"
+              :class="videoFilters.pill === p.id ? 'bg-indigo-500/20 text-indigo-300 border-indigo-400/30 font-bold shadow-sm' : 'bg-white/[0.03] text-slate-400 border-white/[0.06] hover:text-white'"
+              class="h-7 px-3 rounded-lg border text-[11px] transition flex items-center gap-1.5 cursor-pointer">
+              <i :class="p.icon" class="ph"></i>
+              <span>{{ p.label }}</span>
+            </button>
+          </div>
+
+          <!-- Bottom Row: Min Views + View Mode Toggle + Export Excel + Reset -->
+          <div class="flex gap-2 flex-wrap items-center pt-1 border-t border-white/[0.04]">
+            <span class="tiny text-slate-500 mr-1">View tối thiểu:</span>
+            <button v-for="m in [0,1000,10000,50000,100000]" :key="m" @click="videoFilters.minViews=m"
+              :class="videoFilters.minViews===m?'bg-cyan-500/15 text-cyan-300 border-cyan-400/25 font-bold':'bg-white/[0.03] text-slate-500 border-white/[0.06] hover:text-white'"
+              class="h-7 px-2.5 rounded-lg border text-[11px] cursor-pointer">{{m===0?'Tất cả':formatNum(m)+'+'}}</button>
+
+            <div class="ml-auto flex items-center gap-2">
+              <span class="text-xs text-slate-500 font-mono">{{filteredVideos.length}} video</span>
+              <!-- View Mode Toggle -->
+              <div class="p-1 rounded-xl bg-white/[0.04] border border-white/[0.07] flex gap-1">
+                <button @click="videoView='grid'" :class="videoView==='grid'?'bg-white/10 text-white font-bold':'text-slate-500'" class="w-8 h-7 rounded-lg text-xs transition cursor-pointer" title="Dạng Thẻ"><i class="ph ph-squares-four"></i></button>
+                <button @click="videoView='table'" :class="videoView==='table'?'bg-white/10 text-white font-bold':'text-slate-500'" class="w-8 h-7 rounded-lg text-xs transition cursor-pointer" title="Bảng Soi"><i class="ph ph-table"></i></button>
+              </div>
+              <!-- Export Excel Button -->
+              <button @click="exportVideosCsv" class="btn btn-soft h-8 px-3 text-xs flex items-center gap-1.5 text-emerald-300 hover:text-emerald-200 cursor-pointer">
+                <i class="ph ph-file-csv text-emerald-400"></i>Xuất Excel
+              </button>
+              <!-- Reset button -->
+              <button @click="resetVideoFilters" class="btn btn-soft h-8 px-2.5 text-xs text-slate-400 cursor-pointer" title="Đặt lại bộ lọc"><i class="ph ph-arrow-counter-clockwise"></i></button>
+            </div>
           </div>
         </div>
 
-        <div class="grid sm:grid-cols-2 2xl:grid-cols-3 gap-4">
-          <article v-for="v in filteredVideos" :key="v.id" class="video-card glass panel-hover rounded-2xl overflow-hidden group">
-            <div class="thumb aspect-video">
-              <img :src="v.thumb" :alt="v.title" @error="handleImgError"><div class="scanline"></div>
-              <div class="absolute inset-x-0 bottom-0 p-3 flex items-end justify-between bg-gradient-to-t from-black/75 to-transparent">
-                <span v-if="v.breakout" class="tiny px-2 py-1.5 rounded-lg bg-rose-500/90 text-white shadow-lg shadow-rose-500/20"><i class="ph ph-fire-simple mr-1"></i>BÃO VIEW</span><span v-else></span>
-                <span class="metric text-[10px] px-2 py-1 rounded-md bg-black/70">{{v.duration}}</span>
+        <!-- GRID VIEW -->
+        <div v-if="videoView==='grid'" class="grid sm:grid-cols-2 2xl:grid-cols-3 gap-4">
+          <article v-for="v in filteredVideos" :key="v.id" class="video-card glass panel-hover rounded-2xl overflow-hidden group flex flex-col justify-between">
+            <div>
+              <div class="thumb aspect-video relative overflow-hidden bg-slate-900">
+                <img :src="v.thumb" :alt="v.title" @error="handleImgError" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                <div class="scanline"></div>
+                <div class="absolute inset-x-0 bottom-0 p-3 flex items-end justify-between bg-gradient-to-t from-black/80 via-black/40 to-transparent">
+                  <div class="flex gap-1 items-center">
+                    <span v-if="v.breakout" class="tiny px-2 py-1 rounded-md bg-rose-500/90 text-white shadow-lg shadow-rose-500/20 font-black"><i class="ph ph-fire-simple mr-1"></i>BÃO VIEW</span>
+                    <span v-if="v.ai_analysis" class="tiny px-2 py-1 rounded-md bg-indigo-500/90 text-white shadow-lg font-black"><i class="ph ph-sparkle mr-1"></i>AI READY</span>
+                  </div>
+                  <span class="metric text-[10px] px-2 py-1 rounded-md bg-black/70 border border-white/10 text-white">{{v.duration}}</span>
+                </div>
+                <!-- HD Inspect Button -->
+                <button @click.stop="openHdThumb(v.thumb)" class="absolute top-2 right-2 w-8 h-8 rounded-lg bg-black/60 hover:bg-black/80 text-white/80 hover:text-white grid place-items-center opacity-0 group-hover:opacity-100 transition backdrop-blur-sm cursor-pointer" title="Soi Thumbnail HD">
+                  <i class="ph ph-arrows-out-simple text-xs"></i>
+                </button>
+              </div>
+
+              <div class="p-4">
+                <div class="flex gap-3 items-center">
+                  <img :src="channelById(v.channelId).avatar" class="w-10 h-10 rounded-xl object-cover shrink-0 border border-white/10" @error="handleImgError">
+                  <div class="min-w-0 flex-1">
+                    <a href="#" @click.prevent="openChannel(channelById(v.channelId))" class="text-xs font-bold hover:text-indigo-300 transition truncate block">{{channelById(v.channelId).name}}</a>
+                    <div class="flex gap-1 mt-1 flex-wrap">
+                      <span v-for="t in channelById(v.channelId).tags?.slice(0,3)" :key="t" class="tiny text-slate-500">#{{t}}</span>
+                    </div>
+                  </div>
+                </div>
+                <h3 class="mt-3 font-bold text-[14px] leading-snug line-clamp-2 min-h-[42px] group-hover:text-indigo-300 transition">{{v.title}}</h3>
+                <div class="mt-3 grid grid-cols-3 gap-2">
+                  <div class="rounded-xl bg-white/[0.03] border border-white/[0.06] p-2">
+                    <div class="tiny text-slate-500">Views</div>
+                    <div class="metric mt-1 text-sm font-bold">{{formatNum(v.views)}}</div>
+                  </div>
+                  <div class="rounded-xl bg-white/[0.03] border border-white/[0.06] p-2">
+                    <div class="tiny text-slate-500">Tốc độ VPH</div>
+                    <div class="metric mt-1 text-sm font-bold text-cyan-400">+{{formatNum(v.vph)}}</div>
+                  </div>
+                  <div class="rounded-xl bg-white/[0.03] border border-white/[0.06] p-2">
+                    <div class="tiny text-slate-500">Đã đăng</div>
+                    <div class="metric mt-1 text-xs font-bold">{{v.age}}</div>
+                  </div>
+                </div>
               </div>
             </div>
-            <div class="p-4">
-              <div class="flex gap-3"><img :src="channelById(v.channelId).avatar" class="w-10 h-10 rounded-xl object-cover shrink-0" @error="handleImgError"><div class="min-w-0"><a href="#" @click.prevent="openChannel(channelById(v.channelId))" class="text-xs font-bold hover:text-indigo-300 transition">{{channelById(v.channelId).name}}</a><div class="flex gap-1 mt-1 flex-wrap"><span v-for="t in channelById(v.channelId).tags" :key="t" class="tiny text-slate-600">#{{t}}</span></div></div></div>
-              <h3 class="mt-3 font-bold text-[15px] leading-6 line-clamp-2 min-h-[48px]">{{v.title}}</h3>
-              <div class="mt-4 grid grid-cols-3 gap-2">
-                <div class="rounded-xl bg-white/[0.03] border border-white/[0.06] p-2"><div class="tiny text-slate-600">Views</div><div class="metric mt-1 text-sm font-bold">{{formatNum(v.views)}}</div></div>
-                <div class="rounded-xl bg-white/[0.03] border border-white/[0.06] p-2"><div class="tiny text-slate-600">VPH</div><div class="metric mt-1 text-sm font-bold text-cyan-400">+{{formatNum(v.vph)}}</div></div>
-                <div class="rounded-xl bg-white/[0.03] border border-white/[0.06] p-2"><div class="tiny text-slate-600">Đăng</div><div class="metric mt-1 text-xs font-bold">{{v.age}}</div></div>
-              </div>
-              <div class="mt-4 grid grid-cols-2 gap-2">
-                <button @click="openScriptFromVideo(v)" class="btn btn-primary h-9 px-3 text-[11px]"><i class="ph ph-magic-wand"></i>AI Remake</button>
-                <a :href="v.url" target="_blank" class="btn btn-soft h-9 px-3 text-[11px]"><i class="ph ph-youtube-logo"></i>Xem YouTube</a>
-                <button @click="addVideoToPipeline(v)" class="btn btn-soft h-9 px-3 text-[11px]"><i class="ph ph-calendar-plus"></i>Lịch Sóng</button>
-                <button @click="toggleBookmark(v.id)" :class="isBookmarked(v.id)?'text-amber-300 border-amber-400/25 bg-amber-500/10':''" class="btn btn-soft h-9 px-3 text-[11px]"><i :class="isBookmarked(v.id)?'ph-bookmark-simple-fill':'ph-bookmark-simple'" class="ph"></i>{{isBookmarked(v.id)?'Bỏ Lưu':'Lưu'}}</button>
+
+            <div class="p-4 pt-0">
+              <div class="grid grid-cols-2 gap-2">
+                <button @click="openScriptFromVideo(v)" class="btn btn-primary h-8 px-3 text-[11px]"><i class="ph ph-magic-wand"></i>AI Remake</button>
+                <a :href="v.url" target="_blank" class="btn btn-soft h-8 px-3 text-[11px]"><i class="ph ph-youtube-logo text-rose-400"></i>YouTube</a>
+                <button @click="addVideoToPipeline(v)" class="btn btn-soft h-8 px-3 text-[11px]"><i class="ph ph-calendar-plus text-amber-400"></i>Lịch Sóng</button>
+                <button @click="toggleBookmark(v.id)" :class="isBookmarked(v.id)?'text-amber-300 border-amber-400/25 bg-amber-500/10':''" class="btn btn-soft h-8 px-3 text-[11px]">
+                  <i :class="isBookmarked(v.id)?'ph-bookmark-simple-fill text-amber-400':'ph-bookmark-simple'" class="ph"></i>{{isBookmarked(v.id)?'Đã Lưu':'Lưu Thẻ'}}
+                </button>
               </div>
             </div>
           </article>
+        </div>
+
+        <!-- TABLE VIEW -->
+        <div v-else class="glass rounded-2xl overflow-hidden">
+          <div class="overflow-x-auto scrollbar-thin">
+            <table class="w-full min-w-[1020px] text-sm">
+              <thead class="text-left tiny text-slate-400 bg-white/[0.025] uppercase tracking-wider font-bold">
+                <tr class="border-b border-white/[0.06]">
+                  <th class="p-3 w-14 text-center">Hạng</th>
+                  <th class="p-3 w-28">Ảnh bìa</th>
+                  <th class="p-3">Video & Kênh</th>
+                  <th class="p-3 w-24 text-center">Định dạng</th>
+                  <th class="p-3 w-28 text-right">Lượt xem</th>
+                  <th class="p-3 w-32 text-right">Tốc độ (VPH)</th>
+                  <th class="p-3 w-24 text-center">Tuổi đăng</th>
+                  <th class="p-3 pr-4 w-48 text-right">Thao tác</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-white/[0.05]">
+                <tr v-for="(v, idx) in filteredVideos" :key="v.id" class="hover:bg-white/[0.025] transition group">
+                  <td class="p-3 text-center metric text-slate-500 font-bold">#{{ idx + 1 }}</td>
+                  <td class="p-3">
+                    <div class="w-24 aspect-video rounded-lg overflow-hidden relative cursor-pointer group-hover:ring-2 ring-indigo-500/50 transition bg-slate-900" @click="openHdThumb(v.thumb)">
+                      <img :src="v.thumb" class="w-full h-full object-cover" @error="handleImgError">
+                      <span v-if="v.breakout" class="absolute top-1 left-1 tiny bg-rose-500 px-1 py-0.5 rounded text-[9px] font-black text-white">HOT</span>
+                    </div>
+                  </td>
+                  <td class="p-3">
+                    <a :href="v.url" target="_blank" class="font-bold text-xs line-clamp-2 hover:text-indigo-300 transition">{{ v.title }}</a>
+                    <div class="flex items-center gap-2 mt-1.5">
+                      <img :src="channelById(v.channelId).avatar" class="w-5 h-5 rounded-md object-cover" @error="handleImgError">
+                      <button @click="openChannel(channelById(v.channelId))" class="text-[11px] text-slate-400 hover:text-white transition truncate">{{ channelById(v.channelId).name }}</button>
+                      <span v-if="v.ai_analysis" class="tiny px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-400/30">AI</span>
+                    </div>
+                  </td>
+                  <td class="p-3 text-center">
+                    <span :class="v.duration?.includes('Shorts') || (v.duration?.startsWith('0:') && parseInt(v.duration.split(':')[1]) <= 60) ? 'bg-rose-500/15 text-rose-300 border-rose-500/20' : 'bg-cyan-500/15 text-cyan-300 border-cyan-500/20'" class="tiny px-2 py-1 rounded-md border">
+                      {{ v.duration?.includes('Shorts') || (v.duration?.startsWith('0:') && parseInt(v.duration.split(':')[1]) <= 60) ? 'Shorts' : 'Video Dài' }}
+                    </span>
+                  </td>
+                  <td class="p-3 text-right metric font-bold">{{ formatNum(v.views) }}</td>
+                  <td class="p-3 text-right">
+                    <span class="metric font-bold text-cyan-400">+{{ formatNum(v.vph) }}/h</span>
+                  </td>
+                  <td class="p-3 text-center metric text-xs text-slate-400">{{ v.age }}</td>
+                  <td class="p-3 pr-4 text-right">
+                    <div class="flex items-center justify-end gap-1">
+                      <button @click="openScriptFromVideo(v)" class="btn btn-soft h-7 px-2 text-[11px] text-indigo-300" title="AI Remake"><i class="ph ph-magic-wand"></i></button>
+                      <button @click="addVideoToPipeline(v)" class="btn btn-soft h-7 px-2 text-[11px] text-amber-300" title="Lịch Sóng"><i class="ph ph-calendar-plus"></i></button>
+                      <button @click="toggleBookmark(v.id)" :class="isBookmarked(v.id)?'text-amber-300 bg-amber-500/10':''" class="btn btn-soft h-7 px-2 text-[11px]" :title="isBookmarked(v.id)?'Bỏ Lưu':'Lưu'"><i :class="isBookmarked(v.id)?'ph-bookmark-simple-fill text-amber-400':'ph-bookmark-simple'" class="ph"></i></button>
+                      <a :href="v.url" target="_blank" class="btn btn-soft h-7 px-2 text-[11px] text-rose-400" title="YouTube"><i class="ph ph-youtube-logo"></i></a>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Empty state -->
+        <div v-if="!filteredVideos.length" class="glass rounded-2xl p-12 text-center">
+          <i class="ph ph-magnifying-glass text-4xl text-slate-600 mb-3 block"></i>
+          <div class="font-bold text-base">Không tìm thấy video nào phù hợp</div>
+          <p class="text-xs text-slate-500 mt-1">Hãy thử thay đổi từ khóa, nhãn hoặc mức view tối thiểu.</p>
+          <button @click="resetVideoFilters" class="btn btn-primary h-9 px-4 text-xs mt-4">Đặt lại bộ lọc</button>
         </div>
       </section>
 
@@ -310,53 +457,435 @@
         </div>
       </section>
 
-      <!-- TOP 15 -->
+            <!-- TOP 15 -->
       <section v-if="activeTab==='top15'" class="space-y-5">
+        <!-- Filter Header Bar -->
+        <div class="glass rounded-2xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div>
+            <div class="font-bold text-base flex items-center gap-2">
+              <span class="w-7 h-7 rounded-lg bg-amber-500/15 text-amber-400 grid place-items-center"><i class="ph ph-lightning text-lg"></i></span>
+              Top 15 Video Tốc Độ Bùng Nổ Nhất Thị Trường
+            </div>
+            <div class="text-xs text-slate-500 mt-1">Sprint Podium và Bảng Xếp Hạng 15 video có sức tăng trưởng view nhanh nhất.</div>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <!-- Time Filter Pills -->
+            <div class="p-1 rounded-xl bg-white/[0.04] border border-white/[0.07] flex gap-1">
+              <button v-for="r in [{id:'all',label:'Tất Cả'},{id:'24h',label:'24h Qua'},{id:'3d',label:'3 Ngày'},{id:'7d',label:'7 Ngày'}]" :key="r.id"
+                @click="top15Range = r.id"
+                :class="top15Range === r.id ? 'bg-white/10 text-white font-bold' : 'text-slate-500'"
+                class="px-2.5 py-1.5 rounded-lg text-xs transition cursor-pointer">{{ r.label }}</button>
+            </div>
+            <!-- Sort Selector -->
+            <div class="p-1 rounded-xl bg-white/[0.04] border border-white/[0.07] flex gap-1">
+              <button @click="top15Sort = 'vph'" :class="top15Sort==='vph'?'bg-cyan-500/20 text-cyan-300 font-bold':'text-slate-500'" class="px-2.5 py-1.5 rounded-lg text-xs transition cursor-pointer">⚡ VPH</button>
+              <button @click="top15Sort = 'views'" :class="top15Sort==='views'?'bg-cyan-500/20 text-cyan-300 font-bold':'text-slate-500'" class="px-2.5 py-1.5 rounded-lg text-xs transition cursor-pointer">🔥 Views</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Podium Top 3 -->
         <div class="podium grid md:grid-cols-3 gap-4 items-end">
-          <article v-for="p in podiumOrder" :key="p.id" :class="p.rank===1?'md:order-2 md:min-h-[320px]':'md:min-h-[285px] '+(p.rank===2?'md:order-1':'md:order-3')" class="podium-card glass rounded-3xl p-5 flex flex-col justify-between relative overflow-hidden">
-            <div class="absolute inset-0 opacity-20" :style="{background:p.rank===1?'radial-gradient(circle at 50% 0,#f59e0b,transparent 55%)':p.rank===2?'radial-gradient(circle at 50% 0,#94a3b8,transparent 55%)':'radial-gradient(circle at 50% 0,#f97316,transparent 55%)'}"></div>
-            <div class="relative"><div class="flex items-center justify-between"><span class="metric text-5xl font-black opacity-20">#{{p.rank}}</span><i :class="p.rank===1?'ph-crown':p.rank===2?'ph-medal':'ph-trophy'" class="ph text-3xl" :class="p.rank===1?'text-amber-400':p.rank===2?'text-slate-300':'text-orange-400'"></i></div><div class="mt-4 aspect-video rounded-xl overflow-hidden"><img :src="p.thumb" class="w-full h-full object-cover" @error="handleImgError"></div><div class="mt-4 font-bold line-clamp-2">{{p.title}}</div></div>
-            <div class="relative flex items-end justify-between mt-4"><div><div class="tiny text-slate-500">Velocity</div><div class="metric text-2xl font-black text-rose-400">+{{formatNum(p.vph)}}/h</div></div><button @click="openScriptFromVideo(p)" class="btn btn-soft w-10 h-10"><i class="ph ph-magic-wand"></i></button></div>
+          <article v-for="p in podiumOrder" :key="p.id" :class="p.rank===1?'md:order-2 md:min-h-[340px]':'md:min-h-[300px] '+(p.rank===2?'md:order-1':'md:order-3')" class="podium-card glass rounded-3xl p-5 flex flex-col justify-between relative overflow-hidden group">
+            <div class="absolute inset-0 opacity-20 pointer-events-none" :style="{background:p.rank===1?'radial-gradient(circle at 50% 0,#f59e0b,transparent 55%)':p.rank===2?'radial-gradient(circle at 50% 0,#94a3b8,transparent 55%)':'radial-gradient(circle at 50% 0,#f97316,transparent 55%)'}"></div>
+            <div class="relative">
+              <div class="flex items-center justify-between">
+                <span class="metric text-5xl font-black opacity-20">#{{p.rank}}</span>
+                <i :class="p.rank===1?'ph-crown text-amber-400':p.rank===2?'ph-medal text-slate-300':'ph-trophy text-orange-400'" class="ph text-3xl"></i>
+              </div>
+              <div class="mt-3 aspect-video rounded-xl overflow-hidden relative bg-slate-900">
+                <img :src="p.thumb" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" @error="handleImgError">
+                <span class="absolute bottom-2 right-2 tiny px-2 py-0.5 rounded-md bg-black/70 metric text-white">{{ p.duration }}</span>
+              </div>
+              <div class="flex items-center gap-2 mt-3">
+                <img :src="channelById(p.channelId).avatar" class="w-6 h-6 rounded-lg object-cover" @error="handleImgError">
+                <span class="text-xs font-bold text-slate-300 truncate">{{ channelById(p.channelId).name }}</span>
+              </div>
+              <div class="mt-2 font-bold line-clamp-2 text-sm leading-snug group-hover:text-indigo-300 transition">{{p.title}}</div>
+            </div>
+            <div class="relative flex items-end justify-between mt-4 pt-3 border-t border-white/[0.06]">
+              <div>
+                <div class="tiny text-slate-500">{{ top15Sort==='views' ? 'Tổng Views' : 'Velocity Index' }}</div>
+                <div class="metric text-2xl font-black" :class="p.rank===1?'text-amber-400':p.rank===2?'text-slate-200':'text-orange-400'">
+                  {{ top15Sort==='views' ? formatNum(p.views) : '+' + formatNum(p.vph) + '/h' }}
+                </div>
+              </div>
+              <div class="flex items-center gap-1">
+                <button @click="openScriptFromVideo(p)" class="btn btn-soft w-9 h-9" title="AI Remake"><i class="ph ph-magic-wand"></i></button>
+                <button @click="addVideoToPipeline(p)" class="btn btn-soft w-9 h-9" title="Lên Lịch Sóng"><i class="ph ph-calendar-plus text-amber-400"></i></button>
+                <a :href="p.url" target="_blank" class="btn btn-soft w-9 h-9 text-rose-400" title="YouTube"><i class="ph ph-youtube-logo"></i></a>
+              </div>
+            </div>
           </article>
         </div>
+
+        <!-- Sprint List #4 to #15 -->
         <div class="glass rounded-2xl overflow-hidden">
-          <div v-for="(v,i) in top15.slice(3)" :key="v.id" class="flex items-center gap-3 p-3 sm:p-4 border-t first:border-t-0 border-white/[0.06] hover:bg-white/[0.025] transition">
-            <span class="metric w-10 text-center font-black text-slate-500">#{{i+4}}</span><img :src="v.thumb" class="w-24 sm:w-32 aspect-video object-cover rounded-xl" @error="handleImgError"><div class="min-w-0 flex-1"><div class="font-bold text-sm line-clamp-1">{{v.title}}</div><div class="text-xs text-slate-500 mt-1">{{channelById(v.channelId).name}}</div></div><div class="text-right"><div class="metric font-black text-cyan-400">+{{formatNum(v.vph)}}/h</div><div class="w-24 h-1.5 rounded-full bg-white/5 mt-2 overflow-hidden"><div class="h-full rounded-full bg-gradient-to-r from-cyan-500 to-rose-500 animate-pulse" :style="{width:Math.min(100,v.vph/top15[0].vph*100)+'%'}"></div></div></div>
+          <div v-for="(v,i) in top15.slice(3)" :key="v.id" class="flex items-center gap-3 p-3 sm:p-4 border-t first:border-t-0 border-white/[0.06] hover:bg-white/[0.025] transition group">
+            <span class="metric w-10 text-center font-black text-slate-500">#{{i+4}}</span>
+            <div class="w-24 sm:w-32 aspect-video rounded-xl overflow-hidden shrink-0 relative bg-slate-900">
+              <img :src="v.thumb" class="w-full h-full object-cover group-hover:scale-105 transition duration-500" @error="handleImgError">
+              <span class="absolute bottom-1 right-1 tiny px-1.5 py-0.5 rounded bg-black/70 metric text-[10px] text-white">{{ v.duration }}</span>
+            </div>
+            <div class="min-w-0 flex-1">
+              <a :href="v.url" target="_blank" class="font-bold text-sm line-clamp-1 group-hover:text-indigo-300 transition">{{v.title}}</a>
+              <div class="flex items-center gap-2 mt-1.5">
+                <img :src="channelById(v.channelId).avatar" class="w-5 h-5 rounded-md object-cover" @error="handleImgError">
+                <span class="text-xs text-slate-400 truncate">{{channelById(v.channelId).name}}</span>
+                <span class="tiny text-slate-600">•</span>
+                <span class="tiny text-slate-500">{{ formatNum(v.views) }} views</span>
+                <span class="tiny text-slate-600">•</span>
+                <span class="tiny text-slate-500">{{ v.age }}</span>
+              </div>
+            </div>
+            <div class="text-right shrink-0">
+              <div class="metric font-black text-cyan-400">+{{formatNum(v.vph)}}/h</div>
+              <div class="w-24 h-1.5 rounded-full bg-white/5 mt-2 overflow-hidden">
+                <div class="h-full rounded-full bg-gradient-to-r from-cyan-500 to-rose-500 animate-pulse" :style="{width:Math.min(100,(v.vph/(top15[0]?.vph||1))*100)+'%'}"></div>
+              </div>
+            </div>
+            <div class="flex items-center gap-1 shrink-0 ml-2">
+              <button @click="openScriptFromVideo(v)" class="btn btn-soft w-8 h-8 text-indigo-300" title="AI Remake"><i class="ph ph-magic-wand"></i></button>
+              <button @click="addVideoToPipeline(v)" class="btn btn-soft w-8 h-8 text-amber-400" title="Lịch Sóng"><i class="ph ph-calendar-plus"></i></button>
+              <button @click="toggleBookmark(v.id)" :class="isBookmarked(v.id)?'text-amber-300 bg-amber-500/10':''" class="btn btn-soft w-8 h-8" :title="isBookmarked(v.id)?'Bỏ Lưu':'Lưu'"><i :class="isBookmarked(v.id)?'ph-bookmark-simple-fill text-amber-400':'ph-bookmark-simple'" class="ph"></i></button>
+            </div>
           </div>
         </div>
       </section>
 
-      <!-- UNDERDOG -->
+            <!-- UNDERDOG / RISING BREAKOUT CHANNELS -->
       <section v-if="activeTab==='underdog'" class="space-y-4">
-        <div class="glass rounded-2xl p-4 flex flex-wrap gap-3 items-center"><div><div class="font-bold">Underdog Outlier Engine</div><div class="text-xs text-slate-500 mt-1">Săn kênh &lt; 50K sub nhưng video vượt sức mạnh kênh ≥ 500%.</div></div><div class="ml-auto flex gap-2"><span class="tiny px-3 py-2 rounded-lg bg-rose-500/10 text-rose-300 border border-rose-500/20">View/Sub &gt; 5×</span><span class="tiny px-3 py-2 rounded-lg bg-indigo-500/10 text-indigo-300 border border-indigo-500/20">Subs &lt; 50K</span></div></div>
+        <!-- Header Banner -->
+        <div class="glass rounded-2xl p-5 relative overflow-hidden">
+          <div class="absolute -right-20 -top-20 w-64 h-64 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none"></div>
+          <div class="relative flex flex-col xl:flex-row xl:items-center justify-between gap-4">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="tiny px-2.5 py-1 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/25 font-black uppercase tracking-wider flex items-center gap-1">
+                  <i class="ph ph-radar text-emerald-400"></i> RADAR SĂN KÊNH ĐỘT BIẾN SỚM
+                </span>
+                <span class="tiny text-slate-500 font-mono">6 Trụ Cột Định Lượng</span>
+              </div>
+              <h2 class="font-display font-extrabold text-xl sm:text-2xl mt-2">Kênh Nhỏ View Khủng & Giải Mã Chiến Lược AI</h2>
+              <p class="text-xs text-slate-400 mt-1 max-w-2xl leading-relaxed">
+                Tự động sàng lọc kênh dưới 10K–50K sub có video đạt hiệu suất đột biến gấp 5x–180x quy mô kênh. Chấm điểm <strong>Radar Score (0–100)</strong> và mở ra kho ý tưởng làm video độc lạ!
+              </p>
+            </div>
+
+            <!-- Filter Controls -->
+            <div class="flex flex-wrap items-center gap-2">
+              <select v-model="underdogFilters.subs" class="h-9 rounded-xl bg-[#0b1120] border border-white/[0.08] px-3 text-xs outline-none">
+                <option value="all">Mọi quy mô Sub</option>
+                <option value="1k">&lt; 1K Sub</option>
+                <option value="3k">&lt; 3K Sub</option>
+                <option value="10k">&lt; 10K Sub</option>
+                <option value="50k">&lt; 50K Sub</option>
+              </select>
+              <select v-model="underdogFilters.type" class="h-9 rounded-xl bg-[#0b1120] border border-white/[0.08] px-3 text-xs outline-none">
+                <option value="all">Mọi định dạng</option>
+                <option value="video">Video Dài</option>
+                <option value="shorts">Shorts</option>
+              </select>
+              <select v-model="underdogFilters.leverage" class="h-9 rounded-xl bg-[#0b1120] border border-white/[0.08] px-3 text-xs outline-none">
+                <option value="all">Mọi đòn bẩy view</option>
+                <option value="3x">&gt; 3× Sub</option>
+                <option value="5x">&gt; 5× Sub</option>
+                <option value="10x">&gt; 10× Sub</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Grid of Underdogs & Emerging Channels -->
         <div class="grid sm:grid-cols-2 xl:grid-cols-3 gap-4">
-          <article v-for="o in outliers" :key="o.video.id" class="glass panel-hover rounded-2xl overflow-hidden"><div class="thumb aspect-video"><img :src="o.video.thumb" @error="handleImgError"><div class="absolute top-3 right-3 px-3 py-2 rounded-xl bg-black/70 border border-rose-400/20 backdrop-blur"><div class="tiny text-slate-400">Outlier Ratio</div><div class="metric text-2xl font-black text-rose-400 mt-1">×{{o.ratio.toFixed(1)}}</div></div></div><div class="p-4"><div class="flex items-center gap-3"><img :src="o.channel.avatar" class="w-10 h-10 rounded-xl" @error="handleImgError"><div><div class="font-bold">{{o.channel.name}}</div><div class="metric text-xs text-slate-500">{{formatNum(o.channel.subs)}} subs</div></div></div><div class="mt-3 font-bold line-clamp-2">{{o.video.title}}</div><div class="mt-4 grid grid-cols-2 gap-2"><div class="p-3 rounded-xl bg-white/[0.03]"><div class="tiny text-slate-600">Video Views</div><div class="metric mt-1 font-bold">{{formatNum(o.video.views)}}</div></div><div class="p-3 rounded-xl bg-white/[0.03]"><div class="tiny text-slate-600">Leverage</div><div class="metric mt-1 font-bold text-emerald-400">{{Math.round(o.ratio*100)}}%</div></div></div></div></article>
+          <article v-for="ec in filteredUnderdogs" :key="ec.id" class="glass panel-hover rounded-2xl overflow-hidden flex flex-col justify-between group border border-emerald-500/15 hover:border-emerald-500/40 transition">
+            <div>
+              <!-- Star Video Thumb -->
+              <div class="thumb aspect-video relative overflow-hidden bg-slate-900">
+                <img :src="ec.starThumb" :alt="ec.starTitle" @error="handleImgError" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                <div class="scanline"></div>
+                <!-- Outlier Ratio Badge -->
+                <div class="absolute top-3 right-3 px-2.5 py-1.5 rounded-xl bg-black/80 border border-rose-500/30 backdrop-blur-md shadow-lg flex items-center gap-1.5">
+                  <span class="tiny text-slate-400">Đòn bẩy</span>
+                  <span class="metric text-sm font-black text-rose-400">×{{ ec.ratio.toFixed(1) }}</span>
+                </div>
+                <!-- Radar Score Badge -->
+                <div class="absolute top-3 left-3 px-2.5 py-1.5 rounded-xl bg-emerald-500/80 border border-emerald-400/40 backdrop-blur-md shadow-lg text-white flex items-center gap-1">
+                  <i class="ph ph-lightning-fill text-amber-300 text-xs"></i>
+                  <span class="metric text-xs font-black">{{ ec.score }}đ</span>
+                </div>
+                <!-- Bottom gradient with view count -->
+                <div class="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/85 via-black/30 to-transparent flex items-end justify-between">
+                  <span class="metric text-xs text-white font-bold">{{ formatNum(ec.starViews) }} views</span>
+                  <span v-if="ec.contentType" class="tiny px-2 py-0.5 rounded bg-black/60 text-slate-300 border border-white/10">{{ ec.contentType }}</span>
+                </div>
+              </div>
+
+              <!-- Channel Info & Star Title -->
+              <div class="p-4">
+                <div class="flex items-center gap-3">
+                  <img :src="ec.avatar" class="w-10 h-10 rounded-xl object-cover border border-white/10" @error="handleImgError">
+                  <div class="min-w-0 flex-1">
+                    <div class="font-bold text-sm truncate flex items-center gap-1.5">
+                      <span class="truncate">{{ ec.name }}</span>
+                      <span class="tiny px-1.5 py-0.5 rounded bg-white/[0.06] text-slate-400 font-mono">{{ ec.handle }}</span>
+                    </div>
+                    <div class="metric text-xs text-slate-400 mt-0.5">{{ formatNum(ec.subs) }} subscribers • {{ ec.ageDays }}d tuổi</div>
+                  </div>
+                </div>
+
+                <div class="mt-3 font-bold text-xs leading-snug line-clamp-2 min-h-[34px] group-hover:text-indigo-300 transition">
+                  {{ ec.starTitle }}
+                </div>
+
+                <!-- 6-Pillar Mini Badges -->
+                <div class="mt-3 grid grid-cols-2 gap-1.5 text-[10px]">
+                  <div class="p-1.5 rounded-lg bg-white/[0.025] border border-white/[0.05] flex justify-between">
+                    <span class="text-slate-500">Hit Rate</span>
+                    <span class="metric font-bold text-emerald-400">{{ ec.hitRate }}%</span>
+                  </div>
+                  <div class="p-1.5 rounded-lg bg-white/[0.025] border border-white/[0.05] flex justify-between">
+                    <span class="text-slate-500">Tốc độ VPH</span>
+                    <span class="metric font-bold text-cyan-400">+{{ formatNum(ec.vph) }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="p-4 pt-0 space-y-2">
+              <button @click="addEmergingToTracking(ec)" class="btn btn-primary w-full h-8 text-xs flex items-center justify-center gap-1.5 cursor-pointer">
+                <i class="ph ph-plus-circle"></i>+ Thêm Vào Theo Dõi
+              </button>
+              <div class="grid grid-cols-2 gap-2">
+                <button @click="openEmergingDetail(ec)" class="btn btn-soft h-8 text-[11px] cursor-pointer"><i class="ph ph-chart-polar"></i>Chỉ Số 6 Trụ Cột</button>
+                <a :href="ec.channelUrl" target="_blank" class="btn btn-soft h-8 text-[11px] cursor-pointer"><i class="ph ph-youtube-logo text-rose-400"></i>Kênh YouTube</a>
+              </div>
+            </div>
+          </article>
         </div>
       </section>
 
-      <!-- AI LAB -->
-      <section v-if="activeTab==='ai'" class="grid xl:grid-cols-[1.15fr_.85fr] gap-5">
-        <article class="glass rounded-2xl p-4 sm:p-5">
-          <div class="flex items-center justify-between"><div><div class="font-bold text-lg">AI Title DNA Generator</div><div class="text-xs text-slate-500 mt-1">Curiosity • FOMO • Contrarian • Pattern Interrupt</div></div><span class="w-11 h-11 rounded-xl bg-indigo-500/10 text-indigo-300 grid place-items-center"><i class="ph ph-dna text-2xl"></i></span></div>
-          <div class="mt-5 flex gap-2"><input v-model="aiTopic" @keydown.enter="generateTitles" class="flex-1 h-11 rounded-xl bg-white/[0.04] border border-white/[0.08] px-3 text-sm outline-none focus:border-indigo-400/50" placeholder="Nhập chủ đề, ví dụ: DIY PVC pipe hacks"><button @click="generateTitles" class="btn btn-primary h-11 px-4 text-sm">Sinh 5 tiêu đề</button></div>
-          <div class="mt-3 flex gap-2 flex-wrap"><button v-for="s in topicSuggestions" :key="s" @click="aiTopic=s;generateTitles()" class="btn btn-soft h-8 px-3 text-[11px]">{{s}}</button></div>
-          <div class="mt-5 space-y-3">
-            <div v-for="(t,i) in generatedTitles" :key="t.title" class="rounded-2xl border border-white/[0.07] bg-white/[0.025] p-4">
-              <div class="flex gap-3"><span class="metric text-slate-600 font-black">0{{i+1}}</span><div class="flex-1"><div class="font-bold leading-6">{{t.title}}</div><div class="text-xs text-slate-500 mt-2">{{t.why}}</div><div class="mt-3 flex gap-2 flex-wrap"><button @click="copyText(t.title)" class="btn btn-soft h-8 px-3 text-[11px]"><i class="ph ph-copy"></i>Copy Tiêu Đề</button><button @click="simulatorTitle=t.title;openModal('simulator')" class="btn btn-soft h-8 px-3 text-[11px]"><i class="ph ph-monitor-play"></i>Test Vào Feed</button><button @click="scheduleTitle(t.title)" class="btn btn-soft h-8 px-3 text-[11px]"><i class="ph ph-calendar-plus"></i>Lên Lịch Sóng</button></div></div></div>
+            <!-- AI LAB & PRE-ANALYZED SCRIPTS VAULT -->
+      <section v-if="activeTab==='ai'" class="space-y-6">
+        <!-- Top Row: Title DNA Generator + Power Words -->
+        <div class="grid xl:grid-cols-[1.15fr_.85fr] gap-5">
+          <article class="glass rounded-2xl p-4 sm:p-5">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="font-bold text-lg flex items-center gap-2">
+                  <i class="ph ph-dna text-indigo-400 text-xl"></i>
+                  AI Title DNA Generator
+                </div>
+                <div class="text-xs text-slate-500 mt-1">Curiosity • FOMO • Contrarian • Pattern Interrupt • Value Gap</div>
+              </div>
+              <span class="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-300 grid place-items-center"><i class="ph ph-sparkle text-xl"></i></span>
+            </div>
+            <div class="mt-4 flex gap-2">
+              <input v-model="aiTopic" @keydown.enter="generateTitles" class="flex-1 h-11 rounded-xl bg-white/[0.04] border border-white/[0.08] px-3 text-sm outline-none focus:border-indigo-400/50" placeholder="Nhập chủ đề, ví dụ: DIY PVC pipe hacks">
+              <button @click="generateTitles" class="btn btn-primary h-11 px-4 text-sm cursor-pointer">Sinh 5 tiêu đề</button>
+            </div>
+            <div class="mt-3 flex gap-2 flex-wrap">
+              <button v-for="s in topicSuggestions" :key="s" @click="aiTopic=s;generateTitles()" class="btn btn-soft h-8 px-3 text-[11px] cursor-pointer">{{s}}</button>
+            </div>
+            <div class="mt-4 space-y-2.5">
+              <div v-for="(t,i) in generatedTitles" :key="t.title" class="rounded-xl border border-white/[0.07] bg-white/[0.025] p-3.5">
+                <div class="flex gap-3">
+                  <span class="metric text-indigo-400 font-black text-sm">0{{i+1}}</span>
+                  <div class="flex-1">
+                    <div class="font-bold text-sm leading-5">{{t.title}}</div>
+                    <div class="text-xs text-slate-500 mt-1.5">{{t.why}}</div>
+                    <div class="mt-2.5 flex gap-2 flex-wrap">
+                      <button @click="copyText(t.title)" class="btn btn-soft h-7 px-2.5 text-[10px] cursor-pointer"><i class="ph ph-copy"></i>Copy Tiêu Đề</button>
+                      <button @click="simulatorTitle=t.title;openModal('simulator')" class="btn btn-soft h-7 px-2.5 text-[10px] cursor-pointer"><i class="ph ph-monitor-play"></i>Test Vào Feed</button>
+                      <button @click="scheduleTitle(t.title)" class="btn btn-soft h-7 px-2.5 text-[10px] cursor-pointer"><i class="ph ph-calendar-plus"></i>Lên Lịch Sóng</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <div class="space-y-4">
+            <article class="glass rounded-2xl p-5">
+              <div class="font-bold flex items-center gap-2">
+                <i class="ph ph-lightning text-amber-400"></i>
+                Từ Khóa Thôi Miên (Power Words)
+              </div>
+              <div class="text-xs text-slate-500 mt-1">Click từ khóa để chèn nhanh vào chủ đề AI prompt.</div>
+              <div class="mt-4 flex flex-wrap gap-2">
+                <button v-for="w in powerWords" :key="w" @click="aiTopic=(aiTopic+' '+w).trim()" class="px-3 py-2 rounded-full border border-white/[0.07] bg-white/[0.03] hover:border-indigo-400/30 hover:bg-indigo-500/10 text-xs font-semibold transition cursor-pointer">{{w}}</button>
+              </div>
+            </article>
+
+            <article class="glass rounded-2xl p-5 relative overflow-hidden">
+              <div class="absolute -right-20 -top-20 w-52 h-52 rounded-full bg-indigo-500/10 blur-3xl"></div>
+              <div class="relative">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <div class="font-bold">AI Script Studio</div>
+                    <div class="text-xs text-slate-500 mt-1">Kịch bản 3 hồi + Hook 3 giây đầu + Shot List + Angle Twist</div>
+                  </div>
+                  <i class="ph ph-clapperboard text-3xl text-indigo-300"></i>
+                </div>
+                <div class="mt-4 grid grid-cols-3 gap-2">
+                  <div class="p-3 rounded-xl bg-white/[0.03] text-center">
+                    <div class="tiny text-slate-500">Hook</div>
+                    <div class="metric text-base font-bold mt-1 text-rose-400">3 GIÂY</div>
+                  </div>
+                  <div class="p-3 rounded-xl bg-white/[0.03] text-center">
+                    <div class="tiny text-slate-500">Structure</div>
+                    <div class="metric text-base font-bold mt-1 text-indigo-300">3 HỒI</div>
+                  </div>
+                  <div class="p-3 rounded-xl bg-white/[0.03] text-center">
+                    <div class="tiny text-slate-500">Copilot</div>
+                    <div class="metric text-base font-bold mt-1 text-emerald-400">ONLINE</div>
+                  </div>
+                </div>
+                <button @click="openModal('script')" class="btn btn-primary w-full h-10 mt-4 text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer">
+                  <i class="ph ph-sparkle"></i>Mở Chatbot Đạo Diễn Ảo
+                </button>
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <!-- Pre-Analyzed AI Scripts Vault (63 Videos) -->
+        <article class="glass rounded-2xl p-4 sm:p-5 space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-white/[0.06]">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="tiny px-2.5 py-1 rounded-full bg-purple-500/15 text-purple-300 border border-purple-500/25 font-black uppercase flex items-center gap-1">
+                  <i class="ph ph-robot text-purple-400"></i> KHO KỊCH BẢN & BLUEPRINT AI ĐÃ GIẢI MÃ
+                </span>
+                <span class="tiny text-slate-500 font-mono">{{ aiVideosList.length }} Kịch Bản Chuẩn Quốc Tế</span>
+              </div>
+              <h3 class="font-display font-extrabold text-lg mt-1.5">Kịch Bản Gợi Ý & Bóc Tách Đòn Giữ Chân Khán Giả</h3>
+              <p class="text-xs text-slate-400 mt-0.5">Gemini 2.5 Flash đã bóc tách: Hook 3s tiếng Anh, dàn ý 3 hồi, góc remake và tiêu đề click cao.</p>
+            </div>
+
+            <!-- Search in AI Scripts -->
+            <div class="flex items-center gap-2">
+              <label class="relative w-56 sm:w-64">
+                <i class="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+                <input v-model="aiSearch" class="w-full h-9 rounded-xl bg-white/[0.04] border border-white/[0.08] pl-8 pr-3 text-xs outline-none focus:border-purple-400/50" placeholder="Tìm trong 63 kịch bản...">
+              </label>
+            </div>
+          </div>
+
+          <!-- Cards Grid for AI-Analyzed Videos -->
+          <div class="grid sm:grid-cols-2 xl:grid-cols-3 gap-4">
+            <div v-for="v in aiVideosList" :key="'ai-card-'+v.id" class="glass panel-hover rounded-2xl overflow-hidden flex flex-col justify-between group border border-purple-500/20 hover:border-purple-500/50 transition">
+              <div>
+                <!-- Thumb with AI badge -->
+                <div class="thumb aspect-video relative overflow-hidden bg-slate-900">
+                  <img :src="v.thumb" :alt="v.title" @error="handleImgError" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                  <div class="scanline"></div>
+                  <div class="absolute top-2.5 right-2.5">
+                    <span class="tiny px-2.5 py-1 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-black shadow-lg flex items-center gap-1">
+                      <i class="ph ph-sparkle text-amber-300"></i>AI Remake Ready
+                    </span>
+                  </div>
+                  <div class="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/85 via-black/30 to-transparent flex items-end justify-between">
+                    <span class="text-[11px] font-bold text-white flex items-center gap-1.5 truncate">
+                      <img :src="channelById(v.channelId).avatar" class="w-4 h-4 rounded-full object-cover" @error="handleImgError">
+                      <span class="truncate">{{ channelById(v.channelId).name }}</span>
+                    </span>
+                    <span class="metric text-[11px] text-cyan-300 font-bold">+{{ formatNum(v.vph) }}/h</span>
+                  </div>
+                </div>
+
+                <!-- Content snippet -->
+                <div class="p-4 space-y-3">
+                  <h4 class="font-bold text-xs leading-snug line-clamp-2 min-h-[34px] group-hover:text-purple-300 transition">{{ v.title }}</h4>
+
+                  <!-- English Hook Preview -->
+                  <div v-if="v.ai_analysis?.english_hook_script" class="p-2.5 rounded-xl bg-purple-500/[0.08] border border-purple-400/15 text-[11px] text-purple-200">
+                    <div class="tiny text-purple-400 font-bold uppercase mb-1 flex items-center gap-1"><i class="ph ph-quotes"></i> Hook 3s Tiếng Anh</div>
+                    <div class="line-clamp-2 italic">“{{ v.ai_analysis.english_hook_script }}”</div>
+                  </div>
+
+                  <!-- Remake Angle Preview -->
+                  <div v-if="v.ai_analysis?.remake_angle_vi" class="text-[11px] text-slate-400 line-clamp-2">
+                    <strong class="text-slate-300">Góc Remake:</strong> {{ v.ai_analysis.remake_angle_vi }}
+                  </div>
+
+                  <!-- 3-Act Outline Pill Tags -->
+                  <div v-if="v.ai_analysis?.script_outline_vi" class="flex gap-1 flex-wrap">
+                    <span class="tiny px-2 py-0.5 rounded bg-white/[0.04] text-slate-400 border border-white/[0.06]">Hồi 1: Hook</span>
+                    <span class="tiny px-2 py-0.5 rounded bg-white/[0.04] text-slate-400 border border-white/[0.06]">Hồi 2: Escalation</span>
+                    <span class="tiny px-2 py-0.5 rounded bg-white/[0.04] text-slate-400 border border-white/[0.06]">Hồi 3: Payoff</span>
+                    <span v-if="v.ai_analysis?.english_titles?.length" class="tiny px-2 py-0.5 rounded bg-indigo-500/15 text-indigo-300 border border-indigo-500/25">+{{ v.ai_analysis.english_titles.length }} Tiêu Đề</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Buttons -->
+              <div class="p-4 pt-0 space-y-2">
+                <button @click="openScriptFromVideo(v)" class="btn btn-primary w-full h-9 text-xs flex items-center justify-center gap-1.5 cursor-pointer">
+                  <i class="ph ph-magic-wand text-amber-300"></i>Khai Thác Kịch Bản AI
+                </button>
+                <div class="grid grid-cols-3 gap-1.5">
+                  <button @click="addVideoToPipeline(v)" class="btn btn-soft h-8 text-[11px] text-amber-300 cursor-pointer" title="Lên Lịch Sóng"><i class="ph ph-calendar-plus"></i>Lịch</button>
+                  <button @click="toggleBookmark(v.id)" :class="isBookmarked(v.id)?'text-amber-300 bg-amber-500/10':''" class="btn btn-soft h-8 text-[11px] cursor-pointer" :title="isBookmarked(v.id)?'Bỏ Lưu':'Lưu'"><i :class="isBookmarked(v.id)?'ph-bookmark-simple-fill text-amber-400':'ph-bookmark-simple'" class="ph"></i>Lưu</button>
+                  <a :href="v.url" target="_blank" class="btn btn-soft h-8 text-[11px] text-rose-400 cursor-pointer" title="Xem YouTube"><i class="ph ph-youtube-logo"></i>Link</a>
+                </div>
+              </div>
             </div>
           </div>
         </article>
-        <div class="space-y-5">
-          <article class="glass rounded-2xl p-5"><div class="font-bold">Từ Khóa Thôi Miên</div><div class="text-xs text-slate-500 mt-1">Click để chèn nhanh vào prompt chủ đề.</div><div class="mt-4 flex flex-wrap gap-2"><button v-for="w in powerWords" :key="w" @click="aiTopic=(aiTopic+' '+w).trim()" class="px-3 py-2 rounded-full border border-white/[0.07] bg-white/[0.03] hover:border-indigo-400/30 hover:bg-indigo-500/10 text-xs font-semibold transition">{{w}}</button></div></article>
-          <article class="glass rounded-2xl p-5 relative overflow-hidden"><div class="absolute -right-20 -top-20 w-52 h-52 rounded-full bg-indigo-500/10 blur-3xl"></div><div class="relative"><div class="flex items-center justify-between"><div><div class="font-bold">AI Script Studio</div><div class="text-xs text-slate-500 mt-1">Kịch bản 3 hồi + Hook 3 giây đầu + Angle Twist</div></div><i class="ph ph-clapperboard text-3xl text-indigo-300"></i></div><div class="mt-5 grid grid-cols-3 gap-2"><div class="p-3 rounded-xl bg-white/[0.03]"><div class="tiny text-slate-600">Hook</div><div class="metric text-lg font-bold mt-1">3s</div></div><div class="p-3 rounded-xl bg-white/[0.03]"><div class="tiny text-slate-600">Structure</div><div class="metric text-lg font-bold mt-1">3 ACT</div></div><div class="p-3 rounded-xl bg-white/[0.03]"><div class="tiny text-slate-600">AI</div><div class="metric text-lg font-bold mt-1 text-emerald-400">READY</div></div></div><button @click="openModal('script')" class="btn btn-primary w-full h-11 mt-5">Mở Chatbot Đạo Diễn Ảo</button></div></article>
-        </div>
       </section>
 
-      <!-- BOOKMARKS -->
+            <!-- BOOKMARKS -->
       <section v-if="activeTab==='bookmarks'" class="space-y-4">
-        <div class="glass rounded-2xl p-3 flex gap-2"><label class="relative flex-1"><i class="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-600"></i><input v-model="bookmarkSearch" class="w-full h-10 rounded-xl bg-white/[0.04] border border-white/[0.07] pl-9 pr-3 text-xs" placeholder="Tìm trong kho ý tưởng..."></label></div>
-        <div v-if="!bookmarkedVideos.length" class="glass rounded-2xl p-12 text-center"><i class="ph ph-bookmarks-simple text-5xl text-slate-700"></i><div class="font-bold mt-4">Kho ý tưởng đang trống</div><div class="text-sm text-slate-500 mt-2">Lưu video từ Radar để phân tích và đưa vào Pipeline.</div><button @click="goTab('videos')" class="btn btn-primary mt-5 h-10 px-4 text-sm">Mở Radar Video</button></div>
-        <div v-else class="grid sm:grid-cols-2 xl:grid-cols-3 gap-4"><article v-for="v in bookmarkedVideos" :key="v.id" class="glass panel-hover rounded-2xl overflow-hidden"><div class="thumb aspect-video"><img :src="v.thumb" @error="handleImgError"></div><div class="p-4"><div class="font-bold line-clamp-2">{{v.title}}</div><div class="text-xs text-slate-500 mt-2">{{channelById(v.channelId).name}} • {{formatNum(v.views)}} views</div><div class="grid grid-cols-2 gap-2 mt-4"><button @click="addVideoToPipeline(v)" class="btn btn-primary h-9 text-xs">Đưa Vào Pipeline</button><button @click="toggleBookmark(v.id)" class="btn btn-soft h-9 text-xs text-rose-300">Xóa Khỏi Kho</button></div></div></article></div>
+        <div class="glass rounded-2xl p-3 flex flex-wrap gap-2 items-center justify-between">
+          <label class="relative flex-1 min-w-[220px]">
+            <i class="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-600"></i>
+            <input v-model="bookmarkSearch" class="w-full h-10 rounded-xl bg-white/[0.04] border border-white/[0.07] pl-9 pr-3 text-xs outline-none focus:border-indigo-400/50" placeholder="Tìm trong kho ý tưởng đã lưu...">
+          </label>
+          <div class="flex items-center gap-2">
+            <span class="metric text-xs text-slate-400">{{ bookmarkedVideos.length }} video đã lưu</span>
+            <button @click="exportBookmarksCsv" class="btn btn-soft h-10 px-3 text-xs text-emerald-300 cursor-pointer"><i class="ph ph-file-csv"></i>Xuất Excel</button>
+            <button @click="exportBookmarks" class="btn btn-soft h-10 px-3 text-xs cursor-pointer"><i class="ph ph-file-code"></i>Xuất JSON</button>
+            <button v-if="bookmarkedVideos.length" @click="clearAllBookmarks" class="btn btn-soft h-10 px-3 text-xs text-rose-400 hover:bg-rose-500/10 cursor-pointer"><i class="ph ph-trash"></i>Xóa Hết</button>
+          </div>
+        </div>
+
+        <div v-if="!bookmarkedVideos.length" class="glass rounded-2xl p-12 text-center">
+          <i class="ph ph-bookmarks-simple text-5xl text-slate-700"></i>
+          <div class="font-bold text-base mt-4">Kho ý tưởng đang trống</div>
+          <div class="text-sm text-slate-500 mt-1">Lưu các video bão view từ Radar hoặc AI Lab để bóc tách kịch bản và lên lịch sản xuất.</div>
+          <button @click="goTab('videos')" class="btn btn-primary mt-5 h-10 px-5 text-sm cursor-pointer">Mở Radar Video Hot</button>
+        </div>
+
+        <div v-else class="grid sm:grid-cols-2 xl:grid-cols-3 gap-4">
+          <article v-for="v in bookmarkedVideos" :key="v.id" class="glass panel-hover rounded-2xl overflow-hidden group flex flex-col justify-between">
+            <div>
+              <div class="thumb aspect-video relative overflow-hidden bg-slate-900">
+                <img :src="v.thumb" :alt="v.title" @error="handleImgError" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                <div class="scanline"></div>
+                <span class="absolute bottom-2 right-2 metric text-[10px] px-2 py-0.5 rounded bg-black/70 text-white">{{ v.duration }}</span>
+              </div>
+              <div class="p-4">
+                <div class="flex items-center gap-2">
+                  <img :src="channelById(v.channelId).avatar" class="w-6 h-6 rounded-lg object-cover" @error="handleImgError">
+                  <span class="text-xs text-slate-400 font-bold truncate">{{channelById(v.channelId).name}}</span>
+                </div>
+                <div class="font-bold text-sm leading-snug line-clamp-2 mt-2 group-hover:text-indigo-300 transition">{{v.title}}</div>
+                <div class="mt-3 flex items-center justify-between text-xs pt-2 border-t border-white/[0.05]">
+                  <span class="text-slate-500">{{formatNum(v.views)}} views</span>
+                  <span class="metric font-bold text-cyan-400">+{{formatNum(v.vph)}}/h</span>
+                </div>
+              </div>
+            </div>
+            <div class="p-4 pt-0 grid grid-cols-2 gap-2">
+              <button @click="addVideoToPipeline(v)" class="btn btn-primary h-8 text-xs cursor-pointer"><i class="ph ph-calendar-plus"></i>Đưa Vào Pipeline</button>
+              <button @click="openScriptFromVideo(v)" class="btn btn-soft h-8 text-xs text-indigo-300 cursor-pointer"><i class="ph ph-magic-wand"></i>AI Remake</button>
+              <a :href="v.url" target="_blank" class="btn btn-soft h-8 text-xs text-rose-300 cursor-pointer"><i class="ph ph-youtube-logo"></i>Xem YouTube</a>
+              <button @click="toggleBookmark(v.id)" class="btn btn-soft h-8 text-xs text-slate-400 hover:text-rose-400 cursor-pointer"><i class="ph ph-trash"></i>Bỏ Lưu</button>
+            </div>
+          </article>
+        </div>
       </section>
 
       <!-- PIPELINE -->
@@ -423,7 +952,87 @@
   <transition name="modal"><div v-if="modal==='script'" class="fixed inset-0 z-[90] modal-mask p-2 sm:p-5 overflow-y-auto" @click.self="closeModal"><div class="modal-card glass-strong max-w-6xl mx-auto rounded-3xl overflow-hidden my-4"><modal-head title="AI Script Studio & Chatbot Đạo Diễn Ảo" subtitle="Remake Core • Angle Twist • Hook 3s • Shot List • Voice Over" icon="ph-magic-wand" @close="closeModal"></modal-head><div class="grid xl:grid-cols-[.9fr_1.1fr] min-h-[650px]"><div class="p-4 sm:p-5 border-r border-white/[0.07] space-y-4"><div><div class="tiny text-slate-500">Nguồn / Ý tưởng</div><textarea v-model="scriptSource" rows="4" class="mt-2 w-full rounded-xl bg-white/[0.04] border border-white/[0.08] p-3 text-sm" placeholder="Dán tiêu đề, URL hoặc ý tưởng gốc..."></textarea></div><div><div class="tiny text-slate-500">Angle Twist</div><div class="mt-2 grid grid-cols-2 gap-2"><button v-for="a in angleTwists" :key="a" @click="selectedAngle=a" :class="selectedAngle===a?'bg-indigo-500/15 border-indigo-400/30 text-indigo-200':''" class="btn btn-soft min-h-10 px-3 text-[11px] whitespace-normal">{{a}}</button></div></div><button @click="generateScript" :disabled="aiBusy" class="btn btn-primary w-full h-11"><i class="ph ph-sparkle"></i>{{aiBusy?'Đang tạo...':'Tạo Kịch Bản Chi Tiết'}}</button><div class="rounded-2xl bg-white/[0.025] border border-white/[0.06] p-4 max-h-[330px] overflow-auto scrollbar-thin"><div class="flex items-center justify-between"><div class="font-bold text-sm">Kịch bản quay phim</div><button @click="copyText(generatedScript)" class="btn btn-soft h-8 px-3 text-[11px]">Copy</button></div><pre class="mt-3 whitespace-pre-wrap font-sans text-xs leading-6 text-slate-300">{{generatedScript}}</pre></div><button @click="downloadScript" class="btn btn-soft w-full h-10 text-sm"><i class="ph ph-file-arrow-down"></i>Xuất Kịch Bản TXT</button></div>
     <div class="p-4 sm:p-5 flex flex-col"><div class="flex items-center justify-between"><div><div class="font-bold">Director Chat</div><div class="text-xs text-slate-500 mt-1">Tinh chỉnh hook, nhịp dựng, voice-over và CTA.</div></div><span class="tiny" :class="settings.geminiKey?'text-emerald-400':'text-amber-400'">{{settings.geminiKey?'GEMINI ONLINE':'LOCAL COPILOT'}}</span></div><div ref="chatBox" class="flex-1 mt-4 rounded-2xl bg-black/15 border border-white/[0.06] p-3 overflow-auto scrollbar-thin min-h-[420px] max-h-[520px]"><div v-for="m in chatMessages" :key="m.id" :class="m.role==='user'?'ml-auto bg-indigo-500/15 border-indigo-400/20':'mr-auto bg-white/[0.04] border-white/[0.07]'" class="max-w-[88%] rounded-2xl border px-4 py-3 text-sm leading-6 mb-3 whitespace-pre-wrap">{{m.text}}</div></div><div class="mt-3 flex gap-2"><textarea v-model="chatInput" @keydown.enter.exact.prevent="sendChat" rows="2" class="flex-1 rounded-xl bg-white/[0.04] border border-white/[0.08] p-3 text-sm" placeholder="Ví dụ: làm hook mạnh hơn, rút còn 8 phút, thêm CTA mềm..."></textarea><button @click="sendChat" :disabled="aiBusy || !chatInput.trim()" class="btn btn-primary w-12"><i class="ph ph-paper-plane-right text-lg"></i></button></div></div></div></div></div></transition>
 
-  <div v-if="toast.show" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-[120] glass-strong rounded-xl px-4 py-3 flex items-center gap-3 text-sm shadow-2xl"><i :class="toast.icon" class="ph text-emerald-400"></i><span>{{toast.text}}</span></div>
+    <transition name="modal"><div v-if="modal==='emerging_detail'" class="fixed inset-0 z-[90] modal-mask p-2 sm:p-5 overflow-y-auto" @click.self="closeModal"><div class="modal-card glass-strong max-w-4xl mx-auto rounded-3xl overflow-hidden my-5">
+    <modal-head :title="selectedEmergingChannel.name || 'Chi Tiết Kênh Đột Biến'" subtitle="Định Lượng Radar Score 6 Trụ Cột & Chiến Lược AI" icon="ph-radar" @close="closeModal"></modal-head>
+    <div class="p-4 sm:p-6 space-y-5">
+      <div class="flex items-center gap-4">
+        <img :src="selectedEmergingChannel.avatar" class="w-16 h-16 rounded-2xl object-cover border border-white/10" @error="handleImgError">
+        <div class="min-w-0 flex-1">
+          <div class="font-display font-black text-xl flex items-center gap-2">
+            <span>{{ selectedEmergingChannel.name }}</span>
+            <span class="tiny px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 font-mono">{{ selectedEmergingChannel.handle }}</span>
+          </div>
+          <div class="text-xs text-slate-400 mt-1">{{ formatNum(selectedEmergingChannel.subs) }} subscribers • {{ selectedEmergingChannel.ageDays }} ngày tuổi</div>
+        </div>
+        <div class="text-right">
+          <div class="tiny text-slate-500">Radar Score</div>
+          <div class="metric text-3xl font-black text-emerald-400 mt-1">{{ selectedEmergingChannel.score }}<span class="text-xs text-slate-500">/100</span></div>
+        </div>
+      </div>
+
+      <!-- 6 Pillars Radar Breakdown -->
+      <div class="rounded-2xl bg-white/[0.025] border border-white/[0.06] p-4">
+        <div class="font-bold text-sm mb-3">Chỉ Số Radar 6 Trụ Cột</div>
+        <div class="grid sm:grid-cols-3 gap-3 text-xs">
+          <div class="p-3 rounded-xl bg-white/[0.02] border border-white/[0.04]">
+            <div class="tiny text-slate-500">1. Tăng trưởng Sub</div>
+            <div class="metric text-base font-bold text-cyan-400 mt-1">{{ selectedEmergingChannel.radarBreakdown?.sub_growth || 85 }}/100</div>
+          </div>
+          <div class="p-3 rounded-xl bg-white/[0.02] border border-white/[0.04]">
+            <div class="tiny text-slate-500">2. Tốc độ View</div>
+            <div class="metric text-base font-bold text-cyan-400 mt-1">{{ selectedEmergingChannel.radarBreakdown?.view_velocity || 88 }}/100</div>
+          </div>
+          <div class="p-3 rounded-xl bg-white/[0.02] border border-white/[0.04]">
+            <div class="tiny text-slate-500">3. Độ lặp Viral</div>
+            <div class="metric text-base font-bold text-emerald-400 mt-1">{{ selectedEmergingChannel.radarBreakdown?.viral_repeat || 80 }}/100</div>
+          </div>
+          <div class="p-3 rounded-xl bg-white/[0.02] border border-white/[0.04]">
+            <div class="tiny text-slate-500">4. Hit-Rate Nổ View</div>
+            <div class="metric text-base font-bold text-amber-400 mt-1">{{ selectedEmergingChannel.radarBreakdown?.hit_rate || 75 }}/100</div>
+          </div>
+          <div class="p-3 rounded-xl bg-white/[0.02] border border-white/[0.04]">
+            <div class="tiny text-slate-500">5. Kênh Trẻ</div>
+            <div class="metric text-base font-bold text-rose-400 mt-1">{{ selectedEmergingChannel.radarBreakdown?.content_age || 90 }}/100</div>
+          </div>
+          <div class="p-3 rounded-xl bg-white/[0.02] border border-white/[0.04]">
+            <div class="tiny text-slate-500">6. Nhịp Xuất Bản</div>
+            <div class="metric text-base font-bold text-purple-400 mt-1">{{ selectedEmergingChannel.radarBreakdown?.upload_consistency || 82 }}/100</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Star Video Details -->
+      <div v-if="selectedEmergingChannel.starTitle" class="rounded-2xl bg-white/[0.025] border border-white/[0.06] p-4 flex flex-col sm:flex-row gap-4 items-center">
+        <div class="w-full sm:w-48 aspect-video rounded-xl overflow-hidden shrink-0 bg-slate-900">
+          <img :src="selectedEmergingChannel.starThumb" class="w-full h-full object-cover" @error="handleImgError">
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="tiny text-rose-400 font-bold uppercase">Star Outlier Video (Đòn bẩy ×{{ selectedEmergingChannel.ratio?.toFixed(1) }})</div>
+          <div class="font-bold text-sm mt-1 leading-snug">{{ selectedEmergingChannel.starTitle }}</div>
+          <div class="metric text-xs text-slate-400 mt-2">{{ formatNum(selectedEmergingChannel.starViews) }} lượt xem</div>
+        </div>
+      </div>
+
+      <div class="flex gap-2 justify-end pt-2">
+        <button @click="addEmergingToTracking(selectedEmergingChannel)" class="btn btn-primary h-10 px-5 text-sm cursor-pointer">+ Thêm Vào Kênh Theo Dõi</button>
+        <a :href="selectedEmergingChannel.channelUrl" target="_blank" class="btn btn-soft h-10 px-4 text-sm cursor-pointer"><i class="ph ph-youtube-logo text-rose-400"></i>Mở Kênh YouTube</a>
+      </div>
+    </div>
+  </div></div></transition>
+
+  <transition name="modal"><div v-if="modal==='thumb_preview'" class="fixed inset-0 z-[95] modal-mask p-3 sm:p-6 overflow-y-auto flex items-center justify-center" @click.self="closeModal">
+    <div class="glass-strong max-w-4xl w-full rounded-3xl overflow-hidden relative p-4">
+      <button @click="closeModal" class="absolute top-6 right-6 btn btn-soft w-10 h-10 bg-black/60 text-white z-10 cursor-pointer"><i class="ph ph-x"></i></button>
+      <div class="aspect-video w-full rounded-2xl overflow-hidden bg-black/80 flex items-center justify-center">
+        <img :src="hdThumbUrl" class="w-full h-full object-contain" @error="handleImgError">
+      </div>
+      <div class="p-3 text-center">
+        <a :href="hdThumbUrl" target="_blank" class="btn btn-soft h-9 px-4 text-xs inline-flex items-center gap-1.5 cursor-pointer"><i class="ph ph-arrow-square-out"></i>Mở Ảnh Gốc Độ Phân Giải Cao (HD)</a>
+      </div>
+    </div>
+  </div></transition>
+
+<div v-if="toast.show" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-[120] glass-strong rounded-xl px-4 py-3 flex items-center gap-3 text-sm shadow-2xl"><i :class="toast.icon" class="ph text-emerald-400"></i><span>{{toast.text}}</span></div>
 </div>
 
 <script>
@@ -640,18 +1249,195 @@ const app = createApp({
     const goldenHours=[{label:'#1 Crown',day:'T7',time:'19:30'},{label:'#2 Silver',day:'CN',time:'20:00'},{label:'#3 Bronze',day:'T5',time:'20:30'}];
     const notifications=[{id:1,title:'Breakout Alert',text:'“PVC Joint 50kg” vượt 26K VPH trong 30 phút.'},{id:2,title:'Golden Window',text:'Còn 42 phút tới khung giờ mạnh 19:30.'},{id:3,title:'Cloud Sync',text:'Dữ liệu Radar đã được lưu cục bộ cho tài khoản hiện tại.'}];
 
-    const videoFilters = reactive({q:'',tag:'',duration:'',sort:'vph',minViews:0});
+    const videoPills = [
+      { id: 'all', label: 'Tất cả', icon: 'ph-squares-four' },
+      { id: 'breakout', label: '🚀 Đột Biến (≥3x view)', icon: 'ph-fire' },
+      { id: 'fast', label: '⚡ Tăng Tốc >1k/h', icon: 'ph-lightning' },
+      { id: 'fresh', label: '⏱ Mới ≤48h', icon: 'ph-clock' },
+      { id: 'long', label: '🎬 Video Dài', icon: 'ph-film-strip' },
+      { id: 'shorts', label: '📱 Shorts', icon: 'ph-device-mobile' }
+    ];
+    const videoView = ref(localStorage.getItem('VIDEO_VIEW_MODE') || 'grid');
+    watch(videoView, val => {
+      try { localStorage.setItem('VIDEO_VIEW_MODE', val); } catch(e){}
+    });
+    const videoFilters = reactive({q:'',tag:'',duration:'',sort:'vph',minViews:0,pill:'all'});
+    function resetVideoFilters(){
+      videoFilters.q='';
+      videoFilters.tag='';
+      videoFilters.duration='';
+      videoFilters.sort='vph';
+      videoFilters.minViews=0;
+      videoFilters.pill='all';
+    }
+    const top15Range = ref('all');
+    const top15Sort = ref('vph');
+    const underdogFilters = reactive({subs:'all',type:'all',leverage:'all'});
+    const emergingChannels = ref([]);
+    const selectedEmergingChannel = reactive({});
+    const aiSearch = ref('');
+    const hdThumbUrl = ref('');
+
+    function openScriptStudioModal() {
+      if (!scriptSource.value && aiVideosList.value.length) {
+        openScriptFromVideo(aiVideosList.value[0]);
+      } else {
+        openModal('script');
+      }
+    }
     const durationBucket = v => { const p=v.duration.split(':').map(Number); const mins=p.length===2?p[0]:p[0]*60+p[1]; if(mins<1)return'Shorts'; if(mins<10)return'Dưới 10p'; if(mins<=20)return'10-20p'; return'Trên 20p'; };
     const channelById = id => channels.value.find(c=>c.id===id) || defaultChannels.find(c=>c.id===id) || channels.value[0] || defaultChannels[0];
     const allTags = computed(()=>[...new Set(channels.value.flatMap(c=>c.tags))].sort());
     const filteredVideos = computed(()=>{
-      let a=videos.value.filter(v=>v.views>=videoFilters.minViews && (!videoFilters.q || v.title.toLowerCase().includes(videoFilters.q.toLowerCase())) && (!videoFilters.tag || channelById(v.channelId).tags.includes(videoFilters.tag)) && (!videoFilters.duration || durationBucket(v)===videoFilters.duration));
-      const sorters={views:(a,b)=>b.views-a.views,vph:(a,b)=>b.vph-a.vph,new:(a,b)=>b.createdAt-a.createdAt,breakout:(a,b)=>(Number(b.breakout)-Number(a.breakout))||b.vph-a.vph}; return [...a].sort(sorters[videoFilters.sort]);
+      let a = videos.value.filter(v => {
+        if (v.views < videoFilters.minViews) return false;
+        if (videoFilters.q) {
+          const q = videoFilters.q.toLowerCase();
+          const matchTitle = v.title.toLowerCase().includes(q);
+          const chName = channelById(v.channelId)?.name?.toLowerCase() || '';
+          if (!matchTitle && !chName.includes(q)) return false;
+        }
+        if (videoFilters.tag) {
+          const ch = channelById(v.channelId);
+          if (!ch.tags || !ch.tags.includes(videoFilters.tag)) return false;
+        }
+        if (videoFilters.duration && durationBucket(v) !== videoFilters.duration) {
+          return false;
+        }
+        if (videoFilters.pill === 'breakout') {
+          if (!v.breakout && (v.vph || 0) < 5000) return false;
+        } else if (videoFilters.pill === 'fast') {
+          if ((v.vph || 0) < 1000) return false;
+        } else if (videoFilters.pill === 'fresh') {
+          const ageMs = Date.now() - (v.createdAt || 0);
+          if (ageMs > 48 * 3600 * 1000) return false;
+        } else if (videoFilters.pill === 'long') {
+          const isShort = v.duration?.includes('Shorts') || (v.duration?.startsWith('0:') && parseInt(v.duration.split(':')[1]) <= 60);
+          if (isShort) return false;
+        } else if (videoFilters.pill === 'shorts') {
+          const isShort = v.duration?.includes('Shorts') || (v.duration?.startsWith('0:') && parseInt(v.duration.split(':')[1]) <= 60);
+          if (!isShort) return false;
+        }
+        return true;
+      });
+
+      const sorters = {
+        views: (a, b) => b.views - a.views,
+        vph: (a, b) => b.vph - a.vph,
+        new: (a, b) => (b.createdAt || 0) - (a.createdAt || 0),
+        breakout: (a, b) => (Number(b.breakout) - Number(a.breakout)) || (b.vph - a.vph)
+      };
+      return [...a].sort(sorters[videoFilters.sort] || sorters.vph);
     });
     const breakoutVideos = computed(()=>[...videos.value].filter(v=>v.breakout).sort((a,b)=>b.vph-a.vph).slice(0,5));
-    const top15 = computed(()=>[...videos.value].sort((a,b)=>b.vph-a.vph).slice(0,15));
+
+    const top15 = computed(() => {
+      let list = [...videos.value];
+      const now = Date.now();
+      if (top15Range.value === '24h') {
+        list = list.filter(v => (now - (v.createdAt || 0)) <= 24 * 3600 * 1000);
+      } else if (top15Range.value === '3d') {
+        list = list.filter(v => (now - (v.createdAt || 0)) <= 72 * 3600 * 1000);
+      } else if (top15Range.value === '7d') {
+        list = list.filter(v => (now - (v.createdAt || 0)) <= 168 * 3600 * 1000);
+      }
+
+      if (top15Sort.value === 'views') {
+        list.sort((a, b) => b.views - a.views);
+      } else {
+        list.sort((a, b) => b.vph - a.vph);
+      }
+      return list.slice(0, 15);
+    });
     const podiumOrder = computed(()=>top15.value.slice(0,3).map((v,i)=>({...v,rank:i+1})));
-    const outliers = computed(()=>videos.value.map(v=>({video:v,channel:channelById(v.channelId),ratio:v.views/channelById(v.channelId).subs})).filter(x=>x.channel.subs<50000&&x.ratio>=5).sort((a,b)=>b.ratio-a.ratio));
+
+    const filteredUnderdogs = computed(() => {
+      let list = [];
+      emergingChannels.value.forEach(ec => {
+        const star = ec.star_video || {};
+        const subs = ec.subscriber_count || 1800;
+        const starViews = star.views || ec.views_90d || 100000;
+        const ratio = subs > 0 ? starViews / subs : 10;
+        list.push({
+          id: ec.channel_id || ec.title,
+          name: ec.title || ec.name,
+          handle: ec.handle || '@emerging',
+          avatar: ec.thumbnail || makeAvatar(ec.title),
+          subs: subs,
+          ageDays: ec.active_age_days || 45,
+          score: Math.round(ec.radar_score || 82),
+          contentType: ec.content_type || 'Video Dài',
+          starTitle: star.title || ec.description || 'Breakout discovery',
+          starThumb: star.thumbnail || makeThumb(ec.title),
+          starViews: starViews,
+          ratio: ratio,
+          hitRate: ec.hit_rate || 75,
+          vph: ec.max_view_velocity || 4200,
+          channelUrl: ec.url || `https://www.youtube.com/channel/${ec.channel_id}`,
+          radarBreakdown: ec.radar_breakdown || {}
+        });
+      });
+
+      videos.value.forEach(v => {
+        const ch = channelById(v.channelId);
+        if (ch && ch.subs < 50000) {
+          const ratio = v.views / ch.subs;
+          if (ratio >= 3.0) {
+            if (!list.some(x => x.name === ch.name)) {
+              list.push({
+                id: 'outlier-' + v.id,
+                name: ch.name,
+                handle: ch.handle,
+                avatar: ch.avatar,
+                subs: ch.subs,
+                ageDays: 60,
+                score: Math.min(99, Math.round(70 + ratio * 2)),
+                contentType: v.duration?.includes('Shorts') ? 'Shorts' : 'Video Dài',
+                starTitle: v.title,
+                starThumb: v.thumb,
+                starViews: v.views,
+                ratio: ratio,
+                hitRate: ch.hitRate || 65,
+                vph: v.vph,
+                channelUrl: ch.url || v.url,
+                radarBreakdown: {
+                  sub_growth: 82, view_velocity: 86, viral_repeat: 78,
+                  hit_rate: ch.hitRate || 65, content_age: 85, upload_consistency: 80
+                }
+              });
+            }
+          }
+        }
+      });
+
+      if (underdogFilters.subs === '1k') list = list.filter(x => x.subs < 1000);
+      else if (underdogFilters.subs === '3k') list = list.filter(x => x.subs < 3000);
+      else if (underdogFilters.subs === '10k') list = list.filter(x => x.subs < 10000);
+      else if (underdogFilters.subs === '50k') list = list.filter(x => x.subs < 50000);
+
+      if (underdogFilters.type === 'video') list = list.filter(x => !x.contentType?.toLowerCase().includes('short'));
+      else if (underdogFilters.type === 'shorts') list = list.filter(x => x.contentType?.toLowerCase().includes('short'));
+
+      if (underdogFilters.leverage === '3x') list = list.filter(x => x.ratio >= 3.0);
+      else if (underdogFilters.leverage === '5x') list = list.filter(x => x.ratio >= 5.0);
+      else if (underdogFilters.leverage === '10x') list = list.filter(x => x.ratio >= 10.0);
+
+      return list.sort((a, b) => b.score - a.score);
+    });
+
+    const aiVideosList = computed(() => {
+      let list = videos.value.filter(v => !!v.ai_analysis);
+      if (aiSearch.value.trim()) {
+        const q = aiSearch.value.toLowerCase().trim();
+        list = list.filter(v => 
+          v.title.toLowerCase().includes(q) ||
+          (v.ai_analysis?.english_hook_script && v.ai_analysis.english_hook_script.toLowerCase().includes(q)) ||
+          (v.ai_analysis?.remake_angle_vi && v.ai_analysis.remake_angle_vi.toLowerCase().includes(q)) ||
+          (channelById(v.channelId)?.name?.toLowerCase().includes(q))
+        );
+      }
+      return list;
+    });
 
     const channelSearch=ref(''), channelTag=ref(''), channelView=ref('table');
     const filteredChannels = computed(()=>channels.value.filter(c=>(!channelSearch.value || (c.name+' '+c.handle).toLowerCase().includes(channelSearch.value.toLowerCase())) && (!channelTag.value||c.tags.includes(channelTag.value))).sort((a,b)=>b.vph-a.vph));
@@ -899,6 +1685,100 @@ const app = createApp({
 
 
     // =========================================================================
+    
+    function addEmergingToTracking(ec) {
+      const exists = channels.value.some(c => c.name.toLowerCase() === ec.name.toLowerCase());
+      if (exists) {
+        toastMsg(`Kênh “${ec.name}” đã có trong danh sách theo dõi`, 'ph-info');
+        return;
+      }
+      channels.value.unshift({
+        id: ec.id,
+        name: ec.name,
+        handle: ec.handle,
+        subs: ec.subs,
+        views7d: ec.starViews * 2,
+        vph: ec.vph,
+        hitRate: ec.hitRate,
+        tags: ['Mới nổi', 'Breakout'],
+        avatar: ec.avatar,
+        url: ec.channelUrl,
+        bio: `Kênh mới nổi đột biến phát hiện bởi Radar Score ${ec.score}đ.`,
+        growth: [30, 45, 60, 75, 88, 95],
+        uploadFreq: 3,
+        avgViews: ec.starViews,
+        totalViews: ec.starViews * 3
+      });
+      persist();
+      toastMsg(`Đã thêm “${ec.name}” vào Kênh Theo Dõi!`, 'ph-check-circle');
+    }
+
+    function openEmergingDetail(ec) {
+      Object.keys(selectedEmergingChannel).forEach(k => delete selectedEmergingChannel[k]);
+      Object.assign(selectedEmergingChannel, structuredClone(ec));
+      openModal('emerging_detail');
+    }
+
+    function exportVideosCsv() {
+      const list = filteredVideos.value;
+      if (!list.length) {
+        toastMsg('Không có video nào trong danh sách để xuất!', 'ph-warning');
+        return;
+      }
+      const headers = ['Hạng', 'Tiêu Đề', 'Kênh Đối Thủ', 'Lượt Xem', 'Tốc Độ VPH', 'Thời Lượng', 'Tuổi Đăng', 'Link YouTube'];
+      const rows = list.map((v, idx) => [
+        idx + 1,
+        v.title,
+        channelById(v.channelId)?.name || '',
+        v.views,
+        v.vph,
+        v.duration,
+        v.age,
+        v.url
+      ]);
+      const csvContent = '\ufeff' + [headers, ...rows].map(r => r.map(csvEscape).join(',')).join('\r\n');
+      downloadBlob(csvContent, `radar-videos-export-${Date.now()}.csv`, 'text/csv;charset=utf-8');
+      toastMsg(`Đã xuất ${list.length} video ra file CSV Excel thành công!`, 'ph-file-csv');
+    }
+
+    function exportBookmarksCsv() {
+      const list = bookmarkedVideos.value;
+      if (!list.length) {
+        toastMsg('Kho ý tưởng đang trống!', 'ph-warning');
+        return;
+      }
+      const headers = ['Tiêu Đề', 'Kênh Đối Thủ', 'Lượt Xem', 'Tốc Độ VPH', 'Thời Lượng', 'Link YouTube'];
+      const rows = list.map(v => [
+        v.title,
+        channelById(v.channelId)?.name || '',
+        v.views,
+        v.vph,
+        v.duration,
+        v.url
+      ]);
+      const csvContent = '\ufeff' + [headers, ...rows].map(r => r.map(csvEscape).join(',')).join('\r\n');
+      downloadBlob(csvContent, `radar-bookmarks-${Date.now()}.csv`, 'text/csv;charset=utf-8');
+      toastMsg(`Đã xuất ${list.length} ý tưởng ra file CSV Excel!`, 'ph-file-csv');
+    }
+
+    function clearAllBookmarks() {
+      if (confirm('Bạn có chắc chắn muốn xóa toàn bộ video trong Kho Ý Tưởng không?')) {
+        bookmarks.value = [];
+        persist();
+        toastMsg('Đã xóa toàn bộ Kho Ý Tưởng', 'ph-trash');
+      }
+    }
+
+    function openHdThumb(url) {
+      if (!url) return;
+      let hd = url;
+      if (url.includes('hqdefault.jpg') || url.includes('mqdefault.jpg')) {
+        hd = url.replace(/hqdefault\.jpg|mqdefault\.jpg/, 'maxresdefault.jpg');
+      }
+      hdThumbUrl.value = hd;
+      openModal('thumb_preview');
+    }
+
     // REAL DATA INTEGRATION: 690+ VIDEOS & 60 CHANNELS FROM DATA DIRECTORY
     // =========================================================================
     const isLiveLoading = ref(false);
@@ -982,6 +1862,7 @@ const app = createApp({
 
           // Also check emerging_channels.json for any extra channels
           if (emergingData && Array.isArray(emergingData.channels)) {
+            emergingChannels.value = emergingData.channels;
             const existingIds = new Set(mappedChannels.map(c => c.id));
             emergingData.channels.forEach((ec, ecIdx) => {
               const ecId = ec.channel_id || ec.title;
@@ -1061,7 +1942,7 @@ const app = createApp({
 
     return {
       currentUser,theme,activeTab,activeTabMeta,sidebarCollapsed,mobileDrawer,modal,notificationsOpen,accountMenu,notifications,globalQuery,searchOpen,globalSearch,globalResults,chartRange,
-      videos,channels,navItems,days,heat,goldenHours,videoFilters,filteredVideos,breakoutVideos,top15,podiumOrder,outliers,allTags,channelSearch,channelTag,channelView,filteredChannels,
+      videos,channels,navItems,days,heat,goldenHours,videoPills,videoView,videoFilters,resetVideoFilters,filteredVideos,breakoutVideos,top15,top15Range,top15Sort,podiumOrder,underdogFilters,emergingChannels,filteredUnderdogs,selectedEmergingChannel,addEmergingToTracking,openEmergingDetail,aiSearch,aiVideosList,exportVideosCsv,exportBookmarksCsv,clearAllBookmarks,hdThumbUrl,openHdThumb,openScriptStudioModal,allTags,channelSearch,channelTag,channelView,filteredChannels,
       bookmarks,bookmarkSearch,bookmarkedVideos,pipelineColumns,tasks,topicSuggestions,powerWords,aiTopic,generatedTitles,
       selectedChannel,channelDetailTabs,channelDetailTab,newTag,battleA,battleB,battleRounds,battleWinner,taskDraft,newChecklistItem,
       simulatorImageUrl,simulatorTitle,feedMode,squintMode,squintClass,analysisCanvas,canvasMetrics,canvasAdvice,simulatorFeed,
