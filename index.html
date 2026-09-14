@@ -3516,7 +3516,10 @@
 
                 <!-- Highlights -->
                 <div class="mt-2.5 flex items-center justify-between gap-1 text-[10px]">
-                  <span v-if="ch.million_count > 0" class="px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-500 font-bold font-mono">
+                  <span v-if="ch.video_count === 0" class="px-2 py-0.5 rounded-md bg-amber-500/15 text-amber-500 font-bold font-mono">
+                    ⏳ Chờ bot quét video
+                  </span>
+                  <span v-else-if="ch.million_count > 0" class="px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-500 font-bold font-mono">
                     👑 {{ ch.million_count }} &ge; 1M
                   </span>
                   <span v-else class="text-slate-400 font-mono">
@@ -3602,18 +3605,26 @@
                     </div>
                   </div>
                 </td>
-                <td class="py-3 px-4 font-black text-rose-600 dark:text-rose-400">
-                  +{{ formatNumber(ch.peak_vph) }}/h
+                <td colspan="4" v-if="ch.video_count === 0" class="py-3 px-4 font-bold text-amber-500 text-xs">
+                  <span class="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/20">
+                    <i class="ph-bold ph-hourglass-medium"></i>
+                    <span>Kênh mới thêm — Đang chờ bot quét dữ liệu video ở phiên kế tiếp</span>
+                  </span>
                 </td>
-                <td class="py-3 px-4 font-black text-blue-600 dark:text-blue-400">
-                  +{{ formatNumber(ch.total_channel_vph) }}/h
-                </td>
-                <td class="py-3 px-4 font-bold text-amber-500">
-                  {{ ch.viral_rate }}% ({{ ch.viral_video_count }} viral)
-                </td>
-                <td class="py-3 px-4 font-medium text-slate-600 dark:text-slate-300">
-                  {{ formatNumber(ch.total_views) }} view
-                </td>
+                <template v-else>
+                  <td class="py-3 px-4 font-black text-rose-600 dark:text-rose-400">
+                    +{{ formatNumber(ch.peak_vph) }}/h
+                  </td>
+                  <td class="py-3 px-4 font-black text-blue-600 dark:text-blue-400">
+                    +{{ formatNumber(ch.total_channel_vph) }}/h
+                  </td>
+                  <td class="py-3 px-4 font-bold text-amber-500">
+                    {{ ch.viral_rate }}% ({{ ch.viral_video_count }} viral)
+                  </td>
+                  <td class="py-3 px-4 font-medium text-slate-600 dark:text-slate-300">
+                    {{ formatNumber(ch.total_views) }} view
+                  </td>
+                </template>
                 <td class="py-3 px-4 text-right whitespace-nowrap">
                   <button 
                     @click="openChannelModal(ch)"
@@ -9698,11 +9709,6 @@
               console.warn("Không thể tải channel_avatars.json:", e);
             }
 
-            stats.value = {
-              total_channels: data.total_channels || 0,
-              total_videos: data.total_videos || 0,
-              viral_count: data.viral_count || 0
-            };
             lastUpdatedIso.value = data.last_updated || '';
             if (data.last_updated) {
               try {
@@ -9715,24 +9721,68 @@
             } else {
               lastUpdatedFormatted.value = data.last_updated_formatted || '';
             }
-            let loadedChannels = data.channels || [];
 
-            // Hợp nhất các kênh tùy chỉnh đã thêm từ localStorage
+            let loadedChannels = [...(data.channels || [])];
+
+            // 1. Tải danh sách kênh chính thức từ channels.json để đồng bộ các kênh mới thêm
+            let configuredChannels = [];
+            try {
+              const chRes = await fetch(`./channels.json?t=${Date.now()}`);
+              if (chRes.ok) {
+                configuredChannels = await chRes.json();
+              }
+            } catch (e) {
+              console.warn("Không thể tải channels.json:", e);
+            }
+
+            // Hợp nhất các kênh từ channels.json chưa có trong data/videos.json (vừa thêm, đang chờ bot quét)
+            if (configuredChannels.length > 0) {
+              const crawledNames = new Set(loadedChannels.map(c => (c.name || '').toLowerCase().trim()));
+              configuredChannels.forEach(cc => {
+                const normName = (cc.name || '').toLowerCase().trim();
+                if (normName && !crawledNames.has(normName)) {
+                  loadedChannels.push({
+                    channel_id: 'pending_' + (cc.name.replace(/[^a-zA-Z0-9]/g, '_')),
+                    name: cc.name,
+                    handle: cc.handle_or_url || cc.handle || '',
+                    handle_or_url: cc.handle_or_url || cc.handle || '',
+                    avatar: cc.avatar || null,
+                    threshold: Number(cc.min_views_per_hour || cc.threshold) || 5000,
+                    min_views_per_hour: Number(cc.min_views_per_hour || cc.threshold) || 5000,
+                    subscribers: 0,
+                    channel_median: 0,
+                    is_custom: true,
+                    is_pending_scan: true,
+                    videos: []
+                  });
+                  crawledNames.add(normName);
+                }
+              });
+            }
+
+            // 2. Hợp nhất các kênh tùy chỉnh đã thêm từ localStorage
             try {
               const savedCustom = JSON.parse(localStorage.getItem('CUSTOM_COMPETITOR_CHANNELS') || '[]');
               if (savedCustom.length > 0) {
                 const existingNames = new Set(loadedChannels.map(c => (c.name || '').toLowerCase().trim()));
                 savedCustom.forEach(sc => {
-                  if (!existingNames.has((sc.name || '').toLowerCase().trim())) {
-                    loadedChannels.unshift({
+                  const normName = (sc.name || '').toLowerCase().trim();
+                  if (normName && !existingNames.has(normName)) {
+                    loadedChannels.push({
                       channel_id: 'custom_' + (sc.name.replace(/[^a-zA-Z0-9]/g, '_')),
                       name: sc.name,
-                      handle: sc.handle_or_url,
+                      handle: sc.handle_or_url || sc.handle || '',
+                      handle_or_url: sc.handle_or_url || sc.handle || '',
+                      avatar: sc.avatar || null,
+                      threshold: Number(sc.min_views_per_hour || sc.threshold) || 5000,
+                      min_views_per_hour: Number(sc.min_views_per_hour || sc.threshold) || 5000,
                       subscribers: 0,
-                      channel_median: 1000,
+                      channel_median: 0,
                       is_custom: true,
+                      is_pending_scan: true,
                       videos: []
                     });
+                    existingNames.add(normName);
                   }
                 });
               }
@@ -9741,6 +9791,12 @@
             }
 
             channels.value = loadedChannels;
+
+            stats.value = {
+              total_channels: loadedChannels.length,
+              total_videos: data.total_videos || 0,
+              viral_count: data.viral_count || 0
+            };
 
             const flatVideos = [];
             (data.channels || []).forEach(ch => {
@@ -10743,7 +10799,8 @@ Nhiệm vụ: Trả lời hoặc viết lại/tinh chỉnh kịch bản theo yê
 
           // 1. Thêm vào danh sách sửa trong Modal (nếu trùng tên thì cập nhật)
           const existIdx = editableChannels.value.findIndex(c => (c.name || '').toLowerCase().trim() === channelName.toLowerCase());
-          if (existIdx >= 0) {
+          const isDuplicate = existIdx >= 0;
+          if (isDuplicate) {
             editableChannels.value.splice(existIdx, 1);
           }
           editableChannels.value.unshift(channelItem);
@@ -10763,18 +10820,26 @@ Nhiệm vụ: Trả lời hoặc viết lại/tinh chỉnh kịch bản theo yê
             threshold: threshold,
             min_views_per_hour: threshold,
             subscribers: 0,
-            channel_median: 1000,
+            channel_median: 0,
             is_custom: true,
+            is_pending_scan: true,
             videos: []
           };
-          const existsInMain = channels.value.some(c => (c.name || '').toLowerCase().trim() === channelName.toLowerCase());
-          if (!existsInMain) {
+          const existsInMainIdx = channels.value.findIndex(c => (c.name || '').toLowerCase().trim() === channelName.toLowerCase());
+          if (existsInMainIdx >= 0) {
+            channels.value[existsInMainIdx] = { ...channels.value[existsInMainIdx], ...mainChanObj };
+          } else {
             channels.value.unshift(mainChanObj);
           }
           stats.value.total_channels = channels.value.length;
 
           newChannel.value = { name: '', handle: '', threshold: 5000 };
-          showToast(`✅ Đang lưu kênh "${channelName}" vào hệ thống & GitHub...`);
+
+          if (isDuplicate) {
+            showToast(`ℹ️ Kênh "${channelName}" đã có sẵn trong danh sách theo dõi (${editableChannels.value.length} kênh)! Đã cập nhật lại thông tin & đồng bộ lên GitHub.`);
+          } else {
+            showToast(`✅ Đã thêm kênh mới "${channelName}" (Tổng: ${editableChannels.value.length} kênh)! Bot sẽ tự động quét video ở phiên kế tiếp.`);
+          }
 
           // 4. Tự động lưu lên GitHub với fallback token
           await saveChannelsToGitHub();
