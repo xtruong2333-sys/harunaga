@@ -5,8 +5,8 @@
     "category": "recycle",
     "enabled": true,
     "priority": 10,
-    "last_scanned_at": "2026-09-15T21:13:34.899719+00:00",
-    "last_result_count": 15,
+    "last_scanned_at": "2026-09-15T22:13:12.529125+00:00",
+    "last_result_count": 0,
     "created_at": "2026-09-12T00:00:00Z"
   },
   {
@@ -15,7 +15,7 @@
     "category": "invention",
     "enabled": true,
     "priority": 10,
-    "last_scanned_at": "2026-09-15T21:13:34.899719+00:00",
+    "last_scanned_at": "2026-09-15T22:13:12.529125+00:00",
     "last_result_count": 15,
     "created_at": "2026-09-12T00:00:00Z"
   },
@@ -25,7 +25,7 @@
     "category": "general_diy",
     "enabled": true,
     "priority": 9,
-    "last_scanned_at": "2026-09-15T21:13:34.899719+00:00",
+    "last_scanned_at": "2026-09-15T22:13:12.529125+00:00",
     "last_result_count": 15,
     "created_at": "2026-09-12T00:00:00Z"
   },
@@ -45,7 +45,7 @@
     "category": "craftsman",
     "enabled": true,
     "priority": 10,
-    "last_scanned_at": "2026-09-15T21:13:34.899719+00:00",
+    "last_scanned_at": "2026-09-15T22:13:12.529125+00:00",
     "last_result_count": 15,
     "created_at": "2026-09-12T00:00:00Z"
   },
@@ -205,7 +205,7 @@
     "category": "craftsman",
     "enabled": true,
     "priority": 10,
-    "last_scanned_at": "2026-09-15T21:13:34.899719+00:00",
+    "last_scanned_at": "2026-09-15T22:13:12.529125+00:00",
     "last_result_count": 15,
     "created_at": "2026-09-12T00:00:00Z"
   },
