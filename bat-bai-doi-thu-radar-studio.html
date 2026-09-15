@@ -27,6 +27,8 @@
 </script>
 <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
 <script src="https://unpkg.com/@phosphor-icons/web"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -181,7 +183,8 @@
   @media (max-width:1023px){.desktop-only{display:none!important}.main-shell{padding-left:0!important}}
   @media (max-width:640px){.mobile-hide{display:none!important}.glass,.glass-strong{backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}.panel-hover:hover{transform:none}.podium-card:hover{transform:none}}
   @media (prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
-</style>
+
+  
 
 <style id="radar-enterprise-v2">
   /* ===== RADAR ENTERPRISE V2: Military Intelligence × Enterprise SaaS ===== */
@@ -278,11 +281,141 @@
   @media (max-width:640px){
     .mobile-theme-toggle{display:none!important}.radar-toast{bottom:86px!important;max-width:calc(100vw - 24px);width:max-content}.command-workspace{padding-left:12px!important;padding-right:12px!important;padding-top:16px!important}.intel-context{gap:5px}.intel-chip{font-size:8px;height:23px;padding:0 7px}.kpi-card{min-height:132px}.modal-mask{padding:0!important}.modal-card{width:100%;max-width:none!important;min-height:100dvh;margin:0!important;border-radius:0!important;border-left:0!important;border-right:0!important}.kanban-col{min-height:auto}.panel-hover:hover,.video-card:hover,.task-card:hover{transform:none}.video-card{border-radius:15px!important}.command-topbar .kbd{display:none}
   }
+
+    /* =========================================================================
+     3D DATA CHAMBER & RADAR COMMAND CENTER ASSEMBLY ANIMATIONS
+     ========================================================================= */
+  #radarDataChamberCanvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 1; /* directly above #app background & ambient, below .main-shell (z-10) and sidebars */
+    opacity: 0;
+    transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  #radarDataChamberCanvas.active {
+    opacity: 1;
+  }
+
+  /* 3D Perspective Context for Command Workspace */
+  .overview-assembly-container {
+    perspective: 1200px;
+    perspective-origin: 50% 28%;
+    position: relative;
+    z-index: 10;
+    transform-style: preserve-3d;
+  }
+
+  /* Micro-depth transforms on KPI cards */
+  .kpi-card {
+    position: relative;
+    transform-style: preserve-3d;
+    will-change: transform, opacity, filter;
+    transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s ease, border-color 0.22s ease;
+  }
+  .kpi-card:hover {
+    transform: translateY(-2.5px) translateZ(12px) !important;
+    box-shadow: 0 16px 36px -10px rgba(99, 102, 241, 0.18);
+  }
+  body.light-mode .kpi-card:hover {
+    box-shadow: 0 12px 28px -8px rgba(15, 23, 42, 0.12);
+  }
+
+  /* Single Border Glint Highlight Swipe on KPI Assembly */
+  .kpi-card::after {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(105deg, transparent 20%, rgba(34, 211, 238, 0.85) 50%, transparent 80%);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 2;
+  }
+  .kpi-card.glint-active::after {
+    animation: singleBorderGlint 0.68s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  body.light-mode .kpi-card::after {
+    background: linear-gradient(105deg, transparent 20%, rgba(2, 132, 199, 0.75) 50%, transparent 80%);
+  }
+
+  @keyframes singleBorderGlint {
+    0% { opacity: 0; transform: scale(0.98); background-position: 0% 50%; }
+    30% { opacity: 1; }
+    100% { opacity: 0; transform: scale(1); background-position: 100% 50%; }
+  }
+
+  /* Velocity Chart Panel Progressive Entrance */
+  .velocity-chart-panel {
+    will-change: transform, opacity, filter;
+  }
+
+  /* Breakout Velocity Radar Panel */
+  .breakout-radar-panel {
+    will-change: transform, opacity;
+  }
+
+  /* Breakout Row Scanner sweep */
+  .breakout-row-item {
+    position: relative;
+    overflow: hidden;
+    will-change: transform, opacity;
+  }
+  .breakout-row-item .radar-row-scanner {
+    position: absolute;
+    inset: 0;
+    width: 35%;
+    background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.22), transparent);
+    transform: translateX(-100%);
+    pointer-events: none;
+    opacity: 0;
+  }
+  body.light-mode .breakout-row-item .radar-row-scanner {
+    background: linear-gradient(90deg, transparent, rgba(2, 132, 199, 0.16), transparent);
+  }
+  .breakout-row-item.scanning .radar-row-scanner {
+    animation: rowScanSweep 0.5s ease-out forwards;
+  }
+
+  @keyframes rowScanSweep {
+    0% { opacity: 0; transform: translateX(-100%); }
+    40% { opacity: 1; }
+    100% { opacity: 0; transform: translateX(320%); }
+  }
+
+  /* Video #1 Velocity Pulse */
+  .velocity-pulse-target {
+    animation: softPulseOnce 0.8s ease-out 1.1s 1 normal forwards;
+  }
+  @keyframes softPulseOnce {
+    0%, 100% { box-shadow: 0 0 0 rgba(244, 63, 94, 0); }
+    50% { box-shadow: 0 0 22px rgba(244, 63, 94, 0.4); }
+  }
+
+  /* Prefers Reduced Motion Accessibility Guard */
+  @media (prefers-reduced-motion: reduce) {
+    #radarDataChamberCanvas { display: none !important; }
+    .overview-assembly-container, .kpi-card, .breakout-row-item, .velocity-chart-panel, .breakout-radar-panel, .gold-heatmap-panel {
+      transform: none !important;
+      transition: opacity 0.3s ease !important;
+      animation: none !important;
+      filter: none !important;
+    }
+    .kpi-card::after, .radar-row-scanner { display: none !important; }
+  }
 </style>
 
 </head>
 <body>
 <div id="app" class="min-h-screen bg-shell relative">
+  <canvas id="radarDataChamberCanvas"></canvas>
   <div class="ambient"></div>
 
   <transition name="drawer">
@@ -384,7 +517,7 @@
     </header>
 
     <main class="command-workspace px-3 sm:px-5 lg:px-7 py-5 lg:py-7 pb-28">
-      <div class="page-command-head mb-6 flex flex-col xl:flex-row xl:items-end gap-4 justify-between">
+      <div class="page-command-head mb-6 flex flex-col xl:flex-row xl:items-end gap-4 justify-between overview-header-content">
         <div>
           <div class="tiny text-indigo-300/80 mb-2">{{activeTabMeta.eyebrow}}</div>
           <h1 class="font-display text-2xl sm:text-3xl font-extrabold tracking-tight">{{activeTabMeta.label}}</h1>
@@ -405,7 +538,7 @@
       </div>
 
       <!-- OVERVIEW -->
-      <section v-if="activeTab==='overview'" class="space-y-5">
+      <section v-if="activeTab==='overview'" class="space-y-5 overview-assembly-container">
         <div class="kpi-grid grid sm:grid-cols-2 2xl:grid-cols-4 gap-4">
           <article class="kpi-card glass panel-hover rounded-2xl p-5 relative overflow-hidden">
             <div class="absolute -right-12 -top-12 w-32 h-32 rounded-full bg-cyan-500/10 blur-2xl"></div>
@@ -427,7 +560,7 @@
         </div>
 
         <div class="grid 2xl:grid-cols-[1.45fr_.75fr] gap-5">
-          <article class="glass rounded-2xl p-4 sm:p-5">
+          <article class="glass rounded-2xl p-4 sm:p-5 velocity-chart-panel">
             <div class="flex flex-wrap gap-3 items-center justify-between mb-5">
               <div><div class="font-bold">Tốc Độ View Thời Gian Thực</div><div class="text-xs text-slate-500 mt-1">Velocity Index • tổng hợp từ các kênh đối thủ đang theo dõi</div></div>
               <div class="p-1 rounded-xl bg-white/[0.04] border border-white/[0.07] flex gap-1">
@@ -436,10 +569,10 @@
             </div>
             <div class="h-[320px]"><canvas id="velocityChart"></canvas></div>
           </article>
-          <article class="glass rounded-2xl p-4 sm:p-5">
+          <article class="glass rounded-2xl p-4 sm:p-5 breakout-radar-panel">
             <div class="flex items-center justify-between"><div><div class="font-bold">Breakout Velocity Radar</div><div class="text-xs text-slate-500 mt-1">Video đang tăng tốc mạnh nhất</div></div><span class="tiny text-rose-400">LIVE</span></div>
             <div class="mt-4 space-y-3">
-              <div v-for="(v,i) in breakoutVideos" :key="v.id" class="rounded-xl bg-white/[0.035] border border-white/[0.06] p-3 flex gap-3">
+              <div v-for="(v,i) in breakoutVideos" :key="v.id" :class="i===0?'velocity-pulse-once':''" class="breakout-row-item rounded-xl bg-white/[0.035] border border-white/[0.06] p-3 flex gap-3"><div class="radar-row-scanner"></div>
                 <div class="w-20 aspect-video rounded-lg overflow-hidden shrink-0"><img :src="v.thumb" class="w-full h-full object-cover" @error="handleImgError" loading="lazy" decoding="async"></div>
                 <div class="min-w-0 flex-1"><div class="text-xs font-bold line-clamp-2">{{v.title}}</div><div class="flex items-center justify-between mt-2"><span class="metric text-[11px] text-rose-400">+{{formatNum(v.vph)}}/h</span><span class="tiny text-slate-600">#{{i+1}}</span></div></div>
               </div>
@@ -447,7 +580,7 @@
           </article>
         </div>
 
-        <article class="glass rounded-2xl p-4 sm:p-5">
+        <article class="glass rounded-2xl p-4 sm:p-5 gold-heatmap-panel">
           <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-3 mb-5">
             <div><div class="font-bold">Ma Trận Giờ Vàng Xuất Bản</div><div class="text-xs text-slate-500 mt-1">Heatmap 7 ngày × 24 giờ • màu nóng = mật độ view cao</div></div>
             <div class="flex gap-2 flex-wrap">
@@ -2126,7 +2259,7 @@ const app = createApp({
     function goTab(id){activeTab.value=id;localStorage.setItem('RADAR_ACTIVE_TAB',id);mobileDrawer.value=false;searchOpen.value=false;notificationsOpen.value=false;window.scrollTo({top:0,behavior:'smooth'});if(id==='overview')nextTick(renderChart)}
     function openModal(name){modal.value=name;notificationsOpen.value=false;if(name==='simulator')nextTick(analyzeSimulatorImage)}
     function closeModal(){modal.value=null}
-    function toggleTheme(){theme.value=theme.value==='dark'?'light':'dark';document.body.classList.toggle('light-mode',theme.value==='light');persist();nextTick(()=>activeTab.value==='overview'&&renderChart())}
+    function toggleTheme(){theme.value=theme.value==='dark'?'light':'dark';document.body.classList.toggle('light-mode',theme.value==='light');persist();RadarDataChamber.updateTheme(theme.value==='light');nextTick(()=>activeTab.value==='overview'&&renderChart(false))}
     function isBookmarked(id){return bookmarks.value.includes(id)}
     function toggleBookmark(id){bookmarks.value=isBookmarked(id)?bookmarks.value.filter(x=>x!==id):[...bookmarks.value,id];persist();toastMsg(isBookmarked(id)?'Đã lưu vào Kho Ý Tưởng':'Đã bỏ lưu video',isBookmarked(id)?'ph-bookmark-simple-fill':'ph-bookmark-simple')}
 
@@ -2520,11 +2653,400 @@ chatMessages.value.push({id:Date.now()+1,role:'assistant',text:`${localReply}\n\
 
     function startCountdown(){function tick(){const n=new Date();const next=new Date(n);next.setMinutes(n.getMinutes()<30?30:60,0,0);const sec=Math.max(0,Math.floor((next-n)/1000));scanCountdown.value=`${String(Math.floor(sec/60)).padStart(2,'0')}:${String(sec%60).padStart(2,'0')}`}tick();scanTimer=setInterval(tick,1000)}
 
+    
+    /* =========================================================================
+       3D DATA CHAMBER BACKGROUND CONTROLLER (Three.js WebGL)
+       Perspective Radar Grid Floor + Radar Rings + Soft Glowing Data Nodes + Radar Scan Beam
+       ========================================================================= */
+    const RadarDataChamber = (() => {
+      let canvas = null;
+      let scene = null;
+      let camera = null;
+      let renderer = null;
+      let gridHelper = null;
+      let radarRings = [];
+      let particlesMesh = null;
+      let scanLineMesh = null;
+      let animId = null;
+      let isRunning = false;
+      let isLightMode = false;
+
+      let targetMouseX = 0;
+      let targetMouseY = 0;
+      let currentMouseX = 0;
+      let currentMouseY = 0;
+      let currentCameraZ = 5.4;
+
+      function createCircleTexture() {
+        const c = document.createElement('canvas');
+        c.width = 64;
+        c.height = 64;
+        const ctx = c.getContext('2d');
+        const grad = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+        grad.addColorStop(0, 'rgba(255, 255, 255, 1)');
+        grad.addColorStop(0.22, 'rgba(56, 189, 248, 0.95)');
+        grad.addColorStop(0.55, 'rgba(34, 211, 238, 0.3)');
+        grad.addColorStop(1, 'rgba(34, 211, 238, 0)');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, 64, 64);
+        return new THREE.CanvasTexture(c);
+      }
+
+      function init(light = false) {
+        if (renderer) return;
+        canvas = document.getElementById('radarDataChamberCanvas');
+        if (!canvas || typeof THREE === 'undefined') return;
+
+        isLightMode = light;
+        const w = window.innerWidth;
+        const h = window.innerHeight;
+
+        scene = new THREE.Scene();
+        camera = new THREE.PerspectiveCamera(50, w / h, 0.1, 100);
+        camera.position.set(0, 1.8, currentCameraZ);
+        camera.lookAt(0, 0, -4);
+
+        renderer = new THREE.WebGLRenderer({
+          canvas: canvas,
+          alpha: true,
+          antialias: true,
+          powerPreference: 'high-performance'
+        });
+        renderer.setSize(w, h);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+
+        // 1. Perspective Radar Grid Floor
+        const gridColor1 = isLightMode ? 0x0284c7 : 0x22d3ee;
+        const gridColor2 = isLightMode ? 0x94a3b8 : 0x1e3a5f;
+        gridHelper = new THREE.GridHelper(64, 40, gridColor1, gridColor2);
+        gridHelper.position.set(0, -1.8, -6);
+        gridHelper.material.transparent = true;
+        gridHelper.material.opacity = isLightMode ? 0.12 : 0.32;
+        scene.add(gridHelper);
+
+        // 2. Radar Range Rings on Floor
+        radarRings = [];
+        for (let r of [6, 12, 18, 24]) {
+          const ringGeo = new THREE.RingGeometry(r - 0.05, r, 64);
+          const ringMat = new THREE.MeshBasicMaterial({
+            color: isLightMode ? 0x0284c7 : 0x22d3ee,
+            transparent: true,
+            opacity: isLightMode ? 0.08 : 0.18,
+            side: THREE.DoubleSide
+          });
+          const ring = new THREE.Mesh(ringGeo, ringMat);
+          ring.rotation.x = Math.PI / 2;
+          ring.position.set(0, -1.79, -6);
+          scene.add(ring);
+          radarRings.push(ring);
+        }
+
+        // 3. Ambient Glowing Data Nodes (Soft Circular Texture)
+        const isMobile = w < 768;
+        const particleCount = isMobile ? 22 : 60;
+        const positions = new Float32Array(particleCount * 3);
+        const particleSpeeds = new Float32Array(particleCount);
+
+        for (let i = 0; i < particleCount; i++) {
+          positions[i * 3] = (Math.random() - 0.5) * 28;
+          positions[i * 3 + 1] = Math.random() * 6 - 1.6;
+          positions[i * 3 + 2] = -Math.random() * 24 + 2;
+          particleSpeeds[i] = 0.003 + Math.random() * 0.007;
+        }
+
+        const pGeometry = new THREE.BufferGeometry();
+        pGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+        const pMaterial = new THREE.PointsMaterial({
+          map: createCircleTexture(),
+          size: isMobile ? 0.22 : 0.32,
+          transparent: true,
+          opacity: isLightMode ? 0.45 : 0.75,
+          blending: isLightMode ? THREE.NormalBlending : THREE.AdditiveBlending,
+          depthWrite: false
+        });
+
+        particlesMesh = new THREE.Points(pGeometry, pMaterial);
+        particlesMesh.userData.speeds = particleSpeeds;
+        scene.add(particlesMesh);
+
+        // 4. Sweeping Radar Scanner Beam
+        const scanGeo = new THREE.BufferGeometry();
+        const scanPts = new Float32Array([
+          -32, -1.78, 0,
+           32, -1.78, 0
+        ]);
+        scanGeo.setAttribute('position', new THREE.BufferAttribute(scanPts, 3));
+        const scanMat = new THREE.LineBasicMaterial({
+          color: isLightMode ? 0x0284c7 : 0x38bdf8,
+          transparent: true,
+          opacity: isLightMode ? 0.22 : 0.5
+        });
+        scanLineMesh = new THREE.Line(scanGeo, scanMat);
+        scanLineMesh.position.z = -18;
+        scene.add(scanLineMesh);
+
+        window.addEventListener('pointermove', onPointerMove, { passive: true });
+        window.addEventListener('resize', onWindowResize);
+        document.addEventListener('visibilitychange', onVisibilityChange);
+
+        start();
+      }
+
+      function onPointerMove(e) {
+        if (window.innerWidth < 768) return;
+        targetMouseX = (e.clientX / window.innerWidth) * 2 - 1;
+        targetMouseY = -(e.clientY / window.innerHeight) * 2 + 1;
+      }
+
+      function onWindowResize() {
+        if (!renderer || !camera) return;
+        const w = window.innerWidth;
+        const h = window.innerHeight;
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+        renderer.setSize(w, h);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+      }
+
+      function onVisibilityChange() {
+        if (document.hidden) {
+          pause();
+        } else if (canvas && canvas.classList.contains('active')) {
+          start();
+        }
+      }
+
+      function updateTheme(light) {
+        isLightMode = light;
+        if (gridHelper) {
+          gridHelper.material.opacity = light ? 0.12 : 0.32;
+          gridHelper.material.color.setHex(light ? 0x0284c7 : 0x22d3ee);
+        }
+        if (radarRings.length > 0) {
+          for (let ring of radarRings) {
+            ring.material.color.setHex(light ? 0x0284c7 : 0x22d3ee);
+            ring.material.opacity = light ? 0.08 : 0.18;
+          }
+        }
+        if (particlesMesh) {
+          particlesMesh.material.opacity = light ? 0.45 : 0.75;
+          particlesMesh.material.blending = light ? THREE.NormalBlending : THREE.AdditiveBlending;
+          particlesMesh.material.needsUpdate = true;
+        }
+        if (scanLineMesh) {
+          scanLineMesh.material.color.setHex(light ? 0x0284c7 : 0x38bdf8);
+          scanLineMesh.material.opacity = light ? 0.22 : 0.5;
+        }
+      }
+
+      function renderLoop() {
+        if (!isRunning) return;
+        animId = requestAnimationFrame(renderLoop);
+
+        currentMouseX += (targetMouseX - currentMouseX) * 0.04;
+        currentMouseY += (targetMouseY - currentMouseY) * 0.04;
+
+        if (camera) {
+          camera.position.x = currentMouseX * 0.28;
+          camera.position.y = 1.8 + currentMouseY * 0.16;
+          camera.position.z = currentCameraZ;
+          camera.lookAt(currentMouseX * 0.08, currentMouseY * 0.04, -4);
+        }
+
+        if (particlesMesh) {
+          const pos = particlesMesh.geometry.attributes.position.array;
+          const speeds = particlesMesh.userData.speeds;
+          const count = pos.length / 3;
+          for (let i = 0; i < count; i++) {
+            pos[i * 3 + 1] += speeds[i];
+            if (pos[i * 3 + 1] > 6.5) {
+              pos[i * 3 + 1] = -1.6;
+            }
+          }
+          particlesMesh.geometry.attributes.position.needsUpdate = true;
+        }
+
+        if (scanLineMesh) {
+          scanLineMesh.position.z += 0.055;
+          if (scanLineMesh.position.z > 4) {
+            scanLineMesh.position.z = -24;
+          }
+        }
+
+        renderer.render(scene, camera);
+      }
+
+      function start() {
+        if (isRunning) return;
+        isRunning = true;
+        if (canvas) canvas.classList.add('active');
+        renderLoop();
+      }
+
+      function pause() {
+        isRunning = false;
+        if (canvas) canvas.classList.remove('active');
+        if (animId) {
+          cancelAnimationFrame(animId);
+          animId = null;
+        }
+      }
+
+      function cameraPush(fromZ, toZ, duration) {
+        if (!camera || typeof gsap === 'undefined') return;
+        const animObj = { z: fromZ };
+        currentCameraZ = fromZ;
+        gsap.to(animObj, {
+          z: toZ,
+          duration: duration,
+          ease: 'power2.out',
+          onUpdate: () => {
+            currentCameraZ = animObj.z;
+          }
+        });
+      }
+
+      return {
+        init,
+        start,
+        pause,
+        updateTheme,
+        cameraPush,
+        get isRunning() { return isRunning; }
+      };
+    })();
+
+    /* =========================================================================
+       RADAR COMMAND CENTER ASSEMBLY CONTROLLER (GSAP Orchestration)
+       ========================================================================= */
+    let hasOverviewBooted = false;
+
+    function fullOverviewBoot() {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        hasOverviewBooted = true;
+        renderChart(false);
+        return;
+      }
+      if (typeof gsap === 'undefined') {
+        renderChart(false);
+        return;
+      }
+
+      RadarDataChamber.cameraPush(6.6, 5.4, 1.25);
+      RadarDataChamber.start();
+
+      const tl = gsap.timeline({
+        onComplete: () => {
+          hasOverviewBooted = true;
+          // Trigger single subtle border glint swipe on KPI cards
+          document.querySelectorAll('.kpi-card').forEach(el => {
+            el.classList.remove('glint-active');
+            void el.offsetWidth;
+            el.classList.add('glint-active');
+          });
+          // Trigger scanline swipe on breakout rows
+          document.querySelectorAll('.breakout-row-item').forEach(el => {
+            el.classList.remove('scan-active');
+            void el.offsetWidth;
+            el.classList.add('scan-active');
+          });
+        }
+      });
+
+      // 1. Header & Title (120ms)
+      tl.fromTo('.overview-header-content',
+        { opacity: 0, y: 14, z: -70, filter: 'blur(5px)' },
+        { opacity: 1, y: 0, z: 0, filter: 'blur(0px)', duration: 0.65, ease: 'power2.out' },
+        0.12
+      );
+
+      // 2. Chips stagger (40ms apart)
+      tl.fromTo('.intel-chip',
+        { opacity: 0, scale: 0.92, y: 6 },
+        { opacity: 1, scale: 1, y: 0, stagger: 0.045, duration: 0.38, ease: 'back.out(1.2)' },
+        0.18
+      );
+
+      // 3. 4 KPI Cards 3D Assembly (staggered from 220ms to 460ms)
+      tl.fromTo('.kpi-card',
+        { opacity: 0, y: 28, z: -140, rotateX: 5, filter: 'blur(5px)' },
+        { opacity: 1, y: 0, z: 0, rotateX: 0, filter: 'blur(0px)', stagger: 0.08, duration: 0.68, ease: 'power3.out' },
+        0.22
+      );
+
+      // 4. Realtime Velocity Chart Panel (520ms)
+      tl.fromTo('.velocity-chart-panel',
+        { opacity: 0, y: 24, z: -80, scale: 0.985 },
+        { opacity: 1, y: 0, z: 0, scale: 1, duration: 0.65, ease: 'power2.out' },
+        0.52
+      );
+
+      // 5. Breakout Velocity Radar Panel (620ms)
+      tl.fromTo('.breakout-radar-panel',
+        { opacity: 0, x: 22, z: -50 },
+        { opacity: 1, x: 0, z: 0, duration: 0.62, ease: 'power2.out' },
+        0.62
+      );
+
+      // 6. Progressive Chart.js Line Draw (720ms)
+      tl.call(() => {
+        renderChart(true);
+      }, null, 0.72);
+
+      // 7. Breakout Radar Video Rows Stagger (820ms+)
+      tl.fromTo('.breakout-row-item',
+        { opacity: 0, x: 16 },
+        { opacity: 1, x: 0, stagger: 0.065, duration: 0.42, ease: 'power2.out' },
+        0.82
+      );
+
+      // 8. Heatmap Panel (920ms)
+      tl.fromTo('.gold-heatmap-panel',
+        { opacity: 0, y: 16 },
+        { opacity: 1, y: 0, duration: 0.55, ease: 'power2.out' },
+        0.92
+      );
+    }
+
+    function overviewReEntry() {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        renderChart(false);
+        return;
+      }
+      if (typeof gsap === 'undefined') {
+        renderChart(false);
+        return;
+      }
+
+      RadarDataChamber.cameraPush(5.8, 5.4, 0.5);
+      RadarDataChamber.start();
+
+      const tl = gsap.timeline();
+      tl.fromTo('.overview-assembly-container',
+        { opacity: 0.88, y: 8, filter: 'blur(2px)' },
+        { opacity: 1, y: 0, filter: 'blur(0px)', duration: 0.45, ease: 'power2.out' },
+        0
+      );
+      tl.fromTo('.kpi-card',
+        { opacity: 0.92, y: 6 },
+        { opacity: 1, y: 0, stagger: 0.03, duration: 0.38, ease: 'power2.out' },
+        0.05
+      );
+      tl.fromTo('.breakout-row-item',
+        { opacity: 0.92, x: 8 },
+        { opacity: 1, x: 0, stagger: 0.03, duration: 0.32, ease: 'power2.out' },
+        0.10
+      );
+
+      renderChart(false);
+    }
+
     onMounted(()=>{
-      load();document.body.classList.toggle('light-mode',theme.value==='light');renderChart();startCountdown();loadRealData();
+      load();document.body.classList.toggle('light-mode',theme.value==='light');startCountdown();loadRealData();RadarDataChamber.init(theme.value==='light');if(activeTab.value==='overview'){nextTick(()=>fullOverviewBoot());}
       window.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();globalSearch.value?.focus();searchOpen.value=true}if(e.key==='Escape'){modal.value=null;searchOpen.value=false;notificationsOpen.value=false;mobileDrawer.value=false}});
     });
-    watch(activeTab,v=>{localStorage.setItem('RADAR_ACTIVE_TAB',v);if(v==='overview')nextTick(renderChart)});
+    watch(activeTab,(v,oldV)=>{localStorage.setItem('RADAR_ACTIVE_TAB',v);if(v==='overview'){RadarDataChamber.start();nextTick(()=>{if(!hasOverviewBooted){fullOverviewBoot();}else{overviewReEntry();}});}else{RadarDataChamber.pause();}});
     watch(sidebarCollapsed,v=>localStorage.setItem('RADAR_SIDEBAR_COLLAPSED',String(v)));
     watch([bookmarks,tasks],()=>{}, {deep:true});
 
@@ -2541,7 +3063,7 @@ chatMessages.value.push({id:Date.now()+1,role:'assistant',text:`${localReply}\n\
       formatNum,heatStyle,navGlow,handleImgError,goTab,openModal,closeModal,toggleTheme,isBookmarked,toggleBookmark,channelById,
       tasksByStage,checkProgress,priorityLabel,priorityClass,newTask,editTask,addChecklistItem,saveTask,deleteTask,moveTask,quickSchedule,quickScheduleStage,addVideoToPipeline,scheduleTitle,
       openChannel,openBattle,openTagManager,addTag,removeTag,removeChannel,adminAddChannel,openGlobalResult,renderChart,onThumbUpload,analyzeSimulatorImage,copyText,downloadJson,exportBookmarks,exportPipeline,
-      generateTitles,battleValue,battlePercent,openScriptFromVideo,generateScript,sendChat,downloadScript,testGithub,syncGithub,testGemini,testDiscord,switchAccount,persist,toastMsg,triggerBotScan,isTriggeringScan
+      generateTitles,battleValue,battlePercent,openScriptFromVideo,generateScript,sendChat,downloadScript,testGithub,syncGithub,testGemini,testDiscord,switchAccount,persist,toastMsg,triggerBotScan,isTriggeringScan,fullOverviewBoot,overviewReEntry
     }
   }
 });
