@@ -1,5 +1,18 @@
 [
   {
+    "id": "run_1789492312",
+    "started_at": "2026-09-15T17:11:52.979292+00:00",
+    "finished_at": "2026-09-15T17:12:55.356694+00:00",
+    "status": "success",
+    "queries_scanned": 5,
+    "videos_found": 75,
+    "channels_found": 61,
+    "new_channels": 54,
+    "qualified_channels": 14,
+    "ai_queued": 0,
+    "errors": []
+  },
+  {
     "id": "run_1789488792",
     "started_at": "2026-09-15T16:13:12.519065+00:00",
     "finished_at": "2026-09-15T16:14:08.206942+00:00",
@@ -372,19 +385,6 @@
     "videos_found": 75,
     "channels_found": 53,
     "new_channels": 49,
-    "qualified_channels": 10,
-    "ai_queued": 0,
-    "errors": []
-  },
-  {
-    "id": "run_1789384398",
-    "started_at": "2026-09-14T11:13:18.779712+00:00",
-    "finished_at": "2026-09-14T11:14:12.587582+00:00",
-    "status": "success",
-    "queries_scanned": 5,
-    "videos_found": 75,
-    "channels_found": 55,
-    "new_channels": 50,
     "qualified_channels": 10,
     "ai_queued": 0,
     "errors": []
