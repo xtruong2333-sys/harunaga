@@ -1,5 +1,18 @@
 [
   {
+    "id": "run_1789442068",
+    "started_at": "2026-09-15T03:14:28.876250+00:00",
+    "finished_at": "2026-09-15T03:15:26.239732+00:00",
+    "status": "success",
+    "queries_scanned": 5,
+    "videos_found": 75,
+    "channels_found": 58,
+    "new_channels": 53,
+    "qualified_channels": 13,
+    "ai_queued": 0,
+    "errors": []
+  },
+  {
     "id": "run_1789438480",
     "started_at": "2026-09-15T02:14:40.647687+00:00",
     "finished_at": "2026-09-15T02:15:42.286046+00:00",
