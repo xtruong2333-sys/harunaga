@@ -988,7 +988,7 @@
                 <span class="tiny text-slate-500 font-mono">{{ aiVideosList.length }} Kịch Bản Chuẩn Quốc Tế</span>
               </div>
               <h3 class="font-display font-extrabold text-lg mt-1.5">Kịch Bản Gợi Ý & Bóc Tách Đòn Giữ Chân Khán Giả</h3>
-              <p class="text-xs text-slate-400 mt-0.5">Gemini 2.5 Flash đã bóc tách: Hook 3s tiếng Anh, dàn ý 3 hồi, góc remake và tiêu đề click cao.</p>
+              <p class="text-xs text-slate-400 mt-0.5">Gemini AI đã bóc tách: Hook 3s tiếng Anh, dàn ý 3 hồi, góc remake và tiêu đề click cao.</p>
             </div>
 
             <!-- Search in AI Scripts -->
@@ -1681,18 +1681,19 @@ const app = createApp({
     const isTriggeringScan = ref(false);
 
     async function triggerBotScan() {
-      const token = settings.githubToken.trim();
+      const token = (settings.githubToken || '').trim();
       if (!token) {
         toastMsg('Chưa cấu hình GitHub Token trong Quản Lý & Key', 'ph-warning-circle');
         openModal('admin');
+        adminTab.value = 'github';
         return;
       }
       isTriggeringScan.value = true;
       toastMsg('Đang gửi lệnh kích hoạt bot cào video trên Cloud...', 'ph-rocket-launch');
       try {
-        const owner = settings.githubOwner.trim() || 'xtruong2333-sys';
-        const repo = settings.githubRepo.trim() || 'harunaga';
-        const branch = settings.githubBranch.trim() || 'main';
+        const owner = (settings.githubOwner || '').trim() || 'xtruong2333-sys';
+        const repo = (settings.githubRepo || '').trim() || 'harunaga';
+        const branch = (settings.githubBranch || '').trim() || 'main';
         const res = await fetch(`https://api.github.com/repos/${owner}/${repo}/actions/workflows/tracker.yml/dispatches`, {
           method: 'POST',
           headers: {
@@ -1869,8 +1870,8 @@ const app = createApp({
           starThumb: star.thumbnail || makeThumb(ec.title),
           starViews: starViews,
           ratio: ratio,
-          hitRate: ec.hit_rate || 75,
-          vph: ec.max_view_velocity || 4200,
+          hitRate: ec.hit_rate !== undefined ? Math.round(ec.hit_rate <= 1 ? ec.hit_rate * 100 : ec.hit_rate) : 75,
+          vph: Math.round(ec.median_view_velocity || ec.max_view_velocity || 4200),
           channelUrl: ec.url || `https://www.youtube.com/channel/${ec.channel_id}`,
           radarBreakdown: ec.radar_breakdown || {}
         });
@@ -2049,7 +2050,13 @@ const app = createApp({
 
       // Main account can migrate legacy integration keys. Other accounts start isolated.
       if (scopedSettingsRaw) {
-        try { Object.assign(settings, JSON.parse(scopedSettingsRaw)); } catch(e) {}
+        try {
+          const parsed = JSON.parse(scopedSettingsRaw);
+          if (parsed.geminiModel === 'gemini-2.5-flash' || !parsed.geminiModel) {
+            parsed.geminiModel = 'gemini-1.5-flash';
+          }
+          Object.assign(settings, parsed);
+        } catch(e) {}
       } else if (user === 'truongday') {
         const savedGh = localStorage.getItem('GH_PAT_TOKEN') || localStorage.getItem('GITHUB_TOKEN');
         const savedGem = localStorage.getItem('GEMINI_API_KEY');
@@ -2109,7 +2116,7 @@ const app = createApp({
         }
       } catch(e){ console.warn('Cannot load saved state', e); }
     }
-    function resetWorkspaceMemory(){if(window.__cachedRealChannels && window.__cachedRealChannels.length) { channels.value = structuredClone(window.__cachedRealChannels); } else { channels.value = structuredClone(defaultChannels); } bookmarks.value=[];Object.assign(settings,{githubToken:'',githubOwner:'xtruong2333-sys',githubRepo:'harunaga',githubBranch:'main',githubPath:'data/videos.json',geminiKey:'',geminiModel:'gemini-2.5-flash',discordWebhooks:['','','']})}
+    function resetWorkspaceMemory(){if(window.__cachedRealChannels && window.__cachedRealChannels.length) { channels.value = structuredClone(window.__cachedRealChannels); } else { channels.value = structuredClone(defaultChannels); } bookmarks.value=[];Object.assign(settings,{githubToken:'',githubOwner:'xtruong2333-sys',githubRepo:'harunaga',githubBranch:'main',githubPath:'data/videos.json',geminiKey:'',geminiModel:'gemini-1.5-flash',discordWebhooks:['','','']})}
     function switchAccount(name){persist();currentUser.value=name;userRole.value=name==='truongday'?'ADMIN / VIP':'THÀNH VIÊN';resetWorkspaceMemory();userAvatar.value=localStorage.getItem(`USER_AVATAR_${name}`)||(name==='truongday'?localStorage.getItem('USER_AVATAR'):null)||DEFAULT_LOGO;localStorage.setItem('SAVED_USERNAME',name);localStorage.setItem('radar-current-user',name);load();toastMsg(`Đã chuyển sang tài khoản ${name}`,'ph-user-switch')}
 
     function formatNum(n){n=Number(n)||0;if(n>=1e9)return (n/1e9).toFixed(n>=1e10?0:1)+'B';if(n>=1e6)return (n/1e6).toFixed(n>=1e7?0:1)+'M';if(n>=1e3)return (n/1e3).toFixed(n>=1e5?0:1)+'K';return String(Math.round(n))}
@@ -2175,9 +2182,38 @@ const app = createApp({
 
     async function geminiCall(prompt){
       if(!settings.geminiKey)throw new Error('Chưa cấu hình Gemini API Key');
-      const model=(settings.geminiModel||'gemini-2.5-flash').trim();
-      const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(settings.geminiKey)}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt}]}],generationConfig:{temperature:.8,maxOutputTokens:4096}})});
-      const data=await res.json();if(!res.ok)throw new Error(data?.error?.message||`HTTP ${res.status}`);return data?.candidates?.[0]?.content?.parts?.map(p=>p.text||'').join('\n')||'AI không trả về nội dung.';
+      let primary = (settings.geminiModel || '').trim();
+      if (!primary || primary === 'gemini-2.5-flash') {
+        primary = 'gemini-1.5-flash';
+        settings.geminiModel = 'gemini-1.5-flash';
+      }
+      const candidateModels = [primary, 'gemini-1.5-flash', 'gemini-2.0-flash', 'gemini-1.5-pro'].filter((v, i, a) => a.indexOf(v) === i);
+      let lastErr = null;
+      for (const m of candidateModels) {
+        try {
+          const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(m)}:generateContent?key=${encodeURIComponent(settings.geminiKey)}`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({contents: [{parts: [{text: prompt}]}], generationConfig: {temperature: 0.7, maxOutputTokens: 4096}})
+          });
+          const data = await res.json();
+          if (!res.ok) {
+            throw new Error(data?.error?.message || `HTTP ${res.status}`);
+          }
+          const reply = data?.candidates?.[0]?.content?.parts?.map(p => p.text || '').join('\n');
+          if (reply) {
+            if (settings.geminiModel !== m) {
+              settings.geminiModel = m;
+              persist();
+            }
+            return reply;
+          }
+        } catch (err) {
+          lastErr = err;
+          console.warn(`[Gemini] Model ${m} failed: ${err.message}. Trying next candidate...`);
+        }
+      }
+      throw lastErr || new Error('Không thể kết nối với Gemini AI.');
     }
     function localScript(){const source=scriptSource.value.trim()||aiTopic.value;return `HOOK 0–3 GIÂY\n“Khoan đã — thứ này nhìn quá đơn giản để chịu được lực như vậy.”\n\nACT 1 — SETUP / 0:03–0:45\n• Nguồn ý tưởng: ${source}\n• Angle Twist: ${selectedAngle.value}\n• Macro shot vật thể chính, nền sạch, không giải thích dài.\n• Đặt câu hỏi: liệu bản remake có vượt bản gốc?\n\nACT 2 — BUILD & ESCALATION / 0:45–6:30\n• Bước 1: cho thấy vật liệu và ràng buộc.\n• Bước 2: build bằng close-up, cắt bỏ thao tác lặp.\n• Bước 3: thêm một cải tiến khác góc nhìn bản gốc.\n• Pattern interrupt mỗi 20–35 giây: test nhỏ, fail nhẹ, close-up hoặc so sánh.\n• Voice-over ưu tiên câu ngắn, mỗi câu đẩy câu chuyện tiến lên.\n\nACT 3 — PAYOFF / 6:30–8:30\n• Stress test tăng dần 3 cấp.\n• Giữ shot wide để khán giả tin kết quả, sau đó macro vào điểm chịu lực.\n• Reveal kết quả bằng metric rõ ràng.\n\nCTA MỀM\n“Nếu bạn muốn tôi test phiên bản nặng hơn, để lại mức tải bạn muốn thấy ở video tiếp theo.”\n\nSHOT LIST\n1. Macro hero shot\n2. Overhead vật liệu\n3. Side angle thao tác chính\n4. Close-up điểm khóa\n5. Wide stress test\n6. Slow push-in payoff\n7. Clean thumbnail pose cuối video`}
     async function generateScript(){aiBusy.value=true;try{if(settings.geminiKey){generatedScript.value=await geminiCall(`Bạn là đạo diễn YouTube retention cao. Hãy tạo kịch bản quay phim bằng tiếng Việt, cấu trúc Hook 3 giây + 3 hồi + shot list + voice over + CTA mềm. Giữ cốt lõi nhưng tạo angle mới. Nguồn: ${scriptSource.value||aiTopic.value}. Angle: ${selectedAngle.value}. Ưu tiên DIY/maker, câu ngắn, thực tế, không bịa dữ kiện.`)}else generatedScript.value=localScript();toastMsg('Đã tạo kịch bản','ph-sparkle')}catch(e){generatedScript.value=localScript()+`\n\n[Ghi chú] Gemini chưa kết nối: ${e.message}`;toastMsg('Đã dùng Local Copilot vì Gemini chưa sẵn sàng','ph-warning')}finally{aiBusy.value=false}}
@@ -2210,7 +2246,8 @@ const app = createApp({
       }
       openModal('script');
     }
-    async function sendChat(){const text=chatInput.value.trim();if(!text)return;chatMessages.value.push({id:Date.now(),role:'user',text});chatInput.value='';aiBusy.value=true;await nextTick();chatBox.value?.scrollTo({top:chatBox.value.scrollHeight,behavior:'smooth'});try{let reply;if(settings.geminiKey){const history=chatMessages.value.slice(-8).map(m=>`${m.role==='user'?'USER':'DIRECTOR'}: ${m.text}`).join('\n');reply=await geminiCall(`Bạn là Director Copilot cho YouTube DIY. Kịch bản hiện tại:\n${generatedScript.value}\n\nHội thoại:\n${history}\n\nTrả lời bằng tiếng Việt, cụ thể, có thể áp dụng ngay. Nếu người dùng yêu cầu chỉnh kịch bản, hãy đưa phần thay thế rõ ràng.`)}else{reply=`Tôi sẽ chỉnh theo hướng “${text}”.\n\nĐề xuất ngay:\n• Hook: mở bằng hình ảnh payoff trước, chưa giải thích.\n• Nhịp dựng: 2–4 giây/shot trong 30 giây đầu.\n• Pattern interrupt: chèn test mini hoặc close-up sau mỗi 25–35 giây.\n• Voice-over: cắt câu mô tả thao tác đã nhìn thấy; chỉ nói điều hình ảnh chưa tự kể được.\n• CTA: gắn với thử nghiệm tiếp theo thay vì xin subscribe trực tiếp.`}chatMessages.value.push({id:Date.now()+1,role:'assistant',text:reply})}catch(e){chatMessages.value.push({id:Date.now()+1,role:'assistant',text:`Gemini chưa phản hồi được (${e.message}). Tôi vẫn có thể tiếp tục bằng Local Copilot.`})}finally{aiBusy.value=false;await nextTick();chatBox.value?.scrollTo({top:chatBox.value.scrollHeight,behavior:'smooth'})}}
+    async function sendChat(){const text=chatInput.value.trim();if(!text)return;chatMessages.value.push({id:Date.now(),role:'user',text});chatInput.value='';aiBusy.value=true;await nextTick();chatBox.value?.scrollTo({top:chatBox.value.scrollHeight,behavior:'smooth'});try{let reply;if(settings.geminiKey){const history=chatMessages.value.slice(-8).map(m=>`${m.role==='user'?'USER':'DIRECTOR'}: ${m.text}`).join('\n');reply=await geminiCall(`Bạn là Director Copilot cho YouTube DIY. Kịch bản hiện tại:\n${generatedScript.value}\n\nHội thoại:\n${history}\n\nTrả lời bằng tiếng Việt, cụ thể, có thể áp dụng ngay. Nếu người dùng yêu cầu chỉnh kịch bản, hãy đưa phần thay thế rõ ràng.`)}else{reply=`Tôi sẽ chỉnh theo hướng “${text}”.\n\nĐề xuất ngay:\n• Hook: mở bằng hình ảnh payoff trước, chưa giải thích.\n• Nhịp dựng: 2–4 giây/shot trong 30 giây đầu.\n• Pattern interrupt: chèn test mini hoặc close-up sau mỗi 25–35 giây.\n• Voice-over: cắt câu mô tả thao tác đã nhìn thấy; chỉ nói điều hình ảnh chưa tự kể được.\n• CTA: gắn với thử nghiệm tiếp theo thay vì xin subscribe trực tiếp.`}chatMessages.value.push({id:Date.now()+1,role:'assistant',text:reply})}catch(e){const localReply = `Tôi sẽ hỗ trợ chỉnh theo hướng “${text}”:\n\n• Hook 3s: Mở bằng cận cảnh kết quả thử nghiệm bất ngờ trước, không giải thích dài dòng.\n• Nhịp dựng: Cắt cảnh mỗi 2–4 giây trong 30 giây đầu để tối đa hóa tỷ lệ giữ chân.\n• Pattern Interrupt: Xen kẽ các góc máy cận và âm thanh SFX rõ nét sau mỗi 25 giây.\n• CTA mềm: Kêu gọi người xem góp ý phiên bản nâng cấp tiếp theo trong phần bình luận.`;
+chatMessages.value.push({id:Date.now()+1,role:'assistant',text:`${localReply}\n\n*(Ghi chú: Gemini API phản hồi "${e.message}", Đạo Diễn Copilot đang kích hoạt chế độ phân tích Offline).*`})}finally{aiBusy.value=false;await nextTick();chatBox.value?.scrollTo({top:chatBox.value.scrollHeight,behavior:'smooth'})}}
 
     async function testGithub(){integrationStatus.github='Đang kiểm tra…';try{const r=await fetch('https://api.github.com/user',{headers:{Authorization:`Bearer ${settings.githubToken}`,Accept:'application/vnd.github+json'}});const d=await r.json();if(!r.ok)throw new Error(d.message||'Token không hợp lệ');integrationStatus.github=`Kết nối thành công: ${d.login}`;persist()}catch(e){integrationStatus.github=`Lỗi: ${e.message}`}}
     function base64Utf8(s){return btoa(unescape(encodeURIComponent(s)))}
@@ -2397,31 +2434,44 @@ const app = createApp({
             });
           });
 
-          // Also check emerging_channels.json for any extra channels
+          // Also check emerging_channels.json for extra emerging channels
           if (emergingData && Array.isArray(emergingData.channels)) {
             emergingChannels.value = emergingData.channels;
             const existingIds = new Set(mappedChannels.map(c => c.id));
+            const existingNames = new Set(mappedChannels.map(c => (c.name || '').toLowerCase().trim()));
+            
             emergingData.channels.forEach((ec, ecIdx) => {
               const ecId = ec.channel_id || ec.title;
-              if (!existingIds.has(ecId)) {
+              const ecName = ec.title || ec.name || 'Kênh mới nổi';
+              
+              if (!existingIds.has(ecId) && !existingNames.has(ecName.toLowerCase().trim())) {
+                const subs = ec.subscriber_count || 1800;
+                // Calculate authentic 7-day views from 30d views or star video
+                const views7d = ec.views_30d ? Math.round(ec.views_30d / 4) : (ec.star_video?.views ? Math.round(ec.star_video.views * 1.2) : 25000);
+                // Calculate authentic VPH from velocity metrics
+                const vph = Math.round(ec.median_view_velocity || (ec.views_30d ? ec.views_30d / 720 : (ec.star_video?.view_velocity || 120)));
+                // Calculate hitRate from decimal or percentage
+                const hitRate = ec.hit_rate !== undefined ? Math.round(ec.hit_rate <= 1 ? ec.hit_rate * 100 : ec.hit_rate) : 60;
+                
                 mappedChannels.push({
                   id: ecId,
-                  name: ec.title || ec.name,
-                  handle: ec.handle || '@emerging',
-                  subs: ec.subscriber_count || 1800,
-                  views7d: 250000,
-                  vph: 4200,
-                  hitRate: 60,
-                  tags: ['Mới nổi', 'Breakout'],
-                  avatar: ec.thumbnail || avData[ec.title] || makeAvatar(ec.title),
+                  name: ecName,
+                  handle: ec.handle || ('@' + ecName.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 20)),
+                  subs: subs,
+                  views7d: views7d,
+                  vph: vph,
+                  hitRate: hitRate,
+                  tags: ec.presets?.length ? ec.presets.slice(0, 2).map(p => p === 'BREAKOUT' ? 'Breakout' : (p === 'EMERGING' ? 'Mới nổi' : 'Hot')) : ['Mới nổi', 'Breakout'],
+                  avatar: ec.thumbnail || avData[ecName] || makeAvatar(ecName),
                   url: ec.url || `https://www.youtube.com/channel/${ec.channel_id}`,
                   bio: ec.description || 'Kênh mới nổi phát hiện bởi Radar Tình Báo.',
                   growth: [20, 28, 35, 45, 58, 68, 79, 88, 95],
-                  uploadFreq: 3,
-                  avgViews: 80000,
-                  totalViews: 800000
+                  uploadFreq: ec.videos_30d ? Math.max(1, Math.round(ec.videos_30d / 4)) : 2,
+                  avgViews: ec.average_views_90d || Math.round(views7d / 2),
+                  totalViews: ec.views_90d || (views7d * 12)
                 });
                 existingIds.add(ecId);
+                existingNames.add(ecName.toLowerCase().trim());
               }
             });
           }
@@ -2491,7 +2541,7 @@ const app = createApp({
       formatNum,heatStyle,navGlow,handleImgError,goTab,openModal,closeModal,toggleTheme,isBookmarked,toggleBookmark,channelById,
       tasksByStage,checkProgress,priorityLabel,priorityClass,newTask,editTask,addChecklistItem,saveTask,deleteTask,moveTask,quickSchedule,quickScheduleStage,addVideoToPipeline,scheduleTitle,
       openChannel,openBattle,openTagManager,addTag,removeTag,removeChannel,adminAddChannel,openGlobalResult,renderChart,onThumbUpload,analyzeSimulatorImage,copyText,downloadJson,exportBookmarks,exportPipeline,
-      generateTitles,battleValue,battlePercent,openScriptFromVideo,generateScript,sendChat,downloadScript,testGithub,syncGithub,testGemini,testDiscord,switchAccount,persist
+      generateTitles,battleValue,battlePercent,openScriptFromVideo,generateScript,sendChat,downloadScript,testGithub,syncGithub,testGemini,testDiscord,switchAccount,persist,toastMsg,triggerBotScan,isTriggeringScan
     }
   }
 });
