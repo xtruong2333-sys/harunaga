@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS channels (
     avatar_url TEXT,
     status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'paused', 'archived')),
     scan_limit INTEGER NOT NULL DEFAULT 15 CHECK (scan_limit >= 1 AND scan_limit <= 50),
-    alert_vph_threshold INTEGER NOT NULL DEFAULT 5000 CHECK (alert_vph_threshold >= 100),
+    alert_vph_threshold INTEGER NOT NULL DEFAULT 5000 CHECK (alert_vph_threshold >= 1),
     source TEXT NOT NULL DEFAULT 'manual',
     notes TEXT,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -41,20 +41,12 @@ EXECUTE FUNCTION set_updated_at();
 -- Thiết lập Row Level Security (RLS)
 ALTER TABLE channels ENABLE ROW LEVEL SECURITY;
 
--- Cho phép đọc danh sách kênh
+-- 1. Cho phép đọc danh sách kênh công khai (SELECT)
 CREATE POLICY "Cho phép đọc kênh công khai"
 ON channels FOR SELECT
 USING (true);
 
--- Cho phép thêm kênh mới
-CREATE POLICY "Cho phép thêm kênh"
-ON channels FOR INSERT
-WITH CHECK (true);
-
--- Cho phép cập nhật trạng thái và thiết lập kênh
-CREATE POLICY "Cho phép cập nhật kênh"
-ON channels FOR UPDATE
-USING (true)
-WITH CHECK (true);
-
--- Không cho phép xóa vật lý qua UI (giữ dữ liệu, dùng status = 'archived')
+-- 2. KHÓA TOÀN BỘ QUYỀN WRITE CÔNG KHAI
+-- Mọi thao tác INSERT, UPDATE, DELETE bắt buộc phải đi qua Edge Function 'manage-channels'
+-- sử dụng SERVICE_ROLE_KEY server-side và xác thực qua APP_WRITE_ACCESS_KEY.
+-- Không tạo policy INSERT, UPDATE, DELETE cho anon/authenticated.

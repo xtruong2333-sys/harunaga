@@ -1,5 +1,7 @@
 // Service Layer: channel-service.ts
 // Nguồn dữ liệu duy nhất cho kênh đối thủ qua Supabase
+// TUYỆT ĐỐI KHÔNG TẠO DỮ LIỆU GIẢ.
+// Mọi thao tác WRITE đi qua Edge Function 'manage-channels' với Mã Truy Cập.
 
 import { getSupabase, isSupabaseConfigured } from './supabase';
 import {
@@ -10,8 +12,33 @@ import {
   ResolvedChannelPreview,
   BulkResolveSummary,
   mapDbChannelToChannel,
-  mapChannelInputToDb,
 } from '@/types/channel';
+
+export const ACCESS_KEY_STORAGE_KEY = 'bbdt_access_key';
+
+export function getStoredAccessKey(): string | null {
+  try {
+    return sessionStorage.getItem(ACCESS_KEY_STORAGE_KEY);
+  } catch {
+    return null;
+  }
+}
+
+export function setStoredAccessKey(key: string): void {
+  try {
+    sessionStorage.setItem(ACCESS_KEY_STORAGE_KEY, key.trim());
+  } catch {
+    // SessionStorage unavailable
+  }
+}
+
+export function clearStoredAccessKey(): void {
+  try {
+    sessionStorage.removeItem(ACCESS_KEY_STORAGE_KEY);
+  } catch {
+    // Ignored
+  }
+}
 
 export class DatabaseNotConfiguredError extends Error {
   constructor() {
@@ -20,9 +47,16 @@ export class DatabaseNotConfiguredError extends Error {
   }
 }
 
+export class AccessKeyRequiredError extends Error {
+  constructor(message = 'Vui lòng nhập Mã truy cập để thực hiện thao tác.') {
+    super(message);
+    this.name = 'AccessKeyRequiredError';
+  }
+}
+
 export const channelService = {
   /**
-   * Lấy danh sách toàn bộ kênh từ database
+   * Lấy danh sách toàn bộ kênh từ database (Read-only qua anon SELECT)
    */
   async listChannels(): Promise<Channel[]> {
     if (!isSupabaseConfigured()) {
@@ -59,7 +93,7 @@ export const channelService = {
 
   /**
    * Giải quyết thông tin kênh YouTube từ URL hoặc @handle
-   * Gọi qua Edge Function hoặc fallback trực tiếp client parser
+   * FAIL-CLOSED: Bắt buộc gọi qua Edge Function. Không đoán Channel ID, không tạo tên giả.
    */
   async resolveChannel(input: string): Promise<ResolvedChannelPreview> {
     const trimmed = input.trim();
@@ -67,176 +101,104 @@ export const channelService = {
       throw new Error('Vui lòng nhập đường dẫn hoặc @tênkênh YouTube.');
     }
 
-    // Thử gọi qua Supabase Edge Function nếu khả dụng
-    if (isSupabaseConfigured()) {
-      const supabase = getSupabase()!;
-      try {
-        const { data, error } = await supabase.functions.invoke('resolve-youtube-channel', {
-          body: { query: trimmed },
-        });
-
-        if (!error && data?.success && data?.data) {
-          return data.data as ResolvedChannelPreview;
-        }
-        if (data?.error) {
-          throw new Error(data.error);
-        }
-      } catch (err: any) {
-        // Nếu Edge Function không deploy hoặc mạng lỗi, tiếp tục phân tích phía client
-        if (err.message && !err.message.includes('FunctionsFetchError')) {
-          throw err;
-        }
-      }
+    if (!isSupabaseConfigured()) {
+      throw new Error('Chưa kết nối dịch vụ kiểm tra kênh YouTube.');
     }
 
-    // Client-side parser cho các URL chuẩn YouTube (khi dev hoặc chưa deploy Edge Function)
-    return this._clientResolveFallback(trimmed);
+    const supabase = getSupabase()!;
+    const { data, error } = await supabase.functions.invoke('resolve-youtube-channel', {
+      body: { query: trimmed },
+    });
+
+    if (error) {
+      throw new Error(error.message || 'Lỗi kết nối dịch vụ kiểm tra kênh YouTube.');
+    }
+
+    // CONTRACT DUY NHẤT: data.channel
+    if (!data?.success || !data?.channel) {
+      throw new Error(data?.error || 'Không tìm thấy kênh YouTube hợp lệ.');
+    }
+
+    return data.channel as ResolvedChannelPreview;
   },
 
   /**
-   * Bộ giải quyết chuẩn hóa phía client khi chưa deploy edge function
+   * Gọi Edge Function 'manage-channels' để thực hiện mutation an toàn phía server
    */
-  async _clientResolveFallback(input: string): Promise<ResolvedChannelPreview> {
-    let clean = input.trim();
-    
-    // Xử lý @handle trực tiếp
-    if (clean.startsWith('@')) {
-      const handle = clean;
-      const cleanHandle = handle.replace(/[^a-zA-Z0-9_.-]/g, '');
-      return {
-        youtubeChannelId: `UC_${cleanHandle}`,
-        name: cleanHandle,
-        handle: handle,
-        url: `https://www.youtube.com/${handle}`,
-        avatarUrl: null,
-      };
-    }
-
-    // Xử lý URL
-    let urlStr = clean;
-    if (!urlStr.startsWith('http://') && !urlStr.startsWith('https://')) {
-      urlStr = 'https://' + urlStr;
-    }
-
-    try {
-      const url = new URL(urlStr);
-      const path = url.pathname.replace(/\/+$/, '');
-
-      // Dạng @handle: youtube.com/@tenkenh
-      const handleMatch = path.match(/\/(@[a-zA-Z0-9_.-]+)/);
-      if (handleMatch) {
-        const handle = handleMatch[1];
-        const cleanHandle = handle.slice(1);
-        return {
-          youtubeChannelId: `UC_${cleanHandle}`,
-          name: cleanHandle,
-          handle: handle,
-          url: `https://www.youtube.com/${handle}`,
-          avatarUrl: null,
-        };
-      }
-
-      // Dạng /channel/UC...
-      const channelMatch = path.match(/\/channel\/(UC[a-zA-Z0-9_-]{22})/);
-      if (channelMatch) {
-        const channelId = channelMatch[1];
-        return {
-          youtubeChannelId: channelId,
-          name: `Kênh ${channelId.slice(0, 8)}...`,
-          handle: null,
-          url: `https://www.youtube.com/channel/${channelId}`,
-          avatarUrl: null,
-        };
-      }
-    } catch {
-      // Ignored
-    }
-
-    throw new Error('Đường dẫn hoặc @tênkênh không hợp lệ. Vui lòng nhập đúng định dạng (VD: @tenkenh hoặc youtube.com/@tenkenh).');
-  },
-
-  /**
-   * Thêm kênh mới vào cơ sở dữ liệu
-   */
-  async createChannel(input: CreateChannelInput): Promise<Channel> {
+  async _invokeManage(action: string, payload: any): Promise<Channel> {
     if (!isSupabaseConfigured()) {
       throw new DatabaseNotConfiguredError();
     }
-    const supabase = getSupabase()!;
 
-    // Kiểm tra trùng lặp
-    const existing = await this.findByYoutubeId(input.youtubeChannelId);
-    if (existing) {
-      throw new Error(`Kênh "${existing.name}" (${existing.youtubeChannelId}) đã tồn tại trong danh sách.`);
+    const accessKey = getStoredAccessKey();
+    if (!accessKey) {
+      throw new AccessKeyRequiredError();
     }
 
-    const payload = mapChannelInputToDb(input);
-    const { data, error } = await supabase
-      .from('channels')
-      .insert(payload)
-      .select()
-      .single();
+    const supabase = getSupabase()!;
+    const { data, error } = await supabase.functions.invoke('manage-channels', {
+      body: {
+        accessKey,
+        action,
+        payload,
+      },
+    });
 
     if (error) {
-      if (error.code === '23505') {
-        throw new Error('Kênh này đã có trong danh sách theo dõi.');
-      }
-      throw new Error(`Không thể thêm kênh: ${error.message}`);
+      throw new Error(error.message || 'Lỗi xử lý từ máy chủ.');
     }
 
-    return mapDbChannelToChannel(data as DbChannel);
+    if (!data?.success || !data?.channel) {
+      if (data?.error && (data.error.includes('Mã truy cập') || data.error.includes('truy cập'))) {
+        clearStoredAccessKey();
+        throw new AccessKeyRequiredError(data.error);
+      }
+      throw new Error(data?.error || 'Thao tác không thành công.');
+    }
+
+    return mapDbChannelToChannel(data.channel as DbChannel);
   },
 
   /**
-   * Cập nhật thiết lập kênh (scan_limit, alert_vph_threshold, notes)
+   * Thêm kênh mới (qua Edge Function manage-channels)
+   */
+  async createChannel(input: CreateChannelInput): Promise<Channel> {
+    return this._invokeManage('create', input);
+  },
+
+  /**
+   * Cập nhật thiết lập kênh (qua Edge Function manage-channels)
    */
   async updateChannel(id: string, input: UpdateChannelInput): Promise<Channel> {
-    if (!isSupabaseConfigured()) throw new DatabaseNotConfiguredError();
-    const supabase = getSupabase()!;
-
-    const payload: Partial<DbChannel> = {};
-    if (input.scanLimit !== undefined) payload.scan_limit = input.scanLimit;
-    if (input.alertVphThreshold !== undefined) payload.alert_vph_threshold = input.alertVphThreshold;
-    if (input.notes !== undefined) payload.notes = input.notes;
-    if (input.status !== undefined) payload.status = input.status;
-
-    const { data, error } = await supabase
-      .from('channels')
-      .update(payload)
-      .eq('id', id)
-      .select()
-      .single();
-
-    if (error) throw new Error(`Lỗi cập nhật thiết lập: ${error.message}`);
-    return mapDbChannelToChannel(data as DbChannel);
+    return this._invokeManage('update', { id, ...input });
   },
 
   /**
    * Tạm dừng theo dõi kênh (status = paused)
    */
   async pauseChannel(id: string): Promise<Channel> {
-    return this.updateChannel(id, { status: 'paused' });
+    return this._invokeManage('pause', { id });
   },
 
   /**
    * Bật lại theo dõi kênh (status = active)
    */
   async resumeChannel(id: string): Promise<Channel> {
-    return this.updateChannel(id, { status: 'active' });
+    return this._invokeManage('resume', { id });
   },
 
   /**
-   * Lưu trữ kênh (status = archived, không xóa dữ liệu)
+   * Lưu trữ kênh (status = archived, không xóa vật lý)
    */
   async archiveChannel(id: string): Promise<Channel> {
-    return this.updateChannel(id, { status: 'archived' });
+    return this._invokeManage('archive', { id });
   },
 
   /**
    * Khôi phục kênh đã lưu trữ (status = active)
    */
   async restoreChannel(id: string): Promise<Channel> {
-    return this.updateChannel(id, { status: 'active' });
+    return this._invokeManage('restore', { id });
   },
 
   /**
@@ -284,7 +246,7 @@ export const channelService = {
             resolved,
             alreadyExists: false,
           });
-          // Thêm tạm thời để tránh trùng lặp ngay trong danh sách nhập vào
+          // Tránh trùng lặp ngay trong danh sách gửi lên
           existingMap.set(resolved.youtubeChannelId, {
             id: 'temp',
             youtubeChannelId: resolved.youtubeChannelId,

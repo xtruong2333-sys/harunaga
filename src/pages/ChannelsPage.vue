@@ -141,6 +141,13 @@
       :channel="editingChannel"
       @save="handleSaveEdit"
     />
+
+    <!-- Modal: Nhập Mã Truy Cập -->
+    <AccessKeyPromptModal
+      v-model="showAccessKeyModal"
+      :initial-error="accessKeyError"
+      @confirmed="handleAccessKeyConfirmed"
+    />
   </div>
 </template>
 
@@ -154,6 +161,8 @@ import ChannelMobileList from '@/features/channels/components/ChannelMobileList.
 import AddChannelModal from '@/features/channels/components/AddChannelModal.vue';
 import BulkAddChannelsModal from '@/features/channels/components/BulkAddChannelsModal.vue';
 import EditChannelModal from '@/features/channels/components/EditChannelModal.vue';
+import AccessKeyPromptModal from '@/components/ui/AccessKeyPromptModal.vue';
+import { AccessKeyRequiredError } from '@/services/channel-service';
 import EmptyState from '@/features/channels/components/EmptyState.vue';
 import { useChannelStore } from '@/stores/channel-store';
 import { Channel, ChannelStatus } from '@/types/channel';
@@ -168,6 +177,9 @@ const showAddModal = ref(false);
 const showBulkAddModal = ref(false);
 const showEditModal = ref(false);
 const editingChannel = ref<Channel | null>(null);
+const showAccessKeyModal = ref(false);
+const accessKeyError = ref<string | null>(null);
+let pendingAction: (() => Promise<any>) | null = null;
 
 onMounted(() => {
   channelStore.fetchChannels();
@@ -213,28 +225,51 @@ function handleOpenEdit(channel: Channel) {
   showEditModal.value = true;
 }
 
+
+async function executeWithAccessKey(action: () => Promise<any>) {
+  try {
+    await action();
+  } catch (err: any) {
+    if (err instanceof AccessKeyRequiredError || err.name === 'AccessKeyRequiredError') {
+      accessKeyError.value = err.message;
+      pendingAction = action;
+      showAccessKeyModal.value = true;
+    } else {
+      alert(err.message || 'Thao tác không thành công.');
+    }
+  }
+}
+
+async function handleAccessKeyConfirmed() {
+  if (pendingAction) {
+    const action = pendingAction;
+    pendingAction = null;
+    await executeWithAccessKey(action);
+  }
+}
+
 async function handlePause(id: string) {
-  await channelStore.pauseChannel(id);
+  await executeWithAccessKey(() => channelStore.pauseChannel(id));
 }
 
 async function handleResume(id: string) {
-  await channelStore.resumeChannel(id);
+  await executeWithAccessKey(() => channelStore.resumeChannel(id));
 }
 
 async function handleArchive(id: string) {
-  await channelStore.archiveChannel(id);
+  await executeWithAccessKey(() => channelStore.archiveChannel(id));
 }
 
 async function handleRestore(id: string) {
-  await channelStore.restoreChannel(id);
+  await executeWithAccessKey(() => channelStore.restoreChannel(id));
 }
 
 async function handleSaveEdit(payload: { id: string; scanLimit: number; alertThreshold: number; notes: string }) {
-  await channelStore.updateChannel(payload.id, {
+  await executeWithAccessKey(() => channelStore.updateChannel(payload.id, {
     scanLimit: payload.scanLimit,
     alertVphThreshold: payload.alertThreshold,
     notes: payload.notes,
-  });
+  }));
 }
 
 function handleChannelAdded() {

@@ -1,6 +1,6 @@
 // Supabase Edge Function: resolve-youtube-channel
 // Xác thực và chuẩn hóa kênh YouTube từ URL hoặc @handle
-// KHÔNG dùng placeholder/fake data. Báo lỗi nếu không xác định được.
+// FAIL-CLOSED: Chỉ trả về dữ liệu thật. Tuyệt đối không tạo dữ liệu giả.
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
@@ -33,7 +33,6 @@ function normalizeInput(input: string): { type: 'handle' | 'channelId' | 'url'; 
     return { type: 'channelId', value: trimmed };
   }
 
-  // Phân tích URL
   try {
     let urlStr = trimmed;
     if (!urlStr.startsWith('http://') && !urlStr.startsWith('https://')) {
@@ -83,7 +82,6 @@ serve(async (req: Request) => {
       targetUrl = normalized.value;
     }
 
-    // Tải HTML trang kênh từ YouTube để trích xuất metadata chuẩn
     const response = await fetch(targetUrl, {
       headers: {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
@@ -93,14 +91,14 @@ serve(async (req: Request) => {
 
     if (!response.ok && response.status === 404) {
       return new Response(
-        JSON.stringify({ success: false, error: "Không tìm thấy kênh YouTube này. Vui lòng kiểm tra lại URL hoặc @tênkênh." }),
+        JSON.stringify({ success: false, error: "Không tìm thấy kênh YouTube này trên hệ thống YouTube." }),
         { status: 404, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
     const html = await response.text();
 
-    // 1. Trích xuất Channel ID (dạng UC...)
+    // 1. Trích xuất Channel ID thật (^UC[a-zA-Z0-9_-]{22}$)
     let channelId: string | null = null;
     const channelIdMeta = html.match(/<meta\s+itemprop="channelId"\s+content="([^"]+)"/i)
       || html.match(/"channelId":"(UC[a-zA-Z0-9_-]{22})"/i)
@@ -113,28 +111,36 @@ serve(async (req: Request) => {
       channelId = normalized.value;
     }
 
-    if (!channelId || !channelId.startsWith('UC')) {
+    // FAIL-CLOSED: Bắt buộc Channel ID phải đúng định dạng chuẩn YouTube
+    if (!channelId || !/^UC[a-zA-Z0-9_-]{22}$/.test(channelId)) {
       return new Response(
-        JSON.stringify({ success: false, error: "Không thể nhận diện Channel ID của kênh. Vui lòng kiểm tra lại đường dẫn." }),
+        JSON.stringify({ success: false, error: "Không thể xác định Channel ID hợp lệ của kênh YouTube này." }),
         { status: 422, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    // 2. Trích xuất Tên Kênh
+    // 2. Trích xuất Tên Kênh thật từ metadata
     let channelName: string | null = null;
     const nameMatch = html.match(/<meta\s+property="og:title"\s+content="([^"]+)"/i)
       || html.match(/<title>([^<]+) - YouTube<\/title>/i)
       || html.match(/<title>([^<]+)<\/title>/i);
 
     if (nameMatch && nameMatch[1]) {
-      channelName = nameMatch[1].replace(/ - YouTube$/, '').trim();
+      const parsedName = nameMatch[1].replace(/ - YouTube$/, '').trim();
+      if (parsedName && parsedName !== 'YouTube' && parsedName !== '404 Not Found') {
+        channelName = parsedName;
+      }
     }
 
+    // FAIL-CLOSED: Không dùng handle hoặc ID làm tên kênh giả!
     if (!channelName) {
-      channelName = normalized.type === 'handle' ? normalized.value : channelId;
+      return new Response(
+        JSON.stringify({ success: false, error: "Không thể trích xuất tên hiển thị thật của kênh YouTube này." }),
+        { status: 422, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
-    // 3. Trích xuất Handle (@handle)
+    // 3. Trích xuất Handle (@handle) nếu có
     let handle: string | null = null;
     if (normalized.type === 'handle') {
       handle = normalized.value;
@@ -147,7 +153,7 @@ serve(async (req: Request) => {
       }
     }
 
-    // 4. Trích xuất Avatar URL
+    // 4. Trích xuất Avatar URL nếu có
     let avatarUrl: string | null = null;
     const avatarMatch = html.match(/<meta\s+property="og:image"\s+content="([^"]+)"/i)
       || html.match(/"avatar":\{"thumbnails":\[\{"url":"([^"]+)"/i);
@@ -155,10 +161,9 @@ serve(async (req: Request) => {
       avatarUrl = avatarMatch[1].replace(/&amp;/g, '&');
     }
 
-    // 5. URL chuẩn
     const canonicalUrl = handle ? `https://www.youtube.com/${handle}` : `https://www.youtube.com/channel/${channelId}`;
 
-    const data: ChannelData = {
+    const channel: ChannelData = {
       youtubeChannelId: channelId,
       name: channelName,
       handle: handle,
@@ -166,8 +171,9 @@ serve(async (req: Request) => {
       avatarUrl: avatarUrl,
     };
 
+    // CONTRACT DUY NHẤT: { success: true, channel: ... }
     return new Response(
-      JSON.stringify({ success: true, data }),
+      JSON.stringify({ success: true, channel }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error: any) {

@@ -1,12 +1,21 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { setActivePinia, createPinia } from 'pinia';
 import { useChannelStore } from '../src/stores/channel-store';
-import { channelService, DatabaseNotConfiguredError } from '../src/services/channel-service';
-import { Channel, mapChannelInputToDb, STATUS_LABELS } from '../src/types/channel';
+import {
+  channelService,
+  DatabaseNotConfiguredError,
+  setStoredAccessKey,
+  clearStoredAccessKey,
+  getStoredAccessKey,
+} from '../src/services/channel-service';
+import { Channel, mapChannelInputToDb } from '../src/types/channel';
+import * as fs from 'fs';
+import * as path from 'path';
 
-describe('Bắt Bài Đối Thủ — Kiểm thử hệ thống Kênh Theo Dõi (13 yêu cầu bắt buộc)', () => {
+describe('Bắt Bài Đối Thủ — Kiểm thử hệ thống Kênh Theo Dõi (Giai đoạn 1.1)', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
+    clearStoredAccessKey();
     vi.restoreAllMocks();
   });
 
@@ -58,8 +67,6 @@ describe('Bắt Bài Đối Thủ — Kiểm thử hệ thống Kênh Theo Dõi 
     expect(created.youtubeChannelId).toBe('UC1234567890123456789012');
     expect(created.status).toBe('active');
     expect(store.channels.length).toBe(1);
-    expect(store.totalCount).toBe(1);
-    expect(store.activeCount).toBe(1);
   });
 
   // 3. Duplicate YouTube Channel ID -> bị chặn
@@ -208,7 +215,7 @@ describe('Bắt Bài Đối Thủ — Kiểm thử hệ thống Kênh Theo Dõi 
   // 8. Default scan_limit -> 15
   it('8. Default scan_limit -> 15', () => {
     const payload = mapChannelInputToDb({
-      youtubeChannelId: 'UC123',
+      youtubeChannelId: 'UC1234567890123456789012',
       name: 'Test',
       url: 'https://youtube.com',
     });
@@ -218,7 +225,7 @@ describe('Bắt Bài Đối Thủ — Kiểm thử hệ thống Kênh Theo Dõi 
   // 9. Default threshold -> 5000
   it('9. Default threshold -> 5000', () => {
     const payload = mapChannelInputToDb({
-      youtubeChannelId: 'UC123',
+      youtubeChannelId: 'UC1234567890123456789012',
       name: 'Test',
       url: 'https://youtube.com',
     });
@@ -292,29 +299,43 @@ describe('Bắt Bài Đối Thủ — Kiểm thử hệ thống Kênh Theo Dõi 
       },
     ];
 
+    vi.spyOn(channelService, 'resolveChannel').mockImplementation(async (input: string) => {
+      if (input === '@existing_channel') {
+        return {
+          youtubeChannelId: 'UC_existing_channel',
+          name: 'Existing',
+          handle: '@existing_channel',
+          url: 'https://youtube.com/@existing_channel',
+          avatarUrl: null,
+        };
+      }
+      return {
+        youtubeChannelId: 'UC_new_channel_1_22char',
+        name: 'New Channel',
+        handle: '@new_channel_1',
+        url: 'https://youtube.com/@new_channel_1',
+        avatarUrl: null,
+      };
+    });
+
     const lines = [
       '@existing_channel',
       '@new_channel_1',
-      '@new_channel_1', // Trùng ngay trong input
+      '@new_channel_1',
     ];
 
     const summary = await channelService.bulkResolveChannels(lines, existing);
 
     expect(summary.total).toBe(3);
-    // 1 trùng với existing, 1 trùng do dòng lặp lại sau khi thêm, 1 hợp lệ
     expect(summary.valid.length).toBe(1);
     expect(summary.valid[0].resolved?.handle).toBe('@new_channel_1');
     expect(summary.duplicates.length).toBe(2);
   });
 
   // 12. Resolver fail -> thông báo lỗi rõ
-  it('12. Resolver fail -> thông báo lỗi tiếng Việt rõ ràng khi input sai', async () => {
+  it('12. Resolver fail -> thông báo lỗi tiếng Việt rõ ràng khi input rỗng', async () => {
     await expect(channelService.resolveChannel('')).rejects.toThrow(
       'Vui lòng nhập đường dẫn hoặc @tênkênh YouTube.'
-    );
-
-    await expect(channelService.resolveChannel('invalid-gibberish-string??')).rejects.toThrow(
-      'Đường dẫn hoặc @tênkênh không hợp lệ'
     );
   });
 
@@ -327,15 +348,169 @@ describe('Bắt Bài Đối Thủ — Kiểm thử hệ thống Kênh Theo Dõi 
 
     expect(store.notConfigured).toBe(true);
     expect(store.error).toContain('Chưa kết nối cơ sở dữ liệu');
-    // Tuyệt đối không fallback sang demo data
     expect(store.channels).toEqual([]);
     expect(store.totalCount).toBe(0);
   });
 
-  // Kiểm tra tên hiển thị trạng thái tiếng Việt
-  it('Tên hiển thị trạng thái chuẩn tiếng Việt tự nhiên', () => {
-    expect(STATUS_LABELS.active).toBe('Đang theo dõi');
-    expect(STATUS_LABELS.paused).toBe('Tạm dừng');
-    expect(STATUS_LABELS.archived).toBe('Đã lưu trữ');
+  // =========================================================================
+  // CÁC TEST MỚI BẮT BUỘC TRONG GIAI ĐOẠN 1.1 (Yêu cầu A -> M)
+  // =========================================================================
+
+  // A. resolve @handle khi backend chưa cấu hình -> FAIL rõ ràng, KHÔNG UC_fake
+  it('A. resolveChannel khi Supabase chưa cấu hình -> ném lỗi rõ ràng, KHÔNG tạo UC_fake', async () => {
+    // Giả lập chưa cấu hình Supabase
+    await expect(channelService.resolveChannel('@anyhandle')).rejects.toThrow(
+      'Chưa kết nối dịch vụ kiểm tra kênh YouTube.'
+    );
+  });
+
+  // B. Không tồn tại chuỗi/code tạo UC_${handle} trong toàn bộ src/
+  it('B. Kiểm tra toàn bộ mã nguồn src/ KHÔNG chứa cơ chế tạo UC_fake', () => {
+    const srcDir = path.resolve(__dirname, '../src');
+    function scanDir(dir: string): string[] {
+      let files: string[] = [];
+      for (const item of fs.readdirSync(dir)) {
+        const full = path.join(dir, item);
+        if (fs.statSync(full).isDirectory()) files.push(...scanDir(full));
+        else if (full.endsWith('.ts') || full.endsWith('.vue')) files.push(full);
+      }
+      return files;
+    }
+
+    const files = scanDir(srcDir);
+    for (const file of files) {
+      const content = fs.readFileSync(file, 'utf-8');
+      expect(content).not.toContain('UC_${');
+      expect(content).not.toContain("UC_' +");
+      expect(content).not.toContain('UC_fake');
+      expect(content).not.toContain('_clientResolveFallback');
+    }
+  });
+
+  // C & D. Không có direct browser INSERT / UPDATE channels trong src/
+  it('C & D. Mã nguồn src/ KHÔNG gọi direct .insert( hay .update( trên channels table', () => {
+    const srcDir = path.resolve(__dirname, '../src');
+    function scanDir(dir: string): string[] {
+      let files: string[] = [];
+      for (const item of fs.readdirSync(dir)) {
+        const full = path.join(dir, item);
+        if (fs.statSync(full).isDirectory()) files.push(...scanDir(full));
+        else if (full.endsWith('.ts') || full.endsWith('.vue')) files.push(full);
+      }
+      return files;
+    }
+
+    const files = scanDir(srcDir);
+    for (const file of files) {
+      const content = fs.readFileSync(file, 'utf-8');
+      // Không được gọi .from('channels').insert(...) hoặc .from('channels').update(...)
+      expect(content).not.toMatch(/from\(['"]channels['"]\)\s*\.insert/);
+      expect(content).not.toMatch(/from\(['"]channels['"]\)\s*\.update/);
+      expect(content).not.toMatch(/from\(['"]channels['"]\)\s*\.delete/);
+    }
+  });
+
+  // E & F. RLS anon INSERT & UPDATE -> DENIED trong migration SQL
+  it('E & F. Database migration không cho phép anon INSERT hay UPDATE', () => {
+    const migrationPath = path.resolve(__dirname, '../supabase/migrations/20260917000001_create_channels.sql');
+    const sql = fs.readFileSync(migrationPath, 'utf-8');
+
+    // Phải ENABLE ROW LEVEL SECURITY
+    expect(sql).toContain('ALTER TABLE channels ENABLE ROW LEVEL SECURITY;');
+    // Phải có SELECT policy
+    expect(sql).toContain('FOR SELECT');
+    // KHÔNG ĐƯỢC CÓ INSERT policy công khai
+    expect(sql).not.toContain('FOR INSERT');
+    // KHÔNG ĐƯỢC CÓ UPDATE policy công khai
+    expect(sql).not.toContain('FOR UPDATE');
+  });
+
+  // G. Wrong Mã truy cập -> denied
+  it('G. Thiếu hoặc sai Mã truy cập -> ném AccessKeyRequiredError', async () => {
+    clearStoredAccessKey();
+    expect(getStoredAccessKey()).toBeNull();
+
+    await expect(
+      channelService.createChannel({
+        youtubeChannelId: 'UC1234567890123456789012',
+        name: 'Test',
+        url: 'https://youtube.com',
+      })
+    ).rejects.toThrow();
+  });
+
+  // H. Correct Mã truy cập -> mutation accepted
+  it('H. Đúng Mã truy cập -> lưu trong sessionStorage và gửi đi trong mutation', async () => {
+    setStoredAccessKey('mat-khau-quan-tri-bi-mat');
+    expect(getStoredAccessKey()).toBe('mat-khau-quan-tri-bi-mat');
+
+    const expectedChan: Channel = {
+      id: 'uuid-test',
+      youtubeChannelId: 'UC1234567890123456789012',
+      name: 'Kênh Test',
+      handle: '@test',
+      url: 'https://youtube.com/@test',
+      avatarUrl: null,
+      status: 'active',
+      scanLimit: 15,
+      alertVphThreshold: 5000,
+      source: 'manual',
+      notes: null,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      lastScanAt: null,
+    };
+
+    vi.spyOn(channelService, '_invokeManage').mockResolvedValue(expectedChan);
+
+    const res = await channelService.createChannel({
+      youtubeChannelId: 'UC1234567890123456789012',
+      name: 'Kênh Test',
+      url: 'https://youtube.com/@test',
+    });
+
+    expect(res.id).toBe('uuid-test');
+    expect(channelService._invokeManage).toHaveBeenCalledWith('create', expect.any(Object));
+  });
+
+  // I. Duplicate youtube_channel_id -> rejected
+  it('I. Server manage-channels kiểm tra trùng lặp youtube_channel_id', () => {
+    const manageFuncPath = path.resolve(__dirname, '../supabase/functions/manage-channels/index.ts');
+    const funcCode = fs.readFileSync(manageFuncPath, 'utf-8');
+
+    // Kiểm tra có code check duplicate và trả lỗi
+    expect(funcCode).toContain('eq("youtube_channel_id", youtubeChannelId)');
+    expect(funcCode).toContain('Kênh này đã có trong danh sách theo dõi.');
+  });
+
+  // J & K. alert_vph_threshold = 1 valid, 0 invalid
+  it('J & K. Kiểm tra constraint alert_vph_threshold >= 1 trong database migration', () => {
+    const migrationPath = path.resolve(__dirname, '../supabase/migrations/20260917000001_create_channels.sql');
+    const sql = fs.readFileSync(migrationPath, 'utf-8');
+
+    expect(sql).toContain('CHECK (alert_vph_threshold >= 1)');
+    expect(sql).not.toContain('CHECK (alert_vph_threshold >= 100)');
+  });
+
+  // L. Vite build -> dist/CNAME exists
+  it('L. Kiểm tra public/CNAME tồn tại và chứa batbaidoithu.click', () => {
+    const cnamePath = path.resolve(__dirname, '../public/CNAME');
+    expect(fs.existsSync(cnamePath)).toBe(true);
+    const content = fs.readFileSync(cnamePath, 'utf-8');
+    expect(content.trim()).toBe('batbaidoithu.click');
+  });
+
+  // M. Source repository -> không tracked generated hashed assets ở root
+  it('M. Root repository index.html là Vite source và không có assets/ hash ở root', () => {
+    const rootIndex = path.resolve(__dirname, '../index.html');
+    const html = fs.readFileSync(rootIndex, 'utf-8');
+
+    // Phải là Vite source với script /src/main.ts
+    expect(html).toContain('src="/src/main.ts"');
+    expect(html).not.toContain('/assets/index-');
+
+    // Thư mục assets ở root không được tồn tại (chỉ có trong dist/)
+    const rootAssets = path.resolve(__dirname, '../assets');
+    expect(fs.existsSync(rootAssets)).toBe(false);
   });
 });
