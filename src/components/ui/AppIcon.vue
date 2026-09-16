@@ -1,0 +1,124 @@
+<template>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    :width="size"
+    :height="size"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    :class="iconClass"
+  >
+    <!-- Plus -->
+    <template v-if="name === 'plus'">
+      <line x1="12" y1="5" x2="12" y2="19" />
+      <line x1="5" y1="12" x2="19" y2="12" />
+    </template>
+
+    <!-- Search -->
+    <template v-else-if="name === 'search'">
+      <circle cx="11" cy="11" r="8" />
+      <line x1="21" y1="21" x2="16.65" y2="16.65" />
+    </template>
+
+    <!-- Pause -->
+    <template v-else-if="name === 'pause'">
+      <rect x="6" y="4" width="4" height="16" />
+      <rect x="14" y="4" width="4" height="16" />
+    </template>
+
+    <!-- Play (Resume) -->
+    <template v-else-if="name === 'play'">
+      <polygon points="5 3 19 12 5 21 5 3" />
+    </template>
+
+    <!-- Archive -->
+    <template v-else-if="name === 'archive'">
+      <polyline points="21 8 21 21 3 21 3 8" />
+      <rect x="1" y="3" width="22" height="5" />
+      <line x1="10" y1="12" x2="14" y2="12" />
+    </template>
+
+    <!-- Restore -->
+    <template v-else-if="name === 'restore'">
+      <polyline points="1 4 1 10 7 10" />
+      <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
+    </template>
+
+    <!-- Settings / Sliders -->
+    <template v-else-if="name === 'settings'">
+      <circle cx="12" cy="12" r="3" />
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+    </template>
+
+    <!-- Channels / Users / Tv -->
+    <template v-else-if="name === 'tv'">
+      <rect x="2" y="7" width="20" height="15" rx="2" ry="2" />
+      <polyline points="17 2 12 7 7 2" />
+    </template>
+
+    <!-- More / Dots -->
+    <template v-else-if="name === 'more'">
+      <circle cx="12" cy="12" r="1" />
+      <circle cx="12" cy="5" r="1" />
+      <circle cx="12" cy="19" r="1" />
+    </template>
+
+    <!-- External link -->
+    <template v-else-if="name === 'external'">
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+      <polyline points="15 3 21 3 21 9" />
+      <line x1="10" y1="14" x2="21" y2="3" />
+    </template>
+
+    <!-- Close / X -->
+    <template v-else-if="name === 'x'">
+      <line x1="18" y1="6" x2="6" y2="18" />
+      <line x1="6" y1="6" x2="18" y2="18" />
+    </template>
+
+    <!-- Check -->
+    <template v-else-if="name === 'check'">
+      <polyline points="20 6 9 17 4 12" />
+    </template>
+
+    <!-- Alert / Warning -->
+    <template v-else-if="name === 'alert'">
+      <circle cx="12" cy="12" r="10" />
+      <line x1="12" y1="8" x2="12" y2="12" />
+      <line x1="12" y1="16" x2="12.01" y2="16" />
+    </template>
+
+    <!-- Refresh -->
+    <template v-else-if="name === 'refresh'">
+      <polyline points="23 4 23 10 17 10" />
+      <polyline points="1 20 1 14 7 14" />
+      <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+    </template>
+
+    <!-- Bulk add -->
+    <template v-else-if="name === 'list-plus'">
+      <path d="M11 12H3" />
+      <path d="M16 6H3" />
+      <path d="M16 18H3" />
+      <path d="M18 9v6" />
+      <path d="M21 12h-6" />
+    </template>
+  </svg>
+</template>
+
+<script setup lang="ts">
+withDefaults(
+  defineProps<{
+    name: string;
+    size?: number | string;
+    iconClass?: string;
+  }>(),
+  {
+    size: 16,
+    iconClass: '',
+  }
+);
+</script>

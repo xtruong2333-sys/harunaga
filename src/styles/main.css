@@ -1,0 +1,162 @@
+/* BẮT BÀI ĐỐI THỦ — Global Stylesheet */
+:root {
+  --bg-main: #0B0D10;
+  --bg-surface: #12161C;
+  --bg-surface-elevated: #171C23;
+  --bg-surface-hover: #1C222B;
+  --border-subtle: #1F2630;
+  --border-strong: #2D3748;
+  
+  --text-primary: #F0F6FC;
+  --text-secondary: #8B949E;
+  --text-muted: #656D76;
+  
+  --accent: #38BDF8;
+  --accent-hover: #0EA5E9;
+  --accent-subtle: rgba(56, 189, 248, 0.12);
+  
+  --status-active: #22C55E;
+  --status-active-bg: rgba(34, 197, 94, 0.12);
+  --status-paused: #EAB308;
+  --status-paused-bg: rgba(234, 179, 8, 0.12);
+  --status-archived: #94A3B8;
+  --status-archived-bg: rgba(148, 163, 184, 0.12);
+  
+  --danger: #EF4444;
+  --danger-bg: rgba(239, 68, 68, 0.12);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--accent-hover);
+}
+
+button, input, select, textarea {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-main);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
+
+/* Utilities */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+}
+.badge-active {
+  background-color: var(--status-active-bg);
+  color: var(--status-active);
+  border: 1px solid rgba(34, 197, 94, 0.25);
+}
+.badge-paused {
+  background-color: var(--status-paused-bg);
+  color: var(--status-paused);
+  border: 1px solid rgba(234, 179, 8, 0.25);
+}
+.badge-archived {
+  background-color: var(--status-archived-bg);
+  color: var(--status-archived);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: 1px solid transparent;
+}
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background-color: var(--accent);
+  color: #03111C;
+  font-weight: 600;
+}
+.btn-primary:hover:not(:disabled) {
+  background-color: var(--accent-hover);
+}
+
+.btn-secondary {
+  background-color: var(--bg-surface-elevated);
+  color: var(--text-primary);
+  border-color: var(--border-subtle);
+}
+.btn-secondary:hover:not(:disabled) {
+  background-color: var(--bg-surface-hover);
+  border-color: var(--border-strong);
+}
+
+.btn-danger {
+  background-color: var(--danger-bg);
+  color: var(--danger);
+  border-color: rgba(239, 68, 68, 0.25);
+}
+.btn-danger:hover:not(:disabled) {
+  background-color: rgba(239, 68, 68, 0.2);
+}
+
+.form-input, .form-textarea, .form-select {
+  width: 100%;
+  padding: 10px 14px;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color 0.15s;
+}
+.form-input:focus, .form-textarea:focus, .form-select:focus {
+  border-color: var(--accent);
+}
+.form-input::placeholder, .form-textarea::placeholder {
+  color: var(--text-muted);
+}
