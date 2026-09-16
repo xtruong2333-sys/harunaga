@@ -49,21 +49,33 @@ serve(async (req: Request) => {
       );
     }
 
-    // 2. Khởi tạo Supabase Server Client với SERVICE_ROLE_KEY
+    // 2. Khởi tạo Supabase Server Client bằng Secret Key từ môi trường máy chủ
     const supabaseUrl = Deno.env.get("SUPABASE_URL");
-    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    
+    // Đọc SUPABASE_SECRET_KEYS (chuẩn mới Supabase dạng JSON map) hoặc fallback SERVICE_ROLE_KEY
+    let secretKey: string | null = null;
+    try {
+      const secretKeys = JSON.parse(Deno.env.get("SUPABASE_SECRET_KEYS") || "{}");
+      secretKey = secretKeys["default"] || null;
+    } catch {
+      secretKey = null;
+    }
 
-    if (!supabaseUrl || !serviceRoleKey) {
+    if (!secretKey) {
+      secretKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || null;
+    }
+
+    if (!supabaseUrl || !secretKey) {
       return new Response(
         JSON.stringify({
           success: false,
-          error: "Thiếu cấu hình SUPABASE_URL hoặc SUPABASE_SERVICE_ROLE_KEY trên Edge Function.",
+          error: "Thiếu cấu hình SUPABASE_URL hoặc Secret Key (SUPABASE_SECRET_KEYS) trên Edge Function.",
         }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    const supabase = createClient(supabaseUrl, serviceRoleKey);
+    const supabase = createClient(supabaseUrl, secretKey);
 
     // 3. Thực hiện thao tác
     switch (action) {

@@ -513,4 +513,44 @@ describe('Bắt Bài Đối Thủ — Kiểm thử hệ thống Kênh Theo Dõi 
     const rootAssets = path.resolve(__dirname, '../assets');
     expect(fs.existsSync(rootAssets)).toBe(false);
   });
+
+  // =========================================================================
+  // CÁC TEST MỚI CHO GIAI ĐOẠN 1.2 (Publishable Key & Server Secret Keys)
+  // =========================================================================
+
+  // N. Frontend dùng VITE_SUPABASE_PUBLISHABLE_KEY (chuẩn mới), không dùng anon key legacy
+  it('N. Frontend supabase.ts sử dụng VITE_SUPABASE_PUBLISHABLE_KEY và không chứa VITE_SUPABASE_ANON_KEY', () => {
+    const supabaseServicePath = path.resolve(__dirname, '../src/services/supabase.ts');
+    const serviceCode = fs.readFileSync(supabaseServicePath, 'utf-8');
+
+    expect(serviceCode).toContain('VITE_SUPABASE_PUBLISHABLE_KEY');
+    expect(serviceCode).not.toContain('VITE_SUPABASE_ANON_KEY');
+  });
+
+  // O. File .env.example chuẩn hóa với VITE_SUPABASE_PUBLISHABLE_KEY
+  it('O. File .env.example chỉ chứa VITE_SUPABASE_PUBLISHABLE_KEY, xóa bỏ hoàn toàn VITE_SUPABASE_ANON_KEY', () => {
+    const envExamplePath = path.resolve(__dirname, '../.env.example');
+    const envContent = fs.readFileSync(envExamplePath, 'utf-8');
+
+    expect(envContent).toContain('VITE_SUPABASE_PUBLISHABLE_KEY');
+    expect(envContent).not.toContain('VITE_SUPABASE_ANON_KEY');
+  });
+
+  // P. Server Edge Function manage-channels đọc SUPABASE_SECRET_KEYS map
+  it('P. Edge Function manage-channels đọc Secret Key từ SUPABASE_SECRET_KEYS ("default")', () => {
+    const manageFuncPath = path.resolve(__dirname, '../supabase/functions/manage-channels/index.ts');
+    const funcCode = fs.readFileSync(manageFuncPath, 'utf-8');
+
+    expect(funcCode).toContain('SUPABASE_SECRET_KEYS');
+    expect(funcCode).toContain('secretKeys["default"]');
+  });
+
+  // Q. GitHub Pages Workflow dùng vars.VITE_SUPABASE_PUBLISHABLE_KEY
+  it('Q. Workflow deploy-pages.yml sử dụng biến vars.VITE_SUPABASE_PUBLISHABLE_KEY', () => {
+    const wfPath = path.resolve(__dirname, '../.github/workflows/deploy-pages.yml');
+    const wfCode = fs.readFileSync(wfPath, 'utf-8');
+
+    expect(wfCode).toContain('VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}');
+    expect(wfCode).not.toContain('VITE_SUPABASE_ANON_KEY');
+  });
 });
