@@ -1,0 +1,47 @@
+// Định nghĩa kiểu dữ liệu cho Phiên Quét Dữ Liệu (Scan Runs)
+
+export type ScanRunStatus = 'running' | 'success' | 'partial' | 'failed';
+export type ScanTriggerSource = 'manual' | 'schedule';
+
+export interface ScanRun {
+  id: string;
+  startedAt: string;
+  finishedAt: string | null;
+  status: ScanRunStatus;
+  channelsTotal: number;
+  channelsSuccess: number;
+  channelsFailed: number;
+  videosFound: number;
+  snapshotsCreated: number;
+  errorSummary: string | null;
+  triggerSource: ScanTriggerSource;
+}
+
+export interface DbScanRun {
+  id: string;
+  started_at: string;
+  finished_at: string | null;
+  status: ScanRunStatus;
+  channels_total: number;
+  channels_success: number;
+  channels_failed: number;
+  videos_found: number;
+  snapshots_created: number;
+  error_summary: string | null;
+  trigger_source: ScanTriggerSource;
+}
+
+export interface CollectorResponse {
+  success: boolean;
+  run?: {
+    id: string;
+    channelsTotal: number;
+    channelsSuccess: number;
+    channelsFailed: number;
+    videosFound: number;
+    snapshotsCreated: number;
+    status: ScanRunStatus;
+    errorSummary?: string | null;
+  };
+  error?: string;
+}

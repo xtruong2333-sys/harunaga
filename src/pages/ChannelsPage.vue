@@ -10,6 +10,15 @@
       </div>
 
       <div class="page-header-actions">
+        <button
+          class="btn btn-secondary"
+          :disabled="isCollecting || channelStore.loading"
+          @click="handleTriggerCollection"
+          title="Kiểm tra dữ liệu video mới nhất của các kênh đang theo dõi"
+        >
+          <AppIcon name="refresh" size="16" />
+          <span>{{ isCollecting ? 'Đang kiểm tra dữ liệu...' : 'Kiểm Tra Dữ Liệu' }}</span>
+        </button>
         <button class="btn btn-secondary" @click="showBulkAddModal = true">
           <AppIcon name="list-plus" size="16" />
           <span>Thêm Nhiều Kênh</span>
@@ -19,6 +28,12 @@
           <span>+ Thêm Kênh</span>
         </button>
       </div>
+    </div>
+
+    <!-- Thông báo kết quả kiểm tra dữ liệu -->
+    <div v-if="collectNotification" class="collect-banner">
+      <AppIcon name="check" size="18" />
+      <span>{{ collectNotification }}</span>
     </div>
 
     <!-- Thông báo chưa cấu hình cơ sở dữ liệu -->
@@ -163,6 +178,7 @@ import BulkAddChannelsModal from '@/features/channels/components/BulkAddChannels
 import EditChannelModal from '@/features/channels/components/EditChannelModal.vue';
 import AccessKeyPromptModal from '@/components/ui/AccessKeyPromptModal.vue';
 import { AccessKeyRequiredError } from '@/services/channel-service';
+import { collectorService } from '@/services/collector-service';
 import EmptyState from '@/features/channels/components/EmptyState.vue';
 import { useChannelStore } from '@/stores/channel-store';
 import { Channel, ChannelStatus } from '@/types/channel';
@@ -179,6 +195,8 @@ const showEditModal = ref(false);
 const editingChannel = ref<Channel | null>(null);
 const showAccessKeyModal = ref(false);
 const accessKeyError = ref<string | null>(null);
+const isCollecting = ref(false);
+const collectNotification = ref<string | null>(null);
 let pendingAction: (() => Promise<any>) | null = null;
 
 onMounted(() => {
@@ -279,9 +297,42 @@ function handleChannelAdded() {
 function handleBulkAdded() {
   channelStore.fetchChannels();
 }
+
+async function handleTriggerCollection() {
+  if (isCollecting.value) return;
+  await executeWithAccessKey(async () => {
+    isCollecting.value = true;
+    collectNotification.value = null;
+    try {
+      const res = await collectorService.triggerCollection();
+      if (res.success && res.run) {
+        collectNotification.value = `Đã kiểm tra ${res.run.channelsSuccess} kênh và ${res.run.videosFound} video.`;
+        await channelStore.fetchChannels();
+        setTimeout(() => {
+          collectNotification.value = null;
+        }, 6000);
+      }
+    } finally {
+      isCollecting.value = false;
+    }
+  });
+}
 </script>
 
 <style scoped>
+.collect-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: var(--accent-subtle);
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 20px;
+}
 .channels-page {
   display: flex;
   flex-direction: column;

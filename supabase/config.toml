@@ -390,6 +390,9 @@ verify_jwt = false
 [functions.manage-channels]
 verify_jwt = false
 
+[functions.collect-youtube-data]
+verify_jwt = false
+
 [analytics]
 enabled = true
 port = 54327

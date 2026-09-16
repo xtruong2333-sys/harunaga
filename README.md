@@ -11,24 +11,34 @@
 
 ---
 
-## 2. Giai đoạn hiện tại: GIAI ĐOẠN 1 — NỀN MÓNG & KÊNH THEO DÕI
+## 2. Tiến độ triển khai
 
-Trong Giai đoạn 1, hệ thống tập trung hoàn thiện nền móng ứng dụng và quản lý danh sách kênh theo dõi:
+### ✅ Giai đoạn 1: Nền Móng & Kênh Theo Dõi (Đã hoàn thành)
+- Giao diện thuần Tiếng Việt tự nhiên, tối giản và hiện đại.
+- Quản lý kênh đối thủ: thêm kênh, thêm nhiều kênh, tạm dừng, lưu trữ, scan_limit, alert_vph_threshold.
+- Supabase Edge Functions: `resolve-youtube-channel` (xác thực kênh thật) và `manage-channels` (thao tác ghi server-side).
+- Row Level Security (RLS) bảo vệ nghiêm ngặt cơ sở dữ liệu.
 
-- **Giao diện thuần Tiếng Việt tự nhiên**, tối giản, hiện đại và thân thiện.
-- **Quản lý kênh đối thủ**:
-  - Thêm kênh đơn qua URL hoặc `@tênkênh`.
-  - Thêm nhiều kênh cùng lúc qua danh sách dòng văn bản.
-  - Tạm dừng / Bật lại theo dõi.
-  - Lưu trữ kênh (giữ dữ liệu, không xóa vật lý).
-  - Tùy chỉnh số video kiểm tra (mặc định 15, từ 1 đến 50).
-  - Tùy chỉnh ngưỡng cảnh báo VPH (mặc định 5.000 lượt xem/giờ).
-- **Cơ sở dữ liệu**: Supabase PostgreSQL.
-- **Bộ giải quyết kênh**: Chuẩn hóa Channel ID, tên kênh, handle và avatar thật từ YouTube.
-- **Không có dữ liệu giả (demo data)** — hệ thống bắt đầu hoàn toàn sạch từ 0 kênh.
+### 🚀 Giai đoạn 2A: Thu Thập Video + Lịch Sử Lượt Xem + VPH Đo Được (Hiện tại)
+- **Thu thập video thật**: Tích hợp YouTube Data API v3 qua Edge Function `collect-youtube-data`.
+- **Tối ưu Quota**:
+  - Cache `uploads_playlist_id` vào cơ sở dữ liệu (chỉ gọi `channels.list` 1 lần duy nhất).
+  - Lấy video mới nhất theo `scan_limit` động qua `playlistItems.list`.
+  - Gom nhóm (batch) tối đa 50 video IDs / request cho `videos.list`.
+- **Lịch sử lượt xem (Video Snapshots)**: Lưu mốc thời gian và lượt xem thực tế theo chuẩn UTC.
+- **Công thức VPH Đo Được (Strict Measured VPH)**:
+  - `view_delta = current_views - previous_views`
+  - `elapsed_hours = elapsed_seconds / 3600`
+  - `measured_vph = view_delta / elapsed_hours`
+  - Snapshot đầu: `measured_vph = null` (không sinh VPH giả).
+  - Lượt xem giảm: `measured_vph = 0` (không có VPH âm).
+- **Kích hoạt thủ công**: Cho phép quản trị viên bấm nút "Kiểm Tra Dữ Liệu" trên trang Kênh Theo Dõi.
 
-> [!NOTE]
-> **Lưu ý quan trọng**: Bot quét video, tính toán VPH tự động và cảnh báo Discord **CHƯA ĐƯỢC TRIỂN KHAI** trong giai đoạn này và sẽ được thực hiện ở các giai đoạn tiếp theo.
+> [!IMPORTANT]
+> **Giới hạn giai đoạn 2A**:
+> - **CHƯA** tự động quét mỗi giờ (chưa có cron scheduler).
+> - **CHƯA** gửi cảnh báo Discord.
+> - **CHƯA** hiển thị bảng Video Đang Tăng trên giao diện người dùng.
 
 ---
 
