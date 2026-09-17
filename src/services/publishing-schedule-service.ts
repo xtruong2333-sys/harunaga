@@ -366,12 +366,11 @@ export function computeChannelPublishingStats(
     const avgInterval = calculateAverageInterval(timestampsMs);
     const medianInterval = calculateMedianInterval(timestampsMs);
 
-    // Peak weekday & peak hour in selected range (or all if rangeVideos has items)
-    const targetRangeVideos = chRangeVideos.length > 0 ? chRangeVideos : chAllVideos;
+    // Peak weekday & peak hour in selected range ONLY (no fallback to chAllVideos)
     const weekdayCounts = [0, 0, 0, 0, 0, 0, 0];
     const hourCounts = new Array(24).fill(0);
 
-    for (const v of targetRangeVideos) {
+    for (const v of chRangeVideos) {
       weekdayCounts[v.vnWeekday]++;
       hourCounts[v.vnHour]++;
     }

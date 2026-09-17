@@ -297,6 +297,47 @@ describe('Bắt Bài Đối Thủ — Giai Đoạn 15: Lịch Đăng Của Đố
       expect(stats[0].avgIntervalHours).toBe(24);
       expect(stats[0].medianIntervalHours).toBe(24);
     });
+
+    it('regression: channel có 2 video cũ ngoài range, 0 video trong range -> videoCountInRange=0, peakWeekday="—", peakHour="—"', () => {
+      const now = 1700000000000;
+      const v1 = makeVideo({
+        channelId: 'ch-old',
+        channelName: 'Old Channel',
+        publishedAt: new Date(now - 45 * 24 * 3600 * 1000).toISOString(),
+      });
+      const v2 = makeVideo({
+        channelId: 'ch-old',
+        channelName: 'Old Channel',
+        publishedAt: new Date(now - 40 * 24 * 3600 * 1000).toISOString(),
+      });
+
+      // chRangeVideos rỗng cho channel này
+      const stats = computeChannelPublishingStats([v1, v2], [], now);
+      expect(stats.length).toBe(1);
+      expect(stats[0].videoCountInRange).toBe(0);
+      expect(stats[0].peakWeekday).toBe('—');
+      expect(stats[0].peakHour).toBe('—');
+    });
+
+    it('channel có video trong selected range -> peak weekday/hour vẫn tính bình thường', () => {
+      const now = 1700000000000;
+      const v1 = makeVideo({
+        channelId: 'ch-active',
+        channelName: 'Active Channel',
+        publishedAt: '2026-09-17T12:30:00Z', // 19:30 UTC+7 Thứ 5
+      });
+      const v2 = makeVideo({
+        channelId: 'ch-active',
+        channelName: 'Active Channel',
+        publishedAt: '2026-09-10T12:45:00Z', // 19:45 UTC+7 Thứ 5
+      });
+
+      const stats = computeChannelPublishingStats([v1, v2], [v1, v2], now);
+      expect(stats.length).toBe(1);
+      expect(stats[0].videoCountInRange).toBe(2);
+      expect(stats[0].peakWeekday).toBe('Thứ 5');
+      expect(stats[0].peakHour).toBe('19:00–19:59');
+    });
   });
 
   // 8. URL Parsing & Safe Fallbacks (Section 28 & 55)
