@@ -19,6 +19,10 @@
           <AppIcon name="dashboard" size="18" />
           <span>Tổng Quan</span>
         </router-link>
+        <router-link to="/bao-cao" class="nav-item" active-class="nav-item-active">
+          <AppIcon name="file-text" size="18" />
+          <span>Báo Cáo</span>
+        </router-link>
         <router-link to="/video-moi-dang" class="nav-item" active-class="nav-item-active">
           <AppIcon name="clock" size="18" />
           <span>Video Mới Đăng</span>
@@ -77,6 +81,9 @@
       <nav class="mobile-nav">
         <router-link to="/tong-quan" class="mobile-nav-link" active-class="mobile-nav-link-active">
           Tổng Quan
+        </router-link>
+        <router-link to="/bao-cao" class="mobile-nav-link" active-class="mobile-nav-link-active">
+          Báo Cáo
         </router-link>
         <router-link to="/video-moi-dang" class="mobile-nav-link" active-class="mobile-nav-link-active">
           Video Mới

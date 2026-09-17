@@ -5,6 +5,7 @@ describe('Bắt Bài Đối Thủ — Giai Đoạn 11: Route Maintenance & Lazy 
   const EXPECTED_ROUTES = [
     { path: '/', redirect: '/tong-quan' },
     { path: '/tong-quan', name: 'Overview', title: 'Tổng Quan — Bắt Bài Đối Thủ' },
+    { path: '/bao-cao', name: 'Report', title: 'Báo Cáo — Bắt Bài Đối Thủ' },
     { path: '/video-moi-dang', name: 'NewVideos', title: 'Video Mới Đăng — Bắt Bài Đối Thủ' },
     { path: '/video-tiem-nang', name: 'OpportunityVideos', title: 'Video Tiềm Năng — Bắt Bài Đối Thủ' },
     { path: '/videos', name: 'Videos', title: 'Video Đang Tăng — Bắt Bài Đối Thủ' },
@@ -19,7 +20,7 @@ describe('Bắt Bài Đối Thủ — Giai Đoạn 11: Route Maintenance & Lazy 
     { path: '/tinh-trang-du-lieu', name: 'DataHealth', title: 'Tình Trạng Dữ Liệu — Bắt Bài Đối Thủ' },
   ];
 
-  it('Tất cả 14 routes chính đều được đăng ký đầy đủ và không bị mất', () => {
+  it('Tất cả 15 routes chính đều được đăng ký đầy đủ và không bị mất', () => {
     const registeredRoutes = router.getRoutes();
     for (const expected of EXPECTED_ROUTES) {
       const found = registeredRoutes.find(r => r.path === expected.path);
@@ -49,7 +50,7 @@ describe('Bắt Bài Đối Thủ — Giai Đoạn 11: Route Maintenance & Lazy 
     const registeredRoutes = router.getRoutes();
     const pageRoutes = registeredRoutes.filter(r => r.path !== '/' && !r.path.includes(':pathMatch'));
 
-    expect(pageRoutes.length).toBe(13);
+    expect(pageRoutes.length).toBe(14);
 
     for (const route of pageRoutes) {
       const comp = route.components?.default;

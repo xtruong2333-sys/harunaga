@@ -165,6 +165,10 @@
           <span>{{ summary.latestScan.errorSummary }}</span>
         </div>
         <div class="overview-alert-link-row">
+          <router-link to="/bao-cao" class="overview-alert-link">
+            <AppIcon name="file-text" size="13" />
+            Xem Báo Cáo
+          </router-link>
           <router-link to="/video-moi-dang" class="overview-alert-link">
             <AppIcon name="clock" size="13" />
             Xem Video Mới Đăng
