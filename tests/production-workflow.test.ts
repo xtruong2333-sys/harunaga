@@ -128,20 +128,65 @@ describe('Bắt Bài Đối Thủ — Giai Đoạn 9: Tiến Độ Sản Xuất 
     it('tính chính xác 4 chỉ số: tổng đang làm, đang sản xuất, đã xuất bản, ý tưởng mới', () => {
       const stats = productionService.computeSummaryStats(sampleItems);
 
-      expect(stats.totalActive).toBe(4);
-      expect(stats.activeCount).toBe(4);
+      // Đang làm (activeCount): status NOT IN ('published', 'archived') -> prod-1 (idea), prod-2 (production), prod-3 (editing) => 3
+      expect(stats.activeCount).toBe(3);
+
+      // Đang sản xuất: production (1) + editing (1) => 2
       expect(stats.inProductionCount).toBe(2);
+
+      // Đã xuất bản: published (1) => 1
       expect(stats.publishedCount).toBe(1);
+
+      // Ý tưởng mới: idea (1) => 1
       expect(stats.ideaCount).toBe(1);
+
+      // Tất cả (Quy trình) - toàn bộ item không archived => 4
+      expect(stats.nonArchivedCount).toBe(4);
     });
 
     it('trả về 0 cho tất cả chỉ số khi danh sách trống', () => {
       const stats = productionService.computeSummaryStats([]);
-      expect(stats.totalActive).toBe(0);
       expect(stats.activeCount).toBe(0);
+      expect(stats.nonArchivedCount).toBe(0);
       expect(stats.inProductionCount).toBe(0);
       expect(stats.publishedCount).toBe(0);
       expect(stats.ideaCount).toBe(0);
+    });
+
+    it('regression: mục có status là published KHÔNG được tính vào Đang làm (activeCount)', () => {
+      const onlyPublishedAndArchived: ProductionItem[] = [
+        {
+          id: 'test-pub-1',
+          sourceVideoId: 'v1',
+          workingTitle: 'Pub 1',
+          notes: '',
+          status: 'published',
+          priority: 'normal',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          publishedUrl: null,
+          publishedAt: new Date().toISOString(),
+          sourceVideo: null,
+        },
+        {
+          id: 'test-arch-1',
+          sourceVideoId: 'v2',
+          workingTitle: 'Arch 1',
+          notes: '',
+          status: 'archived',
+          priority: 'low',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          publishedUrl: null,
+          publishedAt: null,
+          sourceVideo: null,
+        },
+      ];
+
+      const stats = productionService.computeSummaryStats(onlyPublishedAndArchived);
+      expect(stats.activeCount).toBe(0); // published MUST NOT be in activeCount
+      expect(stats.publishedCount).toBe(1);
+      expect(stats.nonArchivedCount).toBe(1);
     });
   });
 

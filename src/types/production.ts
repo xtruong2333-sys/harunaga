@@ -61,8 +61,9 @@ export interface ProductionFilterState {
 }
 
 export interface ProductionStats {
-  activeCount: number; // status !== 'archived' (7 trạng thái)
-  totalActive: number; // Alias for activeCount
+  activeCount: number; // status not in ('published', 'archived')
+  nonArchivedCount: number; // status !== 'archived' (toàn bộ quy trình không archived)
+  totalActive?: number; // Alias for activeCount
   ideaCount: number; // status === 'idea'
   inProductionCount: number; // status in ('production', 'editing')
   publishedCount: number; // status === 'published'

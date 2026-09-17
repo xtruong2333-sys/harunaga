@@ -205,7 +205,7 @@ export const productionService = {
     let publishedCount = 0;
 
     for (const item of items) {
-      if (item.status !== 'archived') {
+      if (item.status !== 'published' && item.status !== 'archived') {
         activeCount++;
       }
       if (item.status === 'idea') {
@@ -219,8 +219,11 @@ export const productionService = {
       }
     }
 
+    const nonArchivedCount = items.filter(item => item.status !== 'archived').length;
+
     return {
       activeCount,
+      nonArchivedCount,
       totalActive: activeCount,
       ideaCount,
       inProductionCount,

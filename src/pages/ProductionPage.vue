@@ -96,7 +96,7 @@
           @click="filterState.status = 'all'"
         >
           <span>Tất cả (Quy trình)</span>
-          <span class="tab-count-badge">{{ stats.activeCount + stats.publishedCount }}</span>
+          <span class="tab-count-badge">{{ nonArchivedCount }}</span>
         </button>
 
         <button
@@ -703,6 +703,7 @@ function countByStatus(status: ProductionStatus): number {
 }
 
 const archivedCount = computed(() => countByStatus('archived'));
+const nonArchivedCount = computed(() => items.value.filter(i => i.status !== 'archived').length);
 
 function getColumnItems(status: ProductionStatus): ProductionItem[] {
   return filteredItems.value.filter(i => i.status === status);
