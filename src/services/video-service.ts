@@ -11,6 +11,10 @@ import {
   VideoStatsSummary,
   VideoChannelMeta,
   VideoAlertMeta,
+  VideoDetail,
+  VideoSnapshotPoint,
+  VideoAlertInfo,
+  VideoDetailChannelMeta,
 } from '@/types/video';
 
 export const videoService = {
@@ -281,7 +285,7 @@ export const videoService = {
   /**
    * Trả về thông tin hiển thị trạng thái cảnh báo
    */
-  getAlertBadge(alert: VideoAlertMeta | null): { label: string; tone: 'muted' | 'warning' | 'success' | 'danger' } {
+  getAlertBadge(alert: VideoAlertMeta | VideoAlertInfo | null): { label: string; tone: 'muted' | 'warning' | 'success' | 'danger' } {
     if (!alert) {
       return { label: 'Chưa cảnh báo', tone: 'muted' };
     }
@@ -297,5 +301,141 @@ export const videoService = {
       default:
         return { label: 'Chưa cảnh báo', tone: 'muted' };
     }
+  },
+
+  /**
+   * Định dạng khoảng thời gian trôi qua giữa 2 snapshot
+   * Ví dụ: 58 giây, 12 phút, 1 giờ 5 phút, 2 giờ 10 phút
+   */
+  formatElapsedSeconds(seconds: number | null | undefined): string {
+    if (seconds === null || seconds === undefined || isNaN(seconds) || seconds < 0) {
+      return '—';
+    }
+    const s = Math.round(seconds);
+    if (s < 60) {
+      return `${s} giây`;
+    }
+    const minutes = Math.floor(s / 60);
+    if (minutes < 60) {
+      return `${minutes} phút`;
+    }
+    const hours = Math.floor(minutes / 60);
+    const remMinutes = minutes % 60;
+    if (remMinutes === 0) {
+      return `${hours} giờ`;
+    }
+    return `${hours} giờ ${remMinutes} phút`;
+  },
+
+  /**
+   * Tải dữ liệu chi tiết một video theo UUID (Kèm kênh, alert và toàn bộ snapshot)
+   */
+  async fetchVideoDetail(videoId: string): Promise<VideoDetail | null> {
+    if (!isSupabaseConfigured()) {
+      throw new DatabaseNotConfiguredError();
+    }
+
+    const supabase = getSupabase()!;
+
+    // 1. Lấy thông tin video kèm kênh và alert
+    const { data: videoData, error: videoError } = await supabase
+      .from('videos')
+      .select('*, channels(*), video_alerts(*)')
+      .eq('id', videoId)
+      .maybeSingle();
+
+    if (videoError) {
+      throw new Error(`Lỗi tải chi tiết video: ${videoError.message}`);
+    }
+
+    if (!videoData) {
+      return null;
+    }
+
+    // 2. Lấy danh sách snapshot theo thứ tự thời gian tăng dần (checked_at ASC)
+    const { data: snapshotData, error: snapError } = await supabase
+      .from('video_snapshots')
+      .select('*')
+      .eq('video_id', videoId)
+      .order('checked_at', { ascending: true });
+
+    if (snapError) {
+      throw new Error(`Lỗi tải lịch sử snapshot: ${snapError.message}`);
+    }
+
+    // 3. Chuẩn hóa kênh
+    const ch = videoData.channels || {};
+    const channelMeta: VideoDetailChannelMeta = {
+      id: ch.id || videoData.channel_id,
+      name: ch.name || 'Kênh Chưa Rõ',
+      handle: ch.handle || null,
+      avatarUrl: ch.avatar_url || null,
+      alertVphThreshold: Number(ch.alert_vph_threshold) || 5000,
+      scanLimit: Number(ch.scan_limit) || 15,
+      status: ch.status || 'active',
+      url: ch.url || `https://www.youtube.com/channel/${ch.id}`,
+    };
+
+    // 4. Chuẩn hóa alert (sanitize không để lộ webhook/secret)
+    let alertInfo: VideoAlertInfo | null = null;
+    if (videoData.video_alerts) {
+      const a = Array.isArray(videoData.video_alerts) ? videoData.video_alerts[0] : videoData.video_alerts;
+      if (a) {
+        let sanitizedError: string | null = a.last_error || null;
+        if (sanitizedError) {
+          sanitizedError = sanitizedError
+            .replace(/https?:\/\/[^\s]+/gi, '[URL ẩn]')
+            .replace(/key=[a-zA-Z0-9_\-]+/gi, 'key=[ẩn]');
+        }
+        alertInfo = {
+          id: a.id,
+          status: a.status,
+          measuredVph: a.measured_vph !== null ? Number(a.measured_vph) : null,
+          sentAt: a.sent_at || null,
+          lastError: sanitizedError,
+        };
+      }
+    }
+
+    // 5. Chuẩn hóa danh sách snapshot
+    const snapshots: VideoSnapshotPoint[] = (snapshotData || []).map((s: any) => ({
+      id: s.id,
+      checkedAt: s.checked_at,
+      viewCount: Number(s.view_count) || 0,
+      viewDelta: s.view_delta !== null && s.view_delta !== undefined ? Number(s.view_delta) : null,
+      elapsedSeconds: s.elapsed_seconds !== null && s.elapsed_seconds !== undefined ? Number(s.elapsed_seconds) : null,
+      measuredVph: s.measured_vph !== null && s.measured_vph !== undefined ? Number(s.measured_vph) : null,
+    }));
+
+    const latestSnap = snapshots.length > 0 ? snapshots[snapshots.length - 1] : null;
+
+    const latestVph = videoData.latest_measured_vph !== null && videoData.latest_measured_vph !== undefined
+      ? Number(videoData.latest_measured_vph)
+      : (latestSnap?.measuredVph ?? null);
+
+    const isOverThreshold =
+      latestVph !== null &&
+      channelMeta.alertVphThreshold > 0 &&
+      latestVph >= channelMeta.alertVphThreshold;
+
+    return {
+      id: videoData.id,
+      youtubeVideoId: videoData.youtube_video_id,
+      channelId: videoData.channel_id,
+      title: videoData.title || 'Video Không Tiêu Đề',
+      url: videoData.url || `https://www.youtube.com/watch?v=${videoData.youtube_video_id}`,
+      thumbnailUrl: videoData.thumbnail_url || null,
+      publishedAt: videoData.published_at,
+      duration: videoData.duration || null,
+      latestViewCount: Number(videoData.latest_view_count) || 0,
+      latestMeasuredVph: latestVph,
+      channel: channelMeta,
+      alert: alertInfo,
+      snapshots,
+      latestSnapshot: latestSnap,
+      isOverThreshold,
+      createdAt: videoData.created_at,
+      updatedAt: videoData.updated_at,
+    };
   },
 };

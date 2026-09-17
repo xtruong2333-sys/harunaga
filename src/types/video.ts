@@ -121,3 +121,46 @@ export interface VideoStatsSummary {
   alertedVideos: number;
 }
 
+export interface VideoSnapshotPoint {
+  id: string;
+  checkedAt: string;
+  viewCount: number;
+  viewDelta: number | null;
+  elapsedSeconds: number | null;
+  measuredVph: number | null;
+}
+
+export interface VideoAlertInfo {
+  id: string;
+  status: 'pending' | 'sending' | 'sent' | 'failed';
+  measuredVph: number | null;
+  sentAt: string | null;
+  lastError: string | null;
+}
+
+export interface VideoDetailChannelMeta extends VideoChannelMeta {
+  scanLimit: number;
+  status: string;
+  url: string;
+}
+
+export interface VideoDetail {
+  id: string;
+  youtubeVideoId: string;
+  channelId: string;
+  title: string;
+  url: string;
+  thumbnailUrl: string | null;
+  publishedAt: string;
+  duration: string | null;
+  latestViewCount: number;
+  latestMeasuredVph: number | null;
+  channel: VideoDetailChannelMeta;
+  alert: VideoAlertInfo | null;
+  snapshots: VideoSnapshotPoint[];
+  latestSnapshot: VideoSnapshotPoint | null;
+  isOverThreshold: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+

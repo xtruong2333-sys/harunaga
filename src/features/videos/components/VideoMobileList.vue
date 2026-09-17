@@ -3,12 +3,10 @@
     <div v-for="video in videos" :key="video.id" class="mobile-card">
       <!-- Card Top: Thumbnail + Title -->
       <div class="card-video-header">
-        <a
-          :href="video.url"
-          target="_blank"
-          rel="noopener noreferrer"
+        <router-link
+          :to="'/videos/' + video.id"
           class="thumb-wrap"
-          title="Xem video trên YouTube"
+          title="Xem chi tiết video"
         >
           <img
             v-if="video.thumbnailUrl"
@@ -21,17 +19,15 @@
           <div v-else class="thumb-fallback">
             <AppIcon name="video" size="24" />
           </div>
-        </a>
+        </router-link>
 
         <div class="video-meta">
-          <a
-            :href="video.url"
-            target="_blank"
-            rel="noopener noreferrer"
+          <router-link
+            :to="'/videos/' + video.id"
             class="video-title"
           >
             {{ video.title }}
-          </a>
+          </router-link>
 
           <!-- Channel Info Row -->
           <div class="channel-row">
@@ -111,13 +107,19 @@
 
       <!-- Card Footer Action -->
       <div class="card-actions">
+        <router-link
+          :to="'/videos/' + video.id"
+          class="btn btn-secondary btn-sm btn-half"
+        >
+          <span>Chi Tiết</span>
+        </router-link>
         <a
           :href="video.url"
           target="_blank"
           rel="noopener noreferrer"
-          class="btn btn-secondary btn-sm btn-full"
+          class="btn btn-secondary btn-sm btn-half"
         >
-          <span>Xem Trên YouTube</span>
+          <span>Xem YouTube</span>
           <AppIcon name="external" size="14" />
         </a>
       </div>
@@ -373,6 +375,13 @@ function handleAvatarError(e: Event) {
 
 .card-actions {
   display: flex;
+  gap: 8px;
+}
+
+.btn-half {
+  flex: 1;
+  justify-content: center;
+  text-decoration: none;
 }
 
 .btn-full {

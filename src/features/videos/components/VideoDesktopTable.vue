@@ -18,12 +18,10 @@
           <!-- 1. Video (Thumbnail + Title + ID) -->
           <td class="col-video">
             <div class="video-cell">
-              <a
-                :href="video.url"
-                target="_blank"
-                rel="noopener noreferrer"
+              <router-link
+                :to="'/videos/' + video.id"
                 class="thumb-wrap"
-                title="Xem video trên YouTube"
+                title="Xem chi tiết video"
               >
                 <img
                   v-if="video.thumbnailUrl"
@@ -36,18 +34,16 @@
                 <div v-else class="thumb-fallback">
                   <AppIcon name="video" size="20" />
                 </div>
-              </a>
+              </router-link>
 
               <div class="video-info">
-                <a
-                  :href="video.url"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <router-link
+                  :to="'/videos/' + video.id"
                   class="video-title"
                   :title="video.title"
                 >
                   {{ video.title }}
-                </a>
+                </router-link>
                 <div class="video-id">{{ video.youtubeVideoId }}</div>
               </div>
             </div>
@@ -127,16 +123,25 @@
 
           <!-- 8. Thao tác -->
           <td class="col-actions">
-            <a
-              :href="video.url"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="btn-youtube"
-              title="Mở video trên YouTube"
-            >
-              <span>Xem YouTube</span>
-              <AppIcon name="external" size="13" />
-            </a>
+            <div class="actions-wrap">
+              <router-link
+                :to="'/videos/' + video.id"
+                class="btn-detail"
+                title="Xem chi tiết video và lịch sử snapshot"
+              >
+                <span>Chi Tiết</span>
+              </router-link>
+              <a
+                :href="video.url"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="btn-youtube"
+                title="Mở video trên YouTube"
+              >
+                <span>Xem YouTube</span>
+                <AppIcon name="external" size="13" />
+              </a>
+            </div>
           </td>
         </tr>
       </tbody>
@@ -440,6 +445,32 @@ td {
 .col-actions {
   white-space: nowrap;
   text-align: right;
+}
+
+.actions-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.btn-detail {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 6px;
+  background-color: var(--accent-subtle);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.btn-detail:hover {
+  background-color: var(--accent);
+  color: #03111C;
 }
 
 .btn-youtube {
