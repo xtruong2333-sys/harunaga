@@ -36,7 +36,8 @@ SELECT cron.schedule(
     body := jsonb_build_object(
       'accessKey', (SELECT decrypted_secret FROM vault.decrypted_secrets WHERE name = 'collector_access_key'),
       'triggerSource', 'schedule'
-    )
+    ),
+    timeout_milliseconds := 60000
   );
   $$
 );
