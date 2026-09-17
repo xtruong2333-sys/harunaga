@@ -991,8 +991,8 @@ watch(
   display: flex;
   flex-direction: column;
   gap: 24px;
-  max-width: 1300px;
-  margin: 0 auto;
+  max-width: none;
+  margin: 0;
   width: 100%;
   box-sizing: border-box;
 }

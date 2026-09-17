@@ -593,10 +593,11 @@ onMounted(() => {
 
 <style scoped>
 .new-videos-page {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 16px 20px 60px;
-  color: #f8fafc;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0 0 60px;
+  color: var(--text-primary);
 }
 
 /* 1. Asymmetric Top Command Deck (65% / 35%) */

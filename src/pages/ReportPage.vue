@@ -700,9 +700,10 @@ onMounted(() => {
 
 <style scoped>
 .report-page {
-  padding: 1.5rem;
-  max-width: 1400px;
-  margin: 0 auto;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0 0 2rem;
 }
 
 /* Page Header */

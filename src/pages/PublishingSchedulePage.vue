@@ -616,9 +616,10 @@ watch(
 
 <style scoped>
 .publishing-schedule-page {
-  max-width: 1240px;
-  margin: 0 auto;
-  padding: 24px 20px 60px;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0 0 60px;
   display: flex;
   flex-direction: column;
   gap: 24px;

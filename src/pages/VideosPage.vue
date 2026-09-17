@@ -203,10 +203,11 @@ onMounted(() => {
 
 <style scoped>
 .videos-page {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 24px 28px 60px;
-  color: #f8fafc;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0 0 60px;
+  color: var(--text-primary);
 }
 
 /* Refresh Button */

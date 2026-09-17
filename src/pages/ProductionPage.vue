@@ -904,8 +904,8 @@ function onThumbError(e: Event) {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  max-width: 1400px;
-  margin: 0 auto;
+  max-width: none;
+  margin: 0;
   padding-bottom: 60px;
   width: 100%;
   box-sizing: border-box;

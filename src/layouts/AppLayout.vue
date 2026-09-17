@@ -263,8 +263,11 @@ const mobileDrawerOpen = ref(false);
   flex: 1;
   margin-left: 260px;
   min-height: 100vh;
-  padding: 32px 40px;
-  max-width: 1400px;
+  padding: clamp(20px, 2vw, 32px);
+  width: calc(100% - 260px);
+  max-width: none;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 @media (max-width: 900px) {

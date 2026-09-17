@@ -44,6 +44,12 @@
   --table-header-bg: #090D13;
   --scrollbar-thumb: rgba(56, 189, 248, 0.2);
   --scrollbar-thumb-hover: #475569;
+
+  --signal-accent: #38BDF8;
+  --signal-positive: #34D399;
+  --signal-warning: #F59E0B;
+  --progress-track: rgba(255, 255, 255, 0.08);
+  --badge-neutral-bg: rgba(255, 255, 255, 0.08);
 }
 
 [data-theme="light"] {
@@ -58,8 +64,8 @@
   --border-line: rgba(15, 40, 60, 0.08);
 
   --text-primary: #12202D;
-  --text-secondary: #526477;
-  --text-muted: #8392A3;
+  --text-secondary: #475569;
+  --text-muted: #64748B;
 
   --accent: #0284C7;
   --accent-text: #FFFFFF;
@@ -67,6 +73,12 @@
   --accent-subtle: rgba(2, 132, 199, 0.08);
   --accent-glow: rgba(2, 132, 199, 0.18);
   --accent-glow-strong: rgba(2, 132, 199, 0.3);
+
+  --signal-accent: #0284C7;
+  --signal-positive: #15803D;
+  --signal-warning: #B45309;
+  --progress-track: rgba(15, 40, 60, 0.10);
+  --badge-neutral-bg: rgba(15, 40, 60, 0.07);
 
   --status-active: #16A34A;
   --status-active-bg: rgba(22, 163, 74, 0.1);
@@ -378,5 +390,33 @@ button, input, select, textarea {
   .spin-anim {
     animation: none !important;
   }
+}
+
+/* Semantic Signal Text & Progress Utilities */
+.text-accent {
+  color: var(--signal-accent);
+}
+
+.text-delta,
+.text-positive {
+  color: var(--signal-positive);
+}
+
+.text-threshold,
+.text-warning {
+  color: var(--signal-warning);
+}
+
+.text-muted {
+  color: var(--text-muted);
+}
+
+.progress-bar,
+.progress-bar-small {
+  background-color: var(--progress-track);
+}
+
+.tab-badge {
+  background-color: var(--badge-neutral-bg);
 }
 

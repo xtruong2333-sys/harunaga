@@ -924,11 +924,11 @@ onMounted(() => {
 }
 
 .text-accent {
-  color: #38BDF8;
+  color: var(--signal-accent, #38BDF8);
 }
 
 .text-positive {
-  color: #34D399;
+  color: var(--signal-positive, #34D399);
 }
 
 .text-muted {

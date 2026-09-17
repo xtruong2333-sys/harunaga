@@ -211,11 +211,11 @@ const effectiveMax = computed(() => {
 }
 
 .text-accent {
-  color: #38BDF8;
+  color: var(--signal-accent, #38BDF8);
 }
 
 .text-threshold {
-  color: #F59E0B;
+  color: var(--signal-warning, #F59E0B);
 }
 
 .badge-threshold-tag {
