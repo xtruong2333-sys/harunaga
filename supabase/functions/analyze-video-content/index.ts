@@ -1,5 +1,5 @@
 // Supabase Edge Function: analyze-video-content
-// Trợ Lý Nội Dung AI — Bắt Bài Đối Thủ
+// Trợ Lý Nội Dung AI — Bắt Bài Đối Thủ (Giai đoạn 17 Production)
 // Chỉ phân tích nội dung khi người dùng chủ động yêu cầu
 // Xác thực qua APP_WRITE_ACCESS_KEY
 // Tuyệt đối không ghi dữ liệu vào database, không sửa VPH, không chạy collector
@@ -59,7 +59,7 @@ serve(async (req: Request) => {
       return new Response(
         JSON.stringify({
           success: false,
-          error: "Mã truy cập không chính xác. Thao tác bị từ chối.",
+          error: "Mã truy cập không chính xác. Vui lòng nhập lại.",
         }),
         { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
@@ -119,18 +119,22 @@ serve(async (req: Request) => {
       );
     }
 
-    // Lấy 2 snapshots gần nhất để tính view_delta
+    // Lấy 2 snapshots gần nhất theo checked_at DESC để tính view_delta
     const { data: snapshots } = await supabase
       .from("video_snapshots")
-      .select("view_count, recorded_at")
+      .select("view_count, checked_at")
       .eq("video_id", videoId)
-      .order("recorded_at", { ascending: false })
+      .order("checked_at", { ascending: false })
       .limit(2);
 
     let viewDeltaText = "Chưa đủ dữ liệu 2 lần quét";
     if (snapshots && snapshots.length >= 2) {
       const delta = (snapshots[0].view_count ?? 0) - (snapshots[1].view_count ?? 0);
-      viewDeltaText = `+${delta.toLocaleString("vi-VN")} lượt xem giữa 2 lần quét gần nhất`;
+      if (delta < 0) {
+        viewDeltaText = `${delta.toLocaleString("vi-VN")} lượt xem giữa 2 lần quét gần nhất`;
+      } else {
+        viewDeltaText = `+${delta.toLocaleString("vi-VN")} lượt xem giữa 2 lần quét gần nhất`;
+      }
     }
 
     // 5. Kiểm tra cấu hình OPENAI_API_KEY
@@ -146,7 +150,6 @@ serve(async (req: Request) => {
     }
 
     // 6. Chuẩn bị dữ liệu và phòng thủ Prompt Injection (Prompt Injection Defense)
-    // Cắt ngắn và loại bỏ ký tự điều khiển lạ trong tiêu đề đối thủ
     const channelName = (video.channels as any)?.name || "Kênh đối thủ";
     const rawTitle = (video.title || "").slice(0, 300).replace(/[\r\n\t]+/g, " ");
     const rawChannel = channelName.slice(0, 100).replace(/[\r\n\t]+/g, " ");
@@ -173,46 +176,14 @@ QUY TẮC BẢO VỆ VÀ AN TOÀN TUYỆT ĐỐI:
    - Các chỉ số view và VPH được cung cấp là dữ liệu đo lường thật từ hệ thống. Bạn KHÔNG được tự tính lại VPH, KHÔNG dự đoán view tương lai, KHÔNG suy diễn doanh thu, KHÔNG dự báo khả năng viral.
    - Không bịa đặt tình tiết bên trong video nếu metadata không cung cấp.
 
-BẮT BUỘC TRẢ VỀ ĐÚNG ĐỊNH DẠNG JSON SCHEMA THEO CẤU TRÚC SAU (không bọc trong markdown codeblock):
-{
-  "summary": "Tóm tắt ngắn gọn chủ đề video (1-2 câu ngắn)",
-  "content_angle": "Góc tiếp cận và định vị nội dung đối thủ đang khai thác (1-2 câu)",
-  "why_it_may_attract_attention": [
-    "Lý do 1 về cách gợi mở tâm lý tò mò hoặc sự chú ý",
-    "Lý do 2 về tính thời điểm, xu hướng hoặc vấn đề nhức nhối",
-    "Lý do 3 về hình thức truyền tải hoặc đối tượng mục tiêu"
-  ],
-  "title_ideas": [
-    "Tiêu đề đề xuất 1",
-    "Tiêu đề đề xuất 2",
-    "Tiêu đề đề xuất 3",
-    "Tiêu đề đề xuất 4",
-    "Tiêu đề đề xuất 5"
-  ],
-  "thumbnail_concepts": [
-    {
-      "concept": "Tên concept 1",
-      "visual_focus": "Trọng tâm hình ảnh, nhân vật, biểu cảm hoặc bối cảnh",
-      "text_overlay": "Chữ nổi bật trên thumbnail (ngắn gọn 2-4 từ)"
-    },
-    {
-      "concept": "Tên concept 2",
-      "visual_focus": "Trọng tâm hình ảnh",
-      "text_overlay": "Chữ trên thumbnail"
-    },
-    {
-      "concept": "Tên concept 3",
-      "visual_focus": "Trọng tâm hình ảnh",
-      "text_overlay": "Chữ trên thumbnail"
-    }
-  ],
-  "hook_ideas": [
-    "Kịch bản câu mở đầu 1 (0-5 giây đầu video)",
-    "Kịch bản câu mở đầu 2 (0-5 giây đầu video)",
-    "Kịch bản câu mở đầu 3 (0-5 giây đầu video)"
-  ],
-  "originality_note": "Lời khuyên giúp nhà sáng tạo khai thác góc nhìn riêng, tạo giá trị độc bản và tránh vi phạm bản quyền hoặc nội dung sao chép."
-}`;
+BẮT BUỘC TRẢ VỀ ĐÚNG CẤU TRÚC JSON SCHEMA:
+- why_it_may_attract_attention: đúng 3 lý do
+- title_ideas: đúng 5 tiêu đề
+- thumbnail_concepts: đúng 3 concept, mỗi concept gồm concept, visual_focus, text_overlay
+- hook_ideas: đúng 3 câu mở đầu (0-5 giây đầu)
+- summary: tóm tắt ngắn gọn
+- content_angle: góc tiếp cận
+- originality_note: lời khuyên sáng tạo độc bản`;
 
     const userPrompt = `Hãy phân tích dữ liệu video đối thủ sau đây và trả về structured JSON theo đúng schema:
 <video_metadata>
@@ -224,14 +195,82 @@ Thời điểm đăng: ${publishedText}
 Tăng trưởng snapshot: ${viewDeltaText}
 </video_metadata>`;
 
-    // 7. Gọi OpenAI API với timeout 35s
+    // JSON Schema định nghĩa Structured Output (strict: true)
+    const jsonSchema = {
+      name: "video_analysis",
+      strict: true,
+      schema: {
+        type: "object",
+        required: [
+          "summary",
+          "content_angle",
+          "why_it_may_attract_attention",
+          "title_ideas",
+          "thumbnail_concepts",
+          "hook_ideas",
+          "originality_note",
+        ],
+        additionalProperties: false,
+        properties: {
+          summary: {
+            type: "string",
+            description: "Tóm tắt ngắn gọn chủ đề video",
+          },
+          content_angle: {
+            type: "string",
+            description: "Góc tiếp cận và định vị nội dung đối thủ đang khai thác",
+          },
+          why_it_may_attract_attention: {
+            type: "array",
+            minItems: 3,
+            maxItems: 3,
+            items: { type: "string" },
+            description: "Chính xác 3 lý do video thu hút người xem",
+          },
+          title_ideas: {
+            type: "array",
+            minItems: 5,
+            maxItems: 5,
+            items: { type: "string" },
+            description: "Chính xác 5 đề xuất tiêu đề sáng tạo mới",
+          },
+          thumbnail_concepts: {
+            type: "array",
+            minItems: 3,
+            maxItems: 3,
+            items: {
+              type: "object",
+              required: ["concept", "visual_focus", "text_overlay"],
+              additionalProperties: false,
+              properties: {
+                concept: { type: "string", description: "Tên concept" },
+                visual_focus: { type: "string", description: "Trọng tâm hình ảnh" },
+                text_overlay: { type: "string", description: "Chữ trên thumbnail" },
+              },
+            },
+            description: "Chính xác 3 gợi ý concept hình thu nhỏ",
+          },
+          hook_ideas: {
+            type: "array",
+            minItems: 3,
+            maxItems: 3,
+            items: { type: "string" },
+            description: "Chính xác 3 kịch bản hook mở đầu 0-5 giây đầu",
+          },
+          originality_note: {
+            type: "string",
+            description: "Lời khuyên sáng tạo độc bản và tính nguyên bản",
+          },
+        },
+      },
+    };
+
+    // 7. Gọi OpenAI API với model gpt-5.6-luna, reasoning_effort: "low", timeout 40s
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 35000);
+    const timeoutId = setTimeout(() => controller.abort(), 40000);
 
     let rawAiText = "";
     try {
-      const model = "gpt-5.6-luna";
-      
       const openAiRes = await fetch("https://api.openai.com/v1/chat/completions", {
         method: "POST",
         headers: {
@@ -239,13 +278,16 @@ Tăng trưởng snapshot: ${viewDeltaText}
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: model,
+          model: "gpt-5.6-luna",
           messages: [
-            { role: "system", content: systemPrompt },
-            { role: "user", content: userPrompt }
+            { role: "developer", content: systemPrompt },
+            { role: "user", content: userPrompt },
           ],
-          response_format: { type: "json_object" },
-          temperature: 0.7,
+          response_format: {
+            type: "json_schema",
+            json_schema: jsonSchema,
+          },
+          reasoning_effort: "low",
         }),
         signal: controller.signal,
       });
@@ -253,7 +295,15 @@ Tăng trưởng snapshot: ${viewDeltaText}
       clearTimeout(timeoutId);
 
       if (!openAiRes.ok) {
-        const errorText = await openAiRes.text();
+        if (openAiRes.status === 401) {
+          return new Response(
+            JSON.stringify({
+              success: false,
+              error: "Cấu hình dịch vụ AI không hợp lệ.",
+            }),
+            { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
         if (openAiRes.status === 429) {
           return new Response(
             JSON.stringify({
@@ -263,16 +313,46 @@ Tăng trưởng snapshot: ${viewDeltaText}
             { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
           );
         }
+        if (openAiRes.status === 400) {
+          return new Response(
+            JSON.stringify({
+              success: false,
+              error: "Yêu cầu AI chưa được nhà cung cấp chấp nhận.",
+            }),
+            { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+        if (openAiRes.status >= 500) {
+          return new Response(
+            JSON.stringify({
+              success: false,
+              error: "Dịch vụ AI tạm thời chưa phản hồi. Vui lòng thử lại.",
+            }),
+            { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
         return new Response(
           JSON.stringify({
             success: false,
-            error: `Lỗi kết nối tới nhà cung cấp AI (HTTP ${openAiRes.status}).`,
+            error: "Lỗi kết nối tới nhà cung cấp AI.",
           }),
           { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
 
       const openAiData = await openAiRes.json();
+
+      // Kiểm tra refusal từ model
+      if (openAiData.choices?.[0]?.message?.refusal) {
+        return new Response(
+          JSON.stringify({
+            success: false,
+            error: "Yêu cầu phân tích bị từ chối bởi nhà cung cấp AI.",
+          }),
+          { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
       rawAiText = openAiData.choices?.[0]?.message?.content || "";
     } catch (fetchErr: any) {
       clearTimeout(timeoutId);
@@ -280,7 +360,7 @@ Tăng trưởng snapshot: ${viewDeltaText}
         return new Response(
           JSON.stringify({
             success: false,
-            error: "Yêu cầu phân tích AI đã vượt quá thời gian chờ (35s). Vui lòng thử lại.",
+            error: "Yêu cầu phân tích AI đã vượt quá thời gian chờ. Vui lòng thử lại.",
           }),
           { status: 504, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
@@ -288,18 +368,28 @@ Tăng trưởng snapshot: ${viewDeltaText}
       return new Response(
         JSON.stringify({
           success: false,
-          error: "Không thể kết nối tới dịch vụ AI. Vui lòng kiểm tra lại mạng.",
+          error: "Dịch vụ AI tạm thời chưa phản hồi. Vui lòng thử lại.",
         }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    // 8. Làm sạch và validate cấu trúc JSON trả về
+    // 8. Parse và xác thực cấu trúc JSON
     let cleanedText = rawAiText.trim();
     if (cleanedText.startsWith("```json")) {
       cleanedText = cleanedText.replace(/^```json\s*/, "").replace(/\s*```$/, "");
     } else if (cleanedText.startsWith("```")) {
       cleanedText = cleanedText.replace(/^```\s*/, "").replace(/\s*```$/, "");
+    }
+
+    if (!cleanedText) {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: "Dịch vụ AI trả về kết quả rỗng. Vui lòng thử lại.",
+        }),
+        { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
     let parsed: any;
@@ -315,22 +405,18 @@ Tăng trưởng snapshot: ${viewDeltaText}
       );
     }
 
-    // Validate schema
-    if (
-      !parsed.summary ||
-      !parsed.content_angle ||
-      !Array.isArray(parsed.why_it_may_attract_attention) ||
-      !Array.isArray(parsed.title_ideas) ||
-      parsed.title_ideas.length === 0 ||
-      !Array.isArray(parsed.thumbnail_concepts) ||
-      parsed.thumbnail_concepts.length === 0 ||
-      !Array.isArray(parsed.hook_ideas) ||
-      parsed.hook_ideas.length === 0
-    ) {
+    // 9. Server-side strict validation: đúng số lượng items theo yêu cầu (Section 21 & 22)
+    const reasonsValid = Array.isArray(parsed.why_it_may_attract_attention) && parsed.why_it_may_attract_attention.length === 3;
+    const titlesValid = Array.isArray(parsed.title_ideas) && parsed.title_ideas.length === 5;
+    const thumbsValid = Array.isArray(parsed.thumbnail_concepts) && parsed.thumbnail_concepts.length === 3;
+    const hooksValid = Array.isArray(parsed.hook_ideas) && parsed.hook_ideas.length === 3;
+    const stringsValid = Boolean(parsed.summary && parsed.content_angle && parsed.originality_note);
+
+    if (!reasonsValid || !titlesValid || !thumbsValid || !hooksValid || !stringsValid) {
       return new Response(
         JSON.stringify({
           success: false,
-          error: "Dữ liệu phân tích AI thiếu một số trường thông tin bắt buộc.",
+          error: "Dữ liệu phân tích AI không đúng số lượng trường thông tin bắt buộc (cần đúng 3 lý do, 5 tiêu đề, 3 thumbnail, 3 hook).",
         }),
         { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
@@ -340,14 +426,14 @@ Tăng trưởng snapshot: ${viewDeltaText}
       summary: String(parsed.summary),
       content_angle: String(parsed.content_angle),
       why_it_may_attract_attention: parsed.why_it_may_attract_attention.map((s: any) => String(s)),
-      title_ideas: parsed.title_ideas.slice(0, 5).map((s: any) => String(s)),
-      thumbnail_concepts: parsed.thumbnail_concepts.slice(0, 3).map((t: any) => ({
-        concept: String(t.concept || "Ý tưởng"),
+      title_ideas: parsed.title_ideas.map((s: any) => String(s)),
+      thumbnail_concepts: parsed.thumbnail_concepts.map((t: any) => ({
+        concept: String(t.concept || ""),
         visual_focus: String(t.visual_focus || ""),
         text_overlay: String(t.text_overlay || ""),
       })),
-      hook_ideas: parsed.hook_ideas.slice(0, 3).map((s: any) => String(s)),
-      originality_note: String(parsed.originality_note || "Nên tự sáng tạo lại kịch bản để tránh bị trùng lặp."),
+      hook_ideas: parsed.hook_ideas.map((s: any) => String(s)),
+      originality_note: String(parsed.originality_note),
     };
 
     return new Response(

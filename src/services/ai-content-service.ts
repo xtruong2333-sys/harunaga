@@ -76,9 +76,9 @@ export const aiContentService = {
     // Lấy 2 snapshot gần nhất
     const { data: snapshots } = await supabase
       .from('video_snapshots')
-      .select('view_count, recorded_at')
+      .select('view_count, checked_at')
       .eq('video_id', videoId)
-      .order('recorded_at', { ascending: false })
+      .order('checked_at', { ascending: false })
       .limit(2);
 
     let viewDelta: number | null = null;
