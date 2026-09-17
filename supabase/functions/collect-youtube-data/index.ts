@@ -663,9 +663,13 @@ serve(async (req: Request) => {
                 thresholdVph: Number(alert.threshold_vph),
               });
 
-              const discordRes = await fetch(`${discordWebhookUrl}?wait=true`, {
+              const normalizedWebhookUrl = discordWebhookUrl.replace("discordapp.com", "discord.com");
+              const discordRes = await fetch(`${normalizedWebhookUrl}?wait=true`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                  "Content-Type": "application/json",
+                  "User-Agent": "BatBaiDoiThu/1.0 (+https://batbaidoithu.click)",
+                },
                 body: JSON.stringify(embedPayload),
               });
 
