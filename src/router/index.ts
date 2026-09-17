@@ -2,11 +2,20 @@ import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 import ChannelsPage from '@/pages/ChannelsPage.vue';
 import VideosPage from '@/pages/VideosPage.vue';
 import VideoDetailPage from '@/pages/VideoDetailPage.vue';
+import OverviewPage from '@/pages/OverviewPage.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
-    redirect: '/videos',
+    redirect: '/tong-quan',
+  },
+  {
+    path: '/tong-quan',
+    name: 'Overview',
+    component: OverviewPage,
+    meta: {
+      title: 'Tổng Quan — Bắt Bài Đối Thủ',
+    },
   },
   {
     path: '/videos',
@@ -34,7 +43,7 @@ const routes: Array<RouteRecordRaw> = [
   },
   {
     path: '/:pathMatch(.*)*',
-    redirect: '/videos',
+    redirect: '/tong-quan',
   },
 ];
 
