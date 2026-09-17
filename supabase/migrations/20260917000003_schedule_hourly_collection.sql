@@ -31,8 +31,7 @@ SELECT cron.schedule(
     url := (SELECT decrypted_secret FROM vault.decrypted_secrets WHERE name = 'collector_project_url') || '/functions/v1/collect-youtube-data',
     headers := jsonb_build_object(
       'Content-Type', 'application/json',
-      'apikey', (SELECT decrypted_secret FROM vault.decrypted_secrets WHERE name = 'collector_publishable_key'),
-      'Authorization', 'Bearer ' || (SELECT decrypted_secret FROM vault.decrypted_secrets WHERE name = 'collector_publishable_key')
+      'apikey', (SELECT decrypted_secret FROM vault.decrypted_secrets WHERE name = 'collector_publishable_key')
     ),
     body := jsonb_build_object(
       'accessKey', (SELECT decrypted_secret FROM vault.decrypted_secrets WHERE name = 'collector_access_key'),
