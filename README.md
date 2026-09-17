@@ -123,3 +123,21 @@ npm test
 ```bash
 npm run build
 ```
+
+---
+
+## 5. Hướng Dẫn Vận Hành & Bảo Mật
+
+### ⚠️ Đồng bộ Mã Truy Cập Quản Trị (`APP_WRITE_ACCESS_KEY`) & Supabase Vault
+- **Cơ chế hoạt động**:
+  - Giao diện frontend và các Edge Function sử dụng biến môi trường máy chủ `APP_WRITE_ACCESS_KEY` (được cấu hình trong Supabase Secrets).
+  - Tiến trình Cron tự động mỗi giờ (`bat-bai-doi-thu-hourly-collector`) chạy từ bên trong PostgreSQL (`pg_cron` + `pg_net`) và đọc mã này từ bảng mã hóa **Supabase Vault** (`collector_access_key`).
+- **Nguyên tắc bắt buộc**:
+  - Khi thay đổi `APP_WRITE_ACCESS_KEY` trên Supabase Secrets, **bắt buộc phải đồng bộ lại** vào Supabase Vault:
+    ```sql
+    SELECT vault.update_secret(
+      (SELECT id FROM vault.secrets WHERE name = 'collector_access_key'),
+      new_secret := 'MÃ_TRUY_CẬP_MỚI'
+    );
+    ```
+  - Nếu không đồng bộ, Cron job sẽ gửi mã cũ và bị Edge Function từ chối với lỗi **HTTP 401 Unauthorized**.
