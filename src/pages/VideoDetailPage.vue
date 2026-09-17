@@ -604,14 +604,15 @@ onMounted(() => {
   justify-content: space-between;
   gap: 16px;
   padding: 12px 16px;
-  background: #080C12;
-  border-top: 1px solid rgba(56, 189, 248, 0.15);
-  border-bottom: 1px solid rgba(56, 189, 248, 0.15);
-  border-left: 1px solid rgba(255, 255, 255, 0.04);
-  border-right: 1px solid rgba(255, 255, 255, 0.04);
-  border-radius: 4px;
+  background: var(--bg-surface);
+  border-top: 1px solid var(--border-strong);
+  border-bottom: 1px solid var(--border-strong);
+  border-left: 1px solid var(--border-line);
+  border-right: 1px solid var(--border-line);
+  border-radius: 6px;
   margin-bottom: 24px;
   flex-wrap: wrap;
+  box-shadow: var(--card-shadow);
 }
 
 .btn-back {
@@ -627,8 +628,8 @@ onMounted(() => {
 }
 
 .btn-back:hover {
-  color: #f8fafc;
-  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-primary);
+  background: var(--bg-surface-hover);
 }
 
 .top-bar-actions {
@@ -652,36 +653,36 @@ onMounted(() => {
 }
 
 .btn-refresh {
-  background: #06090E;
+  background: var(--bg-inset);
   color: var(--text-secondary);
-  border-color: rgba(255, 255, 255, 0.08);
+  border-color: var(--border-subtle);
 }
 
 .btn-refresh:hover:not(:disabled) {
-  color: #f8fafc;
-  border-color: rgba(255, 255, 255, 0.2);
+  color: var(--text-primary);
+  border-color: var(--border-strong);
 }
 
 .btn-ai {
-  background: rgba(56, 189, 248, 0.08);
+  background: var(--accent-subtle);
   color: var(--accent);
-  border-color: rgba(56, 189, 248, 0.22);
+  border-color: var(--border-strong);
 }
 
 .btn-ai:hover {
-  background: rgba(56, 189, 248, 0.18);
+  background: var(--accent-subtle);
   border-color: var(--accent);
 }
 
 .btn-to-prod {
-  background: #06090E;
-  color: #f1f5f9;
-  border-color: rgba(255, 255, 255, 0.12);
+  background: var(--bg-inset);
+  color: var(--text-primary);
+  border-color: var(--border-subtle);
 }
 
 .btn-to-prod:hover:not(:disabled) {
-  border-color: rgba(255, 255, 255, 0.25);
-  background: rgba(255, 255, 255, 0.04);
+  border-color: var(--border-strong);
+  background: var(--bg-surface-hover);
 }
 
 .btn-in-prod {
@@ -692,7 +693,7 @@ onMounted(() => {
 
 .btn-youtube {
   background: var(--accent);
-  color: #03111C;
+  color: var(--accent-text, #03111C);
   font-weight: 700;
 }
 
@@ -705,12 +706,12 @@ onMounted(() => {
   display: grid;
   grid-template-columns: 42% 1fr;
   gap: 28px;
-  background: #0B0F17;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 4px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-line);
+  border-radius: 6px;
   padding: 22px 24px;
   margin-bottom: 24px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+  box-shadow: var(--card-shadow);
   align-items: start;
 }
 
@@ -723,10 +724,10 @@ onMounted(() => {
   position: relative;
   width: 100%;
   aspect-ratio: 16 / 9;
-  background: #05070A;
-  border-radius: 3px;
+  background: var(--bg-inset);
+  border-radius: 4px;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border-line);
   transition: border-color 0.25s ease, box-shadow 0.25s ease;
 }
 
@@ -884,7 +885,7 @@ onMounted(() => {
   border-radius: 50%;
   border: 1px solid rgba(56, 189, 248, 0.3);
   overflow: hidden;
-  background: #06090E;
+  background: var(--bg-inset);
 }
 
 .avatar-image {
@@ -907,7 +908,7 @@ onMounted(() => {
 .channel-name-bold {
   font-size: 13.5px;
   font-weight: 600;
-  color: #e2e8f0;
+  color: var(--text-primary);
 }
 
 .channel-name-bold:hover {
@@ -945,8 +946,8 @@ onMounted(() => {
 /* Integrated Signal Rail inside Hero */
 .hero-integrated-signal-rail {
   margin-top: 10px;
-  background: #06090E;
-  border: 1px solid rgba(56, 189, 248, 0.18);
+  background: var(--bg-inset);
+  border: 1px solid var(--border-strong);
   border-left: 3px solid var(--accent);
   border-radius: 4px;
   padding: 14px 18px;
@@ -954,7 +955,7 @@ onMounted(() => {
   grid-template-columns: 1fr 1px 1.2fr;
   gap: 16px;
   align-items: center;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  box-shadow: var(--card-shadow);
 }
 
 .rail-focal-hero {
@@ -1052,15 +1053,15 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 16px;
-  background: #080C12;
-  border-top: 1px solid rgba(56, 189, 248, 0.12);
-  border-bottom: 1px solid rgba(56, 189, 248, 0.12);
-  border-left: 1px solid rgba(255, 255, 255, 0.04);
-  border-right: 1px solid rgba(255, 255, 255, 0.04);
-  border-radius: 4px;
+  background: var(--bg-surface);
+  border-top: 1px solid var(--border-strong);
+  border-bottom: 1px solid var(--border-strong);
+  border-left: 1px solid var(--border-line);
+  border-right: 1px solid var(--border-line);
+  border-radius: 6px;
   padding: 14px 20px;
   margin-bottom: 24px;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  box-shadow: var(--card-shadow);
 }
 
 .event-timeline-track {
@@ -1141,22 +1142,23 @@ onMounted(() => {
   border-radius: 4px;
   font-size: 12px;
   font-weight: 600;
-  background: rgba(56, 189, 248, 0.08);
-  border: 1px solid rgba(56, 189, 248, 0.2);
+  background: var(--accent-subtle);
+  border: 1px solid var(--border-strong);
   color: var(--accent);
 }
 
 .btn-event-link:hover {
-  background: rgba(56, 189, 248, 0.18);
+  background: var(--accent-subtle);
 }
 
 /* 4. Chart Surface Panel */
 .chart-surface-panel {
-  background: #080C12;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 4px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-line);
+  border-radius: 6px;
   padding: 18px 20px;
   margin-bottom: 24px;
+  box-shadow: var(--card-shadow);
 }
 
 .chart-container-box {
@@ -1165,11 +1167,12 @@ onMounted(() => {
 
 /* 5. Snapshot History Panel */
 .snapshot-history-panel {
-  background: #080C12;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 4px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-line);
+  border-radius: 6px;
   padding: 18px 20px;
   margin-bottom: 24px;
+  box-shadow: var(--card-shadow);
 }
 
 .surface-header {
@@ -1184,7 +1187,7 @@ onMounted(() => {
 .surface-title {
   font-size: 16px;
   font-weight: 700;
-  color: #f8fafc;
+  color: var(--text-primary);
   margin: 0;
 }
 
@@ -1213,24 +1216,24 @@ onMounted(() => {
 }
 
 .history-obsidian-table thead th {
-  background: #06090E;
+  background: var(--table-header-bg, var(--bg-inset));
   color: var(--text-secondary);
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.1em;
   padding: 12px 14px;
-  border-bottom: 1px solid rgba(56, 189, 248, 0.18);
+  border-bottom: 1px solid var(--border-strong);
   white-space: nowrap;
 }
 
 .history-row {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid var(--border-line);
   transition: background-color 0.15s ease;
 }
 
 .history-row:hover {
-  background: rgba(14, 21, 33, 0.5);
+  background: var(--bg-surface-hover);
 }
 
 .history-row td {
@@ -1239,7 +1242,7 @@ onMounted(() => {
 }
 
 .time-main {
-  color: #f1f5f9;
+  color: var(--text-primary);
   font-weight: 500;
 }
 
@@ -1266,10 +1269,11 @@ onMounted(() => {
 
 /* 6. Competitor Channel Intel Panel */
 .channel-intel-panel {
-  background: #080C12;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 4px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-line);
+  border-radius: 6px;
   padding: 18px 20px;
+  box-shadow: var(--card-shadow);
 }
 
 .btn-channel-external {
@@ -1310,7 +1314,7 @@ onMounted(() => {
   border-radius: 50%;
   overflow: hidden;
   border: 1px solid rgba(56, 189, 248, 0.3);
-  background: #06090E;
+  background: var(--bg-inset);
 }
 
 .avatar-large-img {
@@ -1333,7 +1337,7 @@ onMounted(() => {
 .channel-heading-name {
   font-size: 15px;
   font-weight: 700;
-  color: #F8FAFC;
+  color: var(--text-primary);
 }
 
 .channel-heading-handle {
@@ -1348,8 +1352,8 @@ onMounted(() => {
 }
 
 .config-card {
-  background: #06090E;
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  background: var(--bg-inset);
+  border: 1px solid var(--border-subtle);
   border-radius: 4px;
   padding: 8px 14px;
   display: flex;
@@ -1367,7 +1371,7 @@ onMounted(() => {
 .config-value {
   font-size: 12.5px;
   font-weight: 600;
-  color: #F0F6FC;
+  color: var(--text-primary);
 }
 
 .badge-status {
@@ -1390,11 +1394,12 @@ onMounted(() => {
 .error-console-card {
   text-align: center;
   padding: 60px 20px;
-  background: #0B0F17;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 4px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-line);
+  border-radius: 6px;
   max-width: 540px;
   margin: 40px auto;
+  box-shadow: var(--card-shadow);
 }
 
 .error-ring {
@@ -1413,11 +1418,13 @@ onMounted(() => {
   font-size: 16px;
   font-weight: 700;
   margin-bottom: 8px;
+  color: var(--text-primary);
 }
 
 .error-desc {
   font-size: 13px;
   color: var(--text-muted);
+  line-height: 1.5;
   margin-bottom: 20px;
 }
 
@@ -1429,8 +1436,8 @@ onMounted(() => {
 
 .skeleton-hero-card {
   height: 240px;
-  background: #0B0F17;
-  border-radius: 4px;
+  background: var(--bg-surface);
+  border-radius: 6px;
 }
 
 .skeleton-stats-strip {
@@ -1441,14 +1448,14 @@ onMounted(() => {
 
 .skeleton-card {
   height: 100px;
-  background: #0B0F17;
-  border-radius: 4px;
+  background: var(--bg-surface);
+  border-radius: 6px;
 }
 
 .skeleton-box {
   height: 200px;
-  background: #0B0F17;
-  border-radius: 4px;
+  background: var(--bg-surface);
+  border-radius: 6px;
 }
 
 /* Responsive */

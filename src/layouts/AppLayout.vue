@@ -66,6 +66,10 @@
       </nav>
 
       <div class="sidebar-footer">
+        <div class="sidebar-theme-wrapper">
+          <span class="theme-label">Giao diện</span>
+          <ThemeToggle size="md" />
+        </div>
         <div class="footer-status-pill">
           <span class="pulse-dot"></span>
           <span>Hệ thống sẵn sàng</span>
@@ -85,18 +89,21 @@
         <span class="brand-mobile-title">BẮT BÀI ĐỐI THỦ</span>
       </div>
 
-      <button
-        class="mobile-menu-btn"
-        type="button"
-        aria-label="Mở menu điều hướng"
-        @click="mobileDrawerOpen = true"
-      >
-        <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="3" y1="6" x2="21" y2="6"></line>
-          <line x1="3" y1="12" x2="21" y2="12"></line>
-          <line x1="3" y1="18" x2="21" y2="18"></line>
-        </svg>
-      </button>
+      <div class="mobile-topbar-actions">
+        <ThemeToggle size="sm" />
+        <button
+          class="mobile-menu-btn"
+          type="button"
+          aria-label="Mở menu điều hướng"
+          @click="mobileDrawerOpen = true"
+        >
+          <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
+      </div>
     </header>
 
     <!-- Mobile Drawer -->
@@ -112,6 +119,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import AppIcon from '@/components/ui/AppIcon.vue';
+import ThemeToggle from '@/components/ui/ThemeToggle.vue';
 import MobileNavDrawer from '@/components/ui/MobileNavDrawer.vue';
 
 const mobileDrawerOpen = ref(false);
@@ -218,7 +226,20 @@ const mobileDrawerOpen = ref(false);
   border-top: 1px solid var(--border-subtle);
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
+}
+
+.sidebar-theme-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 0;
+}
+
+.theme-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
 }
 
 .footer-status-pill {
@@ -286,6 +307,11 @@ const mobileDrawerOpen = ref(false);
     font-weight: 700;
     color: var(--text-primary);
     letter-spacing: 0.02em;
+  }
+  .mobile-topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
   }
   .mobile-menu-btn {
     background: transparent;

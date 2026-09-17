@@ -154,11 +154,11 @@ onUnmounted(() => {
   width: 280px;
   max-width: 85vw;
   height: 100%;
-  background-color: #0E131A;
+  background-color: var(--bg-surface);
   border-right: 1px solid var(--border-subtle);
   display: flex;
   flex-direction: column;
-  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.5);
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.25);
   transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
 }
 

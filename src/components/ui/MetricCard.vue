@@ -58,19 +58,20 @@ withDefaults(
 <style scoped>
 .signal-metric-card {
   position: relative;
-  background: rgba(15, 23, 42, 0.75);
-  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
   border-radius: 12px;
   padding: 16px 18px;
   backdrop-filter: blur(12px);
   transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
   overflow: hidden;
+  box-shadow: var(--card-shadow);
 }
 
 .signal-metric-card:hover {
   transform: translateY(-2px);
-  border-color: rgba(56, 189, 248, 0.3);
-  box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.5);
+  border-color: var(--border-strong);
+  box-shadow: var(--card-shadow-hover, 0 8px 24px -6px rgba(0, 0, 0, 0.5));
 }
 
 .card-inner {
@@ -79,9 +80,9 @@ withDefaults(
 }
 
 .is-focal {
-  background: linear-gradient(145deg, rgba(15, 28, 48, 0.85) 0%, rgba(10, 18, 32, 0.9) 100%);
-  border-color: rgba(56, 189, 248, 0.35);
-  box-shadow: 0 0 20px -5px rgba(56, 189, 248, 0.15);
+  background: var(--bg-surface-elevated);
+  border-color: var(--border-strong);
+  box-shadow: 0 0 20px -5px var(--accent-glow, rgba(56, 189, 248, 0.15));
 }
 
 .card-glow {
@@ -90,7 +91,7 @@ withDefaults(
   right: -20px;
   width: 90px;
   height: 90px;
-  background: radial-gradient(circle, rgba(56, 189, 248, 0.25) 0%, transparent 70%);
+  background: radial-gradient(circle, var(--accent-glow, rgba(56, 189, 248, 0.25)) 0%, transparent 70%);
   pointer-events: none;
 }
 
@@ -105,12 +106,12 @@ withDefaults(
 .metric-label {
   font-size: 12px;
   font-weight: 600;
-  color: #94a3b8;
+  color: var(--text-secondary);
   letter-spacing: 0.02em;
 }
 
 .metric-icon {
-  color: #64748b;
+  color: var(--text-muted);
 }
 
 .metric-value-wrap {
@@ -124,41 +125,41 @@ withDefaults(
 .metric-main-value {
   font-size: 24px;
   font-weight: 700;
-  color: #f8fafc;
+  color: var(--text-primary);
 }
 
 .is-focal .metric-main-value {
-  color: #38bdf8;
-  text-shadow: 0 0 12px rgba(56, 189, 248, 0.3);
+  color: var(--accent);
+  text-shadow: 0 0 12px var(--accent-glow, rgba(56, 189, 248, 0.3));
 }
 
 .variant-positive .metric-main-value {
-  color: #34d399;
+  color: var(--status-active, #34d399);
 }
 
 .variant-warning .metric-main-value {
-  color: #fbbf24;
+  color: var(--status-paused, #fbbf24);
 }
 
 .variant-muted .metric-main-value {
-  color: #64748b;
+  color: var(--text-muted);
 }
 
 .metric-unit {
   font-size: 12px;
   font-weight: 600;
-  color: #64748b;
+  color: var(--text-muted);
   text-transform: uppercase;
 }
 
 .is-focal .metric-unit {
-  color: #38bdf8;
+  color: var(--accent);
   opacity: 0.8;
 }
 
 .metric-subtext {
   font-size: 11px;
-  color: #64748b;
+  color: var(--text-muted);
   margin-top: 6px;
   white-space: nowrap;
   overflow: hidden;

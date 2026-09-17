@@ -191,14 +191,14 @@ function handleAvatarError(e: Event) {
 
 <style scoped>
 .table-surface-card {
-  background: #080C12;
-  border-top: 1px solid rgba(56, 189, 248, 0.15);
-  border-bottom: 1px solid rgba(56, 189, 248, 0.15);
-  border-left: 1px solid rgba(255, 255, 255, 0.04);
-  border-right: 1px solid rgba(255, 255, 255, 0.04);
-  border-radius: 4px;
+  background: var(--bg-surface);
+  border-top: 1px solid var(--border-strong);
+  border-bottom: 1px solid var(--border-strong);
+  border-left: 1px solid var(--border-line);
+  border-right: 1px solid var(--border-line);
+  border-radius: 6px;
   overflow: hidden;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03), 0 4px 20px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--card-shadow);
   margin-bottom: 30px;
 }
 
@@ -210,14 +210,14 @@ function handleAvatarError(e: Event) {
 }
 
 thead th {
-  background: #06090E;
+  background: var(--table-header-bg, var(--bg-inset));
   color: var(--text-secondary);
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: 10.5px;
   font-weight: 700;
   letter-spacing: 0.1em;
   padding: 14px 16px;
-  border-bottom: 1px solid rgba(56, 189, 248, 0.18);
+  border-bottom: 1px solid var(--border-strong);
   white-space: nowrap;
   position: sticky;
   top: 0;
@@ -225,13 +225,13 @@ thead th {
 }
 
 .table-row {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid var(--border-line);
   border-left: 2px solid transparent;
   transition: background-color 0.18s ease, border-color 0.18s ease;
 }
 
 .table-row:hover {
-  background: rgba(14, 21, 33, 0.6);
+  background: var(--bg-surface-hover);
 }
 
 .table-row.row-rising {
@@ -239,7 +239,7 @@ thead th {
 }
 
 .table-row.row-alerted {
-  background: rgba(56, 189, 248, 0.02);
+  background: var(--accent-subtle);
 }
 
 td {
@@ -266,8 +266,8 @@ td {
   flex-shrink: 0;
   border-radius: 8px;
   overflow: hidden;
-  background: #090d16;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--bg-inset);
+  border: 1px solid var(--border-line);
 }
 
 .video-thumb-img {
@@ -287,7 +287,7 @@ td {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #64748b;
+  color: var(--text-muted);
 }
 
 .video-meta {
@@ -295,7 +295,7 @@ td {
 }
 
 .video-title {
-  color: #f8fafc;
+  color: var(--text-primary);
   font-weight: 600;
   line-height: 1.35;
   text-decoration: none;
@@ -307,12 +307,12 @@ td {
 }
 
 .video-title:hover {
-  color: #38bdf8;
+  color: var(--accent);
 }
 
 .video-id {
   font-size: 11px;
-  color: #64748b;
+  color: var(--text-muted);
   margin-top: 4px;
 }
 
@@ -500,17 +500,17 @@ td {
   width: 28px;
   height: 28px;
   border-radius: 6px;
-  color: #94a3b8;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  color: var(--text-secondary);
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
   text-decoration: none;
   transition: all 0.15s ease;
 }
 
 .btn-icon-action:hover {
-  color: #38bdf8;
-  background: rgba(56, 189, 248, 0.12);
-  border-color: rgba(56, 189, 248, 0.3);
+  color: var(--accent);
+  background: var(--accent-subtle);
+  border-color: var(--accent);
 }
 
 .btn-yt:hover {

@@ -88,12 +88,12 @@ const maxVphFormattedNumber = computed(() => {
 /* Focal Signal Surface */
 .focal-signal-surface {
   position: relative;
-  background: #0B1019;
-  border: 1px solid rgba(56, 189, 248, 0.22);
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-strong);
   border-left: 3px solid var(--accent);
-  border-radius: 4px;
+  border-radius: 6px;
   padding: 16px 20px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), inset 0 0 24px rgba(56, 189, 248, 0.03);
+  box-shadow: var(--card-shadow);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -135,9 +135,9 @@ const maxVphFormattedNumber = computed(() => {
 .focal-val {
   font-size: 34px;
   font-weight: 800;
-  color: #F8FAFC;
+  color: var(--text-primary);
   line-height: 1;
-  text-shadow: 0 0 16px rgba(56, 189, 248, 0.25);
+  text-shadow: 0 0 16px var(--accent-glow, rgba(56, 189, 248, 0.25));
 }
 
 .focal-unit {
@@ -172,19 +172,20 @@ const maxVphFormattedNumber = computed(() => {
 }
 
 .compact-metric-tile {
-  background: #080C12;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 4px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
   padding: 14px 16px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   gap: 8px;
   transition: border-color 0.2s ease;
+  box-shadow: var(--card-shadow);
 }
 
 .compact-metric-tile:hover {
-  border-color: rgba(56, 189, 248, 0.2);
+  border-color: var(--border-strong);
 }
 
 .tile-header {
@@ -201,7 +202,7 @@ const maxVphFormattedNumber = computed(() => {
 .tile-number {
   font-size: 24px;
   font-weight: 700;
-  color: #F0F6FC;
+  color: var(--text-primary);
   line-height: 1;
 }
 

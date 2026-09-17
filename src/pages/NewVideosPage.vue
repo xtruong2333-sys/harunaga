@@ -635,10 +635,10 @@ onMounted(() => {
 .segmented-control {
   display: inline-flex;
   align-items: center;
-  background: #080C12;
+  background: var(--bg-inset);
   padding: 3px;
   border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border-subtle);
 }
 
 .segment-btn {
@@ -654,14 +654,14 @@ onMounted(() => {
 }
 
 .segment-btn:hover {
-  color: #f8fafc;
+  color: var(--text-primary);
 }
 
 .segment-active {
-  background: rgba(56, 189, 248, 0.15);
+  background: var(--accent-subtle);
   color: var(--accent);
   font-weight: 600;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
 }
 
 .btn-command-refresh {
@@ -781,8 +781,8 @@ onMounted(() => {
 }
 
 .compact-metric-strip {
-  background: #080C12;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
   border-radius: 4px;
   padding: 8px 10px;
   display: flex;
@@ -792,7 +792,7 @@ onMounted(() => {
 }
 
 .compact-metric-strip:hover {
-  border-color: rgba(56, 189, 248, 0.2);
+  border-color: var(--border-strong);
 }
 
 .strip-label-row {
@@ -800,20 +800,15 @@ onMounted(() => {
   align-items: center;
   gap: 5px;
   font-size: 10.5px;
+  font-weight: 600;
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
-.strip-value-display {
+.strip-val {
   font-size: 18px;
   font-weight: 700;
-  color: #F0F6FC;
-  line-height: 1;
-}
-
-.compact-metric-strip.is-rising {
-  border-color: rgba(34, 197, 94, 0.2);
 }
 
 .highlight-rising {
@@ -843,10 +838,10 @@ onMounted(() => {
 .dock-input {
   width: 100%;
   padding: 9px 34px 9px 36px;
-  background: #06090E;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--bg-inset);
+  border: 1px solid var(--border-subtle);
   border-radius: 4px;
-  color: #f8fafc;
+  color: var(--text-primary);
   font-size: 13px;
   outline: none;
   transition: border-color 0.18s ease;
@@ -869,10 +864,10 @@ onMounted(() => {
 .dock-select {
   width: 100%;
   padding: 9px 12px;
-  background: #06090E;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--bg-inset);
+  border: 1px solid var(--border-subtle);
   border-radius: 4px;
-  color: #e2e8f0;
+  color: var(--text-primary);
   font-size: 13px;
   outline: none;
   cursor: pointer;
@@ -903,13 +898,14 @@ onMounted(() => {
   display: grid;
   grid-template-columns: 200px 1fr 240px;
   gap: 20px;
-  background: #0B0F17;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-line);
   border-left: 2px solid transparent;
-  border-radius: 4px;
+  border-radius: 6px;
   padding: 14px 18px;
   overflow: hidden;
   align-items: center;
+  box-shadow: var(--card-shadow);
   transition: border-color 0.25s ease, transform 0.25s var(--ease-out-expo);
 }
 
@@ -921,7 +917,7 @@ onMounted(() => {
   left: -100%;
   width: 50%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.04), transparent);
+  background: linear-gradient(90deg, transparent, var(--accent-subtle), transparent);
   transition: transform 300ms ease;
   pointer-events: none;
 }
@@ -931,7 +927,7 @@ onMounted(() => {
 }
 
 .signal-row:hover {
-  border-color: rgba(56, 189, 248, 0.22);
+  border-color: var(--border-strong);
   transform: translateY(-1px);
 }
 
@@ -945,17 +941,16 @@ onMounted(() => {
   position: relative;
   width: 100%;
   aspect-ratio: 16 / 9;
-  border-radius: 3px;
+  border-radius: 4px;
   overflow: hidden;
-  background: #05070A;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+  background: var(--bg-inset);
+  border: 1px solid var(--border-line);
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .signal-row:hover .signal-thumb-wrap {
-  border-color: rgba(56, 189, 248, 0.4);
-  box-shadow: 0 0 12px rgba(56, 189, 248, 0.12);
+  border-color: var(--accent);
+  box-shadow: 0 0 12px var(--accent-glow, rgba(56, 189, 248, 0.12));
 }
 
 .thumb-anchor {
@@ -1136,8 +1131,8 @@ onMounted(() => {
 
 /* Right: Dark Inset Signal Metrics Panel */
 .signal-metrics-panel {
-  background: #06090E;
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  background: var(--bg-inset);
+  border: 1px solid var(--border-line);
   border-radius: 4px;
   padding: 12px 14px;
   display: flex;
@@ -1253,8 +1248,8 @@ onMounted(() => {
   align-items: center;
   gap: 8px;
   padding: 10px 24px;
-  background: #080C12;
-  border: 1px solid rgba(56, 189, 248, 0.2);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-strong);
   border-radius: 4px;
   color: var(--accent);
   font-size: 13px;
@@ -1264,7 +1259,7 @@ onMounted(() => {
 }
 
 .btn-load-more:hover {
-  background: rgba(56, 189, 248, 0.12);
+  background: var(--accent-subtle);
   border-color: var(--accent);
 }
 
@@ -1272,11 +1267,12 @@ onMounted(() => {
 .empty-state-card {
   text-align: center;
   padding: 60px 20px;
-  background: #0B0F17;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 4px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-line);
+  border-radius: 6px;
   max-width: 540px;
   margin: 40px auto;
+  box-shadow: var(--card-shadow);
 }
 
 .empty-icon-ring {
@@ -1284,8 +1280,8 @@ onMounted(() => {
   height: 60px;
   margin: 0 auto 16px;
   border-radius: 50%;
-  background: rgba(56, 189, 248, 0.06);
-  border: 1px solid rgba(56, 189, 248, 0.2);
+  background: var(--accent-subtle);
+  border: 1px solid var(--border-strong);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1296,6 +1292,7 @@ onMounted(() => {
   font-size: 16px;
   font-weight: 600;
   margin-bottom: 8px;
+  color: var(--text-primary);
 }
 
 .empty-desc {
@@ -1316,9 +1313,9 @@ onMounted(() => {
   display: grid;
   grid-template-columns: 200px 1fr 240px;
   gap: 20px;
-  background: #0B0F17;
-  border: 1px solid rgba(255, 255, 255, 0.04);
-  border-radius: 4px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-line);
+  border-radius: 6px;
   padding: 16px;
 }
 

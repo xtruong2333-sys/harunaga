@@ -130,15 +130,15 @@ const filterTabs = computed(() => [
   display: flex;
   flex-direction: column;
   gap: 12px;
-  background: #080C12;
-  border-top: 1px solid rgba(56, 189, 248, 0.15);
-  border-bottom: 1px solid rgba(56, 189, 248, 0.15);
-  border-left: 1px solid rgba(255, 255, 255, 0.04);
-  border-right: 1px solid rgba(255, 255, 255, 0.04);
-  border-radius: 4px;
+  background: var(--bg-surface);
+  border-top: 1px solid var(--border-strong);
+  border-bottom: 1px solid var(--border-strong);
+  border-left: 1px solid var(--border-line);
+  border-right: 1px solid var(--border-line);
+  border-radius: 6px;
   padding: 14px 18px;
   margin-bottom: 20px;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03), 0 4px 16px rgba(0, 0, 0, 0.25);
+  box-shadow: var(--card-shadow);
 }
 
 .deck-top-row {
@@ -175,10 +175,10 @@ const filterTabs = computed(() => [
 .deck-input {
   width: 100%;
   padding: 9px 34px 9px 36px;
-  background: #06090E;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 4px;
-  color: #f8fafc;
+  background: var(--bg-inset);
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  color: var(--text-primary);
   font-size: 13px;
   outline: none;
   transition: border-color 0.18s ease;
@@ -201,7 +201,7 @@ const filterTabs = computed(() => [
 }
 
 .clear-btn:hover {
-  color: #f8fafc;
+  color: var(--text-primary);
 }
 
 .channel-select-wrap {
@@ -211,10 +211,10 @@ const filterTabs = computed(() => [
 .deck-select {
   width: 100%;
   padding: 9px 12px;
-  background: #06090E;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 4px;
-  color: #e2e8f0;
+  background: var(--bg-inset);
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  color: var(--text-primary);
   font-size: 13px;
   outline: none;
   cursor: pointer;
@@ -229,18 +229,18 @@ const filterTabs = computed(() => [
   align-items: center;
   gap: 7px;
   padding: 8px 14px;
-  border-radius: 4px;
+  border-radius: 6px;
   font-size: 12.5px;
   font-weight: 600;
-  background: rgba(56, 189, 248, 0.08);
-  border: 1px solid rgba(56, 189, 248, 0.22);
+  background: var(--accent-subtle);
+  border: 1px solid var(--border-strong);
   color: var(--accent);
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .btn-deck-refresh:hover:not(:disabled) {
-  background: rgba(56, 189, 248, 0.18);
+  background: var(--accent-subtle);
   border-color: var(--accent);
 }
 
@@ -260,17 +260,17 @@ const filterTabs = computed(() => [
   gap: 14px;
   flex-wrap: wrap;
   padding-top: 10px;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  border-top: 1px solid var(--border-line);
 }
 
 .filter-pills {
   display: flex;
   align-items: center;
   gap: 6px;
-  background: rgba(10, 16, 28, 0.6);
+  background: var(--bg-inset);
   padding: 3px;
   border-radius: 9px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border-subtle);
   overflow-x: auto;
 }
 
@@ -281,7 +281,7 @@ const filterTabs = computed(() => [
   padding: 6px 13px;
   font-size: 12px;
   font-weight: 500;
-  color: #94a3b8;
+  color: var(--text-secondary);
   background: transparent;
   border: none;
   border-radius: 7px;
@@ -291,14 +291,14 @@ const filterTabs = computed(() => [
 }
 
 .pill-btn:hover {
-  color: #f8fafc;
-  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-primary);
+  background: var(--bg-surface-hover);
 }
 
 .pill-active {
-  color: #38bdf8 !important;
-  background: rgba(56, 189, 248, 0.12) !important;
-  border: 1px solid rgba(56, 189, 248, 0.25);
+  color: var(--accent) !important;
+  background: var(--accent-subtle) !important;
+  border: 1px solid var(--border-strong);
   font-weight: 600;
 }
 
@@ -306,7 +306,7 @@ const filterTabs = computed(() => [
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background: #38bdf8;
+  background: var(--accent);
 }
 
 .pill-count {
@@ -322,7 +322,7 @@ const filterTabs = computed(() => [
 
 .sort-prefix {
   font-size: 12px;
-  color: #94a3b8;
+  color: var(--text-muted);
   white-space: nowrap;
 }
 
