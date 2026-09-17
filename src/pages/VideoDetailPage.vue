@@ -18,6 +18,15 @@
           <span>{{ loading ? 'Đang tải...' : 'Làm Mới' }}</span>
         </button>
 
+        <router-link
+          :to="`/tro-ly-noi-dung?video=${video.id}`"
+          class="btn btn-secondary btn-sm btn-ai-analyze"
+          title="Phân tích nội dung và tạo ý tưởng mới bằng AI"
+        >
+          <AppIcon name="sparkles" size="14" />
+          <span>Phân Tích Bằng AI</span>
+        </router-link>
+
         <a
           :href="video.url"
           target="_blank"

@@ -5,6 +5,7 @@ import VideoDetailPage from '@/pages/VideoDetailPage.vue';
 import OverviewPage from '@/pages/OverviewPage.vue';
 import ChannelDetailPage from '@/pages/ChannelDetailPage.vue';
 import OpportunityVideosPage from '@/pages/OpportunityVideosPage.vue';
+import AiContentAssistantPage from '@/pages/AiContentAssistantPage.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -57,6 +58,14 @@ const routes: Array<RouteRecordRaw> = [
     component: ChannelDetailPage,
     meta: {
       title: 'Phân Tích Kênh — Bắt Bài Đối Thủ',
+    },
+  },
+  {
+    path: '/tro-ly-noi-dung',
+    name: 'AiContentAssistant',
+    component: AiContentAssistantPage,
+    meta: {
+      title: 'Trợ Lý Nội Dung AI — Bắt Bài Đối Thủ',
     },
   },
   {

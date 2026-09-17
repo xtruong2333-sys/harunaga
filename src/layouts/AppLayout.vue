@@ -31,6 +31,10 @@
           <AppIcon name="tv" size="18" />
           <span>Kênh Theo Dõi</span>
         </router-link>
+        <router-link to="/tro-ly-noi-dung" class="nav-item" active-class="nav-item-active">
+          <AppIcon name="sparkles" size="18" />
+          <span>Trợ Lý Nội Dung AI</span>
+        </router-link>
       </nav>
 
       <div class="sidebar-footer">
@@ -58,6 +62,9 @@
         </router-link>
         <router-link to="/kenh-theo-doi" class="mobile-nav-link" active-class="mobile-nav-link-active">
           Kênh Theo Dõi
+        </router-link>
+        <router-link to="/tro-ly-noi-dung" class="mobile-nav-link" active-class="mobile-nav-link-active">
+          Trợ Lý AI
         </router-link>
       </nav>
     </header>

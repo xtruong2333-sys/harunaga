@@ -190,6 +190,10 @@
 
           <!-- Action buttons -->
           <div class="hero-actions-col">
+            <router-link :to="'/tro-ly-noi-dung?video=' + topRisingVideo.id" class="btn btn-secondary btn-sm" title="Phân tích nội dung AI">
+              <AppIcon name="sparkles" size="14" />
+              <span>Phân Tích AI</span>
+            </router-link>
             <router-link :to="'/videos/' + topRisingVideo.id" class="btn btn-primary btn-sm">
               <AppIcon name="activity" size="14" />
               <span>Chi Tiết</span>
@@ -396,6 +400,10 @@
               <!-- Actions Col -->
               <td class="td-actions">
                 <div class="cell-actions-group">
+                  <router-link :to="'/tro-ly-noi-dung?video=' + v.id" class="btn btn-secondary btn-xs" title="Phân tích nội dung AI">
+                    <AppIcon name="sparkles" size="12" />
+                    <span>AI</span>
+                  </router-link>
                   <router-link :to="'/videos/' + v.id" class="btn btn-secondary btn-xs">
                     <span>Chi Tiết</span>
                   </router-link>
@@ -492,6 +500,10 @@
 
           <!-- Actions -->
           <div class="m-actions-row">
+            <router-link :to="'/tro-ly-noi-dung?video=' + v.id" class="btn btn-secondary btn-sm flex-1" title="Phân tích AI">
+              <AppIcon name="sparkles" size="14" />
+              <span>Phân Tích AI</span>
+            </router-link>
             <router-link :to="'/videos/' + v.id" class="btn btn-secondary btn-sm flex-1">
               <span>Chi Tiết</span>
             </router-link>
