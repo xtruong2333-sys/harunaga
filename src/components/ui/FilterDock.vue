@@ -34,18 +34,21 @@ withDefaults(
 
 <style scoped>
 .filter-dock {
-  background: rgba(15, 23, 42, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 14px;
-  padding: 16px;
-  backdrop-filter: blur(12px);
+  background: #080C12;
+  border-top: 1px solid rgba(56, 189, 248, 0.14);
+  border-bottom: 1px solid rgba(56, 189, 248, 0.14);
+  border-left: 1px solid rgba(255, 255, 255, 0.04);
+  border-right: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 4px;
+  padding: 14px 18px;
   margin-bottom: 24px;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03), 0 4px 16px rgba(0, 0, 0, 0.25);
+  transition: border-color 0.2s ease, background-color 0.2s ease;
 }
 
 .dock-active {
-  border-color: rgba(56, 189, 248, 0.25);
-  box-shadow: 0 4px 20px -4px rgba(0, 0, 0, 0.4);
+  border-top-color: rgba(56, 189, 248, 0.35);
+  border-bottom-color: rgba(56, 189, 248, 0.35);
 }
 
 .dock-header {
@@ -53,9 +56,9 @@ withDefaults(
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 14px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
 }
 
 .dock-title-wrap {
@@ -65,11 +68,12 @@ withDefaults(
 }
 
 .dock-title {
-  font-size: 12px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: #94a3b8;
+  color: var(--text-secondary);
 }
 
 .active-badge {
@@ -77,24 +81,27 @@ withDefaults(
   align-items: center;
   gap: 6px;
   font-size: 11px;
-  font-weight: 600;
-  color: #38bdf8;
-  background: rgba(56, 189, 248, 0.1);
-  border: 1px solid rgba(56, 189, 248, 0.25);
+  color: var(--accent);
+  background: rgba(56, 189, 248, 0.08);
   padding: 2px 8px;
-  border-radius: 9999px;
+  border-radius: 3px;
+  border: 1px solid rgba(56, 189, 248, 0.2);
 }
 
 .active-dot {
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background: #38bdf8;
+  background: var(--accent);
+  box-shadow: 0 0 6px var(--accent);
+}
+
+.dock-header-actions {
+  display: flex;
+  align-items: center;
 }
 
 .dock-body {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+  width: 100%;
 }
 </style>

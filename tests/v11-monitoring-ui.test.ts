@@ -135,4 +135,41 @@ describe('V1.1 — Wave 1: Monitoring Experience Redesign Contract Assertions', 
     expect(fs.existsSync(metricCardPath)).toBe(true);
     expect(fs.existsSync(filterDockPath)).toBe(true);
   });
+
+  // 6. SectionMarker Component and Integration
+  it('6. SectionMarker exists and is integrated across core monitoring pages', () => {
+    const markerPath = path.join(srcDir, 'components/ui/SectionMarker.vue');
+    expect(fs.existsSync(markerPath)).toBe(true);
+
+    const newVideosContent = fs.readFileSync(path.join(srcDir, 'pages/NewVideosPage.vue'), 'utf-8');
+    const videosContent = fs.readFileSync(path.join(srcDir, 'pages/VideosPage.vue'), 'utf-8');
+    const detailContent = fs.readFileSync(path.join(srcDir, 'pages/VideoDetailPage.vue'), 'utf-8');
+
+    expect(newVideosContent).toContain('SectionMarker');
+    expect(videosContent).toContain('SectionMarker');
+    expect(detailContent).toContain('SectionMarker');
+  });
+
+  // 7. Signal Command Visual Identity Architecture (Asymmetry, Integrated Rail, Event Log)
+  it('7. Core monitoring pages adopt asymmetric layout, integrated hero signal rail and event log', () => {
+    const newVideosContent = fs.readFileSync(path.join(srcDir, 'pages/NewVideosPage.vue'), 'utf-8');
+    const detailContent = fs.readFileSync(path.join(srcDir, 'pages/VideoDetailPage.vue'), 'utf-8');
+    const statsHeaderContent = fs.readFileSync(path.join(srcDir, 'features/videos/components/VideoStatsHeader.vue'), 'utf-8');
+
+    // NewVideos asymmetric composition
+    expect(newVideosContent).toContain('top-command-deck');
+    expect(newVideosContent).toContain('focal-vph-panel');
+    expect(newVideosContent).toContain('TÍN HIỆU MẠNH NHẤT');
+
+    // Videos asymmetric stats
+    expect(statsHeaderContent).toContain('active-signal-stats-deck');
+    expect(statsHeaderContent).toContain('focal-signal-surface');
+    expect(statsHeaderContent).toContain('TỐC ĐỘ TĂNG CAO NHẤT');
+
+    // VideoDetail integrated hero signal rail & event log
+    expect(detailContent).toContain('hero-integrated-signal-rail');
+    expect(detailContent).toContain('system-event-log-panel');
+    expect(detailContent).toContain('DISCORD EVENT LOG');
+  });
 });
+

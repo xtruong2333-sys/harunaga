@@ -129,13 +129,16 @@ const filterTabs = computed(() => [
 .command-filter-deck {
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  background: rgba(15, 23, 42, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 14px;
-  padding: 16px;
-  backdrop-filter: blur(12px);
-  margin-bottom: 24px;
+  gap: 12px;
+  background: #080C12;
+  border-top: 1px solid rgba(56, 189, 248, 0.15);
+  border-bottom: 1px solid rgba(56, 189, 248, 0.15);
+  border-left: 1px solid rgba(255, 255, 255, 0.04);
+  border-right: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 4px;
+  padding: 14px 18px;
+  margin-bottom: 20px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03), 0 4px 16px rgba(0, 0, 0, 0.25);
 }
 
 .deck-top-row {
@@ -157,7 +160,7 @@ const filterTabs = computed(() => [
 .deck-search-box {
   position: relative;
   flex: 1;
-  min-width: 200px;
+  min-width: 220px;
 }
 
 .search-icon {
@@ -165,25 +168,24 @@ const filterTabs = computed(() => [
   left: 12px;
   top: 50%;
   transform: translateY(-50%);
-  color: #64748b;
+  color: var(--text-muted);
   pointer-events: none;
 }
 
 .deck-input {
   width: 100%;
   padding: 9px 34px 9px 36px;
-  background: rgba(10, 16, 28, 0.7);
+  background: #06090E;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 8px;
+  border-radius: 4px;
   color: #f8fafc;
   font-size: 13px;
   outline: none;
-  transition: border-color 0.2s ease;
+  transition: border-color 0.18s ease;
 }
 
 .deck-input:focus {
-  border-color: #38bdf8;
-  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
+  border-color: var(--accent);
 }
 
 .clear-btn {
@@ -193,7 +195,7 @@ const filterTabs = computed(() => [
   transform: translateY(-50%);
   background: none;
   border: none;
-  color: #64748b;
+  color: var(--text-muted);
   cursor: pointer;
   padding: 2px 6px;
 }
@@ -209,9 +211,9 @@ const filterTabs = computed(() => [
 .deck-select {
   width: 100%;
   padding: 9px 12px;
-  background: rgba(10, 16, 28, 0.7);
+  background: #06090E;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 8px;
+  border-radius: 4px;
   color: #e2e8f0;
   font-size: 13px;
   outline: none;
@@ -219,7 +221,7 @@ const filterTabs = computed(() => [
 }
 
 .deck-select:focus {
-  border-color: #38bdf8;
+  border-color: var(--accent);
 }
 
 .btn-deck-refresh {
@@ -227,19 +229,19 @@ const filterTabs = computed(() => [
   align-items: center;
   gap: 7px;
   padding: 8px 14px;
-  border-radius: 8px;
-  font-size: 13px;
+  border-radius: 4px;
+  font-size: 12.5px;
   font-weight: 600;
-  background: rgba(56, 189, 248, 0.1);
-  border: 1px solid rgba(56, 189, 248, 0.25);
-  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.08);
+  border: 1px solid rgba(56, 189, 248, 0.22);
+  color: var(--accent);
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .btn-deck-refresh:hover:not(:disabled) {
-  background: rgba(56, 189, 248, 0.2);
-  border-color: #38bdf8;
+  background: rgba(56, 189, 248, 0.18);
+  border-color: var(--accent);
 }
 
 .spin-anim {

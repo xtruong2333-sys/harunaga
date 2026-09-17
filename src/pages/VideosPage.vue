@@ -1,7 +1,8 @@
 <template>
   <div class="videos-page">
-    <!-- 1. Shared Monitoring Header -->
+    <!-- 1. Technical Section Marker & Shared Monitoring Header -->
     <RevealItem :delay="0">
+      <SectionMarker index="01" title="BẢNG TÍN HIỆU TĂNG TRƯỞNG" subtext="Hệ thống radar giám sát liên tục" />
       <MonitoringPageHeader
         eyebrow="TỐC ĐỘ TĂNG"
         title="Video Đang Tăng"
@@ -101,6 +102,7 @@
 import { ref, computed, onMounted } from 'vue';
 import AppIcon from '@/components/ui/AppIcon.vue';
 import MonitoringPageHeader from '@/components/ui/MonitoringPageHeader.vue';
+import SectionMarker from '@/components/ui/SectionMarker.vue';
 import RevealItem from '@/components/motion/RevealItem.vue';
 import VideoStatsHeader from '@/features/videos/components/VideoStatsHeader.vue';
 import VideoTableHeader from '@/features/videos/components/VideoTableHeader.vue';

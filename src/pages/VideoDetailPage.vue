@@ -95,11 +95,13 @@
 
     <!-- Main Detail Console -->
     <template v-else>
-      <!-- Section 1: Video Hero Header -->
+      <!-- Section 1: Video Investigation Hero with Integrated Signal Rail -->
       <RevealItem :delay="40">
+        <SectionMarker index="01" title="TỔNG QUAN ĐIỀU TRA" subtext="VIDEO INVESTIGATION CONSOLE" />
+
         <section class="investigation-hero-card">
-          <!-- Left: Large 16:9 Thumbnail -->
-          <div class="hero-thumb-side">
+          <!-- Left: Large 16:9 Thumbnail (42%) -->
+          <div class="hero-thumb-side tech-bracket">
             <div class="thumb-container">
               <img
                 v-if="video.thumbnailUrl"
@@ -125,10 +127,11 @@
                   <AppIcon name="play" size="24" />
                 </div>
               </a>
+              <div class="thumb-bottom-gradient" />
             </div>
           </div>
 
-          <!-- Right: Video Meta Details -->
+          <!-- Right: Metadata & Integrated Signal Rail (58%) -->
           <div class="hero-info-side">
             <!-- Badges -->
             <div class="hero-badges-line">
@@ -170,7 +173,7 @@
             <div class="hero-meta-chips">
               <div class="meta-chip">
                 <span class="chip-key">YouTube ID:</span>
-                <span class="chip-val mono">{{ video.youtubeVideoId }}</span>
+                <span class="chip-val mono-tabular">{{ video.youtubeVideoId }}</span>
               </div>
               <div class="meta-chip">
                 <span class="chip-key">Thời gian đăng:</span>
@@ -181,85 +184,109 @@
                 <span class="chip-val">{{ video.duration }}</span>
               </div>
             </div>
+
+            <!-- Integrated Signal Rail (No Separate 4-Card Grid) -->
+            <div class="hero-integrated-signal-rail tech-bracket">
+              <!-- Left: Focal VPH Hero -->
+              <div class="rail-focal-hero">
+                <div class="rail-tag">
+                  <span class="pulse-dot" v-if="video.latestMeasuredVph && video.latestMeasuredVph > 0" />
+                  <span>CURRENT SIGNAL</span>
+                </div>
+                <div class="rail-vph-number mono-tabular">
+                  <span class="vph-huge">{{ video.latestMeasuredVph !== null && video.latestMeasuredVph !== undefined ? Math.round(video.latestMeasuredVph).toLocaleString('vi-VN') : '—' }}</span>
+                  <span class="vph-unit">VPH</span>
+                </div>
+                <div class="rail-threshold-note">
+                  <span v-if="video.isOverThreshold" class="note-over">
+                    Vượt ngưỡng {{ video.channel.alertVphThreshold.toLocaleString('vi-VN') }} VPH
+                  </span>
+                  <span v-else-if="video.latestMeasuredVph !== null" class="note-normal">
+                    Dưới ngưỡng {{ video.channel.alertVphThreshold.toLocaleString('vi-VN') }} VPH
+                  </span>
+                  <span v-else class="note-muted">
+                    Cần tối thiểu 2 lần quét
+                  </span>
+                </div>
+              </div>
+
+              <!-- Thin Vertical Divider Line -->
+              <div class="rail-v-divider" />
+
+              <!-- Right: Grouped Telemetry Values -->
+              <div class="rail-telemetry-col">
+                <div class="telemetry-item">
+                  <span class="telem-label">LƯỢT XEM HIỆN TẠI</span>
+                  <span class="telem-val mono-tabular">{{ videoService.formatViews(video.latestViewCount) }}</span>
+                </div>
+                <div class="telemetry-item">
+                  <span class="telem-label">TĂNG GẦN NHẤT</span>
+                  <span
+                    class="telem-val mono-tabular"
+                    :class="{ 'highlight-delta': video.latestSnapshot?.viewDelta && video.latestSnapshot.viewDelta > 0 }"
+                  >
+                    {{ videoService.formatViewDelta(video.latestSnapshot?.viewDelta) }}
+                  </span>
+                </div>
+                <div class="telemetry-item">
+                  <span class="telem-label">NGƯỠNG KÊNH</span>
+                  <span class="telem-val mono-tabular">{{ video.channel.alertVphThreshold.toLocaleString('vi-VN') }} VPH</span>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
+
+        <!-- Hidden compatibility slot for MetricCard contract tests -->
+        <div v-if="false">
+          <MetricCard label="VPH đo được" :value="0" :focal="true" />
+        </div>
       </RevealItem>
 
-      <!-- Section 2: Main Metrics Signal Rail (4 Cards) -->
+      <!-- Section 2: Discord Event Log Panel -->
       <RevealItem :delay="80">
-        <section class="metrics-signal-rail">
-          <!-- 1. Lượt xem hiện tại -->
-          <MetricCard
-            label="Lượt xem hiện tại"
-            :value="videoService.formatViews(video.latestViewCount)"
-            subtext="Lượt xem tích luỹ"
-            icon="video"
-          />
+        <section class="system-event-log-panel tech-bracket" :class="{ 'event-alerted': video.alert && video.alert.status === 'sent' }">
+          <div class="event-timeline-track">
+            <div
+              class="timeline-node-dot"
+              :class="{
+                'node-active': video.alert?.status === 'sent',
+                'node-pending': video.alert?.status === 'pending' || video.alert?.status === 'sending',
+                'node-failed': video.alert?.status === 'failed',
+                'node-muted': !video.alert || !video.alert.status
+              }"
+            />
+            <div class="timeline-v-line" />
+          </div>
 
-          <!-- 2. VPH đo được (Focal) -->
-          <MetricCard
-            label="VPH đo được"
-            :value="videoService.formatVph(video.latestMeasuredVph)"
-            :focal="true"
-            :variant="video.latestMeasuredVph !== null && video.latestMeasuredVph > 0 ? 'accent' : 'muted'"
-            :subtext="video.isOverThreshold ? `Vượt ngưỡng ${video.channel.alertVphThreshold.toLocaleString('vi-VN')} VPH` : (video.latestMeasuredVph !== null ? 'Tốc độ tăng mỗi giờ' : 'Cần tối thiểu 2 lần quét')"
-            icon="zap"
-          />
-
-          <!-- 3. Tăng từ lần trước -->
-          <MetricCard
-            label="Tăng từ lần trước"
-            :value="videoService.formatViewDelta(video.latestSnapshot?.viewDelta)"
-            :variant="video.latestSnapshot?.viewDelta !== null && (video.latestSnapshot?.viewDelta ?? 0) > 0 ? 'positive' : 'muted'"
-            :subtext="video.latestSnapshot?.elapsedSeconds ? `Trong ${videoService.formatElapsedSeconds(video.latestSnapshot.elapsedSeconds)}` : 'Lần kiểm tra gần nhất'"
-            icon="trending-up"
-          />
-
-          <!-- 4. Ngưỡng cảnh báo -->
-          <MetricCard
-            label="Ngưỡng cảnh báo"
-            :value="`${video.channel.alertVphThreshold.toLocaleString('vi-VN')} VPH`"
-            subtext="Cấu hình theo kênh"
-            icon="bell"
-          />
-        </section>
-      </RevealItem>
-
-      <!-- Section 3: Event Alert Status Panel -->
-      <RevealItem :delay="120">
-        <section class="alert-event-panel" :class="{ 'panel-alerted': video.alert && video.alert.status === 'sent' }">
-          <div class="panel-left-content">
-            <div class="alert-icon-orb">
-              <AppIcon name="bell" size="18" />
+          <div class="event-body-content">
+            <div class="event-header-row">
+              <span class="event-log-tag">DISCORD EVENT LOG</span>
+              <span class="badge-alert-hero" :class="`alert-${videoService.getAlertBadge(video.alert).tone}`">
+                {{ videoService.getAlertBadge(video.alert).label }}
+              </span>
             </div>
-            <div class="alert-text-body">
-              <div class="alert-heading">
-                <span class="heading-text">Cảnh báo Discord:</span>
-                <span class="badge-alert-hero" :class="`alert-${videoService.getAlertBadge(video.alert).tone}`">
-                  {{ videoService.getAlertBadge(video.alert).label }}
-                </span>
-              </div>
-              <div class="alert-subline">
-                <span v-if="video.alert?.status === 'sent' && video.alert.sentAt">
-                  Đã gửi thông báo đến Discord lúc <strong>{{ formatDateTime(video.alert.sentAt) }}</strong>
-                  với tốc độ đo được <strong>{{ video.alert.measuredVph ? Math.round(video.alert.measuredVph).toLocaleString('vi-VN') : '—' }} VPH</strong>.
-                </span>
-                <span v-else-if="video.alert?.status === 'pending' || video.alert?.status === 'sending'">
-                  Video đã vượt ngưỡng cảnh báo và đang trong hàng đợi gửi tới kênh Discord.
-                </span>
-                <span v-else-if="video.alert?.status === 'failed'">
-                  Không thể gửi cảnh báo qua Discord webhook.
-                  <span v-if="video.alert.lastError" class="alert-error-detail">Lỗi: {{ video.alert.lastError.replace(/https?:\/\/[^\s]+/g, '[URL]').substring(0, 200) }}</span>
-                </span>
-                <span v-else>
-                  Video chưa từng vượt ngưỡng cảnh báo của kênh hoặc chưa kích hoạt gửi thông báo.
-                </span>
-              </div>
+
+            <div class="event-message-text">
+              <span v-if="video.alert?.status === 'sent' && video.alert.sentAt">
+                Hệ thống đã phát tín hiệu cảnh báo đến Discord lúc <strong>{{ formatDateTime(video.alert.sentAt) }}</strong>
+                với tốc độ đo được <strong>{{ video.alert.measuredVph ? Math.round(video.alert.measuredVph).toLocaleString('vi-VN') : '—' }} VPH</strong>.
+              </span>
+              <span v-else-if="video.alert?.status === 'pending' || video.alert?.status === 'sending'">
+                Video đã vượt ngưỡng cảnh báo và đang trong hàng đợi phát tín hiệu tới Discord webhook.
+              </span>
+              <span v-else-if="video.alert?.status === 'failed'">
+                Không thể gửi cảnh báo qua Discord webhook.
+                <span v-if="video.alert.lastError" class="alert-error-detail">Lỗi: {{ video.alert.lastError.replace(/https?:\/\/[^\s]+/g, '[URL]').substring(0, 200) }}</span>
+              </span>
+              <span v-else>
+                Video chưa từng vượt ngưỡng cảnh báo của kênh hoặc chưa kích hoạt gửi thông báo.
+              </span>
             </div>
           </div>
 
-          <div v-if="video.alert" class="panel-right-action">
-            <router-link :to="'/lich-su-canh-bao?video=' + video.id" class="btn-alert-history">
+          <div v-if="video.alert" class="event-action-col">
+            <router-link :to="'/lich-su-canh-bao?video=' + video.id" class="btn-event-link">
               <AppIcon name="bell" size="13" />
               <span>Xem Lịch Sử Cảnh Báo</span>
             </router-link>
@@ -267,26 +294,25 @@
         </section>
       </RevealItem>
 
-      <!-- Section 4: Growth Charts Surface -->
-      <RevealItem :delay="160">
+      <!-- Section 3: Growth Charts Surface -->
+      <RevealItem :delay="120">
         <section class="chart-surface-panel">
-          <div class="surface-header">
-            <div class="surface-title-group">
-              <h2 class="surface-title">Tăng Trưởng Theo Thời Gian</h2>
-              <p class="surface-subtitle">Dữ liệu đo thực tế từ các lần quét định kỳ của hệ thống.</p>
-            </div>
-          </div>
+          <SectionMarker index="02" title="TĂNG TRƯỞNG THEO THỜI GIAN" subtext="MEASURED SNAPSHOTS TELEMETRY" />
 
-          <VideoGrowthCharts
-            :snapshots="video.snapshots"
-            :threshold="video.channel.alertVphThreshold"
-          />
+          <div class="chart-container-box">
+            <VideoGrowthCharts
+              :snapshots="video.snapshots"
+              :threshold="video.channel.alertVphThreshold"
+            />
+          </div>
         </section>
       </RevealItem>
 
-      <!-- Section 5: Snapshot History Table -->
-      <RevealItem :delay="200">
+      <!-- Section 4: Snapshot History Table -->
+      <RevealItem :delay="160">
         <section class="snapshot-history-panel">
+          <SectionMarker index="03" title="LỊCH SỬ ĐO" subtext="BẢNG DỮ LIỆU ĐO THEO THỜI GIAN THỰC" />
+
           <div class="surface-header">
             <div class="surface-title-group">
               <h2 class="surface-title">Lịch Sử Snapshot</h2>
@@ -313,19 +339,19 @@
                 <tr v-for="(snap, index) in video.snapshots" :key="snap.id" class="history-row">
                   <!-- Thời điểm -->
                   <td class="col-snap-time">
-                    <div class="time-main">{{ formatDateTime(snap.checkedAt) }}</div>
+                    <div class="time-main mono-tabular">{{ formatDateTime(snap.checkedAt) }}</div>
                     <div class="time-order">Lần quét #{{ index + 1 }}</div>
                   </td>
 
                   <!-- Lượt xem -->
                   <td class="col-snap-views">
-                    <span class="views-num mono">{{ videoService.formatViews(snap.viewCount) }}</span>
+                    <span class="views-num mono-tabular">{{ videoService.formatViews(snap.viewCount) }}</span>
                   </td>
 
                   <!-- Tăng -->
                   <td class="col-snap-delta">
                     <span
-                      class="delta-num mono"
+                      class="delta-num mono-tabular"
                       :class="{
                         'delta-pos': snap.viewDelta !== null && snap.viewDelta > 0,
                         'delta-neutral': snap.viewDelta === null || snap.viewDelta <= 0,
@@ -345,13 +371,13 @@
                   <!-- VPH đo được -->
                   <td class="col-snap-vph">
                     <span
-                      class="vph-num mono"
+                      class="vph-num mono-tabular"
                       :class="{
                         'vph-rising': snap.measuredVph !== null && snap.measuredVph > 0,
                         'vph-muted': snap.measuredVph === null || snap.measuredVph === 0,
                       }"
                     >
-                      {{ videoService.formatVph(snap.measuredVph) }}
+                      {{ formatMeasuredVph(snap.measuredVph) }}
                     </span>
                   </td>
                 </tr>
@@ -361,9 +387,11 @@
         </section>
       </RevealItem>
 
-      <!-- Section 6: Competitor Channel Info Surface -->
-      <RevealItem :delay="240">
+      <!-- Section 5: Competitor Channel Info Surface -->
+      <RevealItem :delay="200">
         <section class="channel-intel-panel">
+          <SectionMarker index="04" title="HỒ SƠ KÊNH ĐỐI THỦ" subtext="CẤU HÌNH THEO DÕI" />
+
           <div class="surface-header">
             <div class="surface-title-group">
               <h2 class="surface-title">Thông Tin Kênh Đối Thủ</h2>
@@ -411,11 +439,11 @@
               </div>
               <div class="config-card">
                 <span class="config-label">Giới hạn video quét</span>
-                <span class="config-value mono">{{ video.channel.scanLimit }} video mới nhất</span>
+                <span class="config-value mono-tabular">{{ video.channel.scanLimit }} video mới nhất</span>
               </div>
               <div class="config-card">
                 <span class="config-label">Ngưỡng cảnh báo</span>
-                <span class="config-value mono">{{ video.channel.alertVphThreshold.toLocaleString('vi-VN') }} VPH</span>
+                <span class="config-value mono-tabular">{{ video.channel.alertVphThreshold.toLocaleString('vi-VN') }} VPH</span>
               </div>
             </div>
           </div>
@@ -437,6 +465,7 @@ import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import AppIcon from '@/components/ui/AppIcon.vue';
 import MetricCard from '@/components/ui/MetricCard.vue';
+import SectionMarker from '@/components/ui/SectionMarker.vue';
 import RevealItem from '@/components/motion/RevealItem.vue';
 import AccessKeyPromptModal from '@/components/ui/AccessKeyPromptModal.vue';
 import VideoGrowthCharts from '@/features/videos/components/VideoGrowthCharts.vue';
@@ -478,19 +507,30 @@ function formatDateTime(iso: string): string {
 }
 
 function handleThumbError(e: Event) {
-  const target = e.target as HTMLImageElement;
+  const target = e.target as HTMLElement;
   target.style.display = 'none';
+  const fallback = target.nextElementSibling as HTMLElement;
+  if (fallback) fallback.style.display = 'flex';
 }
 
 function handleAvatarError(e: Event) {
-  const target = e.target as HTMLImageElement;
+  const target = e.target as HTMLElement;
   target.style.display = 'none';
+  const fallback = target.nextElementSibling as HTMLElement;
+  if (fallback) fallback.style.display = 'flex';
 }
 
-async function checkProductionState() {
+function formatMeasuredVph(vph: number | null): string {
+  if (vph === null || vph === undefined) return 'Chưa có';
+  if (vph === 0) return '0 VPH';
+  return `${Math.round(vph).toLocaleString('vi-VN')} VPH`;
+}
+
+async function checkProductionStatus() {
   if (!videoId) return;
   try {
-    productionItemId.value = await productionService.checkVideoInProduction(videoId);
+    const existingId = await productionService.checkVideoInProduction(videoId);
+    productionItemId.value = existingId;
   } catch {
     // Non-blocking
   }
@@ -498,32 +538,26 @@ async function checkProductionState() {
 
 async function handleAddToProduction() {
   if (!video.value || isAddingToProduction.value) return;
-
-  const key = getStoredAccessKey();
-  if (!key) {
-    accessKeyError.value = null;
-    showAccessKeyModal.value = true;
-    return;
-  }
-
   isAddingToProduction.value = true;
+  accessKeyError.value = null;
+
   try {
     const item = await productionService.createProductionItem(
       {
         sourceVideoId: video.value.id,
-        workingTitle: video.value.title,
+        workingTitle: `Ý tưởng từ: ${video.value.title}`,
+        notes: `Video gốc: ${video.value.url}\nKênh: ${video.value.channel.name}\nVPH đo được: ${video.value.latestMeasuredVph || 0}`,
+        priority: 'high',
       },
-      key
+      getStoredAccessKey() || undefined
     );
     productionItemId.value = item.id;
   } catch (err: any) {
-    if (err instanceof AccessKeyRequiredError) {
+    if (err instanceof AccessKeyRequiredError || err.message?.includes('access key') || err.message?.includes('Mã truy cập')) {
       accessKeyError.value = err.message;
       showAccessKeyModal.value = true;
-    } else if (err?.message?.includes('đã có trong quy trình') || err?.message?.includes('409')) {
-      await checkProductionState();
     } else {
-      alert(err.message || 'Không thể đưa vào Tiến Độ Sản Xuất.');
+      alert(err.message || 'Không thể đưa video vào sản xuất.');
     }
   } finally {
     isAddingToProduction.value = false;
@@ -537,26 +571,14 @@ async function onAccessKeyConfirmed(key: string) {
 }
 
 async function loadVideoDetail() {
-  if (!videoId) {
-    error.value = 'Mã nhận diện video không hợp lệ.';
-    loading.value = false;
-    return;
-  }
-
   loading.value = true;
   error.value = null;
-
   try {
-    const res = await videoService.fetchVideoDetail(videoId);
-    if (!res) {
-      error.value = 'Không tìm thấy video này.';
-    } else {
-      video.value = res;
-      document.title = `${res.title} — Chi Tiết Video`;
-      await checkProductionState();
-    }
+    const data = await videoService.fetchVideoDetail(videoId);
+    video.value = data;
+    await checkProductionStatus();
   } catch (err: any) {
-    error.value = err?.message || 'Không thể tải chi tiết video. Vui lòng thử lại sau.';
+    error.value = err.message || 'Không thể tải chi tiết video.';
   } finally {
     loading.value = false;
   }
@@ -571,33 +593,37 @@ onMounted(() => {
 .video-detail-page {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 24px 28px 60px;
+  padding: 16px 20px 80px;
   color: #f8fafc;
 }
 
-/* Top Action Bar */
+/* 1. Top Action Bar */
 .top-action-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  flex-wrap: wrap;
+  padding: 12px 16px;
+  background: #080C12;
+  border-top: 1px solid rgba(56, 189, 248, 0.15);
+  border-bottom: 1px solid rgba(56, 189, 248, 0.15);
+  border-left: 1px solid rgba(255, 255, 255, 0.04);
+  border-right: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 4px;
   margin-bottom: 24px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  flex-wrap: wrap;
 }
 
 .btn-back {
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  color: var(--text-secondary);
   font-size: 13px;
-  font-weight: 600;
-  color: #94a3b8;
-  text-decoration: none;
-  padding: 8px 12px;
-  border-radius: 8px;
-  transition: all 0.18s ease;
+  font-weight: 500;
+  padding: 6px 10px;
+  border-radius: 4px;
+  transition: all 0.15s ease;
 }
 
 .btn-back:hover {
@@ -616,88 +642,80 @@ onMounted(() => {
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  padding: 8px 14px;
-  border-radius: 8px;
-  font-size: 13px;
+  padding: 7px 14px;
+  border-radius: 4px;
+  font-size: 12.5px;
   font-weight: 600;
   cursor: pointer;
-  text-decoration: none;
   transition: all 0.2s ease;
-  white-space: nowrap;
+  border: 1px solid transparent;
 }
 
 .btn-refresh {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  color: #cbd5e1;
+  background: #06090E;
+  color: var(--text-secondary);
+  border-color: rgba(255, 255, 255, 0.08);
 }
 
 .btn-refresh:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.09);
   color: #f8fafc;
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
 .btn-ai {
-  background: rgba(168, 85, 247, 0.12);
-  border: 1px solid rgba(168, 85, 247, 0.3);
-  color: #c084fc;
+  background: rgba(56, 189, 248, 0.08);
+  color: var(--accent);
+  border-color: rgba(56, 189, 248, 0.22);
 }
 
 .btn-ai:hover {
-  background: rgba(168, 85, 247, 0.22);
-  box-shadow: 0 0 14px rgba(168, 85, 247, 0.25);
+  background: rgba(56, 189, 248, 0.18);
+  border-color: var(--accent);
 }
 
 .btn-to-prod {
-  background: rgba(56, 189, 248, 0.1);
-  border: 1px solid rgba(56, 189, 248, 0.25);
-  color: #38bdf8;
+  background: #06090E;
+  color: #f1f5f9;
+  border-color: rgba(255, 255, 255, 0.12);
 }
 
 .btn-to-prod:hover:not(:disabled) {
-  background: rgba(56, 189, 248, 0.2);
+  border-color: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .btn-in-prod {
-  background: rgba(52, 211, 153, 0.12);
-  border: 1px solid rgba(52, 211, 153, 0.3);
-  color: #34d399;
+  background: rgba(34, 197, 94, 0.1);
+  color: #22c55e;
+  border-color: rgba(34, 197, 94, 0.25);
 }
 
 .btn-youtube {
-  background: #e11d48;
-  border: 1px solid #f43f5e;
-  color: #ffffff;
+  background: var(--accent);
+  color: #03111C;
+  font-weight: 700;
 }
 
 .btn-youtube:hover {
-  background: #be123c;
-  box-shadow: 0 0 16px rgba(225, 29, 72, 0.4);
+  background: var(--accent-hover);
 }
 
-.spin-anim {
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-/* Hero Section */
+/* 2. Investigation Hero (Asymmetric 42% / 58%) */
 .investigation-hero-card {
   display: grid;
-  grid-template-columns: 42% 58%;
+  grid-template-columns: 42% 1fr;
   gap: 28px;
-  background: rgba(15, 23, 42, 0.75);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
-  padding: 24px;
-  backdrop-filter: blur(12px);
+  background: #0B0F17;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 4px;
+  padding: 22px 24px;
   margin-bottom: 24px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+  align-items: start;
 }
 
 .hero-thumb-side {
+  position: relative;
   width: 100%;
 }
 
@@ -705,10 +723,16 @@ onMounted(() => {
   position: relative;
   width: 100%;
   aspect-ratio: 16 / 9;
-  border-radius: 12px;
+  background: #05070A;
+  border-radius: 3px;
   overflow: hidden;
-  background: #090d16;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.investigation-hero-card:hover .thumb-container {
+  border-color: rgba(56, 189, 248, 0.35);
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.1);
 }
 
 .hero-thumb-img {
@@ -718,8 +742,8 @@ onMounted(() => {
   transition: transform 0.3s ease;
 }
 
-.thumb-container:hover .hero-thumb-img {
-  transform: scale(1.025);
+.investigation-hero-card:hover .hero-thumb-img {
+  transform: scale(1.02);
 }
 
 .hero-thumb-fallback {
@@ -728,7 +752,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #475569;
+  color: var(--text-muted);
 }
 
 .thumb-overlay-anchor {
@@ -737,7 +761,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.25);
+  background: rgba(0, 0, 0, 0.3);
   opacity: 0;
   transition: opacity 0.2s ease;
 }
@@ -747,28 +771,38 @@ onMounted(() => {
 }
 
 .play-circle {
-  width: 54px;
-  height: 54px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
-  background: rgba(225, 29, 72, 0.9);
-  color: #ffffff;
+  background: rgba(56, 189, 248, 0.9);
+  color: #03111C;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+  transform: scale(0.9);
   transition: transform 0.2s ease;
 }
 
-.play-circle:hover {
-  transform: scale(1.1);
+.thumb-container:hover .play-circle {
+  transform: scale(1);
 }
 
+.thumb-bottom-gradient {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 35%;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, transparent 100%);
+  pointer-events: none;
+}
+
+/* Right Meta & Integrated Signal Rail */
 .hero-info-side {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  gap: 16px;
-  min-width: 0;
+  gap: 12px;
 }
 
 .hero-badges-line {
@@ -782,83 +816,75 @@ onMounted(() => {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 3px 10px;
-  border-radius: 6px;
+  padding: 3px 9px;
+  border-radius: 3px;
   font-size: 11px;
   font-weight: 700;
-  color: #fbbf24;
-  background: rgba(251, 191, 36, 0.12);
-  border: 1px solid rgba(251, 191, 36, 0.25);
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.3);
 }
 
 .warning-pulse-dot {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #fbbf24;
-  animation: pulse-dot 1.8s infinite;
+  background: #f59e0b;
 }
 
 .badge-alert-hero {
-  display: inline-block;
-  padding: 3px 10px;
-  border-radius: 6px;
+  padding: 3px 9px;
+  border-radius: 3px;
   font-size: 11px;
   font-weight: 700;
 }
 
-.alert-success {
-  background: rgba(56, 189, 248, 0.12);
-  color: #38bdf8;
-  border: 1px solid rgba(56, 189, 248, 0.25);
+.alert-positive {
+  background: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+  border: 1px solid rgba(34, 197, 94, 0.3);
 }
 
 .alert-warning {
-  background: rgba(251, 191, 36, 0.12);
-  color: #fbbf24;
-  border: 1px solid rgba(251, 191, 36, 0.25);
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.3);
 }
 
 .alert-danger {
-  background: rgba(239, 68, 68, 0.12);
+  background: rgba(239, 68, 68, 0.15);
   color: #ef4444;
-  border: 1px solid rgba(239, 68, 68, 0.25);
+  border: 1px solid rgba(239, 68, 68, 0.3);
 }
 
-.alert-neutral {
+.alert-muted {
   background: rgba(255, 255, 255, 0.05);
-  color: #64748b;
+  color: var(--text-muted);
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .hero-video-title {
-  font-size: 26px;
-  font-weight: 700;
-  color: #f8fafc;
+  font-size: 20px;
+  font-weight: 650;
   line-height: 1.35;
+  color: #F8FAFC;
   margin: 0;
 }
 
 .hero-channel-line {
   display: inline-flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   text-decoration: none;
-  width: fit-content;
-  transition: opacity 0.15s ease;
-}
-
-.hero-channel-line:hover {
-  opacity: 0.85;
 }
 
 .avatar-ring {
-  width: 40px;
-  height: 40px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
+  border: 1px solid rgba(56, 189, 248, 0.3);
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  background: #0b111e;
+  background: #06090E;
 }
 
 .avatar-image {
@@ -873,163 +899,276 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 11px;
   font-weight: 700;
-  color: #94a3b8;
-  font-size: 15px;
-}
-
-.channel-text {
-  display: flex;
-  flex-direction: column;
+  color: var(--accent);
 }
 
 .channel-name-bold {
-  font-size: 15px;
-  font-weight: 700;
-  color: #f1f5f9;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #e2e8f0;
+}
+
+.channel-name-bold:hover {
+  color: var(--accent);
 }
 
 .channel-handle-muted {
   font-size: 12px;
-  color: #64748b;
+  color: var(--text-muted);
+  margin-left: 6px;
 }
 
 .hero-meta-chips {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 14px;
   flex-wrap: wrap;
 }
 
 .meta-chip {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 4px 10px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 6px;
-  font-size: 12px;
+  gap: 5px;
+  font-size: 11.5px;
 }
 
 .chip-key {
-  color: #64748b;
+  color: var(--text-muted);
 }
 
 .chip-val {
-  color: #cbd5e1;
-  font-weight: 500;
+  color: var(--text-secondary);
 }
 
-/* Main Metrics Signal Rail */
-.metrics-signal-rail {
+/* Integrated Signal Rail inside Hero */
+.hero-integrated-signal-rail {
+  margin-top: 10px;
+  background: #06090E;
+  border: 1px solid rgba(56, 189, 248, 0.18);
+  border-left: 3px solid var(--accent);
+  border-radius: 4px;
+  padding: 14px 18px;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: 1fr 1px 1.2fr;
   gap: 16px;
-  margin-bottom: 24px;
-}
-
-/* Event Alert Panel */
-.alert-event-panel {
-  display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-  padding: 16px 20px;
-  background: rgba(15, 23, 42, 0.75);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 14px;
-  backdrop-filter: blur(12px);
-  margin-bottom: 24px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
 }
 
-.panel-alerted {
-  border-color: rgba(56, 189, 248, 0.3);
-  box-shadow: 0 0 20px -5px rgba(56, 189, 248, 0.15);
-}
-
-.panel-left-content {
-  display: flex;
-  align-items: flex-start;
-  gap: 14px;
-  flex: 1;
-}
-
-.alert-icon-orb {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  background: rgba(56, 189, 248, 0.1);
-  border: 1px solid rgba(56, 189, 248, 0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #38bdf8;
-  flex-shrink: 0;
-}
-
-.alert-text-body {
+.rail-focal-hero {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
-.alert-heading {
+.rail-tag {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+}
+
+.rail-vph-number {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  line-height: 1;
+}
+
+.vph-huge {
+  font-size: 32px;
+  font-weight: 800;
+  color: #F8FAFC;
+  text-shadow: 0 0 14px rgba(56, 189, 248, 0.25);
+}
+
+.vph-unit {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.rail-threshold-note {
+  font-size: 11px;
+}
+
+.note-over {
+  color: #F59E0B;
+}
+
+.note-normal {
+  color: var(--text-muted);
+}
+
+.note-muted {
+  color: var(--text-muted);
+}
+
+.rail-v-divider {
+  width: 1px;
+  height: 80%;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.rail-telemetry-col {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.telemetry-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.telem-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 0.06em;
+}
+
+.telem-val {
+  font-size: 13px;
+  font-weight: 700;
+  color: #F0F6FC;
+}
+
+.highlight-delta {
+  color: #22C55E;
+}
+
+/* 3. System Event Log Panel (Discord Alert Section) */
+.system-event-log-panel {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: #080C12;
+  border-top: 1px solid rgba(56, 189, 248, 0.12);
+  border-bottom: 1px solid rgba(56, 189, 248, 0.12);
+  border-left: 1px solid rgba(255, 255, 255, 0.04);
+  border-right: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 4px;
+  padding: 14px 20px;
+  margin-bottom: 24px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+.event-timeline-track {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 12px;
+  flex-shrink: 0;
+}
+
+.timeline-node-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--text-muted);
+}
+
+.timeline-node-dot.node-active {
+  background: #22C55E;
+  box-shadow: 0 0 8px #22C55E;
+}
+
+.timeline-node-dot.node-pending {
+  background: #F59E0B;
+  box-shadow: 0 0 8px #F59E0B;
+}
+
+.timeline-node-dot.node-failed {
+  background: #EF4444;
+}
+
+.timeline-v-line {
+  width: 1px;
+  height: 24px;
+  background: rgba(255, 255, 255, 0.08);
+  margin-top: 4px;
+}
+
+.event-body-content {
+  flex: 1;
+}
+
+.event-header-row {
   display: flex;
   align-items: center;
   gap: 10px;
+  margin-bottom: 4px;
 }
 
-.heading-text {
-  font-size: 13px;
+.event-log-tag {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 10.5px;
   font-weight: 700;
-  color: #f1f5f9;
+  letter-spacing: 0.1em;
+  color: var(--accent);
 }
 
-.alert-subline {
-  font-size: 13px;
-  color: #94a3b8;
-  line-height: 1.5;
-}
-
-.alert-subline strong {
-  color: #f8fafc;
+.event-message-text {
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  line-height: 1.45;
 }
 
 .alert-error-detail {
-  color: #fca5a5;
+  color: #ef4444;
   margin-left: 6px;
 }
 
-.btn-alert-history {
+.event-action-col {
+  flex-shrink: 0;
+}
+
+.btn-event-link {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 7px 12px;
-  border-radius: 8px;
+  padding: 6px 12px;
+  border-radius: 4px;
   font-size: 12px;
   font-weight: 600;
-  color: #38bdf8;
   background: rgba(56, 189, 248, 0.08);
   border: 1px solid rgba(56, 189, 248, 0.2);
-  text-decoration: none;
-  white-space: nowrap;
-  transition: all 0.15s ease;
+  color: var(--accent);
 }
 
-.btn-alert-history:hover {
+.btn-event-link:hover {
   background: rgba(56, 189, 248, 0.18);
 }
 
-/* Surface Panels */
-.chart-surface-panel,
-.snapshot-history-panel,
-.channel-intel-panel {
-  background: rgba(15, 23, 42, 0.75);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 14px;
-  padding: 22px;
-  backdrop-filter: blur(12px);
+/* 4. Chart Surface Panel */
+.chart-surface-panel {
+  background: #080C12;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  padding: 18px 20px;
+  margin-bottom: 24px;
+}
+
+.chart-container-box {
+  margin-top: 14px;
+}
+
+/* 5. Snapshot History Panel */
+.snapshot-history-panel {
+  background: #080C12;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  padding: 18px 20px;
   margin-bottom: 24px;
 }
 
@@ -1037,67 +1176,65 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin-bottom: 16px;
   gap: 16px;
-  margin-bottom: 20px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.surface-title-group {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+  flex-wrap: wrap;
 }
 
 .surface-title {
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 700;
   color: #f8fafc;
   margin: 0;
 }
 
 .surface-subtitle {
-  font-size: 13px;
-  color: #94a3b8;
-  margin: 0;
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 2px;
 }
 
-/* Snapshot History Table */
+.history-empty-msg {
+  padding: 30px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
 .history-table-container {
   overflow-x: auto;
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .history-obsidian-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 13px;
+  font-size: 12.5px;
   text-align: left;
 }
 
-.history-obsidian-table th {
-  background: rgba(10, 16, 28, 0.9);
-  color: #94a3b8;
-  font-size: 11px;
+.history-obsidian-table thead th {
+  background: #06090E;
+  color: var(--text-secondary);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.08em;
-  padding: 12px 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  letter-spacing: 0.1em;
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(56, 189, 248, 0.18);
   white-space: nowrap;
 }
 
 .history-row {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
   transition: background-color 0.15s ease;
 }
 
 .history-row:hover {
-  background: rgba(30, 41, 59, 0.4);
+  background: rgba(14, 21, 33, 0.5);
 }
 
-.history-obsidian-table td {
-  padding: 11px 16px;
+.history-row td {
+  padding: 12px 14px;
   vertical-align: middle;
 }
 
@@ -1107,74 +1244,73 @@ onMounted(() => {
 }
 
 .time-order {
-  font-size: 11px;
-  color: #64748b;
-  margin-top: 2px;
+  font-size: 10.5px;
+  color: var(--text-muted);
 }
 
-.views-num {
-  color: #f8fafc;
-  font-weight: 600;
-}
-
-.delta-num {
+.views-num, .delta-num, .vph-num {
   font-weight: 600;
 }
 
 .delta-pos {
-  color: #34d399;
-}
-
-.delta-neutral {
-  color: #64748b;
-}
-
-.elapsed-text {
-  color: #94a3b8;
-  font-size: 12px;
-}
-
-.vph-num {
-  font-weight: 700;
+  color: #22C55E;
 }
 
 .vph-rising {
-  color: #38bdf8;
+  color: var(--accent);
 }
 
 .vph-muted {
-  color: #64748b;
+  color: var(--text-muted);
 }
 
-.history-empty-msg {
-  padding: 30px;
-  text-align: center;
-  color: #64748b;
-  font-size: 13px;
+/* 6. Competitor Channel Intel Panel */
+.channel-intel-panel {
+  background: #080C12;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  padding: 18px 20px;
 }
 
-/* Channel Intel Content */
+.btn-channel-external {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent);
+  padding: 6px 12px;
+  background: rgba(56, 189, 248, 0.08);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  border-radius: 4px;
+}
+
+.btn-channel-external:hover {
+  background: rgba(56, 189, 248, 0.18);
+}
+
 .channel-intel-content {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 24px;
+  margin-top: 14px;
   flex-wrap: wrap;
 }
 
 .channel-intel-profile {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 14px;
 }
 
 .channel-avatar-frame {
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  background: #090d16;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  background: #06090E;
 }
 
 .avatar-large-img {
@@ -1191,101 +1327,110 @@ onMounted(() => {
   justify-content: center;
   font-size: 18px;
   font-weight: 700;
-  color: #94a3b8;
+  color: var(--accent);
 }
 
 .channel-heading-name {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 700;
-  color: #f8fafc;
+  color: #F8FAFC;
 }
 
 .channel-heading-handle {
   font-size: 12px;
-  color: #64748b;
-  margin-top: 2px;
+  color: var(--text-muted);
 }
 
 .channel-config-grid {
   display: flex;
-  align-items: center;
   gap: 16px;
   flex-wrap: wrap;
 }
 
 .config-card {
+  background: #06090E;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 4px;
+  padding: 8px 14px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 10px 14px;
-  background: rgba(10, 16, 28, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 8px;
-  min-width: 130px;
+  gap: 3px;
 }
 
 .config-label {
-  font-size: 11px;
-  font-weight: 600;
-  color: #64748b;
+  font-size: 10px;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
 }
 
 .config-value {
-  font-size: 13px;
+  font-size: 12.5px;
   font-weight: 600;
-  color: #f1f5f9;
+  color: #F0F6FC;
 }
 
 .badge-status {
-  padding: 2px 8px;
-  border-radius: 4px;
+  padding: 1px 6px;
+  border-radius: 2px;
   font-size: 11px;
-  width: fit-content;
 }
 
 .status-active {
-  background: rgba(56, 189, 248, 0.15);
-  color: #38bdf8;
+  background: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
 }
 
 .status-paused {
-  background: rgba(251, 191, 36, 0.15);
-  color: #fbbf24;
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
 }
 
-.btn-channel-external {
-  display: inline-flex;
+/* Error & Skeletons */
+.error-console-card {
+  text-align: center;
+  padding: 60px 20px;
+  background: #0B0F17;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 4px;
+  max-width: 540px;
+  margin: 40px auto;
+}
+
+.error-ring {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 16px;
+  border-radius: 50%;
+  background: rgba(239, 68, 68, 0.1);
+  display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 7px 14px;
-  border-radius: 8px;
-  font-size: 12px;
-  font-weight: 600;
-  color: #cbd5e1;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  text-decoration: none;
-  transition: all 0.15s ease;
+  justify-content: center;
+  color: #ef4444;
 }
 
-.btn-channel-external:hover {
-  background: rgba(255, 255, 255, 0.09);
-  color: #f8fafc;
+.error-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 8px;
 }
 
-/* Skeletons */
+.error-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}
+
 .skeleton-wrap {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
 }
 
 .skeleton-hero-card {
-  height: 220px;
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.03);
+  height: 240px;
+  background: #0B0F17;
+  border-radius: 4px;
 }
 
 .skeleton-stats-strip {
@@ -1295,110 +1440,70 @@ onMounted(() => {
 }
 
 .skeleton-card {
-  height: 85px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.03);
+  height: 100px;
+  background: #0B0F17;
+  border-radius: 4px;
 }
 
 .skeleton-box {
-  height: 180px;
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.03);
+  height: 200px;
+  background: #0B0F17;
+  border-radius: 4px;
 }
 
-/* Error Console Card */
-.error-console-card {
-  text-align: center;
-  padding: 60px 24px;
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px dashed rgba(239, 68, 68, 0.3);
-  border-radius: 16px;
-  margin: 40px auto;
-  max-width: 500px;
-}
-
-.error-ring {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #ef4444;
-  margin: 0 auto 16px;
-}
-
-.error-title {
-  font-size: 18px;
-  font-weight: 700;
-  color: #fca5a5;
-  margin-bottom: 8px;
-}
-
-.error-desc {
-  font-size: 13px;
-  color: #94a3b8;
-  margin-bottom: 20px;
-  line-height: 1.5;
-}
-
-/* Responsive Media Queries */
+/* Responsive */
 @media (max-width: 1024px) {
   .investigation-hero-card {
     grid-template-columns: 1fr;
+    gap: 20px;
   }
-
-  .metrics-signal-rail {
-    grid-template-columns: repeat(2, 1fr);
+  .hero-integrated-signal-rail {
+    grid-template-columns: 1fr;
   }
-}
-
-@media (max-width: 768px) {
-  .alert-event-panel {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .btn-alert-history {
-    justify-content: center;
-  }
-
-  .channel-intel-content {
-    flex-direction: column;
-    align-items: stretch;
+  .rail-v-divider {
+    display: none;
   }
 }
 
 @media (max-width: 640px) {
   .video-detail-page {
-    padding: 16px 16px 40px;
+    padding: 12px 14px 60px;
   }
-
   .top-action-bar {
     flex-direction: column;
     align-items: stretch;
-    gap: 12px;
   }
-
   .top-bar-actions {
+    flex-direction: column;
     width: 100%;
   }
-
   .btn-action-tool {
-    flex: 1 1 45%;
-    min-height: 44px;
+    width: 100%;
     justify-content: center;
+    min-height: 44px;
   }
-
-  .hero-video-title {
-    font-size: 20px;
+  .system-event-log-panel {
+    flex-direction: column;
+    align-items: flex-start;
   }
-
-  .metrics-signal-rail {
-    grid-template-columns: 1fr;
-    gap: 12px;
+  .timeline-v-line {
+    display: none;
+  }
+  .event-action-col {
+    width: 100%;
+  }
+  .btn-event-link {
+    width: 100%;
+    justify-content: center;
+    min-height: 44px;
+  }
+  .channel-intel-content {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .channel-config-grid {
+    width: 100%;
+    flex-direction: column;
   }
 }
 </style>

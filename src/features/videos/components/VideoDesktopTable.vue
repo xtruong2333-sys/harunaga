@@ -18,7 +18,10 @@
           v-for="video in videos"
           :key="video.id"
           class="table-row"
-          :class="{ 'row-alerted': video.alert && video.alert.status === 'sent' }"
+          :class="{
+            'row-rising': video.latestMeasuredVph !== null && video.latestMeasuredVph > 0,
+            'row-alerted': video.alert && video.alert.status === 'sent'
+          }"
         >
           <!-- 1. Video Column (Thumbnail + Title + ID) -->
           <td class="col-video">
@@ -188,11 +191,14 @@ function handleAvatarError(e: Event) {
 
 <style scoped>
 .table-surface-card {
-  background: rgba(15, 23, 42, 0.75);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 14px;
+  background: #080C12;
+  border-top: 1px solid rgba(56, 189, 248, 0.15);
+  border-bottom: 1px solid rgba(56, 189, 248, 0.15);
+  border-left: 1px solid rgba(255, 255, 255, 0.04);
+  border-right: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 4px;
   overflow: hidden;
-  backdrop-filter: blur(12px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03), 0 4px 20px rgba(0, 0, 0, 0.3);
   margin-bottom: 30px;
 }
 
@@ -204,35 +210,40 @@ function handleAvatarError(e: Event) {
 }
 
 thead th {
-  background: rgba(10, 16, 28, 0.92);
-  color: #94a3b8;
-  font-size: 11px;
+  background: #06090E;
+  color: var(--text-secondary);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 10.5px;
   font-weight: 700;
-  letter-spacing: 0.08em;
-  padding: 13px 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  letter-spacing: 0.1em;
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(56, 189, 248, 0.18);
   white-space: nowrap;
   position: sticky;
   top: 0;
   z-index: 10;
-  backdrop-filter: blur(8px);
 }
 
 .table-row {
   border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-  transition: background-color 0.15s ease;
+  border-left: 2px solid transparent;
+  transition: background-color 0.18s ease, border-color 0.18s ease;
 }
 
 .table-row:hover {
-  background: rgba(30, 41, 59, 0.45);
+  background: rgba(14, 21, 33, 0.6);
 }
 
-.row-alerted {
-  border-left: 3px solid #38bdf8;
+.table-row.row-rising {
+  border-left: 2px solid var(--accent);
+}
+
+.table-row.row-alerted {
+  background: rgba(56, 189, 248, 0.02);
 }
 
 td {
-  padding: 12px 16px;
+  padding: 15px 16px;
   vertical-align: middle;
 }
 
