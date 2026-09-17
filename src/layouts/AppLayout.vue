@@ -35,6 +35,10 @@
           <AppIcon name="bar-chart-2" size="18" />
           <span>So Sánh Kênh</span>
         </router-link>
+        <router-link to="/lich-su-canh-bao" class="nav-item" active-class="nav-item-active">
+          <AppIcon name="bell" size="18" />
+          <span>Lịch Sử Cảnh Báo</span>
+        </router-link>
         <router-link to="/tro-ly-noi-dung" class="nav-item" active-class="nav-item-active">
           <AppIcon name="sparkles" size="18" />
           <span>Trợ Lý Nội Dung AI</span>
@@ -77,6 +81,9 @@
         </router-link>
         <router-link to="/so-sanh-kenh" class="mobile-nav-link" active-class="mobile-nav-link-active">
           So Sánh
+        </router-link>
+        <router-link to="/lich-su-canh-bao" class="mobile-nav-link" active-class="mobile-nav-link-active">
+          Cảnh Báo
         </router-link>
         <router-link to="/tro-ly-noi-dung" class="mobile-nav-link" active-class="mobile-nav-link-active">
           Trợ Lý AI

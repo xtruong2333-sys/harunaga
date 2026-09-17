@@ -9,6 +9,7 @@ const AiContentAssistantPage = () => import('@/pages/AiContentAssistantPage.vue'
 const ProductionPage = () => import('@/pages/ProductionPage.vue');
 const DataHealthPage = () => import('@/pages/DataHealthPage.vue');
 const ChannelComparisonPage = () => import('@/pages/ChannelComparisonPage.vue');
+const AlertHistoryPage = () => import('@/pages/AlertHistoryPage.vue');
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -69,6 +70,14 @@ const routes: Array<RouteRecordRaw> = [
     component: ChannelComparisonPage,
     meta: {
       title: 'So Sánh Kênh — Bắt Bài Đối Thủ',
+    },
+  },
+  {
+    path: '/lich-su-canh-bao',
+    name: 'AlertHistory',
+    component: AlertHistoryPage,
+    meta: {
+      title: 'Lịch Sử Cảnh Báo — Bắt Bài Đối Thủ',
     },
   },
   {

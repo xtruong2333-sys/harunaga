@@ -632,6 +632,10 @@
               Theo dõi quá trình gửi webhook cảnh báo khi video vượt ngưỡng VPH đã thiết lập.
             </p>
           </div>
+          <router-link to="/lich-su-canh-bao" class="dh-alert-history-link">
+            <AppIcon name="bell" size="13" />
+            Xem Lịch Sử Cảnh Báo
+          </router-link>
         </div>
 
         <!-- Alert Summary Stats -->
@@ -1883,5 +1887,23 @@ onUnmounted(() => {
   .page-header-actions {
     justify-content: space-between;
   }
+}
+
+.dh-alert-history-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 500;
+  white-space: nowrap;
+  flex-shrink: 0;
+  align-self: flex-start;
+  transition: opacity 0.15s;
+}
+.dh-alert-history-link:hover {
+  opacity: 0.8;
+  text-decoration: underline;
 }
 </style>

@@ -164,6 +164,12 @@
           <AppIcon name="alert" size="16" />
           <span>{{ summary.latestScan.errorSummary }}</span>
         </div>
+        <div class="overview-alert-link-row">
+          <router-link to="/lich-su-canh-bao" class="overview-alert-link">
+            <AppIcon name="bell" size="13" />
+            Xem Lịch Sử Cảnh Báo
+          </router-link>
+        </div>
       </div>
 
       <!-- 3. Section: Video Tăng Nhanh Nhất (Top 5 Videos) -->
@@ -1512,5 +1518,25 @@ onMounted(() => {
   .v-metrics-group {
     grid-template-columns: 1fr;
   }
+}
+
+.overview-alert-link-row {
+  margin-top: 8px;
+  display: flex;
+  justify-content: flex-end;
+}
+.overview-alert-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 500;
+  transition: opacity 0.15s;
+}
+.overview-alert-link:hover {
+  opacity: 0.8;
+  text-decoration: underline;
 }
 </style>

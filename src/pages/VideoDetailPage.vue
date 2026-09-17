@@ -254,13 +254,19 @@
               </span>
               <span v-else-if="video.alert?.status === 'failed'">
                 Không thể gửi cảnh báo qua Discord webhook.
-                <span v-if="video.alert.lastError" class="alert-error-detail">Lỗi: {{ video.alert.lastError }}</span>
+                <span v-if="video.alert.lastError" class="alert-error-detail">Lỗi: {{ video.alert.lastError.replace(/https?:\/\/[^\s]+/g, '[URL]').substring(0, 200) }}</span>
               </span>
               <span v-else>
                 Video chưa từng vượt ngưỡng cảnh báo của kênh hoặc chưa kích hoạt gửi thông báo.
               </span>
             </div>
           </div>
+        </div>
+        <div v-if="video.alert" class="alert-card-link-row">
+          <router-link :to="'/lich-su-canh-bao?video=' + video.id" class="alert-card-link">
+            <AppIcon name="bell" size="13" />
+            Xem Cảnh Báo
+          </router-link>
         </div>
       </div>
 
@@ -1275,5 +1281,25 @@ onMounted(() => {
     align-items: flex-start;
     gap: 6px;
   }
+}
+
+.alert-card-link-row {
+  margin-top: 10px;
+  display: flex;
+  justify-content: flex-end;
+}
+.alert-card-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 500;
+  transition: opacity 0.15s;
+}
+.alert-card-link:hover {
+  opacity: 0.8;
+  text-decoration: underline;
 }
 </style>

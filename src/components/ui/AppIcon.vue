@@ -200,6 +200,12 @@
       <path d="M12 3v18" />
       <rect x="2" y="3" width="20" height="18" rx="2" />
     </template>
+
+    <!-- Bell (Alert History) -->
+    <template v-else-if="name === 'bell'">
+      <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+      <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+    </template>
   </svg>
 </template>
 
