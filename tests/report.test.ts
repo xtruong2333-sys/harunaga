@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import * as fs from 'fs';
 import * as path from 'path';
 import {
@@ -13,6 +13,7 @@ import {
   computeChannelActivity,
   sortRisingNewVideos,
   buildReportCopyText,
+  fetchReportData,
   ALERT_STATUS_MAP,
   SCAN_STATUS_MAP,
   SCAN_TRIGGER_MAP,
@@ -415,6 +416,133 @@ describe('Bắt Bài Đối Thủ — Giai Đoạn 16: Báo Cáo 24h / 7 Ngày (
 
       expect(fetchCount).toBe(3); // 1000 + 1000 + 450
       expect(fetched.length).toBe(2450);
+    });
+
+    it('ALERT PAGINATION: mock 1.205 alerts -> expected summary alertsCount = 1.205 và recentAlerts.length = 20', async () => {
+      const supabaseModule = await import('../src/services/supabase');
+      const origGetSupabase = supabaseModule.getSupabase;
+      const origIsConfigured = supabaseModule.isSupabaseConfigured;
+
+      const mockAlertRows = Array.from({ length: 1205 }, (_, i) => ({
+        id: `alert-${i}`,
+        video_id: `v-${i}`,
+        threshold_vph: 100,
+        measured_vph: 150,
+        view_count: 2000,
+        status: 'sent',
+        created_at: new Date(Date.now() - i * 1000).toISOString(),
+        videos: {
+          id: `v-${i}`,
+          title: `Video ${i}`,
+          youtube_video_id: `yt-${i}`,
+          thumbnail_url: null,
+          channels: { id: `ch-${i}`, name: `Channel ${i}`, handle: `@ch${i}`, avatar_url: null },
+        },
+      }));
+
+      const mockClient = {
+        from: (table: string) => {
+          if (table === 'video_alerts') {
+            return {
+              select: () => ({
+                gte: () => ({
+                  order: () => ({
+                    range: (fromIdx: number, toIdx: number) => {
+                      const slice = mockAlertRows.slice(fromIdx, toIdx + 1);
+                      return Promise.resolve({ data: slice, error: null });
+                    },
+                  }),
+                }),
+              }),
+            };
+          }
+          return {
+            select: () => ({
+              gte: () => ({
+                order: () => ({
+                  range: () => Promise.resolve({ data: [], error: null }),
+                }),
+              }),
+            }),
+          };
+        },
+      };
+
+      vi.spyOn(supabaseModule, 'getSupabase').mockReturnValue(mockClient as any);
+      vi.spyOn(supabaseModule, 'isSupabaseConfigured').mockReturnValue(true);
+
+      try {
+        const data = await fetchReportData('24h');
+        expect(data.summary.alertsCount).toBe(1205);
+        expect(data.recentAlerts.length).toBe(20);
+      } finally {
+        vi.spyOn(supabaseModule, 'getSupabase').mockImplementation(origGetSupabase);
+        vi.spyOn(supabaseModule, 'isSupabaseConfigured').mockImplementation(origIsConfigured);
+      }
+    });
+
+    it('SCAN PAGINATION: mock 1.150 scans -> expected summary/scanSummary tính đủ 1.150 và recentScans.length = 20', async () => {
+      const supabaseModule = await import('../src/services/supabase');
+      const origGetSupabase = supabaseModule.getSupabase;
+      const origIsConfigured = supabaseModule.isSupabaseConfigured;
+
+      const mockScanRows = Array.from({ length: 1150 }, (_, i) => ({
+        id: `scan-${i}`,
+        started_at: new Date(Date.now() - i * 1000).toISOString(),
+        finished_at: new Date(Date.now() - i * 1000 + 500).toISOString(),
+        status: i % 2 === 0 ? 'success' : 'partial',
+        trigger_source: 'schedule',
+        channels_total: 10,
+        channels_success: 9,
+        channels_failed: 1,
+        videos_found: 20,
+        snapshots_created: 10,
+        alerts_sent: 0,
+        alerts_failed: 0,
+        error_summary: null,
+      }));
+
+      const mockClient = {
+        from: (table: string) => {
+          if (table === 'scan_runs') {
+            return {
+              select: () => ({
+                gte: () => ({
+                  order: () => ({
+                    range: (fromIdx: number, toIdx: number) => {
+                      const slice = mockScanRows.slice(fromIdx, toIdx + 1);
+                      return Promise.resolve({ data: slice, error: null });
+                    },
+                  }),
+                }),
+              }),
+            };
+          }
+          return {
+            select: () => ({
+              gte: () => ({
+                order: () => ({
+                  range: () => Promise.resolve({ data: [], error: null }),
+                }),
+              }),
+            }),
+          };
+        },
+      };
+
+      vi.spyOn(supabaseModule, 'getSupabase').mockReturnValue(mockClient as any);
+      vi.spyOn(supabaseModule, 'isSupabaseConfigured').mockReturnValue(true);
+
+      try {
+        const data = await fetchReportData('24h');
+        expect(data.scanSummary.totalScans).toBe(1150);
+        expect(data.scanSummary.totalSnapshots).toBe(1150 * 10);
+        expect(data.summary.snapshotsCount).toBe(1150 * 10);
+        expect(data.recentScans.length).toBe(20);
+      } finally {
+        vi.spyOn(supabaseModule, 'getSupabase').mockImplementation(origGetSupabase);
+        vi.spyOn(supabaseModule, 'isSupabaseConfigured').mockImplementation(origIsConfigured);
+      }
     });
   });
 

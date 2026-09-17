@@ -370,37 +370,67 @@ export async function fetchReportData(
     }
   }
 
-  // 2. Fetch all alerts in range for exact summary count and recent list
-  const { data: rawAlertData, error: alertErr } = await supabase
-    .from('video_alerts')
-    .select(`
-      id, video_id, threshold_vph, measured_vph, view_count, status, created_at,
-      videos(id, title, youtube_video_id, thumbnail_url,
-        channels(id, name, handle, avatar_url))
-    `)
-    .gte('created_at', rangeStartIso)
-    .order('created_at', { ascending: false });
+  // 2. Fetch all alerts in range with batch pagination (safety > 1000 rows)
+  let alertOffset = 0;
+  let alertHasMore = true;
+  const rawAlerts: RawAlertRow[] = [];
 
-  if (alertErr) {
-    throw new Error(`Lỗi tải danh sách cảnh báo: ${alertErr.message}`);
+  while (alertHasMore) {
+    const { data: rawAlertData, error: alertErr } = await supabase
+      .from('video_alerts')
+      .select(`
+        id, video_id, threshold_vph, measured_vph, view_count, status, created_at,
+        videos(id, title, youtube_video_id, thumbnail_url,
+          channels(id, name, handle, avatar_url))
+      `)
+      .gte('created_at', rangeStartIso)
+      .order('created_at', { ascending: false })
+      .range(alertOffset, alertOffset + BATCH_SIZE - 1);
+
+    if (alertErr) {
+      throw new Error(`Lỗi tải danh sách cảnh báo: ${alertErr.message}`);
+    }
+
+    const rows = (rawAlertData ?? []) as unknown as RawAlertRow[];
+    rawAlerts.push(...rows);
+
+    if (rows.length < BATCH_SIZE) {
+      alertHasMore = false;
+    } else {
+      alertOffset += BATCH_SIZE;
+    }
   }
-  const rawAlerts = (rawAlertData ?? []) as unknown as RawAlertRow[];
 
-  // 3. Fetch all scans started in range for summary and recent list
-  const { data: rawScanData, error: scanErr } = await supabase
-    .from('scan_runs')
-    .select(`
-      id, started_at, finished_at, status, trigger_source,
-      channels_total, channels_success, channels_failed,
-      videos_found, snapshots_created, alerts_sent, alerts_failed, error_summary
-    `)
-    .gte('started_at', rangeStartIso)
-    .order('started_at', { ascending: false });
+  // 3. Fetch all scans started in range with batch pagination (safety > 1000 rows)
+  let scanOffset = 0;
+  let scanHasMore = true;
+  const rawScans: RawScanRow[] = [];
 
-  if (scanErr) {
-    throw new Error(`Lỗi tải hoạt động thu thập: ${scanErr.message}`);
+  while (scanHasMore) {
+    const { data: rawScanData, error: scanErr } = await supabase
+      .from('scan_runs')
+      .select(`
+        id, started_at, finished_at, status, trigger_source,
+        channels_total, channels_success, channels_failed,
+        videos_found, snapshots_created, alerts_sent, alerts_failed, error_summary
+      `)
+      .gte('started_at', rangeStartIso)
+      .order('started_at', { ascending: false })
+      .range(scanOffset, scanOffset + BATCH_SIZE - 1);
+
+    if (scanErr) {
+      throw new Error(`Lỗi tải hoạt động thu thập: ${scanErr.message}`);
+    }
+
+    const rows = (rawScanData ?? []) as unknown as RawScanRow[];
+    rawScans.push(...rows);
+
+    if (rows.length < BATCH_SIZE) {
+      scanHasMore = false;
+    } else {
+      scanOffset += BATCH_SIZE;
+    }
   }
-  const rawScans = (rawScanData ?? []) as unknown as RawScanRow[];
 
   // 4. Transform alerts (preserving historical alert values)
   const alertVideoIds = new Set<string>();
