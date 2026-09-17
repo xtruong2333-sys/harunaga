@@ -98,6 +98,15 @@
                 <AppIcon name="activity" size="16" />
               </router-link>
 
+              <!-- So Sánh Kênh -->
+              <router-link
+                :to="'/so-sanh-kenh?channels=' + channel.id"
+                class="icon-action-btn icon-action-compare"
+                title="So Sánh Kênh"
+              >
+                <AppIcon name="bar-chart-2" size="16" />
+              </router-link>
+
               <button
                 class="icon-action-btn"
                 @click="$emit('edit', channel)"
@@ -343,6 +352,11 @@ td {
 }
 
 .icon-action-analytics:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.icon-action-compare:hover {
   color: var(--accent);
   border-color: var(--accent);
 }

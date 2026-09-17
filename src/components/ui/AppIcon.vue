@@ -187,6 +187,19 @@
       <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
       <polyline points="9 12 11 14 15 10" />
     </template>
+
+    <!-- Bar Chart 2 (Comparison) -->
+    <template v-else-if="name === 'bar-chart-2' || name === 'compare'">
+      <line x1="18" y1="20" x2="18" y2="10" />
+      <line x1="12" y1="20" x2="12" y2="4" />
+      <line x1="6" y1="20" x2="6" y2="14" />
+    </template>
+
+    <!-- Columns -->
+    <template v-else-if="name === 'columns'">
+      <path d="M12 3v18" />
+      <rect x="2" y="3" width="20" height="18" rx="2" />
+    </template>
   </svg>
 </template>
 

@@ -8,6 +8,7 @@ const OpportunityVideosPage = () => import('@/pages/OpportunityVideosPage.vue');
 const AiContentAssistantPage = () => import('@/pages/AiContentAssistantPage.vue');
 const ProductionPage = () => import('@/pages/ProductionPage.vue');
 const DataHealthPage = () => import('@/pages/DataHealthPage.vue');
+const ChannelComparisonPage = () => import('@/pages/ChannelComparisonPage.vue');
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -60,6 +61,14 @@ const routes: Array<RouteRecordRaw> = [
     component: ChannelDetailPage,
     meta: {
       title: 'Phân Tích Kênh — Bắt Bài Đối Thủ',
+    },
+  },
+  {
+    path: '/so-sanh-kenh',
+    name: 'ChannelComparison',
+    component: ChannelComparisonPage,
+    meta: {
+      title: 'So Sánh Kênh — Bắt Bài Đối Thủ',
     },
   },
   {

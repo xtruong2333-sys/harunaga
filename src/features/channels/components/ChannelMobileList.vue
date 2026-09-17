@@ -64,6 +64,11 @@
           <span>Phân tích</span>
         </router-link>
 
+        <router-link :to="'/so-sanh-kenh?channels=' + channel.id" class="btn btn-secondary btn-sm">
+          <AppIcon name="bar-chart-2" size="14" />
+          <span>So sánh</span>
+        </router-link>
+
         <button class="btn btn-secondary btn-sm" @click="$emit('edit', channel)">
           <AppIcon name="settings" size="14" />
           <span>Thiết lập</span>

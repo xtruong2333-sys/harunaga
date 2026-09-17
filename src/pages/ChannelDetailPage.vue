@@ -8,6 +8,15 @@
       </router-link>
 
       <div class="top-bar-actions" v-if="analysis">
+        <router-link
+          :to="'/so-sanh-kenh?channels=' + analysis.channel.id"
+          class="btn btn-secondary btn-sm"
+          title="So sánh kênh này với kênh đối thủ khác"
+        >
+          <AppIcon name="bar-chart-2" size="14" />
+          <span>So Sánh Kênh Này</span>
+        </router-link>
+
         <button
           class="btn btn-secondary btn-sm"
           :disabled="loading"
