@@ -3,6 +3,7 @@
     <!-- Page Header -->
     <div class="page-header">
       <div class="page-header-text">
+        <div class="page-kicker">TRUNG TÂM THEO DÕI</div>
         <h1 class="page-title">Tổng Quan</h1>
         <p class="page-description">
           Theo dõi nhanh tình trạng hệ thống, kênh đối thủ và các video đang tăng mạnh.
@@ -68,41 +69,50 @@
       <!-- 1. 4 Main Stat Cards -->
       <div class="stats-grid">
         <!-- Kênh đang theo dõi -->
-        <div class="stat-card">
-          <div class="stat-label">Kênh đang theo dõi</div>
-          <div class="stat-val mono stat-channels">{{ summary.activeChannelsCount }}</div>
-          <div class="stat-desc">Tổng số kênh đang được hệ thống quét định kỳ</div>
-        </div>
+        <RevealItem :index="0">
+          <div class="stat-card">
+            <div class="stat-label">Kênh đang theo dõi</div>
+            <div class="stat-val mono stat-channels">{{ summary.activeChannelsCount }}</div>
+            <div class="stat-desc">Tổng số kênh đang được hệ thống quét định kỳ</div>
+          </div>
+        </RevealItem>
 
         <!-- Tổng video -->
-        <div class="stat-card">
-          <div class="stat-label">Tổng video</div>
-          <div class="stat-val mono">{{ videoService.formatViews(summary.totalVideosCount) }}</div>
-          <div class="stat-desc">Video đang được lưu trong hệ thống</div>
-        </div>
+        <RevealItem :index="1">
+          <div class="stat-card">
+            <div class="stat-label">Tổng video</div>
+            <div class="stat-val mono">{{ videoService.formatViews(summary.totalVideosCount) }}</div>
+            <div class="stat-desc">Video đang được lưu trong hệ thống</div>
+          </div>
+        </RevealItem>
 
         <!-- Video đang tăng -->
-        <div class="stat-card">
-          <div class="stat-label">Video đang tăng</div>
-          <div class="stat-val mono stat-rising">{{ summary.risingVideosCount }}</div>
-          <div class="stat-desc">Video có VPH đo được lớn hơn 0</div>
-        </div>
+        <RevealItem :index="2">
+          <div class="stat-card">
+            <div class="stat-label">Video đang tăng</div>
+            <div class="stat-val mono stat-rising">{{ summary.risingVideosCount }}</div>
+            <div class="stat-desc">Video có VPH đo được lớn hơn 0</div>
+          </div>
+        </RevealItem>
 
         <!-- VPH cao nhất -->
-        <div class="stat-card">
-          <div class="stat-label">VPH cao nhất</div>
-          <div
-            class="stat-val"
-            :class="summary.maxVph !== null && summary.maxVph > 0 ? 'stat-max-vph' : 'stat-muted'"
-          >
-            {{ videoService.formatVph(summary.maxVph) }}
+        <RevealItem :index="3">
+          <div class="stat-card">
+            <div class="stat-label">VPH cao nhất</div>
+            <div
+              class="stat-val"
+              :class="summary.maxVph !== null && summary.maxVph > 0 ? 'stat-max-vph' : 'stat-muted'"
+            >
+              {{ videoService.formatVph(summary.maxVph) }}
+            </div>
+            <div class="stat-desc">Tốc độ tăng trưởng cao nhất hiện tại</div>
           </div>
-          <div class="stat-desc">Tốc độ tăng trưởng cao nhất hiện tại</div>
-        </div>
+        </RevealItem>
       </div>
 
       <!-- 2. Section: Tình Trạng Dữ Liệu (Latest Scan Run) -->
-      <div class="system-status-card">
+      <RevealItem :index="4">
+        <div class="system-status-card">
         <div class="status-card-header">
           <div class="status-title-group">
             <div class="status-title">Tình Trạng Dữ Liệu</div>
@@ -183,8 +193,10 @@
           </router-link>
         </div>
       </div>
+      </RevealItem>
 
       <!-- 3. Section: Video Tăng Nhanh Nhất (Top 5 Videos) -->
+      <RevealItem :index="5">
       <div class="section-container">
         <div class="section-header">
           <div class="section-title-wrap">
@@ -298,8 +310,10 @@
           </div>
         </div>
       </div>
+      </RevealItem>
 
       <!-- 4. Two-column Row: Top Channels & Discord Alert Summary -->
+      <RevealItem :index="6">
       <div class="split-row">
         <!-- Column A: Kênh Đang Có Video Tăng -->
         <div class="panel-card">
@@ -403,8 +417,10 @@
           </div>
         </div>
       </div>
+      </RevealItem>
 
       <!-- 5. Section: Lịch Sử Quét Gần Đây -->
+      <RevealItem :index="7">
       <div class="section-container">
         <div class="section-header">
           <div class="section-title-wrap">
@@ -478,6 +494,7 @@
           </div>
         </div>
       </div>
+      </RevealItem>
     </template>
   </div>
 </template>
@@ -485,6 +502,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import AppIcon from '@/components/ui/AppIcon.vue';
+import RevealItem from '@/components/motion/RevealItem.vue';
 import { dashboardService } from '@/services/dashboard-service';
 import { videoService } from '@/services/video-service';
 import { DashboardSummary } from '@/types/dashboard';
@@ -587,6 +605,14 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: 4px;
+}
+
+.page-kicker {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+  text-transform: uppercase;
 }
 
 .page-title {
@@ -735,11 +761,20 @@ onMounted(() => {
 .stat-card {
   background-color: var(--bg-surface);
   border: 1px solid var(--border-subtle);
-  border-radius: 10px;
+  border-radius: 12px;
   padding: 18px 20px;
   display: flex;
   flex-direction: column;
   gap: 6px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  transition: all var(--duration-normal) var(--ease-out-expo);
+}
+
+.stat-card:hover {
+  border-color: var(--border-strong);
+  background-color: var(--bg-surface-elevated);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), 0 0 12px rgba(56, 189, 248, 0.08);
+  transform: translateY(-2px);
 }
 
 .stat-label {
@@ -978,12 +1013,18 @@ onMounted(() => {
   background-color: var(--bg-surface-elevated);
   border: 1px solid var(--border-subtle);
   border-radius: 10px;
-  transition: all 0.15s ease;
+  transition: all var(--duration-normal) var(--ease-out-expo);
 }
 
 .top-video-card:hover {
   border-color: var(--border-strong);
   background-color: var(--bg-surface-hover);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  transform: translateY(-1px);
+}
+
+.top-video-card:hover .v-thumb {
+  transform: scale(1.05);
 }
 
 .top-rank-badge {
@@ -1012,6 +1053,7 @@ onMounted(() => {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform var(--duration-normal) var(--ease-out-expo);
 }
 
 .v-thumb-fallback {

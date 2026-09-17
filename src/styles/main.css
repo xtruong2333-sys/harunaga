@@ -1,11 +1,11 @@
 /* BẮT BÀI ĐỐI THỦ — Global Stylesheet */
 :root {
-  --bg-main: #0B0D10;
-  --bg-surface: #12161C;
-  --bg-surface-elevated: #171C23;
-  --bg-surface-hover: #1C222B;
-  --border-subtle: #1F2630;
-  --border-strong: #2D3748;
+  --bg-main: #07090D;
+  --bg-surface: #0E131A;
+  --bg-surface-elevated: #151C26;
+  --bg-surface-hover: #1C2634;
+  --border-subtle: #1A222E;
+  --border-strong: #2A3649;
   
   --text-primary: #F0F6FC;
   --text-secondary: #8B949E;
@@ -14,6 +14,8 @@
   --accent: #38BDF8;
   --accent-hover: #0EA5E9;
   --accent-subtle: rgba(56, 189, 248, 0.12);
+  --accent-glow: rgba(56, 189, 248, 0.25);
+  --accent-glow-strong: rgba(56, 189, 248, 0.45);
   
   --status-active: #22C55E;
   --status-active-bg: rgba(34, 197, 94, 0.12);
@@ -24,6 +26,12 @@
   
   --danger: #EF4444;
   --danger-bg: rgba(239, 68, 68, 0.12);
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --duration-fast: 150ms;
+  --duration-normal: 260ms;
+  --duration-slow: 400ms;
 }
 
 * {
@@ -160,3 +168,89 @@ button, input, select, textarea {
 .form-input::placeholder, .form-textarea::placeholder {
   color: var(--text-muted);
 }
+
+/* Obsidian Surface & Interactive Cards */
+.surface-card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  transition: border-color var(--duration-normal) var(--ease-out-expo),
+              box-shadow var(--duration-normal) var(--ease-out-expo),
+              transform var(--duration-normal) var(--ease-out-expo);
+}
+
+.interactive-card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  transition: all var(--duration-normal) var(--ease-out-expo);
+}
+.interactive-card:hover {
+  border-color: var(--border-strong);
+  background-color: var(--bg-surface-elevated);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4), 0 0 15px rgba(56, 189, 248, 0.05);
+  transform: translateY(-2px);
+}
+
+/* Page Transition (fade + subtle slide) */
+.page-fade-enter-active,
+.page-fade-leave-active {
+  transition: opacity var(--duration-normal) ease,
+              transform var(--duration-normal) var(--ease-out-expo);
+}
+
+.page-fade-enter-from {
+  opacity: 0;
+  transform: translateY(6px);
+}
+
+.page-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-4px);
+}
+
+/* Subtle pulse animation for status badges */
+@keyframes status-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(0.92); }
+}
+
+.pulse-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: var(--status-active);
+  box-shadow: 0 0 8px var(--status-active);
+  animation: status-pulse 2s infinite ease-in-out;
+}
+
+/* Spin animation for refresh button */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.spin-anim {
+  animation: spin 0.8s linear infinite;
+}
+
+/* Accessibility: Prefers Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .page-fade-enter-active,
+  .page-fade-leave-active {
+    transition: none !important;
+  }
+  .pulse-dot,
+  .spin-anim {
+    animation: none !important;
+  }
+}
+
