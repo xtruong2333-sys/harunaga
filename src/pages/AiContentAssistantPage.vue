@@ -160,6 +160,16 @@
               <span>{{ isAnalyzing ? 'Đang phân tích nội dung...' : 'Phân Tích Nội Dung' }}</span>
             </button>
 
+            <button
+              class="btn btn-secondary btn-detail"
+              :disabled="isAddingToProduction"
+              @click="handleAddToProduction"
+              title="Đưa video này vào Tiến Độ Sản Xuất"
+            >
+              <AppIcon name="clipboard-list" size="16" />
+              <span>{{ isAddingToProduction ? 'Đang thêm...' : 'Đưa Vào Sản Xuất' }}</span>
+            </button>
+
             <router-link
               :to="`/videos/${selectedVideo.id}`"
               class="btn btn-secondary btn-detail"
@@ -380,6 +390,7 @@ import {
   getStoredAccessKey,
   AccessKeyRequiredError,
 } from '@/services/ai-content-service';
+import { productionService } from '@/services/production-service';
 import type { AiContentAnalysis, AiVideoOption } from '@/types/ai-content';
 
 const route = useRoute();
@@ -392,6 +403,7 @@ const selectedVideoId = ref('');
 const selectedVideo = ref<AiVideoOption | null>(null);
 
 const isAnalyzing = ref(false);
+const isAddingToProduction = ref(false);
 const analysisResult = ref<AiContentAnalysis | null>(null);
 const pageError = ref<string | null>(null);
 const copyToast = ref<string | null>(null);
@@ -523,6 +535,51 @@ async function runAnalysis(key: string) {
     }
   } finally {
     isAnalyzing.value = false;
+  }
+}
+
+async function handleAddToProduction() {
+  if (!selectedVideo.value || isAddingToProduction.value) return;
+
+  const key = getStoredAccessKey();
+  if (!key) {
+    accessKeyError.value = null;
+    pendingKeyRetry = async (k: string) => {
+      await addToProductionWithKey(k);
+    };
+    showAccessKeyModal.value = true;
+    return;
+  }
+
+  await addToProductionWithKey(key);
+}
+
+async function addToProductionWithKey(key: string) {
+  if (!selectedVideo.value) return;
+  isAddingToProduction.value = true;
+  try {
+    await productionService.createProductionItem(
+      {
+        sourceVideoId: selectedVideo.value.id,
+        workingTitle: selectedVideo.value.title,
+      },
+      key
+    );
+    showToast('Đã đưa video vào Tiến Độ Sản Xuất!');
+  } catch (err: any) {
+    if (err instanceof AccessKeyRequiredError) {
+      accessKeyError.value = err.message;
+      pendingKeyRetry = async (k: string) => {
+        await addToProductionWithKey(k);
+      };
+      showAccessKeyModal.value = true;
+    } else if (err?.message?.includes('đã có trong quy trình') || err?.message?.includes('409')) {
+      showToast('Video này đã có trong Tiến Độ Sản Xuất!');
+    } else {
+      alert(err.message || 'Không thể đưa vào Tiến Độ Sản Xuất.');
+    }
+  } finally {
+    isAddingToProduction.value = false;
   }
 }
 

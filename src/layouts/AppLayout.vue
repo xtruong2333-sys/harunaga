@@ -35,6 +35,10 @@
           <AppIcon name="sparkles" size="18" />
           <span>Trợ Lý Nội Dung AI</span>
         </router-link>
+        <router-link to="/tien-do-san-xuat" class="nav-item" active-class="nav-item-active">
+          <AppIcon name="clipboard-list" size="18" />
+          <span>Tiến Độ Sản Xuất</span>
+        </router-link>
       </nav>
 
       <div class="sidebar-footer">
@@ -65,6 +69,9 @@
         </router-link>
         <router-link to="/tro-ly-noi-dung" class="mobile-nav-link" active-class="mobile-nav-link-active">
           Trợ Lý AI
+        </router-link>
+        <router-link to="/tien-do-san-xuat" class="mobile-nav-link" active-class="mobile-nav-link-active">
+          Tiến Độ
         </router-link>
       </nav>
     </header>

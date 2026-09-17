@@ -27,6 +27,27 @@
           <span>Phân Tích Bằng AI</span>
         </router-link>
 
+        <!-- Production Entry Point -->
+        <router-link
+          v-if="productionItemId"
+          to="/tien-do-san-xuat"
+          class="btn btn-secondary btn-sm btn-in-production"
+          title="Mục này đã có trong Tiến Độ Sản Xuất. Nhấn để mở."
+        >
+          <AppIcon name="check-circle" size="14" />
+          <span>Đã Trong Tiến Độ Sản Xuất</span>
+        </router-link>
+        <button
+          v-else
+          class="btn btn-secondary btn-sm"
+          :disabled="isAddingToProduction"
+          @click="handleAddToProduction"
+          title="Đưa video này vào quy trình sản xuất nội dung"
+        >
+          <AppIcon name="clipboard-list" size="14" />
+          <span>{{ isAddingToProduction ? 'Đang thêm...' : 'Đưa Vào Sản Xuất' }}</span>
+        </button>
+
         <a
           :href="video.url"
           target="_blank"
@@ -382,6 +403,13 @@
         </div>
       </div>
     </template>
+
+    <!-- Access Key Prompt Modal -->
+    <AccessKeyPromptModal
+      v-model="showAccessKeyModal"
+      :initial-error="accessKeyError"
+      @confirmed="onAccessKeyConfirmed"
+    />
   </div>
 </template>
 
@@ -389,8 +417,15 @@
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import AppIcon from '@/components/ui/AppIcon.vue';
+import AccessKeyPromptModal from '@/components/ui/AccessKeyPromptModal.vue';
 import VideoGrowthCharts from '@/features/videos/components/VideoGrowthCharts.vue';
 import { videoService } from '@/services/video-service';
+import {
+  productionService,
+  setStoredAccessKey,
+  getStoredAccessKey,
+  AccessKeyRequiredError,
+} from '@/services/production-service';
 import { VideoDetail } from '@/types/video';
 
 const route = useRoute();
@@ -399,6 +434,12 @@ const videoId = String(route.params.id || '');
 const video = ref<VideoDetail | null>(null);
 const loading = ref(true);
 const error = ref<string | null>(null);
+
+// Production status state
+const productionItemId = ref<string | null>(null);
+const isAddingToProduction = ref(false);
+const showAccessKeyModal = ref(false);
+const accessKeyError = ref<string | null>(null);
 
 function formatDateTime(iso: string): string {
   try {
@@ -425,6 +466,55 @@ function handleAvatarError(e: Event) {
   target.style.display = 'none';
 }
 
+async function checkProductionState() {
+  if (!videoId) return;
+  try {
+    productionItemId.value = await productionService.checkVideoInProduction(videoId);
+  } catch {
+    // Non-blocking
+  }
+}
+
+async function handleAddToProduction() {
+  if (!video.value || isAddingToProduction.value) return;
+
+  const key = getStoredAccessKey();
+  if (!key) {
+    accessKeyError.value = null;
+    showAccessKeyModal.value = true;
+    return;
+  }
+
+  isAddingToProduction.value = true;
+  try {
+    const item = await productionService.createProductionItem(
+      {
+        sourceVideoId: video.value.id,
+        workingTitle: video.value.title,
+      },
+      key
+    );
+    productionItemId.value = item.id;
+  } catch (err: any) {
+    if (err instanceof AccessKeyRequiredError) {
+      accessKeyError.value = err.message;
+      showAccessKeyModal.value = true;
+    } else if (err?.message?.includes('đã có trong quy trình') || err?.message?.includes('409')) {
+      await checkProductionState();
+    } else {
+      alert(err.message || 'Không thể đưa vào Tiến Độ Sản Xuất.');
+    }
+  } finally {
+    isAddingToProduction.value = false;
+  }
+}
+
+async function onAccessKeyConfirmed(key: string) {
+  setStoredAccessKey(key);
+  showAccessKeyModal.value = false;
+  await handleAddToProduction();
+}
+
 async function loadVideoDetail() {
   if (!videoId) {
     error.value = 'Mã nhận diện video không hợp lệ.';
@@ -442,6 +532,7 @@ async function loadVideoDetail() {
     } else {
       video.value = res;
       document.title = `${res.title} — Chi Tiết Video`;
+      await checkProductionState();
     }
   } catch (err: any) {
     error.value = err?.message || 'Không thể tải chi tiết video. Vui lòng thử lại sau.';
@@ -494,6 +585,22 @@ onMounted(() => {
 
 .btn-youtube {
   gap: 6px;
+}
+
+.btn-ai-analyze {
+  gap: 6px;
+}
+
+.btn-in-production {
+  gap: 6px;
+  color: var(--success, #10b981);
+  border-color: rgba(16, 185, 129, 0.3);
+  background-color: rgba(16, 185, 129, 0.08);
+}
+
+.btn-in-production:hover {
+  background-color: rgba(16, 185, 129, 0.16);
+  color: var(--success, #10b981);
 }
 
 .spin-anim {

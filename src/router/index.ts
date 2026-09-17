@@ -6,6 +6,7 @@ import OverviewPage from '@/pages/OverviewPage.vue';
 import ChannelDetailPage from '@/pages/ChannelDetailPage.vue';
 import OpportunityVideosPage from '@/pages/OpportunityVideosPage.vue';
 import AiContentAssistantPage from '@/pages/AiContentAssistantPage.vue';
+import ProductionPage from '@/pages/ProductionPage.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -66,6 +67,14 @@ const routes: Array<RouteRecordRaw> = [
     component: AiContentAssistantPage,
     meta: {
       title: 'Trợ Lý Nội Dung AI — Bắt Bài Đối Thủ',
+    },
+  },
+  {
+    path: '/tien-do-san-xuat',
+    name: 'Production',
+    component: ProductionPage,
+    meta: {
+      title: 'Tiến Độ Sản Xuất — Bắt Bài Đối Thủ',
     },
   },
   {

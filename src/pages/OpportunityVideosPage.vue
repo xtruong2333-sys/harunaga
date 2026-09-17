@@ -190,6 +190,15 @@
 
           <!-- Action buttons -->
           <div class="hero-actions-col">
+            <button
+              class="btn btn-secondary btn-sm"
+              :disabled="addingVideoId === topRisingVideo.id"
+              @click="handleAddToProduction(topRisingVideo)"
+              title="Đưa vào Tiến Độ Sản Xuất"
+            >
+              <AppIcon name="clipboard-list" size="14" />
+              <span>{{ addingVideoId === topRisingVideo.id ? 'Đang thêm...' : 'Sản Xuất' }}</span>
+            </button>
             <router-link :to="'/tro-ly-noi-dung?video=' + topRisingVideo.id" class="btn btn-secondary btn-sm" title="Phân tích nội dung AI">
               <AppIcon name="sparkles" size="14" />
               <span>Phân Tích AI</span>
@@ -400,6 +409,15 @@
               <!-- Actions Col -->
               <td class="td-actions">
                 <div class="cell-actions-group">
+                  <button
+                    class="btn btn-secondary btn-xs"
+                    :disabled="addingVideoId === v.id"
+                    @click="handleAddToProduction(v)"
+                    title="Đưa vào Tiến Độ Sản Xuất"
+                  >
+                    <AppIcon name="clipboard-list" size="12" />
+                    <span>{{ addingVideoId === v.id ? '...' : 'Sản Xuất' }}</span>
+                  </button>
                   <router-link :to="'/tro-ly-noi-dung?video=' + v.id" class="btn btn-secondary btn-xs" title="Phân tích nội dung AI">
                     <AppIcon name="sparkles" size="12" />
                     <span>AI</span>
@@ -500,6 +518,15 @@
 
           <!-- Actions -->
           <div class="m-actions-row">
+            <button
+              class="btn btn-secondary btn-sm flex-1"
+              :disabled="addingVideoId === v.id"
+              @click="handleAddToProduction(v)"
+              title="Đưa vào Tiến Độ Sản Xuất"
+            >
+              <AppIcon name="clipboard-list" size="14" />
+              <span>{{ addingVideoId === v.id ? 'Đang thêm...' : 'Sản Xuất' }}</span>
+            </button>
             <router-link :to="'/tro-ly-noi-dung?video=' + v.id" class="btn btn-secondary btn-sm flex-1" title="Phân tích AI">
               <AppIcon name="sparkles" size="14" />
               <span>Phân Tích AI</span>
@@ -520,13 +547,32 @@
         </div>
       </div>
     </template>
+
+    <!-- Toast Notification -->
+    <div v-if="toastMessage" class="toast-notification">
+      {{ toastMessage }}
+    </div>
+
+    <!-- Access Key Prompt Modal -->
+    <AccessKeyPromptModal
+      v-model="showAccessKeyModal"
+      :initial-error="accessKeyError"
+      @confirmed="onAccessKeyConfirmed"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue';
 import AppIcon from '@/components/ui/AppIcon.vue';
+import AccessKeyPromptModal from '@/components/ui/AccessKeyPromptModal.vue';
 import { opportunityService } from '@/services/opportunity-service';
+import {
+  productionService,
+  setStoredAccessKey,
+  getStoredAccessKey,
+  AccessKeyRequiredError,
+} from '@/services/production-service';
 import {
   OpportunityVideo,
   OpportunityFilterState,
@@ -537,6 +583,68 @@ import {
 const loading = ref(false);
 const error = ref<string | null>(null);
 const allVideos = ref<OpportunityVideo[]>([]);
+
+// Production integration
+const addingVideoId = ref<string | null>(null);
+const pendingVideoToAdd = ref<OpportunityVideo | null>(null);
+const showAccessKeyModal = ref(false);
+const accessKeyError = ref<string | null>(null);
+const toastMessage = ref<string | null>(null);
+let toastTimer: any = null;
+
+function showToast(msg: string) {
+  toastMessage.value = msg;
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => {
+    toastMessage.value = null;
+  }, 3500);
+}
+
+async function handleAddToProduction(v: OpportunityVideo) {
+  if (!v || addingVideoId.value) return;
+
+  const key = getStoredAccessKey();
+  if (!key) {
+    pendingVideoToAdd.value = v;
+    accessKeyError.value = null;
+    showAccessKeyModal.value = true;
+    return;
+  }
+
+  addingVideoId.value = v.id;
+  try {
+    await productionService.createProductionItem(
+      {
+        sourceVideoId: v.id,
+        workingTitle: v.title,
+      },
+      key
+    );
+    showToast(`Đã đưa "${v.title.slice(0, 32)}..." vào Tiến Độ Sản Xuất!`);
+  } catch (err: any) {
+    if (err instanceof AccessKeyRequiredError) {
+      pendingVideoToAdd.value = v;
+      accessKeyError.value = err.message;
+      showAccessKeyModal.value = true;
+    } else if (err?.message?.includes('đã có trong quy trình') || err?.message?.includes('409')) {
+      showToast('Video này đã có trong Tiến Độ Sản Xuất!');
+    } else {
+      alert(err.message || 'Không thể đưa vào Tiến Độ Sản Xuất.');
+    }
+  } finally {
+    addingVideoId.value = null;
+  }
+}
+
+async function onAccessKeyConfirmed(key: string) {
+  setStoredAccessKey(key);
+  showAccessKeyModal.value = false;
+  if (pendingVideoToAdd.value) {
+    const v = pendingVideoToAdd.value;
+    pendingVideoToAdd.value = null;
+    await handleAddToProduction(v);
+  }
+}
 
 // Filter & Sort State
 const filters = reactive<OpportunityFilterState>({
@@ -1709,6 +1817,33 @@ function handleImgError(e: Event) {
   .select-wrap,
   .custom-select {
     width: 100%;
+  }
+}
+
+.toast-notification {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background-color: var(--bg-surface-elevated, #1e293b);
+  color: var(--text-primary, #f8fafc);
+  border: 1px solid var(--border-subtle, #334155);
+  border-left: 4px solid var(--accent, #6366f1);
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+  z-index: 1000;
+  animation: slideUp 0.25s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
   }
 }
 </style>
