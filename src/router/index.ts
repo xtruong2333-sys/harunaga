@@ -1,13 +1,13 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
-import ChannelsPage from '@/pages/ChannelsPage.vue';
-import VideosPage from '@/pages/VideosPage.vue';
-import VideoDetailPage from '@/pages/VideoDetailPage.vue';
-import OverviewPage from '@/pages/OverviewPage.vue';
-import ChannelDetailPage from '@/pages/ChannelDetailPage.vue';
-import OpportunityVideosPage from '@/pages/OpportunityVideosPage.vue';
-import AiContentAssistantPage from '@/pages/AiContentAssistantPage.vue';
-import ProductionPage from '@/pages/ProductionPage.vue';
-import DataHealthPage from '@/pages/DataHealthPage.vue';
+const ChannelsPage = () => import('@/pages/ChannelsPage.vue');
+const VideosPage = () => import('@/pages/VideosPage.vue');
+const VideoDetailPage = () => import('@/pages/VideoDetailPage.vue');
+const OverviewPage = () => import('@/pages/OverviewPage.vue');
+const ChannelDetailPage = () => import('@/pages/ChannelDetailPage.vue');
+const OpportunityVideosPage = () => import('@/pages/OpportunityVideosPage.vue');
+const AiContentAssistantPage = () => import('@/pages/AiContentAssistantPage.vue');
+const ProductionPage = () => import('@/pages/ProductionPage.vue');
+const DataHealthPage = () => import('@/pages/DataHealthPage.vue');
 
 const routes: Array<RouteRecordRaw> = [
   {
