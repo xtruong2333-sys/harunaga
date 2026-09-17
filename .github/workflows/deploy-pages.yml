@@ -40,6 +40,9 @@ jobs:
           VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
         run: npm run build
 
+      - name: Tạo 404.html cho SPA routing trên GitHub Pages
+        run: cp dist/index.html dist/404.html
+
       - name: Xác nhận dist/CNAME tồn tại
         run: test -f dist/CNAME || exit 1
 
