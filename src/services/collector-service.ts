@@ -1,8 +1,8 @@
 // Service Layer: collector-service.ts
 // Kích hoạt tiến trình thu thập dữ liệu video server-side qua Edge Function
 
-import { getSupabase, isSupabaseConfigured } from './supabase';
-import { getStoredAccessKey, AccessKeyRequiredError, DatabaseNotConfiguredError } from './channel-service';
+import { getSupabase, isSupabaseConfigured, parseEdgeFunctionError } from './supabase';
+import { getStoredAccessKey, clearStoredAccessKey, AccessKeyRequiredError, DatabaseNotConfiguredError } from './channel-service';
 import { CollectorResponse } from '@/types/scan';
 
 export const collectorService = {
@@ -25,10 +25,19 @@ export const collectorService = {
     });
 
     if (error) {
-      throw new Error(error.message || 'Lỗi kết nối máy chủ thu thập dữ liệu.');
+      const { message, isAuthError } = await parseEdgeFunctionError(error, 'Lỗi kết nối máy chủ thu thập dữ liệu.');
+      if (isAuthError) {
+        clearStoredAccessKey();
+        throw new AccessKeyRequiredError(message);
+      }
+      throw new Error(message);
     }
 
     if (!data?.success) {
+      if (data?.error && (data.error.includes('Mã truy cập') || data.error.includes('truy cập'))) {
+        clearStoredAccessKey();
+        throw new AccessKeyRequiredError(data.error);
+      }
       throw new Error(data?.error || 'Quá trình kiểm tra dữ liệu không thành công.');
     }
 

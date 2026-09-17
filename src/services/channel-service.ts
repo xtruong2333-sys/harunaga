@@ -3,7 +3,7 @@
 // TUYỆT ĐỐI KHÔNG TẠO DỮ LIỆU GIẢ.
 // Mọi thao tác WRITE đi qua Edge Function 'manage-channels' với Mã Truy Cập.
 
-import { getSupabase, isSupabaseConfigured } from './supabase';
+import { getSupabase, isSupabaseConfigured, parseEdgeFunctionError } from './supabase';
 import {
   Channel,
   DbChannel,
@@ -111,7 +111,8 @@ export const channelService = {
     });
 
     if (error) {
-      throw new Error(error.message || 'Lỗi kết nối dịch vụ kiểm tra kênh YouTube.');
+      const { message } = await parseEdgeFunctionError(error, 'Lỗi kết nối dịch vụ kiểm tra kênh YouTube.');
+      throw new Error(message);
     }
 
     // CONTRACT DUY NHẤT: data.channel
@@ -145,7 +146,12 @@ export const channelService = {
     });
 
     if (error) {
-      throw new Error(error.message || 'Lỗi xử lý từ máy chủ.');
+      const { message, isAuthError } = await parseEdgeFunctionError(error, 'Lỗi xử lý từ máy chủ.');
+      if (isAuthError) {
+        clearStoredAccessKey();
+        throw new AccessKeyRequiredError(message);
+      }
+      throw new Error(message);
     }
 
     if (!data?.success || !data?.channel) {

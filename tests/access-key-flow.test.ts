@@ -297,4 +297,99 @@ describe('Bắt Bài Đối Thủ — Luồng Mã Truy Cập Khi Thêm Kênh (Fi
     expect(emitted!.length).toBe(1);
     expect((wrapper.vm as any).resolveError).toBeNull();
   });
+
+  // I. Khi Edge Function trả về lỗi HTTP 401 (FunctionsHttpError), _invokeManage chuyển thành AccessKeyRequiredError
+  it('I. _invokeManage bắt lỗi 401 FunctionsHttpError, xóa key cũ và ném AccessKeyRequiredError', async () => {
+    setStoredAccessKey('invalid_stored_key');
+
+    const fakeFunctionsError = {
+      name: 'FunctionsHttpError',
+      message: 'Edge Function returned a non-2xx status code',
+      context: {
+        status: 401,
+        clone: () => ({
+          json: async () => ({
+            success: false,
+            error: 'Mã truy cập không chính xác. Thao tác bị từ chối.',
+          }),
+        }),
+        json: async () => ({
+          success: false,
+          error: 'Mã truy cập không chính xác. Thao tác bị từ chối.',
+        }),
+      },
+    };
+
+    const mockSupabase = {
+      functions: {
+        invoke: vi.fn().mockResolvedValue({
+          data: null,
+          error: fakeFunctionsError,
+        }),
+      },
+    };
+
+    const { getSupabase } = await import('../src/services/supabase');
+    vi.spyOn({ getSupabase }, 'getSupabase').mockReturnValue(mockSupabase as any);
+
+    // Spy on supabase module directly
+    const supabaseModule = await import('../src/services/supabase');
+    vi.spyOn(supabaseModule, 'getSupabase').mockReturnValue(mockSupabase as any);
+    vi.spyOn(supabaseModule, 'isSupabaseConfigured').mockReturnValue(true);
+
+    const { AccessKeyRequiredError: ImportedAccessKeyRequiredError } = await import('../src/services/channel-service');
+
+    await expect(channelService._invokeManage('create', { name: 'Test' })).rejects.toThrow(
+      ImportedAccessKeyRequiredError
+    );
+
+    // Mã cũ phải được xóa khỏi storage
+    const { getStoredAccessKey } = await import('../src/services/channel-service');
+    expect(getStoredAccessKey()).toBeNull();
+  });
+
+  // J. AddChannelModal khi gặp lỗi 401 FunctionsHttpError phải kích hoạt prompt modal thay vì hiện "Edge Function returned a non-2xx status code"
+  it('J. AddChannelModal khi backend trả 401 FunctionsHttpError không hiện lỗi đỏ non-2xx mà mở AccessKeyPromptModal', async () => {
+    const wrapper = mount(AddChannelModal, {
+      props: {
+        modelValue: true,
+        existingChannels: [],
+      },
+    });
+
+    (wrapper.vm as any).resolvedPreview = {
+      youtubeChannelId: 'UC_test_123',
+      name: 'Kênh Test Đối Thủ',
+      handle: '@kenhtest',
+      url: 'https://youtube.com/@kenhtest',
+      avatarUrl: 'https://example.com/avatar.jpg',
+    };
+
+    const { AccessKeyRequiredError: ImportedAccessKeyRequiredError } = await import('../src/services/channel-service');
+    vi.spyOn(channelService, 'createChannel').mockRejectedValue(
+      new ImportedAccessKeyRequiredError('Mã truy cập không chính xác. Thao tác bị từ chối.')
+    );
+
+    await wrapper.vm.$nextTick();
+
+    try {
+      await (wrapper.vm as any).handleAdd();
+    } catch {
+      // Expected reject
+    }
+
+    await wrapper.vm.$nextTick();
+
+    // Phải emit access-key-required
+    const emitted = wrapper.emitted('access-key-required');
+    expect(emitted).toBeDefined();
+    expect(emitted!.length).toBe(1);
+    expect(emitted![0][1]).toContain('Mã truy cập không chính xác');
+
+    // Không được để chuỗi 'Edge Function returned a non-2xx status code'
+    expect((wrapper.vm as any).resolveError).toBeNull();
+    const errorBox = document.querySelector('.alert-error');
+    expect(errorBox).toBeNull();
+  });
 });
+
