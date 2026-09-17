@@ -71,24 +71,24 @@ describe('V1.1 Light Theme & Wide Desktop Hotfix Contract Tests', () => {
     });
 
     it('3.2 Opportunity table định nghĩa đầy đủ column widths', () => {
-      expect(opp).toContain('.th-video, .td-video { min-width: 230px; }');
-      expect(opp).toContain('.th-channel, .td-channel { min-width: 120px; max-width: 150px; }');
-      expect(opp).toContain('.th-age, .td-age { min-width: 75px; }');
-      expect(opp).toContain('.th-views, .td-views { min-width: 85px; }');
-      expect(opp).toContain('.th-vph, .td-vph { min-width: 90px; }');
-      expect(opp).toContain('.th-delta, .td-delta { min-width: 100px; }');
-      expect(opp).toContain('.th-threshold, .td-threshold { min-width: 110px; }');
+      expect(opp).toContain('.th-video, .td-video { min-width: 190px; }');
+      expect(opp).toContain('.th-channel, .td-channel { min-width: 105px; max-width: 130px; }');
+      expect(opp).toContain('.th-age, .td-age { min-width: 60px; }');
+      expect(opp).toContain('.th-views, .td-views { min-width: 75px; }');
+      expect(opp).toContain('.th-vph, .td-vph { min-width: 75px; }');
+      expect(opp).toContain('.th-delta, .td-delta { min-width: 80px; }');
+      expect(opp).toContain('.th-threshold, .td-threshold { min-width: 105px; }');
       expect(opp).toContain('.th-alert, .td-alert { min-width: 85px; }');
-      expect(opp).toContain('.th-actions, .td-actions { min-width: 205px; }');
+      expect(opp).toContain('.th-actions, .td-actions { min-width: 195px;');
     });
 
     it('3.3 Cụm nút Thao Tác có định dạng compact vừa vặn', () => {
       expect(opp).toContain('.cell-actions-group .btn-xs');
-      expect(opp).toContain('padding: 4px 8px;');
+      expect(opp).toContain('padding: 3px 6px;');
       expect(opp).toContain('font-size: 11px;');
       expect(opp).toContain('.cell-actions-group .btn-icon-link');
-      expect(opp).toContain('width: 26px;');
-      expect(opp).toContain('height: 26px;');
+      expect(opp).toContain('width: 24px;');
+      expect(opp).toContain('height: 24px;');
     });
 
     it('3.4 Progress tracks và tab badges sử dụng CSS variables', () => {

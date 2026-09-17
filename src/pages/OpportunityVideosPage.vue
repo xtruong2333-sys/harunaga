@@ -302,10 +302,10 @@
             <tr>
               <th class="th-video">VIDEO</th>
               <th class="th-channel">KÊNH</th>
-              <th class="th-age">TUỔI VIDEO</th>
+              <th class="th-age">TUỔI</th>
               <th class="th-views">LƯỢT XEM</th>
-              <th class="th-vph">VPH ĐO ĐƯỢC</th>
-              <th class="th-delta">TĂNG TỪ LẦN TRƯỚC</th>
+              <th class="th-vph">VPH ĐO</th>
+              <th class="th-delta">TĂNG VIEW</th>
               <th class="th-threshold">MỨC NGƯỠNG</th>
               <th class="th-alert">CẢNH BÁO</th>
               <th class="th-actions">THAO TÁC</th>
@@ -1348,7 +1348,7 @@ function handleImgError(e: Event) {
 }
 
 .opportunity-table th {
-  padding: 10px 10px;
+  padding: 10px 8px;
   font-size: 11px;
   font-weight: 600;
   color: var(--text-muted);
@@ -1359,7 +1359,7 @@ function handleImgError(e: Event) {
 }
 
 .opportunity-table td {
-  padding: 10px 10px;
+  padding: 10px 8px;
   border-bottom: 1px solid var(--border-subtle);
   vertical-align: middle;
 }
@@ -1369,27 +1369,27 @@ function handleImgError(e: Event) {
 }
 
 /* Column Specific Widths */
-.th-video, .td-video { min-width: 230px; }
-.th-channel, .td-channel { min-width: 120px; max-width: 150px; }
-.th-age, .td-age { min-width: 75px; }
-.th-views, .td-views { min-width: 85px; }
-.th-vph, .td-vph { min-width: 90px; }
-.th-delta, .td-delta { min-width: 100px; }
-.th-threshold, .td-threshold { min-width: 110px; }
+.th-video, .td-video { min-width: 190px; }
+.th-channel, .td-channel { min-width: 105px; max-width: 130px; }
+.th-age, .td-age { min-width: 60px; }
+.th-views, .td-views { min-width: 75px; }
+.th-vph, .td-vph { min-width: 75px; }
+.th-delta, .td-delta { min-width: 80px; }
+.th-threshold, .td-threshold { min-width: 105px; }
 .th-alert, .td-alert { min-width: 85px; }
-.th-actions, .td-actions { min-width: 205px; }
+.th-actions, .td-actions { min-width: 195px; width: 200px; }
 
 /* Table Cells */
 .video-cell {
   display: flex;
   align-items: center;
-  gap: 10px;
-  min-width: 230px;
-  max-width: 360px;
+  gap: 8px;
+  min-width: 190px;
+  max-width: 320px;
 }
 
 .cell-thumb-wrap {
-  width: 72px;
+  width: 58px;
   aspect-ratio: 16 / 9;
   border-radius: 4px;
   overflow: hidden;
@@ -1503,8 +1503,8 @@ function handleImgError(e: Event) {
 .threshold-cell {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  min-width: 130px;
+  gap: 3px;
+  min-width: 100px;
 }
 
 .progress-bar-small {
@@ -1559,16 +1559,16 @@ function handleImgError(e: Event) {
 .cell-actions-group {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
   white-space: nowrap;
 }
 
 .cell-actions-group .btn-xs {
-  padding: 4px 8px;
+  padding: 3px 6px;
   font-size: 11px;
   line-height: 1.2;
-  gap: 4px;
-  border-radius: 6px;
+  gap: 3px;
+  border-radius: 5px;
   white-space: nowrap;
 }
 
@@ -1576,9 +1576,9 @@ function handleImgError(e: Event) {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 26px;
-  height: 26px;
-  border-radius: 6px;
+  width: 24px;
+  height: 24px;
+  border-radius: 5px;
   color: var(--text-secondary);
   background-color: var(--bg-surface-elevated);
   border: 1px solid var(--border-subtle);
