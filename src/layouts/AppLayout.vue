@@ -39,6 +39,10 @@
           <AppIcon name="clipboard-list" size="18" />
           <span>Tiến Độ Sản Xuất</span>
         </router-link>
+        <router-link to="/tinh-trang-du-lieu" class="nav-item" active-class="nav-item-active">
+          <AppIcon name="database" size="18" />
+          <span>Tình Trạng Dữ Liệu</span>
+        </router-link>
       </nav>
 
       <div class="sidebar-footer">
@@ -72,6 +76,9 @@
         </router-link>
         <router-link to="/tien-do-san-xuat" class="mobile-nav-link" active-class="mobile-nav-link-active">
           Tiến Độ
+        </router-link>
+        <router-link to="/tinh-trang-du-lieu" class="mobile-nav-link" active-class="mobile-nav-link-active">
+          Tình Trạng
         </router-link>
       </nav>
     </header>

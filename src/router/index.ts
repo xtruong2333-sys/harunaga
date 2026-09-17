@@ -7,6 +7,7 @@ import ChannelDetailPage from '@/pages/ChannelDetailPage.vue';
 import OpportunityVideosPage from '@/pages/OpportunityVideosPage.vue';
 import AiContentAssistantPage from '@/pages/AiContentAssistantPage.vue';
 import ProductionPage from '@/pages/ProductionPage.vue';
+import DataHealthPage from '@/pages/DataHealthPage.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -75,6 +76,14 @@ const routes: Array<RouteRecordRaw> = [
     component: ProductionPage,
     meta: {
       title: 'Tiến Độ Sản Xuất — Bắt Bài Đối Thủ',
+    },
+  },
+  {
+    path: '/tinh-trang-du-lieu',
+    name: 'DataHealth',
+    component: DataHealthPage,
+    meta: {
+      title: 'Tình Trạng Dữ Liệu — Bắt Bài Đối Thủ',
     },
   },
   {
