@@ -19,7 +19,7 @@
 - Supabase Edge Functions: `resolve-youtube-channel` (xác thực kênh thật) và `manage-channels` (thao tác ghi server-side).
 - Row Level Security (RLS) bảo vệ nghiêm ngặt cơ sở dữ liệu.
 
-### 🚀 Giai đoạn 2A: Thu Thập Video + Lịch Sử Lượt Xem + VPH Đo Được (Hiện tại)
+### ✅ Giai đoạn 2A: Thu Thập Video + Lịch Sử Lượt Xem + VPH Đo Được (Đã hoàn thành)
 - **Thu thập video thật**: Tích hợp YouTube Data API v3 qua Edge Function `collect-youtube-data`.
 - **Tối ưu Quota**:
   - Cache `uploads_playlist_id` vào cơ sở dữ liệu (chỉ gọi `channels.list` 1 lần duy nhất).
@@ -34,10 +34,19 @@
   - Lượt xem giảm: `measured_vph = 0` (không có VPH âm).
 - **Kích hoạt thủ công**: Cho phép quản trị viên bấm nút "Kiểm Tra Dữ Liệu" trên trang Kênh Theo Dõi.
 
+### 🚀 Giai đoạn 2B: Tự Động Kiểm Tra Dữ Liệu Mỗi Giờ (Hiện tại)
+- **Tự động hóa 100% trên đám mây**: Sử dụng **Supabase Cron** (`pg_cron` + `pg_net` + `supabase_vault`).
+- **Lịch chạy**: Mỗi giờ vào phút thứ 5 (`5 * * * *`), hoàn toàn độc lập, **không cần treo máy tính hay mở trình duyệt**.
+- **Bảo mật tuyệt đối**: URL, Publishable Key và Mã truy cập được lưu trữ trong Supabase Vault, không lộ trong mã nguồn.
+- **Chống chạy chồng & Phục hồi phiên treo**:
+  - Khóa mức database bằng Partial Unique Index trên `scan_runs` (`status = 'running'`).
+  - Tự động bỏ qua (skip) nếu phiên trước đang hoạt động (< 30 phút).
+  - Tự động phục hồi (mark failed) nếu phiên trước bị treo quá 30 phút.
+  - Phân biệt minh bạch nguồn chạy: `trigger_source = 'manual'` hoặc `'schedule'`.
+
 > [!IMPORTANT]
-> **Giới hạn giai đoạn 2A**:
-> - **CHƯA** tự động quét mỗi giờ (chưa có cron scheduler).
-> - **CHƯA** gửi cảnh báo Discord.
+> **Giới hạn giai đoạn 2B**:
+> - **CHƯA** gửi cảnh báo Discord (dành riêng cho Giai đoạn 2C).
 > - **CHƯA** hiển thị bảng Video Đang Tăng trên giao diện người dùng.
 
 ---

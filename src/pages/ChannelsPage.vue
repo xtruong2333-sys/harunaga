@@ -305,13 +305,15 @@ async function handleTriggerCollection() {
     collectNotification.value = null;
     try {
       const res = await collectorService.triggerCollection();
-      if (res.success && res.run) {
+      if (res.skipped) {
+        collectNotification.value = res.reason || 'Đang có phiên kiểm tra khác hoạt động.';
+      } else if (res.success && res.run) {
         collectNotification.value = `Đã kiểm tra ${res.run.channelsSuccess} kênh và ${res.run.videosFound} video.`;
         await channelStore.fetchChannels();
-        setTimeout(() => {
-          collectNotification.value = null;
-        }, 6000);
       }
+      setTimeout(() => {
+        collectNotification.value = null;
+      }, 6000);
     } finally {
       isCollecting.value = false;
     }

@@ -9,7 +9,7 @@ export const collectorService = {
   /**
    * Kích hoạt quét dữ liệu video thủ công
    */
-  async triggerCollection(providedKey?: string): Promise<CollectorResponse> {
+  async triggerCollection(providedKey?: string, triggerSource: 'manual' | 'schedule' = 'manual'): Promise<CollectorResponse> {
     if (!isSupabaseConfigured()) {
       throw new DatabaseNotConfiguredError();
     }
@@ -21,7 +21,7 @@ export const collectorService = {
 
     const supabase = getSupabase()!;
     const { data, error } = await supabase.functions.invoke('collect-youtube-data', {
-      body: { accessKey },
+      body: { accessKey, triggerSource },
     });
 
     if (error) {

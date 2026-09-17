@@ -33,6 +33,8 @@ export interface DbScanRun {
 
 export interface CollectorResponse {
   success: boolean;
+  skipped?: boolean;
+  reason?: string;
   run?: {
     id: string;
     channelsTotal: number;
@@ -41,6 +43,7 @@ export interface CollectorResponse {
     videosFound: number;
     snapshotsCreated: number;
     status: ScanRunStatus;
+    triggerSource?: ScanTriggerSource;
     errorSummary?: string | null;
   };
   error?: string;
