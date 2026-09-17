@@ -17,6 +17,15 @@
           <span>So Sánh Kênh Này</span>
         </router-link>
 
+        <router-link
+          :to="'/video-moi-dang?channel=' + analysis.channel.id"
+          class="btn btn-secondary btn-sm"
+          title="Xem video mới đăng của kênh này"
+        >
+          <AppIcon name="clock" size="14" />
+          <span>Video Mới</span>
+        </router-link>
+
         <button
           class="btn btn-secondary btn-sm"
           :disabled="loading"

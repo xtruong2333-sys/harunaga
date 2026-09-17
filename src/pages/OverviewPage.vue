@@ -165,6 +165,10 @@
           <span>{{ summary.latestScan.errorSummary }}</span>
         </div>
         <div class="overview-alert-link-row">
+          <router-link to="/video-moi-dang" class="overview-alert-link">
+            <AppIcon name="clock" size="13" />
+            Xem Video Mới Đăng
+          </router-link>
           <router-link to="/lich-su-canh-bao" class="overview-alert-link">
             <AppIcon name="bell" size="13" />
             Xem Lịch Sử Cảnh Báo
@@ -1524,6 +1528,8 @@ onMounted(() => {
   margin-top: 8px;
   display: flex;
   justify-content: flex-end;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 .overview-alert-link {
   display: inline-flex;

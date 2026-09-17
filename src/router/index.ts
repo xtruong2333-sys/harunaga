@@ -10,6 +10,7 @@ const ProductionPage = () => import('@/pages/ProductionPage.vue');
 const DataHealthPage = () => import('@/pages/DataHealthPage.vue');
 const ChannelComparisonPage = () => import('@/pages/ChannelComparisonPage.vue');
 const AlertHistoryPage = () => import('@/pages/AlertHistoryPage.vue');
+const NewVideosPage = () => import('@/pages/NewVideosPage.vue');
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -22,6 +23,14 @@ const routes: Array<RouteRecordRaw> = [
     component: OverviewPage,
     meta: {
       title: 'Tổng Quan — Bắt Bài Đối Thủ',
+    },
+  },
+  {
+    path: '/video-moi-dang',
+    name: 'NewVideos',
+    component: NewVideosPage,
+    meta: {
+      title: 'Video Mới Đăng — Bắt Bài Đối Thủ',
     },
   },
   {
