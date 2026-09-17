@@ -346,7 +346,7 @@ export const dataHealthService = {
       // Danh sách video thuộc active channels
       supabase
         .from('videos')
-        .select('id, title, thumbnail_url, youtube_video_id, channel_id, latest_view_count, latest_measured_vph, channels!inner(id, name, status)')
+        .select('id, title, thumbnail_url, youtube_video_id, channel_id, latest_view_count, latest_measured_vph, latest_snapshot_checked_at, channels!inner(id, name, status)')
         .eq('channels.status', 'active'),
 
       // Cảnh báo Discord gần đây
@@ -400,30 +400,11 @@ export const dataHealthService = {
       ch => ch.freshnessCategory === 'never' || ch.freshnessCategory === 'stale'
     ).length;
 
-    // Map videos and snapshot freshness
+    // Map videos and snapshot freshness directly from cached latest_snapshot_checked_at
     const rawVideos = videosRes.data || [];
-    const videoIds = rawVideos.map((v: any) => v.id);
-
-    // Fetch latest snapshot checked_at for candidate videos
-    const latestSnapMap = new Map<string, string>();
-    if (videoIds.length > 0) {
-      const { data: snapData } = await supabase
-        .from('video_snapshots')
-        .select('video_id, checked_at')
-        .in('video_id', videoIds)
-        .order('checked_at', { ascending: false });
-
-      if (snapData) {
-        for (const snap of snapData) {
-          if (!latestSnapMap.has(snap.video_id)) {
-            latestSnapMap.set(snap.video_id, snap.checked_at);
-          }
-        }
-      }
-    }
 
     const allVideoFreshness: VideoFreshness[] = rawVideos.map((v: any) => {
-      const snapAt = latestSnapMap.get(v.id) || null;
+      const snapAt = v.latest_snapshot_checked_at || null;
       const freshness = computeVideoFreshness(snapAt, nowMs);
       const ch = v.channels;
 
