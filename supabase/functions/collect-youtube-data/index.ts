@@ -457,33 +457,64 @@ serve(async (req: Request) => {
       // 9. Upsert Videos & Tạo Snapshots & Tính Measured VPH
       const checkTime = new Date();
 
+      // Batch existing videos lookup (Chunk <= 200 để tránh URL quá dài)
+      const uniqueYtIds = Array.from(new Set(allVideoItems.map((v) => v.youtubeVideoId)));
+      const existingVideosMap = new Map<
+        string,
+        {
+          id: string;
+          youtube_video_id: string;
+          channel_id: string;
+          latest_view_count: number | null;
+          latest_measured_vph: number | null;
+          latest_view_delta: number | null;
+          latest_snapshot_checked_at: string | null;
+          first_snapshot_checked_at: string | null;
+          first_seen_at: string;
+        }
+      >();
+
+      const lookupChunkSize = 200;
+      for (let i = 0; i < uniqueYtIds.length; i += lookupChunkSize) {
+        const chunk = uniqueYtIds.slice(i, i + lookupChunkSize);
+        const { data: batchVideos, error: batchErr } = await supabase
+          .from("videos")
+          .select(
+            "id, youtube_video_id, channel_id, latest_view_count, latest_measured_vph, latest_view_delta, latest_snapshot_checked_at, first_snapshot_checked_at, first_seen_at"
+          )
+          .in("youtube_video_id", chunk);
+
+        if (!batchErr && batchVideos) {
+          for (const bv of batchVideos) {
+            existingVideosMap.set(bv.youtube_video_id, bv);
+          }
+        }
+      }
+
       for (const vItem of allVideoItems) {
         const stats = videoStatsMap.get(vItem.youtubeVideoId);
         if (!stats) continue;
 
         const currentViews = stats.viewCount;
-
-        const { data: existingVideo } = await supabase
-          .from("videos")
-          .select("id, latest_view_count, latest_measured_vph, first_seen_at")
-          .eq("youtube_video_id", vItem.youtubeVideoId)
-          .maybeSingle();
+        const existingVideo = existingVideosMap.get(vItem.youtubeVideoId);
 
         let videoDbId: string;
+        let previousViews: number | null = null;
+        let previousCheckedAt: Date | null = null;
 
         if (existingVideo) {
           videoDbId = existingVideo.id;
-          await supabase
-            .from("videos")
-            .update({
-              title: vItem.title,
-              thumbnail_url: vItem.thumbnailUrl,
-              duration: stats.duration,
-              last_seen_at: checkTime.toISOString(),
-              latest_view_count: currentViews,
-            })
-            .eq("id", videoDbId);
+          // QUAN TRỌNG: Chỉ coi là quan sát tiếp theo khi có latest_snapshot_checked_at.
+          // Nếu latest_snapshot_checked_at là null -> coi là First Observation (VPH = null).
+          if (existingVideo.latest_snapshot_checked_at) {
+            previousCheckedAt = new Date(existingVideo.latest_snapshot_checked_at);
+            previousViews =
+              existingVideo.latest_view_count !== null && existingVideo.latest_view_count !== undefined
+                ? Number(existingVideo.latest_view_count)
+                : null;
+          }
         } else {
+          // Thêm video mới vào cơ sở dữ liệu
           const { data: insertedVideo, error: insErr } = await supabase
             .from("videos")
             .insert({
@@ -498,27 +529,24 @@ serve(async (req: Request) => {
               last_seen_at: checkTime.toISOString(),
               latest_view_count: currentViews,
               latest_measured_vph: null,
+              latest_view_delta: null,
+              latest_snapshot_checked_at: null,
+              first_snapshot_checked_at: null,
             })
-            .select()
+            .select(
+              "id, youtube_video_id, channel_id, latest_view_count, latest_measured_vph, latest_view_delta, latest_snapshot_checked_at, first_snapshot_checked_at, first_seen_at"
+            )
             .single();
 
           if (insErr || !insertedVideo) continue;
           videoDbId = insertedVideo.id;
+          existingVideosMap.set(vItem.youtubeVideoId, insertedVideo);
         }
 
-        const { data: prevSnap } = await supabase
-          .from("video_snapshots")
-          .select("view_count, checked_at")
-          .eq("video_id", videoDbId)
-          .order("checked_at", { ascending: false })
-          .limit(1)
-          .maybeSingle();
-
-        const previousViews = prevSnap ? Number(prevSnap.view_count) : null;
-        const previousCheckedAt = prevSnap ? new Date(prevSnap.checked_at) : null;
-
+        // Tính toán VPH đo được (First observation -> measuredVph = null)
         const vphResult = calculateVph(currentViews, checkTime, previousViews, previousCheckedAt);
 
+        // 1. Thao tác INSERT snapshot trước
         const { data: insertedSnap, error: snapErr } = await supabase
           .from("video_snapshots")
           .insert({
@@ -532,15 +560,43 @@ serve(async (req: Request) => {
           .select("id")
           .maybeSingle();
 
+        // 2. CHỈ KHI snapshot insert THÀNH CÔNG mới cập nhật cache measurement trên videos
         if (!snapErr) {
           snapshotsCreated++;
 
-          if (vphResult.measuredVph !== null) {
-            await supabase
-              .from("videos")
-              .update({ latest_measured_vph: vphResult.measuredVph })
-              .eq("id", videoDbId);
+          const videoUpdatePayload: Record<string, any> = {
+            title: vItem.title,
+            thumbnail_url: vItem.thumbnailUrl,
+            duration: stats.duration,
+            last_seen_at: checkTime.toISOString(),
+            latest_view_count: currentViews,
+            latest_measured_vph: vphResult.measuredVph,
+            latest_view_delta: vphResult.viewDelta,
+            latest_snapshot_checked_at: checkTime.toISOString(),
+          };
 
+          if (!existingVideo?.first_snapshot_checked_at) {
+            videoUpdatePayload.first_snapshot_checked_at = checkTime.toISOString();
+          }
+
+          await supabase
+            .from("videos")
+            .update(videoUpdatePayload)
+            .eq("id", videoDbId);
+
+          // Cập nhật map để giữ state nhất quán
+          const cur = existingVideosMap.get(vItem.youtubeVideoId);
+          if (cur) {
+            cur.latest_view_count = currentViews;
+            cur.latest_measured_vph = vphResult.measuredVph;
+            cur.latest_view_delta = vphResult.viewDelta;
+            cur.latest_snapshot_checked_at = checkTime.toISOString();
+            if (!cur.first_snapshot_checked_at) {
+              cur.first_snapshot_checked_at = checkTime.toISOString();
+            }
+          }
+
+          if (vphResult.measuredVph !== null) {
             const channelThreshold = channelThresholdMap.get(vItem.channelDbId) ?? 5000;
             if (vphResult.measuredVph >= channelThreshold) {
               alertCandidates++;

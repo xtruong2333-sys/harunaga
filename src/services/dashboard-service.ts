@@ -38,61 +38,53 @@ export const dashboardService = {
       channelMap.set(c.id, c);
     }
 
-    // 2. Lấy toàn bộ video
-    const { data: videosData, error: videosError } = await supabase
+    // 2. Server-side exact count tổng số video
+    const { count: totalVideosCount, error: totalCountError } = await supabase
       .from('videos')
-      .select('id, youtube_video_id, channel_id, title, url, thumbnail_url, published_at, latest_view_count, latest_measured_vph');
+      .select('*', { count: 'exact', head: true });
 
-    if (videosError) {
-      throw new Error(`Lỗi tải danh sách video: ${videosError.message}`);
+    if (totalCountError) {
+      throw new Error(`Lỗi đếm tổng số video: ${totalCountError.message}`);
     }
 
-    const videos = videosData || [];
+    // 3. Server-side exact count số video đang tăng (VPH > 0)
+    const { count: risingVideosCount, error: risingCountError } = await supabase
+      .from('videos')
+      .select('*', { count: 'exact', head: true })
+      .gt('latest_measured_vph', 0);
 
-    // 3. Lấy snapshot mới nhất để có view_delta của mỗi video
-    const { data: snapshotsData, error: snapError } = await supabase
-      .from('video_snapshots')
-      .select('video_id, view_delta, checked_at')
-      .order('checked_at', { ascending: false });
-
-    if (snapError) {
-      throw new Error(`Lỗi tải lịch sử snapshot: ${snapError.message}`);
+    if (risingCountError) {
+      throw new Error(`Lỗi đếm số video đang tăng: ${risingCountError.message}`);
     }
 
-    const latestSnapMap = new Map<string, number | null>();
-    if (snapshotsData) {
-      for (const s of snapshotsData) {
-        if (!latestSnapMap.has(s.video_id)) {
-          latestSnapMap.set(s.video_id, s.view_delta !== null && s.view_delta !== undefined ? Number(s.view_delta) : null);
-        }
-      }
+    // 4. Query VPH cao nhất hiện tại (Top 1 DESC NULLS LAST)
+    const { data: maxVphData, error: maxVphError } = await supabase
+      .from('videos')
+      .select('latest_measured_vph')
+      .not('latest_measured_vph', 'is', null)
+      .order('latest_measured_vph', { ascending: false })
+      .limit(1);
+
+    if (maxVphError) {
+      throw new Error(`Lỗi tải VPH cao nhất: ${maxVphError.message}`);
     }
 
-    // 4. Tính toán các chỉ số thống kê chính
-    let risingCount = 0;
-    let maxVph: number | null = null;
+    const maxVph = maxVphData && maxVphData.length > 0 && maxVphData[0].latest_measured_vph !== null
+      ? Number(maxVphData[0].latest_measured_vph)
+      : null;
 
-    for (const v of videos) {
-      const vph = v.latest_measured_vph !== null && v.latest_measured_vph !== undefined ? Number(v.latest_measured_vph) : null;
-      if (vph !== null && vph > 0) {
-        risingCount++;
-        if (maxVph === null || vph > maxVph) {
-          maxVph = vph;
-        }
-      }
+    // 5. Query Top 5 video theo VPH DESC (NULLs last) kèm latest_view_delta từ cache
+    const { data: topVideosData, error: topVideosError } = await supabase
+      .from('videos')
+      .select('id, youtube_video_id, channel_id, title, url, thumbnail_url, published_at, latest_view_count, latest_measured_vph, latest_view_delta')
+      .order('latest_measured_vph', { ascending: false, nullsFirst: false })
+      .limit(5);
+
+    if (topVideosError) {
+      throw new Error(`Lỗi tải top video: ${topVideosError.message}`);
     }
 
-    // 5. Chuẩn bị Top 5 video theo VPH DESC (NULLs last)
-    const sortedVideos = [...videos].sort((a, b) => {
-      const vphA = a.latest_measured_vph !== null && a.latest_measured_vph !== undefined ? Number(a.latest_measured_vph) : null;
-      const vphB = b.latest_measured_vph !== null && b.latest_measured_vph !== undefined ? Number(b.latest_measured_vph) : null;
-      if (vphA === null && vphB === null) return 0;
-      if (vphA === null) return 1;
-      if (vphB === null) return -1;
-      return vphB - vphA;
-    });
-
-    const topVideos: DashboardTopVideo[] = sortedVideos.slice(0, 5).map(v => {
+    const topVideos: DashboardTopVideo[] = (topVideosData || []).map(v => {
       const ch = channelMap.get(v.channel_id) || {};
       const vph = v.latest_measured_vph !== null && v.latest_measured_vph !== undefined ? Number(v.latest_measured_vph) : null;
       const threshold = Number(ch.alert_vph_threshold) || 5000;
@@ -106,7 +98,7 @@ export const dashboardService = {
         publishedAt: v.published_at,
         latestViewCount: Number(v.latest_view_count) || 0,
         latestMeasuredVph: vph,
-        latestDeltaViews: latestSnapMap.get(v.id) ?? null,
+        latestDeltaViews: v.latest_view_delta !== null && v.latest_view_delta !== undefined ? Number(v.latest_view_delta) : null,
         isOverThreshold: vph !== null && threshold > 0 && vph >= threshold,
         channelName: ch.name || 'Kênh Chưa Rõ',
         channelAvatarUrl: ch.avatar_url || null,
@@ -114,21 +106,23 @@ export const dashboardService = {
       };
     });
 
-    // 6. Tổng kết theo kênh (Kênh đang có video tăng)
+    // 6. Tổng kết theo kênh từ view server-side: channel_video_current_stats
+    const { data: channelStatsData, error: chanStatsError } = await supabase
+      .from('channel_video_current_stats')
+      .select('channel_id, total_videos, rising_video_count, max_vph');
+
+    if (chanStatsError) {
+      throw new Error(`Lỗi tải thống kê kênh: ${chanStatsError.message}`);
+    }
+
     const channelStatsMap = new Map<string, { risingCount: number; maxVph: number | null; totalVideos: number }>();
-    for (const v of videos) {
-      const cId = v.channel_id;
-      if (!channelStatsMap.has(cId)) {
-        channelStatsMap.set(cId, { risingCount: 0, maxVph: null, totalVideos: 0 });
-      }
-      const item = channelStatsMap.get(cId)!;
-      item.totalVideos++;
-      const vph = v.latest_measured_vph !== null && v.latest_measured_vph !== undefined ? Number(v.latest_measured_vph) : null;
-      if (vph !== null && vph > 0) {
-        item.risingCount++;
-        if (item.maxVph === null || vph > item.maxVph) {
-          item.maxVph = vph;
-        }
+    if (channelStatsData) {
+      for (const cs of channelStatsData) {
+        channelStatsMap.set(cs.channel_id, {
+          risingCount: Number(cs.rising_video_count) || 0,
+          maxVph: cs.max_vph !== null && cs.max_vph !== undefined ? Number(cs.max_vph) : null,
+          totalVideos: Number(cs.total_videos) || 0,
+        });
       }
     }
 
@@ -181,27 +175,35 @@ export const dashboardService = {
 
     const latestScan = recentScans.length > 0 ? recentScans[0] : null;
 
-    // 8. Lấy tổng kết cảnh báo Discord
-    const { data: alertsData, error: alertsError } = await supabase
-      .from('video_alerts')
-      .select('status');
+    // 8. Lấy tổng kết cảnh báo Discord dùng exact count queries
+    const [
+      { count: totalAlerts, error: totalAlertsErr },
+      { count: sentAlerts, error: sentAlertsErr },
+      { count: pendingAlerts, error: pendingAlertsErr },
+      { count: failedAlerts, error: failedAlertsErr },
+    ] = await Promise.all([
+      supabase.from('video_alerts').select('*', { count: 'exact', head: true }),
+      supabase.from('video_alerts').select('*', { count: 'exact', head: true }).eq('status', 'sent'),
+      supabase.from('video_alerts').select('*', { count: 'exact', head: true }).in('status', ['pending', 'sending']),
+      supabase.from('video_alerts').select('*', { count: 'exact', head: true }).eq('status', 'failed'),
+    ]);
 
-    if (alertsError) {
-      throw new Error(`Lỗi tải cảnh báo Discord: ${alertsError.message}`);
+    if (totalAlertsErr || sentAlertsErr || pendingAlertsErr || failedAlertsErr) {
+      const alertErrMsg = totalAlertsErr?.message || sentAlertsErr?.message || pendingAlertsErr?.message || failedAlertsErr?.message;
+      throw new Error(`Lỗi tải cảnh báo Discord: ${alertErrMsg}`);
     }
 
-    const alerts = alertsData || [];
     const alertSummary: DashboardAlertSummary = {
-      total: alerts.length,
-      sent: alerts.filter(a => a.status === 'sent').length,
-      pending: alerts.filter(a => a.status === 'pending' || a.status === 'sending').length,
-      failed: alerts.filter(a => a.status === 'failed').length,
+      total: totalAlerts || 0,
+      sent: sentAlerts || 0,
+      pending: pendingAlerts || 0,
+      failed: failedAlerts || 0,
     };
 
     return {
       activeChannelsCount: activeChannels.length,
-      totalVideosCount: videos.length,
-      risingVideosCount: risingCount,
+      totalVideosCount: totalVideosCount || 0,
+      risingVideosCount: risingVideosCount || 0,
       maxVph,
       latestScan,
       recentScans,

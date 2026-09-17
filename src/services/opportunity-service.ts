@@ -1,4 +1,4 @@
-﻿// Service Layer: opportunity-service.ts
+// Service Layer: opportunity-service.ts
 // Nguồn dữ liệu Video Tiềm Năng (Read-only từ Supabase production)
 // TUYỆT ĐỐI KHÔNG TẠO DỮ LIỆU GIẢ. KHÔNG GỌI COLLECTOR KHI LÀM MỚI.
 // TUYỆT ĐỐI KHÔNG DỰ ĐOÁN TƯƠNG LAI / KHÔNG TẠO SCORE CHỦ QUAN.
@@ -13,10 +13,11 @@ import {
   OpportunityChannelMeta,
   OpportunityAlertMeta,
 } from '@/types/opportunity';
+import { fetchAllBatches } from './query-pagination';
 
 export const opportunityService = {
   /**
-   * Tải toàn bộ video có VPH đo được > 0 từ Supabase production
+   * Tải toàn bộ video có VPH đo được > 0 từ Supabase production (Hỗ trợ >1.000 video với pagination)
    */
   async fetchOpportunityVideos(): Promise<OpportunityVideo[]> {
     if (!isSupabaseConfigured()) {
@@ -25,47 +26,23 @@ export const opportunityService = {
 
     const supabase = getSupabase()!;
 
-    // 1. Query danh sách video kèm kênh và alert liên kết
-    const { data: rawVideos, error: videoError } = await supabase
-      .from('videos')
-      .select('*, channels(id, name, handle, avatar_url, alert_vph_threshold), video_alerts(id, status, measured_vph, sent_at)')
-      .gt('latest_measured_vph', 0);
-
-    if (videoError) {
-      throw new Error(`Lỗi tải danh sách video: ${videoError.message}`);
-    }
+    // 1. Query danh sách video kèm kênh và alert liên kết với phân trang an toàn
+    const rawVideos = await fetchAllBatches<any>((from, to) =>
+      supabase
+        .from('videos')
+        .select('*, channels(id, name, handle, avatar_url, alert_vph_threshold), video_alerts(id, status, measured_vph, sent_at)')
+        .gt('latest_measured_vph', 0)
+        .order('latest_measured_vph', { ascending: false })
+        .order('id', { ascending: true })
+        .range(from, to)
+    );
 
     const candidateVideos = rawVideos || [];
     if (candidateVideos.length === 0) {
       return [];
     }
 
-    // 2. Query snapshot mới nhất của các candidate IDs để lấy view_delta
-    const candidateIds = candidateVideos.map(v => v.id);
-    const latestDeltaMap = new Map<string, number | null>();
-
-    const { data: rawSnapshots, error: snapError } = await supabase
-      .from('video_snapshots')
-      .select('video_id, view_delta, checked_at')
-      .in('video_id', candidateIds)
-      .order('checked_at', { ascending: false });
-
-    if (snapError) {
-      throw new Error(`Lỗi tải lịch sử snapshot: ${snapError.message}`);
-    }
-
-    if (rawSnapshots) {
-      for (const snap of rawSnapshots) {
-        if (!latestDeltaMap.has(snap.video_id)) {
-          latestDeltaMap.set(
-            snap.video_id,
-            snap.view_delta !== null && snap.view_delta !== undefined ? Number(snap.view_delta) : null
-          );
-        }
-      }
-    }
-
-    // 3. Chuẩn hóa thành danh sách OpportunityVideo
+    // 2. Chuẩn hóa thành danh sách OpportunityVideo từ cached columns (Không query video_snapshots)
     const now = new Date();
     return candidateVideos.map((raw: any) => {
       const channelData = raw.channels || {};
@@ -107,7 +84,7 @@ export const opportunityService = {
         videoAge: this.formatVideoAge(raw.published_at, now),
         latestViewCount: Number(raw.latest_view_count) || 0,
         latestMeasuredVph: vph,
-        latestDeltaViews: latestDeltaMap.get(raw.id) ?? null,
+        latestDeltaViews: raw.latest_view_delta !== null && raw.latest_view_delta !== undefined ? Number(raw.latest_view_delta) : null,
         channel: channelMeta,
         thresholdRatio: ratio,
         isOverThreshold: isOver,

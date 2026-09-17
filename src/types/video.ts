@@ -14,6 +14,9 @@ export interface Video {
   lastSeenAt: string;
   latestViewCount: number;
   latestMeasuredVph: number | null;
+  latestViewDelta?: number | null;
+  latestSnapshotCheckedAt?: string | null;
+  firstSnapshotCheckedAt?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -32,6 +35,9 @@ export interface DbVideo {
   last_seen_at: string;
   latest_view_count: number;
   latest_measured_vph: number | null;
+  latest_view_delta?: number | null;
+  latest_snapshot_checked_at?: string | null;
+  first_snapshot_checked_at?: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -71,6 +77,9 @@ export function mapDbVideoToVideo(db: DbVideo): Video {
     lastSeenAt: db.last_seen_at,
     latestViewCount: Number(db.latest_view_count) || 0,
     latestMeasuredVph: db.latest_measured_vph !== null ? Number(db.latest_measured_vph) : null,
+    latestViewDelta: db.latest_view_delta !== null && db.latest_view_delta !== undefined ? Number(db.latest_view_delta) : null,
+    latestSnapshotCheckedAt: db.latest_snapshot_checked_at || null,
+    firstSnapshotCheckedAt: db.first_snapshot_checked_at || null,
     createdAt: db.created_at,
     updatedAt: db.updated_at,
   };

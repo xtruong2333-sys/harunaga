@@ -12,6 +12,7 @@ import {
   ChannelRecentAlert,
   ChannelVphDistribution,
 } from '@/types/channel-analysis';
+import { fetchAllBatches } from './query-pagination';
 
 export const channelAnalysisService = {
   /**
@@ -53,68 +54,45 @@ export const channelAnalysisService = {
       url: channelData.url || `https://www.youtube.com/channel/${channelData.id}`,
     };
 
-    // 2. Lấy toàn bộ video của kênh này
-    const { data: rawVideos, error: videosError } = await supabase
-      .from('videos')
-      .select('*')
-      .eq('channel_id', channelId);
+    // 2. Lấy toàn bộ video của kênh này với phân trang an toàn >1.000 video
+    const videos = await fetchAllBatches<any>((from, to) =>
+      supabase
+        .from('videos')
+        .select('*')
+        .eq('channel_id', channelId)
+        .order('published_at', { ascending: false })
+        .order('id', { ascending: true })
+        .range(from, to)
+    );
 
-    if (videosError) {
-      throw new Error(`Lỗi tải video của kênh: ${videosError.message}`);
-    }
-
-    const videos = rawVideos || [];
-
-    // 3. Lấy snapshot mới nhất của các video để trích xuất view_delta
+    // 3. Lấy các alert liên quan đến video của kênh này (chunk <= 200 IDs để tránh URL quá dài)
     const videoIds = videos.map(v => v.id);
-    const latestDeltaMap = new Map<string, number | null>();
+    const alertMap = new Map<string, any>();
+    const alertsList: any[] = [];
 
     if (videoIds.length > 0) {
-      const { data: rawSnapshots, error: snapError } = await supabase
-        .from('video_snapshots')
-        .select('video_id, view_delta, checked_at')
-        .in('video_id', videoIds)
-        .order('checked_at', { ascending: false });
+      const alertChunkSize = 200;
+      for (let i = 0; i < videoIds.length; i += alertChunkSize) {
+        const chunk = videoIds.slice(i, i + alertChunkSize);
+        const { data: rawAlerts, error: alertsError } = await supabase
+          .from('video_alerts')
+          .select('*')
+          .in('video_id', chunk);
 
-      if (snapError) {
-        throw new Error(`Lỗi tải lịch sử snapshot: ${snapError.message}`);
-      }
+        if (alertsError) {
+          throw new Error(`Lỗi tải cảnh báo của kênh: ${alertsError.message}`);
+        }
 
-      if (rawSnapshots) {
-        for (const s of rawSnapshots) {
-          if (!latestDeltaMap.has(s.video_id)) {
-            latestDeltaMap.set(
-              s.video_id,
-              s.view_delta !== null && s.view_delta !== undefined ? Number(s.view_delta) : null
-            );
+        if (rawAlerts) {
+          for (const a of rawAlerts) {
+            alertMap.set(a.video_id, a);
+            alertsList.push(a);
           }
         }
       }
     }
 
-    // 4. Lấy các alert liên quan đến video của kênh này
-    const alertMap = new Map<string, any>();
-    const alertsList: any[] = [];
-
-    if (videoIds.length > 0) {
-      const { data: rawAlerts, error: alertsError } = await supabase
-        .from('video_alerts')
-        .select('*')
-        .in('video_id', videoIds);
-
-      if (alertsError) {
-        throw new Error(`Lỗi tải cảnh báo của kênh: ${alertsError.message}`);
-      }
-
-      if (rawAlerts) {
-        for (const a of rawAlerts) {
-          alertMap.set(a.video_id, a);
-          alertsList.push(a);
-        }
-      }
-    }
-
-    // 5. Chuẩn hóa danh sách ChannelVideoItem
+    // 4. Chuẩn hóa danh sách ChannelVideoItem trực tiếp từ cached columns (Không query video_snapshots)
     const videoTitleMap = new Map<string, string>();
     const mappedVideos: ChannelVideoItem[] = videos.map(v => {
       videoTitleMap.set(v.id, v.title || 'Video Không Tiêu Đề');
@@ -133,7 +111,7 @@ export const channelAnalysisService = {
         publishedAt: v.published_at,
         latestViewCount: Number(v.latest_view_count) || 0,
         latestMeasuredVph: vph,
-        latestDeltaViews: latestDeltaMap.get(v.id) ?? null,
+        latestDeltaViews: v.latest_view_delta !== null && v.latest_view_delta !== undefined ? Number(v.latest_view_delta) : null,
         isOverThreshold: isOver,
         alertStatus: alert ? alert.status : null,
       };

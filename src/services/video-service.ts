@@ -16,6 +16,7 @@ import {
   VideoAlertInfo,
   VideoDetailChannelMeta,
 } from '@/types/video';
+import { fetchAllBatches } from './query-pagination';
 
 export const videoService = {
   /**
@@ -28,39 +29,17 @@ export const videoService = {
 
     const supabase = getSupabase()!;
 
-    // 1. Query danh sách video kèm kênh và alert liên kết
-    const { data: rawVideos, error: videoError } = await supabase
-      .from('videos')
-      .select('*, channels(id, name, handle, avatar_url, alert_vph_threshold), video_alerts(id, status, measured_vph, sent_at)');
+    // 1. Query danh sách video kèm kênh và alert liên kết với phân trang an toàn >1.000 video
+    const rawVideos = await fetchAllBatches<any>((from, to) =>
+      supabase
+        .from('videos')
+        .select('*, channels(id, name, handle, avatar_url, alert_vph_threshold), video_alerts(id, status, measured_vph, sent_at)')
+        .order('published_at', { ascending: false })
+        .order('id', { ascending: true })
+        .range(from, to)
+    );
 
-    if (videoError) {
-      throw new Error(`Lỗi tải danh sách video: ${videoError.message}`);
-    }
-
-    // 2. Query snapshots để trích xuất view_delta mới nhất của mỗi video
-    const { data: rawSnapshots, error: snapError } = await supabase
-      .from('video_snapshots')
-      .select('video_id, view_delta, checked_at')
-      .order('checked_at', { ascending: false });
-
-    if (snapError) {
-      throw new Error(`Lỗi tải lịch sử lượt xem: ${snapError.message}`);
-    }
-
-    // Ánh xạ snapshot mới nhất theo từng video_id
-    const latestSnapshotMap = new Map<string, { viewDelta: number | null; checkedAt: string }>();
-    if (rawSnapshots) {
-      for (const snap of rawSnapshots) {
-        if (!latestSnapshotMap.has(snap.video_id)) {
-          latestSnapshotMap.set(snap.video_id, {
-            viewDelta: snap.view_delta !== null && snap.view_delta !== undefined ? Number(snap.view_delta) : null,
-            checkedAt: snap.checked_at,
-          });
-        }
-      }
-    }
-
-    // 3. Chuẩn hóa thành VideoListItem[]
+    // 2. Chuẩn hóa thành VideoListItem[] trực tiếp từ cached columns (Không query video_snapshots)
     const videos: VideoListItem[] = (rawVideos || []).map((raw: any) => {
       const channelData = raw.channels || {};
       const channelMeta: VideoChannelMeta = {
@@ -89,7 +68,16 @@ export const videoService = {
         ? Number(raw.latest_measured_vph)
         : null;
 
-      const latestSnap = latestSnapshotMap.get(raw.id) || null;
+      const latestDelta = raw.latest_view_delta !== null && raw.latest_view_delta !== undefined
+        ? Number(raw.latest_view_delta)
+        : null;
+
+      const latestSnap = raw.latest_snapshot_checked_at
+        ? {
+            viewDelta: latestDelta,
+            checkedAt: raw.latest_snapshot_checked_at,
+          }
+        : null;
 
       const isOverThreshold =
         latestVph !== null &&
@@ -109,7 +97,7 @@ export const videoService = {
         channel: channelMeta,
         alert: alertMeta,
         latestSnapshot: latestSnap,
-        latestDeltaViews: latestSnap ? latestSnap.viewDelta : null,
+        latestDeltaViews: latestDelta,
         isOverThreshold,
       };
     });
@@ -352,16 +340,16 @@ export const videoService = {
       return null;
     }
 
-    // 2. Lấy danh sách snapshot theo thứ tự thời gian tăng dần (checked_at ASC)
-    const { data: snapshotData, error: snapError } = await supabase
-      .from('video_snapshots')
-      .select('*')
-      .eq('video_id', videoId)
-      .order('checked_at', { ascending: true });
-
-    if (snapError) {
-      throw new Error(`Lỗi tải lịch sử snapshot: ${snapError.message}`);
-    }
+    // 2. Lấy toàn bộ danh sách snapshot theo thứ tự thời gian tăng dần (checked_at ASC) với phân trang an toàn
+    const snapshotData = await fetchAllBatches<any>((from, to) =>
+      supabase
+        .from('video_snapshots')
+        .select('*')
+        .eq('video_id', videoId)
+        .order('checked_at', { ascending: true })
+        .order('id', { ascending: true })
+        .range(from, to)
+    );
 
     // 3. Chuẩn hóa kênh
     const ch = videoData.channels || {};

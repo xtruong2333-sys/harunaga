@@ -14,6 +14,7 @@ import type {
   ChannelComparisonData,
 } from '@/types/channel-comparison';
 import { COMPARISON_PALETTE } from '@/types/channel-comparison';
+import { fetchAllBatches } from './query-pagination';
 
 /**
  * Tính toán mốc thời gian dựa trên window lọc (published_at boundary)
@@ -282,85 +283,74 @@ export const channelComparisonService = {
       .map(id => channelsFound.find(c => c.id === id))
       .filter((c): c is typeof channelsFound[0] => Boolean(c));
 
-    // 2. Tải toàn bộ video thuộc các kênh đã chọn
-    const { data: rawVideos, error: vidError } = await supabase
-      .from('videos')
-      .select('id, channel_id, youtube_video_id, title, thumbnail_url, published_at, latest_view_count, latest_measured_vph')
-      .in('channel_id', uniqueIds);
+    // 2. Tải toàn bộ video thuộc các kênh đã chọn với phân trang an toàn >1.000 video
+    const allVideos = await fetchAllBatches<any>((from, to) =>
+      supabase
+        .from('videos')
+        .select('id, channel_id, youtube_video_id, title, thumbnail_url, published_at, latest_view_count, latest_measured_vph, latest_view_delta, latest_snapshot_checked_at')
+        .in('channel_id', uniqueIds)
+        .order('published_at', { ascending: false })
+        .order('id', { ascending: true })
+        .range(from, to)
+    );
 
-    if (vidError) {
-      throw new Error(`Lỗi tải video của các kênh: ${vidError.message}`);
-    }
-
-    const allVideos = rawVideos || [];
     const allVideoIds = allVideos.map(v => v.id);
 
-    // 3. Batch query latest snapshot và 24h snapshots
-    const latestSnapshotMap = new Map<string, { view_delta: number | null; checked_at: string }>();
-    const snapshots24hByChannel = new Map<string, Array<{ measured_vph: number | null; checked_at: string }>>();
+    // 3. Tải xu hướng VPH 24h qua SQL RPC get_channel_vph_hourly (Server-side Aggregation)
+    const { data: rpcRows, error: rpcErr } = await supabase.rpc('get_channel_vph_hourly', {
+      p_channel_ids: uniqueIds,
+      p_since: trendCutoff,
+    });
 
-    if (allVideoIds.length > 0) {
-      // Latest snapshot per video
-      const { data: snapData } = await supabase
-        .from('video_snapshots')
-        .select('video_id, view_delta, checked_at')
-        .in('video_id', allVideoIds)
-        .order('checked_at', { ascending: false });
+    if (rpcErr) {
+      throw new Error(`Lỗi tải xu hướng VPH 24h: ${rpcErr.message}`);
+    }
 
-      if (snapData) {
-        for (const snap of snapData) {
-          if (!latestSnapshotMap.has(snap.video_id)) {
-            latestSnapshotMap.set(snap.video_id, {
-              view_delta: snap.view_delta !== null && snap.view_delta !== undefined ? Number(snap.view_delta) : null,
-              checked_at: snap.checked_at,
-            });
-          }
+    const trendPointsByChannel = new Map<string, ChannelComparisonTrendPoint[]>();
+    if (rpcRows) {
+      for (const r of rpcRows) {
+        const chId = r.channel_id;
+        if (!trendPointsByChannel.has(chId)) {
+          trendPointsByChannel.set(chId, []);
         }
-      }
+        const d = new Date(r.hour_bucket);
+        const year = d.getUTCFullYear();
+        const month = String(d.getUTCMonth() + 1).padStart(2, '0');
+        const day = String(d.getUTCDate()).padStart(2, '0');
+        const hour = String(d.getUTCHours()).padStart(2, '0');
+        const hourKey = `${year}-${month}-${day} ${hour}:00`;
 
-      // 24h snapshots for trend (dùng để tính xu hướng theo giờ)
-      const { data: trendData } = await supabase
-        .from('video_snapshots')
-        .select('video_id, measured_vph, checked_at')
-        .in('video_id', allVideoIds)
-        .gte('checked_at', trendCutoff)
-        .order('checked_at', { ascending: true });
+        const localHour = String(d.getHours()).padStart(2, '0');
+        const localDay = String(d.getDate()).padStart(2, '0');
+        const localMonth = String(d.getMonth() + 1).padStart(2, '0');
+        const hourLabel = `${localHour}:00 ${localDay}/${localMonth}`;
 
-      if (trendData) {
-        // Ánh xạ video_id -> channel_id
-        const videoToChannel = new Map<string, string>();
-        for (const v of allVideos) {
-          videoToChannel.set(v.id, v.channel_id);
-        }
-
-        for (const snap of trendData) {
-          const chId = videoToChannel.get(snap.video_id);
-          if (chId) {
-            if (!snapshots24hByChannel.has(chId)) {
-              snapshots24hByChannel.set(chId, []);
-            }
-            snapshots24hByChannel.get(chId)!.push({
-              measured_vph: snap.measured_vph !== null && snap.measured_vph !== undefined ? Number(snap.measured_vph) : null,
-              checked_at: snap.checked_at,
-            });
-          }
-        }
+        trendPointsByChannel.get(chId)!.push({
+          hourKey,
+          hourLabel,
+          avgVph: Math.round(Number(r.avg_vph)),
+          sampleCount: Number(r.sample_count),
+        });
       }
     }
 
-    // 4. Batch query latest alerts for all videos
+    // 4. Batch query latest alerts for all videos (chunk <= 200 IDs)
     const latestAlertMap = new Map<string, string>();
     if (allVideoIds.length > 0) {
-      const { data: alertData } = await supabase
-        .from('video_alerts')
-        .select('video_id, status, updated_at')
-        .in('video_id', allVideoIds)
-        .order('updated_at', { ascending: false });
+      const alertChunkSize = 200;
+      for (let i = 0; i < allVideoIds.length; i += alertChunkSize) {
+        const chunk = allVideoIds.slice(i, i + alertChunkSize);
+        const { data: alertData } = await supabase
+          .from('video_alerts')
+          .select('video_id, status, updated_at')
+          .in('video_id', chunk)
+          .order('updated_at', { ascending: false });
 
-      if (alertData) {
-        for (const a of alertData) {
-          if (!latestAlertMap.has(a.video_id)) {
-            latestAlertMap.set(a.video_id, a.status);
+        if (alertData) {
+          for (const a of alertData) {
+            if (!latestAlertMap.has(a.video_id)) {
+              latestAlertMap.set(a.video_id, a.status);
+            }
           }
         }
       }
@@ -382,16 +372,13 @@ export const channelComparisonService = {
         return new Date(v.published_at) >= windowThreshold;
       });
 
-      // Gộp thông tin delta snapshot mới nhất vào mỗi video
-      const videosWithDelta = windowVideos.map(v => {
-        const snap = latestSnapshotMap.get(v.id);
-        return {
-          ...v,
-          latest_view_count: v.latest_view_count !== null && v.latest_view_count !== undefined ? Number(v.latest_view_count) : null,
-          latest_measured_vph: v.latest_measured_vph !== null && v.latest_measured_vph !== undefined ? Number(v.latest_measured_vph) : null,
-          view_delta: snap?.view_delta ?? null,
-        };
-      });
+      // Gộp thông tin delta snapshot mới nhất vào mỗi video từ cache
+      const videosWithDelta = windowVideos.map(v => ({
+        ...v,
+        latest_view_count: v.latest_view_count !== null && v.latest_view_count !== undefined ? Number(v.latest_view_count) : null,
+        latest_measured_vph: v.latest_measured_vph !== null && v.latest_measured_vph !== undefined ? Number(v.latest_measured_vph) : null,
+        view_delta: v.latest_view_delta !== null && v.latest_view_delta !== undefined ? Number(v.latest_view_delta) : null,
+      }));
 
       // Tính metrics
       const metrics = computeComparisonMetrics(videosWithDelta);
@@ -423,9 +410,8 @@ export const channelComparisonService = {
         };
       });
 
-      // Xu hướng VPH 24h
-      const chSnapshots24h = snapshots24hByChannel.get(ch.id) || [];
-      const trendPoints = aggregateVphTrend(chSnapshots24h, nowMs);
+      // Xu hướng VPH 24h lấy từ kết quả RPC
+      const trendPoints = trendPointsByChannel.get(ch.id) || [];
       for (const tp of trendPoints) {
         allHourKeysSet.add(tp.hourKey);
       }

@@ -269,6 +269,9 @@ interface RawVideoData {
   published_at: string;
   latest_view_count: number | null;
   latest_measured_vph: number | null;
+  latest_view_delta: number | null;
+  latest_snapshot_checked_at: string | null;
+  first_snapshot_checked_at: string | null;
   created_at: string;
   updated_at: string;
   channels: {
@@ -297,12 +300,13 @@ export async function fetchNewVideos(
   const supabase = getSupabase()!;
   const thresholdIso = getPublishedThreshold(range);
 
-  // 1. Query videos trong khung thời gian published_at đã chọn
+  // 1. Query videos trong khung thời gian published_at đã chọn kèm cached snapshot metadata
   const { data: rawVideos, error: videoError } = await supabase
     .from('videos')
     .select(
       `id, youtube_video_id, channel_id, title, thumbnail_url, published_at,
-       latest_view_count, latest_measured_vph, created_at, updated_at,
+       latest_view_count, latest_measured_vph, latest_view_delta, latest_snapshot_checked_at, first_snapshot_checked_at,
+       created_at, updated_at,
        channels(id, name, handle, avatar_url),
        video_alerts(id, status, measured_vph, sent_at)`
     )
@@ -322,44 +326,8 @@ export async function fetchNewVideos(
     return { videos: [], hasMore: false };
   }
 
-  const videoIds = slicedRows.map(v => v.id);
-
-  // 2. Batch query snapshots cho các video này
-  const { data: rawSnapshots, error: snapError } = await supabase
-    .from('video_snapshots')
-    .select('video_id, view_delta, checked_at')
-    .in('video_id', videoIds)
-    .order('checked_at', { ascending: false });
-
-  if (snapError) {
-    throw new Error(`Lỗi tải lịch sử snapshot: ${snapError.message}`);
-  }
-
-  // Trích xuất latest snapshot và earliest snapshot cho mỗi video
-  const latestSnapshotMap = new Map<
-    string,
-    { viewDelta: number | null; checkedAt: string }
-  >();
-  const earliestSnapshotMap = new Map<string, string>();
-
-  if (rawSnapshots) {
-    for (const snap of rawSnapshots) {
-      if (!latestSnapshotMap.has(snap.video_id)) {
-        latestSnapshotMap.set(snap.video_id, {
-          viewDelta: snap.view_delta !== null && snap.view_delta !== undefined ? Number(snap.view_delta) : null,
-          checkedAt: snap.checked_at,
-        });
-      }
-      // Vì danh sách descending, bản ghi cuối cùng của video là earliest snapshot
-      earliestSnapshotMap.set(snap.video_id, snap.checked_at);
-    }
-  }
-
-  // 3. Ghép nối dữ liệu thành NewVideoItem
+  // 2. Ghép nối dữ liệu thành NewVideoItem từ các trường cached (Không query video_snapshots)
   const items: NewVideoItem[] = slicedRows.map(row => {
-    const latestSnap = latestSnapshotMap.get(row.id);
-    const earliestCheckedAt = earliestSnapshotMap.get(row.id) ?? null;
-
     // Alert mapping
     let alertStatus: AlertDisplayStatus = 'none';
     let hasAlert = false;
@@ -375,7 +343,7 @@ export async function fetchNewVideos(
 
     const firstObservedMinutes = calculateFirstObservedMinutes(
       row.published_at,
-      earliestCheckedAt
+      row.first_snapshot_checked_at
     );
 
     return {
@@ -390,9 +358,9 @@ export async function fetchNewVideos(
       channelAvatarUrl: row.channels?.avatar_url ?? null,
       latestViewCount: row.latest_view_count !== null ? Number(row.latest_view_count) : null,
       latestMeasuredVph: row.latest_measured_vph !== null ? Number(row.latest_measured_vph) : null,
-      latestViewDelta: latestSnap?.viewDelta ?? null,
-      latestSnapshotCheckedAt: latestSnap?.checkedAt ?? null,
-      firstSnapshotCheckedAt: earliestCheckedAt,
+      latestViewDelta: row.latest_view_delta !== null && row.latest_view_delta !== undefined ? Number(row.latest_view_delta) : null,
+      latestSnapshotCheckedAt: row.latest_snapshot_checked_at ?? null,
+      firstSnapshotCheckedAt: row.first_snapshot_checked_at ?? null,
       firstObservedMinutesAfterPublish: firstObservedMinutes,
       alertStatus,
       hasAlert,
