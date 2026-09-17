@@ -1,12 +1,12 @@
 <template>
-  <div class="table-card">
-    <table class="video-table">
+  <div class="table-surface-card">
+    <table class="obsidian-table">
       <thead>
         <tr>
           <th class="col-video">VIDEO</th>
           <th class="col-channel">KÊNH</th>
-          <th class="col-views">LƯỢT XEM</th>
           <th class="col-vph">VPH ĐO ĐƯỢC</th>
+          <th class="col-views">LƯỢT XEM</th>
           <th class="col-delta">TĂNG TỪ LẦN TRƯỚC</th>
           <th class="col-published">THỜI GIAN ĐĂNG</th>
           <th class="col-alert">CẢNH BÁO</th>
@@ -14,29 +14,34 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="video in videos" :key="video.id" class="table-row">
-          <!-- 1. Video (Thumbnail + Title + ID) -->
+        <tr
+          v-for="video in videos"
+          :key="video.id"
+          class="table-row"
+          :class="{ 'row-alerted': video.alert && video.alert.status === 'sent' }"
+        >
+          <!-- 1. Video Column (Thumbnail + Title + ID) -->
           <td class="col-video">
             <div class="video-cell">
               <router-link
                 :to="'/videos/' + video.id"
-                class="thumb-wrap"
+                class="thumb-box"
                 title="Xem chi tiết video"
               >
                 <img
                   v-if="video.thumbnailUrl"
                   :src="video.thumbnailUrl"
                   :alt="video.title"
-                  class="video-thumb"
+                  class="video-thumb-img"
                   loading="lazy"
                   @error="handleThumbError"
                 />
                 <div v-else class="thumb-fallback">
-                  <AppIcon name="video" size="20" />
+                  <AppIcon name="video" size="18" />
                 </div>
               </router-link>
 
-              <div class="video-info">
+              <div class="video-meta">
                 <router-link
                   :to="'/videos/' + video.id"
                   class="video-title"
@@ -44,15 +49,15 @@
                 >
                   {{ video.title }}
                 </router-link>
-                <div class="video-id">{{ video.youtubeVideoId }}</div>
+                <div class="video-id mono">{{ video.youtubeVideoId }}</div>
               </div>
             </div>
           </td>
 
-          <!-- 2. Kênh -->
+          <!-- 2. Channel Column -->
           <td class="col-channel">
             <div class="channel-cell">
-              <div class="avatar-wrap">
+              <div class="avatar-box">
                 <img
                   v-if="video.channel.avatarUrl"
                   :src="video.channel.avatarUrl"
@@ -71,35 +76,41 @@
             </div>
           </td>
 
-          <!-- 3. Lượt xem -->
-          <td class="col-views">
-            <span class="views-value">{{ videoService.formatViews(video.latestViewCount) }}</span>
-          </td>
-
-          <!-- 4. VPH đo được -->
+          <!-- 3. VPH đo được (Most Visually Noticeable) -->
           <td class="col-vph">
             <div class="vph-cell">
-              <span
-                class="vph-value"
-                :class="{
-                  'vph-rising': video.latestMeasuredVph !== null && video.latestMeasuredVph > 0,
-                  'vph-muted': video.latestMeasuredVph === null || video.latestMeasuredVph === 0,
-                }"
-              >
-                {{ videoService.formatVph(video.latestMeasuredVph) }}
-              </span>
+              <div class="vph-val-wrap">
+                <span
+                  v-if="video.latestMeasuredVph !== null && video.latestMeasuredVph > 0"
+                  class="pulse-dot"
+                />
+                <span
+                  class="vph-number mono"
+                  :class="{
+                    'vph-rising': video.latestMeasuredVph !== null && video.latestMeasuredVph > 0,
+                    'vph-muted': video.latestMeasuredVph === null || video.latestMeasuredVph === 0,
+                  }"
+                >
+                  {{ videoService.formatVph(video.latestMeasuredVph) }}
+                </span>
+              </div>
               <span v-if="video.isOverThreshold" class="badge-threshold" title="Vượt ngưỡng cảnh báo của kênh">
                 Vượt ngưỡng
               </span>
             </div>
           </td>
 
+          <!-- 4. Lượt xem -->
+          <td class="col-views">
+            <span class="views-value mono">{{ videoService.formatViews(video.latestViewCount) }}</span>
+          </td>
+
           <!-- 5. Tăng từ lần trước -->
           <td class="col-delta">
             <span
-              class="delta-value"
+              class="delta-value mono"
               :class="{
-                'delta-positive': video.latestDeltaViews !== null && video.latestDeltaViews > 0,
+                'delta-pos': video.latestDeltaViews !== null && video.latestDeltaViews > 0,
                 'delta-neutral': video.latestDeltaViews === null || video.latestDeltaViews <= 0,
               }"
             >
@@ -109,37 +120,39 @@
 
           <!-- 6. Thời gian đăng -->
           <td class="col-published">
-            <span class="published-text" :title="video.publishedAt || ''">
+            <span class="published-time" :title="video.publishedAt">
               {{ videoService.formatRelativeTime(video.publishedAt) }}
             </span>
           </td>
 
           <!-- 7. Cảnh báo -->
           <td class="col-alert">
-            <span class="badge-alert" :class="`alert-${videoService.getAlertBadge(video.alert).tone}`">
+            <span
+              class="badge-alert-tag"
+              :class="`tag-${videoService.getAlertBadge(video.alert).tone}`"
+            >
               {{ videoService.getAlertBadge(video.alert).label }}
             </span>
           </td>
 
           <!-- 8. Thao tác -->
           <td class="col-actions">
-            <div class="actions-wrap">
+            <div class="actions-group">
               <router-link
                 :to="'/videos/' + video.id"
-                class="btn-detail"
-                title="Xem chi tiết video và lịch sử snapshot"
+                class="btn-icon-action"
+                title="Chi tiết video"
               >
-                <span>Chi Tiết</span>
+                <AppIcon name="arrow-right" size="14" />
               </router-link>
               <a
                 :href="video.url"
                 target="_blank"
                 rel="noopener noreferrer"
-                class="btn-youtube"
-                title="Mở video trên YouTube"
+                class="btn-icon-action btn-yt"
+                title="Xem trên YouTube"
               >
-                <span>Xem YouTube</span>
-                <AppIcon name="external" size="13" />
+                <AppIcon name="external" size="14" />
               </a>
             </div>
           </td>
@@ -151,67 +164,82 @@
 
 <script setup lang="ts">
 import AppIcon from '@/components/ui/AppIcon.vue';
-import { VideoListItem } from '@/types/video';
 import { videoService } from '@/services/video-service';
+import type { VideoListItem } from '@/types/video';
 
 defineProps<{
   videos: VideoListItem[];
 }>();
 
 function handleThumbError(e: Event) {
-  const target = e.target as HTMLImageElement;
+  const target = e.target as HTMLElement;
   target.style.display = 'none';
+  const fallback = target.nextElementSibling as HTMLElement;
+  if (fallback) fallback.style.display = 'flex';
 }
 
 function handleAvatarError(e: Event) {
-  const target = e.target as HTMLImageElement;
+  const target = e.target as HTMLElement;
   target.style.display = 'none';
+  const fallback = target.nextElementSibling as HTMLElement;
+  if (fallback) fallback.style.display = 'flex';
 }
 </script>
 
 <style scoped>
-.table-card {
-  background-color: var(--bg-surface);
-  border: 1px solid var(--border-subtle);
-  border-radius: 12px;
+.table-surface-card {
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
   overflow: hidden;
+  backdrop-filter: blur(12px);
+  margin-bottom: 30px;
 }
 
-.video-table {
+.obsidian-table {
   width: 100%;
   border-collapse: collapse;
+  font-size: 13px;
   text-align: left;
 }
 
-th {
-  background-color: var(--bg-surface-elevated);
-  padding: 14px 16px;
+thead th {
+  background: rgba(10, 16, 28, 0.92);
+  color: #94a3b8;
   font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  color: var(--text-secondary);
-  border-bottom: 1px solid var(--border-subtle);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 13px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
   white-space: nowrap;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  backdrop-filter: blur(8px);
+}
+
+.table-row {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  transition: background-color 0.15s ease;
+}
+
+.table-row:hover {
+  background: rgba(30, 41, 59, 0.45);
+}
+
+.row-alerted {
+  border-left: 3px solid #38bdf8;
 }
 
 td {
-  padding: 14px 16px;
-  border-bottom: 1px solid var(--border-subtle);
+  padding: 12px 16px;
   vertical-align: middle;
 }
 
-.table-row:last-child td {
-  border-bottom: none;
-}
-
-.table-row:hover td {
-  background-color: var(--bg-surface-hover);
-}
-
-/* 1. Video cell */
+/* Col Video */
 .col-video {
-  min-width: 280px;
-  max-width: 420px;
+  min-width: 320px;
+  max-width: 440px;
 }
 
 .video-cell {
@@ -220,65 +248,64 @@ td {
   gap: 12px;
 }
 
-.thumb-wrap {
-  width: 100px;
-  aspect-ratio: 16 / 9;
-  border-radius: 6px;
-  overflow: hidden;
-  background-color: var(--bg-surface-elevated);
-  border: 1px solid var(--border-subtle);
+.thumb-box {
+  position: relative;
+  width: 96px;
+  height: 54px;
   flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: opacity 0.15s;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #090d16;
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-.thumb-wrap:hover {
-  opacity: 0.85;
-}
-
-.video-thumb {
+.video-thumb-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 0.25s ease;
+}
+
+.table-row:hover .video-thumb-img {
+  transform: scale(1.03);
 }
 
 .thumb-fallback {
-  color: var(--text-muted);
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
 }
 
-.video-info {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+.video-meta {
   min-width: 0;
 }
 
 .video-title {
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text-primary);
-  line-height: 1.4;
+  color: #f8fafc;
+  font-weight: 600;
+  line-height: 1.35;
+  text-decoration: none;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
-  text-decoration: none;
+  transition: color 0.15s ease;
 }
 
 .video-title:hover {
-  color: var(--accent);
+  color: #38bdf8;
 }
 
 .video-id {
   font-size: 11px;
-  color: var(--text-muted);
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  color: #64748b;
+  margin-top: 4px;
 }
 
-/* 2. Channel cell */
+/* Col Channel */
 .col-channel {
   min-width: 160px;
 }
@@ -289,17 +316,13 @@ td {
   gap: 8px;
 }
 
-.avatar-wrap {
-  width: 28px;
-  height: 28px;
+.avatar-box {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
   border-radius: 50%;
   overflow: hidden;
-  background-color: var(--bg-surface-elevated);
-  border: 1px solid var(--border-subtle);
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .channel-avatar {
@@ -309,194 +332,179 @@ td {
 }
 
 .avatar-fallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: 11px;
-  font-weight: 600;
-  color: var(--text-secondary);
+  font-weight: 700;
+  color: #94a3b8;
 }
 
 .channel-name {
-  font-size: 13px;
-  color: var(--text-primary);
+  color: #cbd5e1;
+  font-weight: 500;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  max-width: 140px;
 }
 
-/* 3. Views cell */
-.col-views {
-  white-space: nowrap;
-}
-
-.views-value {
-  font-weight: 600;
-  color: var(--text-primary);
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  font-size: 13px;
-}
-
-/* 4. VPH cell */
+/* Col VPH (Focal Column) */
 .col-vph {
-  min-width: 150px;
+  min-width: 140px;
 }
 
 .vph-cell {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
 }
 
-.vph-value {
-  font-weight: 600;
-  font-size: 13px;
+.vph-val-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pulse-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #38bdf8;
+  box-shadow: 0 0 6px rgba(56, 189, 248, 0.7);
+  animation: pulse-dot 2s infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.3; transform: scale(0.8); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pulse-dot {
+    animation: none !important;
+  }
+}
+
+.vph-number {
+  font-size: 15px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
 
 .vph-rising {
-  color: #38BDF8;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  color: #38bdf8;
 }
 
 .vph-muted {
-  color: var(--text-muted);
-  font-weight: 400;
-  font-size: 12px;
+  color: #64748b;
 }
 
 .badge-threshold {
-  display: inline-flex;
-  align-self: flex-start;
-  padding: 2px 6px;
-  border-radius: 4px;
+  display: inline-block;
   font-size: 10px;
   font-weight: 600;
-  background-color: rgba(245, 158, 11, 0.15);
-  color: #F59E0B;
-  border: 1px solid rgba(245, 158, 11, 0.3);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  color: #fbbf24;
+  background: rgba(251, 191, 36, 0.12);
+  border: 1px solid rgba(251, 191, 36, 0.25);
+  border-radius: 4px;
+  padding: 1px 5px;
+  width: fit-content;
 }
 
-/* 5. Delta cell */
-.col-delta {
-  white-space: nowrap;
+/* Col Views & Delta */
+.views-value {
+  color: #e2e8f0;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }
 
 .delta-value {
-  font-size: 13px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }
 
-.delta-positive {
-  color: #34D399;
-  font-weight: 500;
+.delta-pos {
+  color: #34d399;
 }
 
 .delta-neutral {
-  color: var(--text-muted);
+  color: #64748b;
 }
 
-/* 6. Published cell */
-.col-published {
-  white-space: nowrap;
-}
-
-.published-text {
+/* Col Published */
+.published-time {
+  color: #94a3b8;
   font-size: 12px;
-  color: var(--text-secondary);
-}
-
-/* 7. Alert cell */
-.col-alert {
   white-space: nowrap;
 }
 
-.badge-alert {
-  display: inline-flex;
-  align-items: center;
-  padding: 3px 8px;
-  border-radius: 9999px;
+/* Col Alert */
+.badge-alert-tag {
+  display: inline-block;
   font-size: 11px;
-  font-weight: 500;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 5px;
+  white-space: nowrap;
 }
 
-.alert-muted {
-  background-color: rgba(100, 116, 139, 0.12);
-  color: var(--text-secondary);
-  border: 1px solid rgba(100, 116, 139, 0.25);
+.tag-success {
+  background: rgba(56, 189, 248, 0.12);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.25);
 }
 
-.alert-warning {
-  background-color: rgba(234, 179, 8, 0.12);
-  color: #EAB308;
-  border: 1px solid rgba(234, 179, 8, 0.25);
+.tag-warning {
+  background: rgba(251, 191, 36, 0.12);
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.25);
 }
 
-.alert-success {
-  background-color: rgba(34, 197, 94, 0.12);
-  color: #22C55E;
-  border: 1px solid rgba(34, 197, 94, 0.25);
-}
-
-.alert-danger {
-  background-color: rgba(239, 68, 68, 0.12);
-  color: #EF4444;
+.tag-danger {
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
   border: 1px solid rgba(239, 68, 68, 0.25);
 }
 
-/* 8. Actions cell */
-.col-actions {
-  white-space: nowrap;
-  text-align: right;
+.tag-neutral {
+  background: rgba(255, 255, 255, 0.05);
+  color: #64748b;
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-.actions-wrap {
+/* Col Actions */
+.actions-group {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  gap: 8px;
-}
-
-.btn-detail {
-  display: inline-flex;
-  align-items: center;
-  padding: 6px 12px;
-  border-radius: 6px;
-  background-color: var(--accent-subtle);
-  border: 1px solid rgba(56, 189, 248, 0.25);
-  color: var(--accent);
-  font-size: 12px;
-  font-weight: 500;
-  text-decoration: none;
-  transition: all 0.15s ease;
-}
-
-.btn-detail:hover {
-  background-color: var(--accent);
-  color: #03111C;
-}
-
-.btn-youtube {
-  display: inline-flex;
-  align-items: center;
   gap: 6px;
-  padding: 6px 12px;
+}
+
+.btn-icon-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
   border-radius: 6px;
-  background-color: var(--bg-surface-elevated);
-  border: 1px solid var(--border-subtle);
-  color: var(--text-primary);
-  font-size: 12px;
-  font-weight: 500;
+  color: #94a3b8;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   text-decoration: none;
   transition: all 0.15s ease;
 }
 
-.btn-youtube:hover {
-  background-color: var(--bg-surface-hover);
-  border-color: var(--border-strong);
-  color: var(--accent);
+.btn-icon-action:hover {
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.12);
+  border-color: rgba(56, 189, 248, 0.3);
 }
 
-@media (max-width: 900px) {
-  .table-card {
-    display: none;
-  }
+.btn-yt:hover {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.3);
 }
 </style>

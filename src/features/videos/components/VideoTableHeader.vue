@@ -1,34 +1,36 @@
 <template>
-  <div class="table-controls">
-    <!-- Top row: Search, Channel filter & Refresh button -->
-    <div class="controls-top">
-      <div class="search-and-channel">
-        <div class="search-box">
-          <AppIcon name="search" size="16" class="search-icon" />
+  <div class="command-filter-deck">
+    <!-- Top Row: Search, Channel Filter & Refresh Button -->
+    <div class="deck-top-row">
+      <div class="search-channel-group">
+        <!-- Search Input -->
+        <div class="deck-search-box">
+          <AppIcon name="search" size="15" class="search-icon" />
           <input
             type="text"
             :value="searchQuery"
             @input="$emit('update:searchQuery', ($event.target as HTMLInputElement).value)"
             placeholder="Tìm theo tiêu đề video hoặc tên kênh..."
-            class="form-input search-input"
+            class="deck-input search-input"
           />
           <button
             v-if="searchQuery"
-            class="clear-search-btn"
+            class="clear-btn"
             @click="$emit('update:searchQuery', '')"
             title="Xóa tìm kiếm"
           >
-            <AppIcon name="x" size="14" />
+            ✕
           </button>
         </div>
 
-        <div class="channel-filter-box">
+        <!-- Channel Select -->
+        <div class="deck-select-wrap channel-select-wrap">
           <select
             :value="selectedChannelId"
             @change="$emit('update:selectedChannelId', ($event.target as HTMLSelectElement).value)"
-            class="form-select channel-select"
+            class="deck-select"
           >
-            <option value="all">Tất cả kênh</option>
+            <option value="all">Tất cả kênh ({{ channels.length }})</option>
             <option v-for="c in channels" :key="c.id" :value="c.id">
               {{ c.name }}
             </option>
@@ -36,40 +38,46 @@
         </div>
       </div>
 
-      <div class="action-buttons">
+      <!-- Action Refresh -->
+      <div class="deck-actions">
         <button
-          class="btn btn-secondary"
+          class="btn-deck-refresh"
           :disabled="loading"
           @click="$emit('refresh')"
           title="Tải lại dữ liệu mới nhất từ hệ thống"
         >
-          <AppIcon name="refresh" size="16" :class="{ 'spin-icon': loading }" />
+          <AppIcon name="refresh" size="14" :class="{ 'spin-anim': loading }" />
           <span>{{ loading ? 'Đang tải...' : 'Làm Mới' }}</span>
         </button>
       </div>
     </div>
 
-    <!-- Bottom row: Status filter tabs & Sort selector -->
-    <div class="controls-bottom">
-      <div class="filter-tabs">
+    <!-- Bottom Row: Filter Tabs & Sort -->
+    <div class="deck-bottom-row">
+      <!-- Segmented Filter Pills -->
+      <div class="filter-pills" role="tablist">
         <button
           v-for="tab in filterTabs"
           :key="tab.value"
-          class="tab-btn"
-          :class="{ 'tab-btn-active': currentFilter === tab.value }"
+          role="tab"
+          :aria-selected="currentFilter === tab.value"
+          class="pill-btn"
+          :class="{ 'pill-active': currentFilter === tab.value }"
           @click="$emit('update:currentFilter', tab.value as VideoFilterOption)"
         >
-          {{ tab.label }}
-          <span class="tab-count">({{ tab.count }})</span>
+          <span class="pill-dot" v-if="currentFilter === tab.value" />
+          <span class="pill-label">{{ tab.label }}</span>
+          <span class="pill-count">({{ tab.count }})</span>
         </button>
       </div>
 
-      <div class="sort-selector">
-        <span class="sort-label">Sắp xếp:</span>
+      <!-- Sort Selector -->
+      <div class="sort-control">
+        <span class="sort-prefix">Sắp xếp:</span>
         <select
           :value="currentSort"
           @change="$emit('update:currentSort', ($event.target as HTMLSelectElement).value as VideoSortOption)"
-          class="form-select sort-select"
+          class="deck-select sort-select"
         >
           <option value="vph_desc">VPH cao nhất</option>
           <option value="views_desc">Lượt xem cao nhất</option>
@@ -118,22 +126,27 @@ const filterTabs = computed(() => [
 </script>
 
 <style scoped>
-.table-controls {
+.command-filter-deck {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 16px;
+  backdrop-filter: blur(12px);
   margin-bottom: 24px;
 }
 
-.controls-top {
+.deck-top-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: 14px;
   flex-wrap: wrap;
 }
 
-.search-and-channel {
+.search-channel-group {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -141,7 +154,7 @@ const filterTabs = computed(() => [
   min-width: 280px;
 }
 
-.search-box {
+.deck-search-box {
   position: relative;
   flex: 1;
   min-width: 200px;
@@ -149,55 +162,87 @@ const filterTabs = computed(() => [
 
 .search-icon {
   position: absolute;
-  left: 14px;
+  left: 12px;
   top: 50%;
   transform: translateY(-50%);
-  color: var(--text-muted);
+  color: #64748b;
   pointer-events: none;
 }
 
-.search-input {
-  padding-left: 40px;
-  padding-right: 36px;
+.deck-input {
   width: 100%;
+  padding: 9px 34px 9px 36px;
+  background: rgba(10, 16, 28, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  color: #f8fafc;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.2s ease;
 }
 
-.clear-search-btn {
+.deck-input:focus {
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
+}
+
+.clear-btn {
   position: absolute;
   right: 10px;
   top: 50%;
   transform: translateY(-50%);
   background: none;
   border: none;
-  color: var(--text-muted);
+  color: #64748b;
   cursor: pointer;
-  padding: 4px;
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  padding: 2px 6px;
 }
 
-.clear-search-btn:hover {
-  color: var(--text-primary);
-  background-color: var(--bg-surface-hover);
+.clear-btn:hover {
+  color: #f8fafc;
 }
 
-.channel-filter-box {
-  min-width: 170px;
+.channel-select-wrap {
+  min-width: 180px;
 }
 
-.channel-select {
+.deck-select {
   width: 100%;
+  padding: 9px 12px;
+  background: rgba(10, 16, 28, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  color: #e2e8f0;
+  font-size: 13px;
+  outline: none;
+  cursor: pointer;
 }
 
-.action-buttons {
-  display: flex;
+.deck-select:focus {
+  border-color: #38bdf8;
+}
+
+.btn-deck-refresh {
+  display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 7px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  background: rgba(56, 189, 248, 0.1);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  color: #38bdf8;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-.spin-icon {
+.btn-deck-refresh:hover:not(:disabled) {
+  background: rgba(56, 189, 248, 0.2);
+  border-color: #38bdf8;
+}
+
+.spin-anim {
   animation: spin 1s linear infinite;
 }
 
@@ -206,97 +251,94 @@ const filterTabs = computed(() => [
   to { transform: rotate(360deg); }
 }
 
-.controls-bottom {
+.deck-bottom-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: 14px;
   flex-wrap: wrap;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.filter-tabs {
+.filter-pills {
   display: flex;
   align-items: center;
   gap: 6px;
-  background-color: var(--bg-surface);
-  padding: 4px;
-  border-radius: 8px;
-  border: 1px solid var(--border-subtle);
+  background: rgba(10, 16, 28, 0.6);
+  padding: 3px;
+  border-radius: 9px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
   overflow-x: auto;
 }
 
-.tab-btn {
-  padding: 6px 14px;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text-secondary);
-  background: none;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: all 0.15s ease;
-  display: flex;
+.pill-btn {
+  display: inline-flex;
   align-items: center;
   gap: 6px;
+  padding: 6px 13px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #94a3b8;
+  background: transparent;
+  border: none;
+  border-radius: 7px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.18s ease;
 }
 
-.tab-btn:hover {
-  color: var(--text-primary);
-  background-color: var(--bg-surface-hover);
+.pill-btn:hover {
+  color: #f8fafc;
+  background: rgba(255, 255, 255, 0.04);
 }
 
-.tab-btn-active {
-  color: var(--accent);
-  background-color: var(--accent-subtle);
+.pill-active {
+  color: #38bdf8 !important;
+  background: rgba(56, 189, 248, 0.12) !important;
+  border: 1px solid rgba(56, 189, 248, 0.25);
   font-weight: 600;
 }
 
-.tab-count {
+.pill-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #38bdf8;
+}
+
+.pill-count {
   font-size: 11px;
   opacity: 0.8;
 }
 
-.sort-selector {
+.sort-control {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.sort-label {
-  font-size: 13px;
-  color: var(--text-secondary);
+.sort-prefix {
+  font-size: 12px;
+  color: #94a3b8;
   white-space: nowrap;
 }
 
 .sort-select {
-  font-size: 13px;
-  padding: 6px 12px;
-  background-color: var(--bg-surface);
-  border: 1px solid var(--border-subtle);
-  border-radius: 6px;
-  color: var(--text-primary);
-  cursor: pointer;
+  padding: 6px 10px;
+  font-size: 12px;
+  min-width: 140px;
 }
 
 @media (max-width: 768px) {
-  .controls-top {
+  .deck-top-row,
+  .search-channel-group,
+  .deck-bottom-row {
     flex-direction: column;
     align-items: stretch;
   }
 
-  .search-and-channel {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .controls-bottom {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 12px;
-  }
-
-  .sort-selector {
+  .sort-control {
     justify-content: flex-end;
   }
 }

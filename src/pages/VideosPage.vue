@@ -1,28 +1,28 @@
 <template>
   <div class="videos-page">
-    <!-- Page Header -->
-    <div class="page-header">
-      <div class="page-header-text">
-        <h1 class="page-title">Video Đang Tăng</h1>
-        <p class="page-description">
-          Theo dõi các video đang có tốc độ tăng trưởng lượt xem cao và vượt ngưỡng cảnh báo.
-        </p>
-      </div>
+    <!-- 1. Shared Monitoring Header -->
+    <RevealItem :delay="0">
+      <MonitoringPageHeader
+        eyebrow="TỐC ĐỘ TĂNG"
+        title="Video Đang Tăng"
+        description="Theo dõi các video đang có tốc độ tăng trưởng lượt xem cao và vượt ngưỡng cảnh báo."
+        live-marker="Bảng tín hiệu tăng"
+      >
+        <template #actions>
+          <button
+            class="btn btn-refresh"
+            :disabled="loading"
+            @click="loadData"
+            title="Tải lại dữ liệu mới nhất từ hệ thống"
+          >
+            <AppIcon name="refresh" size="15" :class="{ 'spin-anim': loading }" />
+            <span>{{ loading ? 'Đang tải...' : 'Làm Mới' }}</span>
+          </button>
+        </template>
+      </MonitoringPageHeader>
+    </RevealItem>
 
-      <div class="page-header-actions">
-        <button
-          class="btn btn-secondary"
-          :disabled="loading"
-          @click="loadData"
-          title="Tải lại dữ liệu mới nhất từ hệ thống"
-        >
-          <AppIcon name="refresh" size="16" :class="{ 'spin-anim': loading }" />
-          <span>{{ loading ? 'Đang tải...' : 'Làm Mới' }}</span>
-        </button>
-      </div>
-    </div>
-
-    <!-- Thông báo lỗi -->
+    <!-- Error Alert -->
     <div v-if="error" class="error-alert">
       <div class="error-alert-content">
         <AppIcon name="alert" size="18" />
@@ -34,34 +34,38 @@
       </button>
     </div>
 
-    <!-- Thống kê tổng quan -->
-    <VideoStatsHeader
-      :total-count="stats.totalVideos"
-      :rising-count="stats.risingVideos"
-      :max-vph="stats.maxVph"
-      :alerted-count="stats.alertedVideos"
-    />
+    <!-- 2. Signal Stats Strip -->
+    <RevealItem :delay="60">
+      <VideoStatsHeader
+        :total-count="stats.totalVideos"
+        :rising-count="stats.risingVideos"
+        :max-vph="stats.maxVph"
+        :alerted-count="stats.alertedVideos"
+      />
+    </RevealItem>
 
     <!-- Skeleton Loading -->
     <div v-if="loading && videos.length === 0" class="skeleton-container">
-      <div class="skeleton-row" v-for="n in 5" :key="n"></div>
+      <div class="skeleton-row" v-for="n in 5" :key="n" />
     </div>
 
-    <!-- Nội dung chính -->
+    <!-- Main Content -->
     <template v-else>
-      <!-- Thanh điều khiển: Tìm kiếm, Lọc tab, Chọn kênh, Sắp xếp, Làm mới -->
-      <VideoTableHeader
-        v-model:search-query="searchQuery"
-        v-model:current-filter="currentFilter"
-        v-model:selected-channel-id="selectedChannelId"
-        v-model:current-sort="currentSort"
-        :channels="channelOptions"
-        :counts="filterCounts"
-        :loading="loading"
-        @refresh="loadData"
-      />
+      <!-- 3. Command & Filter Deck -->
+      <RevealItem :delay="120">
+        <VideoTableHeader
+          v-model:search-query="searchQuery"
+          v-model:current-filter="currentFilter"
+          v-model:selected-channel-id="selectedChannelId"
+          v-model:current-sort="currentSort"
+          :channels="channelOptions"
+          :counts="filterCounts"
+          :loading="loading"
+          @refresh="loadData"
+        />
+      </RevealItem>
 
-      <!-- Trạng thái không có kết quả -->
+      <!-- Empty Results State -->
       <div v-if="filteredAndSortedVideos.length === 0" class="no-results-card">
         <div class="no-results-icon">
           <AppIcon name="video" size="32" />
@@ -79,13 +83,12 @@
         </button>
       </div>
 
-      <!-- Bảng Desktop (>= 900px) -->
-      <VideoDesktopTable
-        v-else
-        :videos="filteredAndSortedVideos"
-      />
+      <!-- 4. Desktop Table (>= 900px) -->
+      <RevealItem :delay="180" v-else>
+        <VideoDesktopTable :videos="filteredAndSortedVideos" />
+      </RevealItem>
 
-      <!-- Danh sách Thẻ Mobile (< 900px) -->
+      <!-- 5. Mobile List (< 900px) -->
       <VideoMobileList
         v-if="filteredAndSortedVideos.length > 0"
         :videos="filteredAndSortedVideos"
@@ -97,20 +100,19 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import AppIcon from '@/components/ui/AppIcon.vue';
+import MonitoringPageHeader from '@/components/ui/MonitoringPageHeader.vue';
+import RevealItem from '@/components/motion/RevealItem.vue';
 import VideoStatsHeader from '@/features/videos/components/VideoStatsHeader.vue';
 import VideoTableHeader from '@/features/videos/components/VideoTableHeader.vue';
 import VideoDesktopTable from '@/features/videos/components/VideoDesktopTable.vue';
 import VideoMobileList from '@/features/videos/components/VideoMobileList.vue';
 import { videoService } from '@/services/video-service';
-import {
+import type {
   VideoListItem,
-  VideoStatsSummary,
   VideoSortOption,
   VideoFilterOption,
+  VideoStatsSummary,
 } from '@/types/video';
-
-// Page Title
-document.title = 'Video Đang Tăng — Bắt Bài Đối Thủ';
 
 // State
 const videos = ref<VideoListItem[]>([]);
@@ -123,36 +125,41 @@ const stats = ref<VideoStatsSummary>({
 const loading = ref(false);
 const error = ref<string | null>(null);
 
-// Filters & Controls
+// Controls State
 const searchQuery = ref('');
 const currentFilter = ref<VideoFilterOption>('all');
 const selectedChannelId = ref('all');
 const currentSort = ref<VideoSortOption>('vph_desc');
 
-// Lấy danh sách kênh độc nhất từ các video đã tải
+// Channel Options
 const channelOptions = computed(() => {
-  const channelMap = new Map<string, { id: string; name: string }>();
+  const map = new Map<string, string>();
   for (const v of videos.value) {
-    if (v.channel?.id && !channelMap.has(v.channel.id)) {
-      channelMap.set(v.channel.id, {
-        id: v.channel.id,
-        name: v.channel.name,
-      });
+    if (v.channel.id && !map.has(v.channel.id)) {
+      map.set(v.channel.id, v.channel.name);
     }
   }
-  return Array.from(channelMap.values()).sort((a, b) => a.name.localeCompare(b.name, 'vi'));
+  return Array.from(map.entries())
+    .map(([id, name]) => ({ id, name }))
+    .sort((a, b) => a.name.localeCompare(b.name, 'vi'));
 });
 
-// Đếm số lượng video theo từng bộ lọc
+// Filter counts for tabs
 const filterCounts = computed(() => {
-  const all = videos.value.length;
-  const rising = videos.value.filter(v => v.latestMeasuredVph !== null && v.latestMeasuredVph > 0).length;
-  const alerted = videos.value.filter(v => v.alert?.status === 'sent').length;
-  const unalerted = videos.value.filter(v => !v.alert || v.alert.status !== 'sent').length;
+  let all = 0;
+  let rising = 0;
+  let alerted = 0;
+  let unalerted = 0;
+  for (const v of videos.value) {
+    all++;
+    if (v.latestMeasuredVph !== null && v.latestMeasuredVph > 0) rising++;
+    if (v.alert && v.alert.status === 'sent') alerted++;
+    else unalerted++;
+  }
   return { all, rising, alerted, unalerted };
 });
 
-// Video đã lọc và sắp xếp
+// Filter & Sort Pipeline
 const filteredAndSortedVideos = computed(() => {
   const filtered = videoService.filterVideos(
     videos.value,
@@ -163,26 +170,28 @@ const filteredAndSortedVideos = computed(() => {
   return videoService.sortVideos(filtered, currentSort.value);
 });
 
-// Tải dữ liệu thật từ Supabase (TUYỆT ĐỐI KHÔNG GỌI COLLECTOR)
-async function loadData() {
-  loading.value = true;
-  error.value = null;
-  try {
-    const res = await videoService.fetchTrendingVideos();
-    videos.value = res.videos;
-    stats.value = res.stats;
-  } catch (err: any) {
-    error.value = err?.message || 'Không thể tải danh sách video. Vui lòng thử lại sau.';
-  } finally {
-    loading.value = false;
-  }
-}
-
+// Reset filters
 function resetFilters() {
   searchQuery.value = '';
   currentFilter.value = 'all';
   selectedChannelId.value = 'all';
   currentSort.value = 'vph_desc';
+}
+
+// Data loading
+async function loadData() {
+  loading.value = true;
+  error.value = null;
+
+  try {
+    const res = await videoService.fetchTrendingVideos();
+    videos.value = res.videos;
+    stats.value = res.stats;
+  } catch (err: any) {
+    error.value = err.message || 'Không thể tải danh sách video. Vui lòng thử lại sau.';
+  } finally {
+    loading.value = false;
+  }
 }
 
 onMounted(() => {
@@ -192,40 +201,37 @@ onMounted(() => {
 
 <style scoped>
 .videos-page {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 24px 28px 60px;
+  color: #f8fafc;
 }
 
-.page-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
-}
-
-.page-header-text {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.page-title {
-  font-size: 24px;
-  font-weight: 700;
-  color: var(--text-primary);
-  letter-spacing: -0.02em;
-}
-
-.page-description {
-  font-size: 14px;
-  color: var(--text-secondary);
-}
-
-.page-header-actions {
-  display: flex;
+/* Refresh Button */
+.btn-refresh {
+  display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.28);
+  color: #38bdf8;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-refresh:hover:not(:disabled) {
+  background: rgba(56, 189, 248, 0.2);
+  border-color: #38bdf8;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.3);
+}
+
+.btn-refresh:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .spin-anim {
@@ -237,88 +243,97 @@ onMounted(() => {
   to { transform: rotate(360deg); }
 }
 
+/* Error Alert */
 .error-alert {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  background-color: var(--danger-bg);
-  border: 1px solid rgba(239, 68, 68, 0.25);
-  border-radius: 8px;
   padding: 12px 18px;
-  color: var(--danger);
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 10px;
+  color: #fca5a5;
+  margin-bottom: 24px;
 }
 
 .error-alert-content {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 13px;
 }
 
+/* Skeleton Loading */
 .skeleton-container {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  margin-top: 20px;
 }
 
 .skeleton-row {
   height: 64px;
-  background-color: var(--bg-surface);
+  background: rgba(255, 255, 255, 0.04);
   border-radius: 10px;
-  animation: pulse 1.5s infinite ease-in-out;
+  animation: pulse-skel 1.5s infinite;
 }
 
-@keyframes pulse {
-  0%, 100% { opacity: 0.6; }
-  50% { opacity: 0.3; }
+@keyframes pulse-skel {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
 }
 
+/* Empty State Card */
 .no-results-card {
-  background-color: var(--bg-surface);
-  border: 1px solid var(--border-subtle);
-  border-radius: 12px;
-  padding: 48px 24px;
-  text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
+  justify-content: center;
+  padding: 60px 24px;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  text-align: center;
+  margin: 30px 0;
 }
 
 .no-results-icon {
-  width: 56px;
-  height: 56px;
+  width: 64px;
+  height: 64px;
   border-radius: 50%;
-  background-color: var(--bg-surface-elevated);
-  border: 1px solid var(--border-subtle);
+  background: rgba(56, 189, 248, 0.08);
+  border: 1px solid rgba(56, 189, 248, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-muted);
-  margin-bottom: 4px;
+  color: #38bdf8;
+  margin-bottom: 16px;
 }
 
 .no-results-title {
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--text-primary);
+  font-size: 18px;
+  font-weight: 700;
+  color: #f8fafc;
+  margin-bottom: 6px;
 }
 
 .no-results-text {
-  color: var(--text-secondary);
-  font-size: 13px;
-  max-width: 440px;
+  font-size: 14px;
+  color: #94a3b8;
+  max-width: 480px;
   line-height: 1.5;
+  margin-bottom: 18px;
+}
+
+@media (max-width: 900px) {
+  :deep(.table-surface-card) {
+    display: none;
+  }
 }
 
 @media (max-width: 640px) {
-  .page-header {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  .page-header-actions {
-    display: none;
+  .videos-page {
+    padding: 16px 16px 40px;
   }
 }
 </style>

@@ -1,20 +1,21 @@
 <template>
   <div class="new-videos-page">
-    <!-- Header -->
-    <header class="page-header">
-      <div class="header-left">
-        <h1 class="page-title">Video Mới Đăng</h1>
-        <p class="page-subtitle">
-          Theo dõi các video đối thủ vừa xuất bản và tốc độ tăng đang được hệ thống đo.
-        </p>
-      </div>
-      <div class="header-right">
-        <button class="btn btn-primary" :disabled="loading" @click="loadData(true)">
-          <AppIcon name="refresh" size="16" :class="{ 'spin-anim': loading }" />
-          <span>{{ loading ? 'Đang tải...' : 'Làm Mới' }}</span>
-        </button>
-      </div>
-    </header>
+    <!-- 1. Shared Monitoring Header -->
+    <RevealItem :delay="0">
+      <MonitoringPageHeader
+        eyebrow="TÍN HIỆU XUẤT BẢN"
+        title="Video Mới Đăng"
+        description="Theo dõi các video đối thủ vừa xuất bản và tốc độ tăng đang được hệ thống đo."
+        live-marker="Dữ liệu theo dõi"
+      >
+        <template #actions>
+          <button class="btn btn-refresh" :disabled="loading" @click="loadData(true)">
+            <AppIcon name="refresh" size="15" :class="{ 'spin-anim': loading }" />
+            <span>{{ loading ? 'Đang tải...' : 'Làm Mới' }}</span>
+          </button>
+        </template>
+      </MonitoringPageHeader>
+    </RevealItem>
 
     <!-- Error Banner -->
     <div v-if="error" class="error-banner">
@@ -25,153 +26,167 @@
       <button class="btn btn-secondary btn-sm" @click="loadData(true)">Thử Lại</button>
     </div>
 
-    <!-- Summary Cards -->
-    <section class="summary-grid">
-      <div class="summary-card">
-        <div class="summary-label">Video mới</div>
-        <div class="summary-value mono">
-          <template v-if="loading && !allVideos.length">...</template>
-          <template v-else>{{ summary.totalVideos }}</template>
-        </div>
-      </div>
-      <div class="summary-card">
-        <div class="summary-label">Kênh vừa đăng</div>
-        <div class="summary-value mono">
-          <template v-if="loading && !allVideos.length">...</template>
-          <template v-else>{{ summary.totalChannels }}</template>
-        </div>
-      </div>
-      <div class="summary-card card-rising">
-        <div class="summary-label">Video đang tăng</div>
-        <div class="summary-value mono">
-          <template v-if="loading && !allVideos.length">...</template>
-          <template v-else>{{ summary.risingVideos }}</template>
-        </div>
-      </div>
-      <div class="summary-card">
-        <div class="summary-label">VPH cao nhất</div>
-        <div class="summary-value mono">
-          <template v-if="loading && !allVideos.length">...</template>
-          <template v-else-if="summary.maxVph !== null">
-            {{ summary.maxVph.toLocaleString('vi-VN') }} VPH
-          </template>
-          <template v-else>—</template>
-        </div>
-      </div>
-    </section>
-
-    <!-- Time Range Selector -->
-    <section class="range-selector-section">
-      <div class="range-label">Khoảng thời gian:</div>
-      <div class="range-buttons">
-        <button
-          v-for="opt in rangeOptions"
-          :key="opt.value"
-          class="range-btn"
-          :class="{ active: filter.range === opt.value }"
-          @click="selectRange(opt.value)"
-        >
-          {{ opt.label }}
-        </button>
-      </div>
-    </section>
-
-    <!-- Filters & Search Bar -->
-    <section class="filter-bar">
-      <!-- Channel Filter -->
-      <div class="filter-group">
-        <select
-          v-model="filter.channelId"
-          class="filter-select"
-          @change="onFilterChange"
-        >
-          <option :value="null">Tất cả kênh ({{ channelOptions.length }})</option>
-          <option
-            v-for="ch in channelOptions"
-            :key="ch.id"
-            :value="ch.id"
-          >
-            {{ ch.name }}
-          </option>
-        </select>
-      </div>
-
-      <!-- Status Filter -->
-      <div class="filter-group">
-        <select
-          v-model="filter.status"
-          class="filter-select"
-          @change="onFilterChange"
-        >
-          <option value="all">Tất cả trạng thái</option>
-          <option value="rising">Đang tăng (VPH > 0)</option>
-          <option value="not_rising">Không tăng (VPH = 0)</option>
-          <option value="unmeasured">Chưa đủ dữ liệu</option>
-          <option value="alerted">Đã cảnh báo</option>
-        </select>
-      </div>
-
-      <!-- Sort -->
-      <div class="filter-group">
-        <select
-          v-model="filter.sort"
-          class="filter-select"
-          @change="onFilterChange"
-        >
-          <option value="newest">Mới đăng nhất</option>
-          <option value="vph_desc">VPH cao nhất</option>
-          <option value="views_desc">Lượt xem cao nhất</option>
-          <option value="delta_desc">Tăng nhiều nhất ở lần đo gần nhất</option>
-        </select>
-      </div>
-
-      <!-- Search Box -->
-      <div class="search-box">
-        <AppIcon name="search" size="14" class="search-icon" />
-        <input
-          v-model="filter.search"
-          type="text"
-          class="search-input"
-          placeholder="Tìm theo tiêu đề, tên kênh..."
-          @input="onFilterChange"
+    <!-- 2. Signal Metrics Strip (4 Horizontal Cards) -->
+    <RevealItem :delay="60">
+      <section class="summary-strip">
+        <MetricCard
+          label="Video mới"
+          :value="summary.totalVideos"
+          :loading="loading && !allVideos.length"
+          icon="video"
         />
-        <button
-          v-if="filter.search"
-          class="btn-clear-search"
-          @click="filter.search = ''; onFilterChange()"
-        >
-          ✕
-        </button>
-      </div>
-    </section>
+        <MetricCard
+          label="Kênh vừa đăng"
+          :value="summary.totalChannels"
+          :loading="loading && !allVideos.length"
+          icon="tv"
+        />
+        <MetricCard
+          label="Video đang tăng"
+          :value="summary.risingVideos"
+          :loading="loading && !allVideos.length"
+          variant="accent"
+          icon="trending-up"
+        />
+        <MetricCard
+          label="VPH cao nhất"
+          :value="formattedMaxVph"
+          :loading="loading && !allVideos.length"
+          :focal="true"
+          icon="zap"
+          subtext="Tốc độ tăng cao nhất"
+        />
+      </section>
+    </RevealItem>
 
+    <!-- 3. Time Range Segmented Control -->
+    <RevealItem :delay="120">
+      <section class="range-control-bar">
+        <span class="range-prefix">Khoảng thời gian:</span>
+        <div class="segmented-control" role="tablist">
+          <button
+            v-for="opt in rangeOptions"
+            :key="opt.value"
+            role="tab"
+            :aria-selected="filter.range === opt.value"
+            class="segment-btn"
+            :class="{ 'segment-active': filter.range === opt.value }"
+            @click="selectRange(opt.value)"
+          >
+            {{ opt.label }}
+          </button>
+        </div>
+      </section>
+    </RevealItem>
+
+    <!-- 4. Filter Console (FilterDock) -->
+    <RevealItem :delay="180">
+      <FilterDock
+        title="BỘ ĐIỀU KHIỂN TÍN HIỆU"
+        :active-count="activeFilterCount"
+      >
+        <template #headerActions v-if="activeFilterCount > 0">
+          <button class="btn-reset-filters" @click="resetFilters">
+            Đặt lại bộ lọc
+          </button>
+        </template>
+
+        <div class="filter-controls-grid">
+          <!-- Search Box (Prominent) -->
+          <div class="control-search">
+            <AppIcon name="search" size="15" class="search-icon" />
+            <input
+              v-model="filter.search"
+              type="text"
+              class="dock-input search-input"
+              placeholder="Tìm theo tiêu đề video hoặc tên kênh..."
+              @input="onFilterChange"
+            />
+            <button
+              v-if="filter.search"
+              class="btn-clear-search"
+              title="Xóa tìm kiếm"
+              @click="filter.search = ''; onFilterChange()"
+            >
+              ✕
+            </button>
+          </div>
+
+          <!-- Channel Dropdown -->
+          <div class="control-select-wrap">
+            <select
+              v-model="filter.channelId"
+              class="dock-select"
+              @change="onFilterChange"
+            >
+              <option :value="null">Tất cả kênh ({{ channelOptions.length }})</option>
+              <option
+                v-for="ch in channelOptions"
+                :key="ch.id"
+                :value="ch.id"
+              >
+                {{ ch.name }}
+              </option>
+            </select>
+          </div>
+
+          <!-- Status Dropdown -->
+          <div class="control-select-wrap">
+            <select
+              v-model="filter.status"
+              class="dock-select"
+              @change="onFilterChange"
+            >
+              <option value="all">Tất cả trạng thái</option>
+              <option value="rising">Đang tăng (VPH > 0)</option>
+              <option value="not_rising">Không tăng (VPH = 0)</option>
+              <option value="unmeasured">Chưa đủ dữ liệu</option>
+              <option value="alerted">Đã cảnh báo</option>
+            </select>
+          </div>
+
+          <!-- Sort Dropdown -->
+          <div class="control-select-wrap">
+            <select
+              v-model="filter.sort"
+              class="dock-select"
+              @change="onFilterChange"
+            >
+              <option value="newest">Mới đăng nhất</option>
+              <option value="vph_desc">VPH cao nhất</option>
+              <option value="views_desc">Lượt xem cao nhất</option>
+              <option value="delta_desc">Tăng nhiều nhất ở lần đo gần nhất</option>
+            </select>
+          </div>
+        </div>
+      </FilterDock>
+    </RevealItem>
+
+    <!-- 5. Content States -->
     <!-- Skeleton Loading -->
     <div v-if="loading && !allVideos.length" class="skeleton-list">
-      <div v-for="i in 5" :key="i" class="skeleton-card">
-        <div class="skeleton-thumb"></div>
-        <div class="skeleton-content">
-          <div class="skeleton-line w-75"></div>
-          <div class="skeleton-line w-50"></div>
-          <div class="skeleton-line w-25"></div>
+      <div v-for="i in 4" :key="i" class="skeleton-signal-row">
+        <div class="skeleton-thumb" />
+        <div class="skeleton-info">
+          <div class="skeleton-line line-title" />
+          <div class="skeleton-line line-meta" />
+          <div class="skeleton-line line-tags" />
         </div>
-        <div class="skeleton-metrics">
-          <div class="skeleton-metric-box"></div>
-          <div class="skeleton-metric-box"></div>
-        </div>
+        <div class="skeleton-metrics" />
       </div>
     </div>
 
     <!-- Empty State: No videos in range -->
     <div
       v-else-if="!loading && !allVideos.length && !error"
-      class="empty-state"
+      class="empty-state-card"
     >
-      <div class="empty-icon-wrap">
-        <AppIcon name="clock" size="48" />
+      <div class="empty-icon-ring">
+        <AppIcon name="clock" size="32" />
       </div>
-      <h3 class="empty-title">Chưa có video mới trong khoảng thời gian này.</h3>
+      <h3 class="empty-title">Chưa có video mới trong khoảng thời gian này</h3>
       <p class="empty-desc">
-        Thử mở rộng khoảng thời gian hoặc kiểm tra lại sau.
+        Hệ thống chưa ghi nhận video đối thủ xuất bản trong khung giờ đã chọn. Bạn có thể mở rộng khung thời gian để xem các tín hiệu trước đó.
       </p>
       <div class="empty-actions">
         <button class="btn btn-secondary" @click="selectRange('7d')">
@@ -183,14 +198,14 @@
     <!-- Empty State: Filters do not match -->
     <div
       v-else-if="!loading && allVideos.length > 0 && !displayedVideos.length"
-      class="empty-state"
+      class="empty-state-card"
     >
-      <div class="empty-icon-wrap">
-        <AppIcon name="search" size="48" />
+      <div class="empty-icon-ring">
+        <AppIcon name="search" size="32" />
       </div>
-      <h3 class="empty-title">Không tìm thấy video phù hợp với bộ lọc.</h3>
+      <h3 class="empty-title">Không tìm thấy video phù hợp với bộ lọc</h3>
       <p class="empty-desc">
-        Thử bỏ bớt điều kiện lọc hoặc từ khóa tìm kiếm.
+        Không có video nào thỏa mãn điều kiện lọc và từ khóa tìm kiếm hiện tại.
       </p>
       <div class="empty-actions">
         <button class="btn btn-primary" @click="resetFilters">
@@ -199,29 +214,29 @@
       </div>
     </div>
 
-    <!-- Video List -->
-    <section v-else class="video-list">
+    <!-- 6. Video Signal Rows -->
+    <section v-else class="video-signal-list">
       <article
         v-for="v in displayedVideos"
         :key="v.id"
-        class="video-card"
+        class="signal-row"
       >
-        <!-- Thumbnail Section -->
-        <div class="video-thumb-wrap">
-          <router-link :to="'/videos/' + v.id" class="thumb-link">
+        <!-- Left: Thumbnail 16:9 -->
+        <div class="signal-thumb-wrap">
+          <router-link :to="'/videos/' + v.id" class="thumb-anchor" title="Xem chi tiết video">
             <img
               v-if="v.thumbnailUrl"
               :src="v.thumbnailUrl"
               :alt="v.title"
-              class="video-thumb-img"
+              class="signal-thumb-img"
               loading="lazy"
             />
             <div v-else class="thumb-placeholder">
-              <AppIcon name="video" size="24" />
+              <AppIcon name="video" size="28" />
             </div>
           </router-link>
 
-          <!-- Fresh Badge (<= 1h or <= 6h) -->
+          <!-- Fresh Badge Overlay -->
           <span
             v-if="getFreshBadge(v.publishedAt)"
             class="fresh-badge"
@@ -231,48 +246,50 @@
           </span>
         </div>
 
-        <!-- Video Info Section -->
-        <div class="video-info-wrap">
+        <!-- Center: Title, Channel, Timing, Actions -->
+        <div class="signal-main-info">
           <h2 class="video-title">
-            <router-link :to="'/videos/' + v.id" class="title-link">
+            <router-link :to="'/videos/' + v.id" class="title-anchor" :title="v.title">
               {{ v.title }}
             </router-link>
           </h2>
 
-          <div class="channel-row">
-            <router-link :to="'/kenh-theo-doi/' + v.channelId" class="channel-link">
+          <div class="channel-line">
+            <router-link :to="'/kenh-theo-doi/' + v.channelId" class="channel-anchor">
               <img
                 v-if="v.channelAvatarUrl"
                 :src="v.channelAvatarUrl"
                 :alt="v.channelName"
                 class="channel-avatar"
+                loading="lazy"
               />
               <span class="channel-name">{{ v.channelName }}</span>
               <span v-if="v.channelHandle" class="channel-handle">({{ v.channelHandle }})</span>
             </router-link>
           </div>
 
-          <div class="timestamps-row">
-            <span class="time-item">
-              <span class="time-label">Đăng:</span>
-              <span class="time-val">{{ formatVideoAge(v.publishedAt) }}</span>
-            </span>
-
-            <span v-if="v.firstObservedMinutesAfterPublish !== null" class="time-item observe-time">
-              <span class="time-label">Bắt đầu theo dõi:</span>
-              <span class="time-val">{{ v.firstObservedMinutesAfterPublish }} phút sau khi đăng</span>
-            </span>
+          <div class="time-chips-row">
+            <div class="time-chip">
+              <span class="chip-label">Đăng:</span>
+              <span class="chip-value">{{ formatVideoAge(v.publishedAt) }}</span>
+            </div>
+            <div v-if="v.firstObservedMinutesAfterPublish !== null" class="time-chip observe-chip">
+              <span class="chip-label">Bắt đầu theo dõi:</span>
+              <span class="chip-value">{{ v.firstObservedMinutesAfterPublish }} phút sau khi đăng</span>
+            </div>
           </div>
 
-          <div class="video-actions-row">
-            <router-link :to="'/videos/' + v.id" class="action-link-internal">
-              Chi tiết video
+          <div class="actions-line">
+            <router-link :to="'/videos/' + v.id" class="action-btn-detail">
+              <span>Chi tiết video</span>
+              <AppIcon name="arrow-right" size="12" />
             </router-link>
             <a
               :href="'https://www.youtube.com/watch?v=' + v.youtubeVideoId"
               target="_blank"
               rel="noopener noreferrer"
-              class="action-link-yt"
+              class="action-btn-yt"
+              title="Mở trên YouTube"
             >
               <span>Xem YouTube</span>
               <AppIcon name="external" size="12" />
@@ -280,67 +297,64 @@
           </div>
         </div>
 
-        <!-- Metrics Section -->
-        <div class="video-metrics-wrap">
-          <!-- Measured VPH -->
-          <div class="metric-item vph-metric">
-            <div class="metric-label">VPH đo được</div>
+        <!-- Right: Signal Metrics Panel -->
+        <div class="signal-metrics-panel">
+          <!-- VPH Focal Metric -->
+          <div class="metric-block focal-vph-block">
+            <div class="block-label">VPH ĐO ĐƯỢC</div>
             <div
-              class="metric-val mono"
+              class="block-vph-value mono"
               :class="{
-                'val-rising': v.latestMeasuredVph !== null && v.latestMeasuredVph > 0,
-                'val-unmeasured': v.latestMeasuredVph === null,
-                'val-zero': v.latestMeasuredVph === 0
+                'vph-rising': v.latestMeasuredVph !== null && v.latestMeasuredVph > 0,
+                'vph-zero': v.latestMeasuredVph === 0,
+                'vph-unmeasured': v.latestMeasuredVph === null
               }"
             >
               {{ formatMeasuredVph(v.latestMeasuredVph) }}
             </div>
           </div>
 
-          <!-- Current Views -->
-          <div class="metric-item">
-            <div class="metric-label">Lượt xem hiện tại</div>
-            <div class="metric-val mono">
-              {{ v.latestViewCount !== null ? v.latestViewCount.toLocaleString('vi-VN') : '—' }}
+          <!-- Secondary Metrics Grid -->
+          <div class="secondary-metrics-grid">
+            <div class="sec-metric">
+              <span class="sec-label">Lượt xem</span>
+              <span class="sec-val mono">
+                {{ v.latestViewCount !== null ? v.latestViewCount.toLocaleString('vi-VN') : '—' }}
+              </span>
             </div>
-          </div>
 
-          <!-- Latest View Delta -->
-          <div class="metric-item">
-            <div class="metric-label">Tăng ở lần đo gần nhất</div>
-            <div
-              class="metric-val mono"
-              :class="{ 'val-delta-pos': v.latestViewDelta !== null && v.latestViewDelta > 0 }"
-            >
-              {{ formatViewDelta(v.latestViewDelta) }}
+            <div class="sec-metric">
+              <span class="sec-label">Tăng gần nhất</span>
+              <span
+                class="sec-val mono"
+                :class="{ 'delta-pos': v.latestViewDelta !== null && v.latestViewDelta > 0 }"
+              >
+                {{ formatViewDelta(v.latestViewDelta) }}
+              </span>
             </div>
-          </div>
 
-          <!-- Measurement Timestamp -->
-          <div class="metric-item measurement-time">
-            <div class="metric-label">Đo lần cuối</div>
-            <div class="metric-val-sm">
-              {{ v.latestSnapshotCheckedAt ? formatVideoAge(v.latestSnapshotCheckedAt) : 'Chưa có' }}
+            <div class="sec-metric">
+              <span class="sec-label">Đo lần cuối</span>
+              <span class="sec-val sec-time">
+                {{ v.latestSnapshotCheckedAt ? formatVideoAge(v.latestSnapshotCheckedAt) : 'Chưa có' }}
+              </span>
             </div>
-          </div>
 
-          <!-- Alert Status Badge -->
-          <div class="metric-item alert-metric">
-            <div class="metric-label">Trạng thái cảnh báo</div>
-            <span
-              class="alert-badge"
-              :class="'alert-badge-' + v.alertStatus"
-            >
-              {{ mapAlertStatus(v.alertStatus) }}
-            </span>
+            <div class="sec-metric">
+              <span class="sec-label">Cảnh báo</span>
+              <span class="alert-tag" :class="'alert-tag-' + v.alertStatus">
+                {{ mapAlertStatus(v.alertStatus) }}
+              </span>
+            </div>
           </div>
         </div>
       </article>
 
       <!-- Load More Button -->
-      <div v-if="hasMore && !loading" class="load-more-wrap">
-        <button class="btn btn-secondary btn-load-more" @click="loadMore">
+      <div v-if="hasMore && !loading" class="load-more-container">
+        <button class="btn-load-more" @click="loadMore">
           <span>Xem Thêm (+100)</span>
+          <AppIcon name="chevron-down" size="14" />
         </button>
       </div>
     </section>
@@ -348,9 +362,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import AppIcon from '@/components/ui/AppIcon.vue';
+import MonitoringPageHeader from '@/components/ui/MonitoringPageHeader.vue';
+import MetricCard from '@/components/ui/MetricCard.vue';
+import FilterDock from '@/components/ui/FilterDock.vue';
+import RevealItem from '@/components/motion/RevealItem.vue';
 import {
   newVideosService,
   getFreshBadge,
@@ -395,6 +413,16 @@ const filter = ref<NewVideoFilter>({
   search: '',
 });
 
+// Active filters count
+const activeFilterCount = computed(() => {
+  let count = 0;
+  if (filter.value.channelId) count++;
+  if (filter.value.status !== 'all') count++;
+  if (filter.value.sort !== 'newest') count++;
+  if (filter.value.search.trim()) count++;
+  return count;
+});
+
 // Channel options extracted from current dataset
 const channelOptions = computed<ChannelOption[]>(() => {
   const map = new Map<string, string>();
@@ -406,13 +434,20 @@ const channelOptions = computed<ChannelOption[]>(() => {
   return Array.from(map.entries()).map(([id, name]) => ({ id, name }));
 });
 
-// Summary Cards calculation: reflects the selected time window (+ channel filter if chosen)
+// Summary Cards calculation
 const summary = computed<NewVideoSummary>(() => {
   let targetVideos = allVideos.value;
   if (filter.value.channelId) {
     targetVideos = targetVideos.filter(v => v.channelId === filter.value.channelId);
   }
   return newVideosService.computeNewVideoSummary(targetVideos);
+});
+
+const formattedMaxVph = computed(() => {
+  if (summary.value.maxVph !== null && summary.value.maxVph !== undefined) {
+    return `${summary.value.maxVph.toLocaleString('vi-VN')} VPH`;
+  }
+  return '—';
 });
 
 // Filtered and Sorted Video List
@@ -496,59 +531,50 @@ onMounted(() => {
   initFromUrl();
   loadData(true);
 });
-
-// Watch route query changes (for back/forward navigation)
-watch(
-  () => route.query,
-  newQuery => {
-    const parsed = newVideosService.parseUrlParams(newQuery);
-    if (parsed.range !== filter.value.range) {
-      filter.value.range = parsed.range;
-      filter.value.channelId = parsed.channelId;
-      filter.value.status = parsed.status;
-      filter.value.sort = parsed.sort;
-      filter.value.search = parsed.search;
-      loadData(true);
-    } else {
-      filter.value.channelId = parsed.channelId;
-      filter.value.status = parsed.status;
-      filter.value.sort = parsed.sort;
-      filter.value.search = parsed.search;
-    }
-  }
-);
 </script>
 
 <style scoped>
 .new-videos-page {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 24px 20px 60px;
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-/* Header */
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
-.page-title {
-  font-size: 24px;
-  font-weight: 700;
+  padding: 24px 28px 60px;
   color: #f8fafc;
-  margin: 0 0 6px;
 }
 
-.page-subtitle {
-  font-size: 14px;
-  color: #94a3b8;
-  margin: 0;
+/* Refresh Button */
+.btn-refresh {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.28);
+  color: #38bdf8;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-refresh:hover:not(:disabled) {
+  background: rgba(56, 189, 248, 0.2);
+  border-color: #38bdf8;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.3);
+}
+
+.btn-refresh:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.spin-anim {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 /* Error Banner */
@@ -557,11 +583,12 @@ watch(
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 12px 16px;
+  padding: 12px 18px;
   background: rgba(239, 68, 68, 0.1);
   border: 1px solid rgba(239, 68, 68, 0.3);
-  border-radius: 8px;
+  border-radius: 10px;
   color: #fca5a5;
+  margin-bottom: 20px;
   font-size: 14px;
 }
 
@@ -573,206 +600,212 @@ watch(
 
 .error-icon {
   color: #ef4444;
-  flex-shrink: 0;
 }
 
-/* Summary Grid */
-.summary-grid {
+/* 2. Summary Strip */
+.summary-strip {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 16px;
+  margin-bottom: 24px;
 }
 
-.summary-card {
-  background: #0f172a;
-  border: 1px solid #1e293b;
-  border-radius: 10px;
-  padding: 16px 20px;
+/* 3. Range Control Bar */
+.range-control-bar {
   display: flex;
-  flex-direction: column;
-  gap: 6px;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
 }
 
-.card-rising {
-  border-color: rgba(56, 189, 248, 0.3);
-}
-
-.summary-label {
-  font-size: 13px;
-  color: #94a3b8;
-  font-weight: 500;
-}
-
-.summary-value {
-  font-size: 22px;
+.range-prefix {
+  font-size: 12px;
   font-weight: 700;
-  color: #f8fafc;
-}
-
-.card-rising .summary-value {
-  color: #38bdf8;
-}
-
-/* Range Selector */
-.range-selector-section {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-  padding: 12px 16px;
-  background: #0f172a;
-  border: 1px solid #1e293b;
-  border-radius: 8px;
-}
-
-.range-label {
-  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
   color: #94a3b8;
-  font-weight: 500;
 }
 
-.range-buttons {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
+.segmented-control {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 3px;
+  gap: 3px;
+  backdrop-filter: blur(8px);
 }
 
-.range-btn {
-  background: #1e293b;
-  border: 1px solid #334155;
-  color: #cbd5e1;
+.segment-btn {
   padding: 6px 14px;
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.range-btn:hover {
-  background: #334155;
-  color: #f8fafc;
-}
-
-.range-btn.active {
-  background: #0284c7;
-  border-color: #38bdf8;
-  color: #ffffff;
+  font-size: 12px;
   font-weight: 600;
+  color: #94a3b8;
+  background: transparent;
+  border: none;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  white-space: nowrap;
 }
 
-/* Filter Bar */
-.filter-bar {
+.segment-btn:hover {
+  color: #f8fafc;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.segment-active {
+  color: #38bdf8 !important;
+  background: rgba(56, 189, 248, 0.12) !important;
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  box-shadow: 0 0 10px -2px rgba(56, 189, 248, 0.3);
+}
+
+/* 4. Filter Console Grid */
+.filter-controls-grid {
   display: grid;
-  grid-template-columns: 200px 180px 200px 1fr;
+  grid-template-columns: 2fr 1fr 1fr 1.2fr;
   gap: 12px;
   align-items: center;
 }
 
-.filter-select {
-  width: 100%;
-  background: #0f172a;
-  border: 1px solid #1e293b;
-  color: #f8fafc;
-  padding: 8px 12px;
-  border-radius: 6px;
-  font-size: 13px;
-  outline: none;
-  cursor: pointer;
-}
-
-.filter-select:focus {
-  border-color: #38bdf8;
-}
-
-.search-box {
+.control-search {
   position: relative;
-  display: flex;
-  align-items: center;
+  width: 100%;
 }
 
 .search-icon {
   position: absolute;
   left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
   color: #64748b;
   pointer-events: none;
 }
 
-.search-input {
+.dock-input {
   width: 100%;
-  background: #0f172a;
-  border: 1px solid #1e293b;
+  padding: 9px 34px 9px 36px;
+  background: rgba(10, 16, 28, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
   color: #f8fafc;
-  padding: 8px 32px 8px 36px;
-  border-radius: 6px;
   font-size: 13px;
   outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.search-input:focus {
+.dock-input:focus {
   border-color: #38bdf8;
+  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
 }
 
 .btn-clear-search {
   position: absolute;
   right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
   background: none;
   border: none;
   color: #64748b;
   cursor: pointer;
-  font-size: 14px;
   padding: 2px 6px;
+  border-radius: 4px;
 }
 
 .btn-clear-search:hover {
   color: #f8fafc;
 }
 
-/* Video List */
-.video-list {
+.control-select-wrap {
+  width: 100%;
+}
+
+.dock-select {
+  width: 100%;
+  padding: 9px 12px;
+  background: rgba(10, 16, 28, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  color: #e2e8f0;
+  font-size: 13px;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.dock-select:focus {
+  border-color: #38bdf8;
+}
+
+.btn-reset-filters {
+  background: none;
+  border: none;
+  font-size: 11px;
+  font-weight: 600;
+  color: #94a3b8;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.btn-reset-filters:hover {
+  color: #38bdf8;
+}
+
+/* 5. Video Signal Row */
+.video-signal-list {
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
-.video-card {
-  background: #0f172a;
-  border: 1px solid #1e293b;
-  border-radius: 12px;
-  padding: 16px;
+.signal-row {
   display: grid;
-  grid-template-columns: 220px 1fr 240px;
-  gap: 20px;
-  align-items: center;
-  transition: border-color 0.15s ease, background-color 0.15s ease;
+  grid-template-columns: 260px 1fr 300px;
+  gap: 22px;
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 14px;
+  padding: 16px;
+  backdrop-filter: blur(10px);
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.video-card:hover {
-  border-color: #334155;
-  background: #111c35;
+.signal-row:hover {
+  transform: translateY(-2px);
+  border-color: rgba(56, 189, 248, 0.25);
+  box-shadow: 0 10px 28px -6px rgba(0, 0, 0, 0.5);
 }
 
-/* Thumbnail */
-.video-thumb-wrap {
+/* Thumbnail Section */
+.signal-thumb-wrap {
   position: relative;
   width: 100%;
   aspect-ratio: 16 / 9;
-  border-radius: 8px;
+  border-radius: 10px;
   overflow: hidden;
-  background: #020617;
+  background: #090d16;
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.thumb-link {
+.thumb-anchor {
   display: block;
   width: 100%;
   height: 100%;
 }
 
-.video-thumb-img {
+.signal-thumb-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  display: block;
+  transition: transform 0.3s ease;
+}
+
+.signal-row:hover .signal-thumb-img {
+  transform: scale(1.025);
 }
 
 .thumb-placeholder {
@@ -786,37 +819,39 @@ watch(
 
 .fresh-badge {
   position: absolute;
-  top: 6px;
-  left: 6px;
+  top: 8px;
+  left: 8px;
   padding: 3px 8px;
-  border-radius: 4px;
+  border-radius: 6px;
   font-size: 11px;
   font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.02em;
+  backdrop-filter: blur(8px);
 }
 
 .badge-super-fresh {
-  background: rgba(16, 185, 129, 0.9);
+  background: rgba(239, 68, 68, 0.85);
   color: #ffffff;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
 }
 
 .badge-recent {
   background: rgba(56, 189, 248, 0.85);
-  color: #0f172a;
+  color: #04101e;
+  box-shadow: 0 2px 8px rgba(56, 189, 248, 0.4);
 }
 
-/* Video Info */
-.video-info-wrap {
+/* Center Info Section */
+.signal-main-info {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  justify-content: space-between;
+  gap: 10px;
   min-width: 0;
 }
 
 .video-title {
-  font-size: 15px;
+  font-size: 17px;
   font-weight: 600;
   line-height: 1.4;
   margin: 0;
@@ -826,41 +861,42 @@ watch(
   overflow: hidden;
 }
 
-.title-link {
-  color: #f1f5f9;
+.title-anchor {
+  color: #f8fafc;
   text-decoration: none;
   transition: color 0.15s ease;
 }
 
-.title-link:hover {
+.title-anchor:hover {
   color: #38bdf8;
 }
 
-.channel-row {
+.channel-line {
   display: flex;
   align-items: center;
 }
 
-.channel-link {
+.channel-anchor {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  color: #cbd5e1;
   text-decoration: none;
+  color: #cbd5e1;
   font-size: 13px;
   font-weight: 500;
   transition: color 0.15s ease;
 }
 
-.channel-link:hover {
+.channel-anchor:hover {
   color: #38bdf8;
 }
 
 .channel-avatar {
-  width: 22px;
-  height: 22px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
   object-fit: cover;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .channel-handle {
@@ -868,355 +904,374 @@ watch(
   font-size: 12px;
 }
 
-.timestamps-row {
+.time-chips-row {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
-  font-size: 12px;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
-.time-item {
-  display: flex;
-  gap: 6px;
+.time-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: 11px;
 }
 
-.time-label {
+.chip-label {
   color: #64748b;
-}
-
-.time-val {
-  color: #94a3b8;
   font-weight: 500;
 }
 
-.observe-time .time-val {
+.chip-value {
+  color: #cbd5e1;
+  font-weight: 600;
+}
+
+.observe-chip .chip-value {
   color: #38bdf8;
 }
 
-.video-actions-row {
+.actions-line {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
   margin-top: 4px;
 }
 
-.action-link-internal {
-  font-size: 12px;
-  color: #94a3b8;
-  text-decoration: none;
-  font-weight: 500;
-}
-
-.action-link-internal:hover {
-  color: #38bdf8;
-}
-
-.action-link-yt {
+.action-btn-detail {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   font-size: 12px;
-  color: #ef4444;
+  font-weight: 600;
+  color: #38bdf8;
   text-decoration: none;
-  font-weight: 500;
+  padding: 5px 12px;
+  border-radius: 6px;
+  background: rgba(56, 189, 248, 0.08);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  transition: all 0.15s ease;
 }
 
-.action-link-yt:hover {
-  text-decoration: underline;
+.action-btn-detail:hover {
+  background: rgba(56, 189, 248, 0.18);
+  border-color: #38bdf8;
 }
 
-/* Metrics Section */
-.video-metrics-wrap {
+.action-btn-yt {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: #94a3b8;
+  text-decoration: none;
+  padding: 5px 10px;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+}
+
+.action-btn-yt:hover {
+  color: #f8fafc;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* Right Signal Metrics Panel */
+.signal-metrics-panel {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  background: #090e1a;
-  border: 1px solid #1e293b;
-  border-radius: 8px;
-  padding: 12px 14px;
-}
-
-.metric-item {
-  display: flex;
   justify-content: space-between;
-  align-items: baseline;
-  gap: 8px;
-  font-size: 12px;
+  gap: 12px;
+  background: rgba(10, 16, 28, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 10px;
+  padding: 14px;
 }
 
-.metric-label {
-  color: #64748b;
+.focal-vph-block {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  padding-bottom: 10px;
+}
+
+.block-label {
   font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #94a3b8;
+  margin-bottom: 4px;
 }
 
-.metric-val {
-  font-size: 13px;
-  font-weight: 600;
-  color: #f1f5f9;
+.block-vph-value {
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
 }
 
-.val-rising {
+.vph-rising {
   color: #38bdf8;
+  text-shadow: 0 0 12px rgba(56, 189, 248, 0.25);
 }
 
-.val-zero {
-  color: #94a3b8;
-}
-
-.val-unmeasured {
+.vph-zero {
   color: #64748b;
-  font-weight: 400;
-  font-size: 11px;
 }
 
-.val-delta-pos {
-  color: #34d399;
-}
-
-.metric-val-sm {
-  font-size: 11px;
+.vph-unmeasured {
   color: #94a3b8;
+  font-size: 15px;
+  font-weight: 600;
 }
 
-/* Alert Badge */
-.alert-badge {
-  display: inline-block;
-  padding: 2px 6px;
-  border-radius: 4px;
+.secondary-metrics-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 12px;
+}
+
+.sec-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sec-label {
   font-size: 10px;
   font-weight: 600;
   text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #64748b;
 }
 
-.alert-badge-pending {
-  background: rgba(234, 179, 8, 0.15);
-  color: #facc15;
-  border: 1px solid rgba(234, 179, 8, 0.3);
+.sec-val {
+  font-size: 13px;
+  font-weight: 600;
+  color: #f1f5f9;
+  font-variant-numeric: tabular-nums;
 }
 
-.alert-badge-sending {
+.delta-pos {
+  color: #34d399;
+}
+
+.sec-time {
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.alert-tag {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+  width: fit-content;
+}
+
+.alert-tag-sent {
   background: rgba(56, 189, 248, 0.15);
   color: #38bdf8;
   border: 1px solid rgba(56, 189, 248, 0.3);
 }
 
-.alert-badge-sent {
-  background: rgba(34, 197, 94, 0.15);
-  color: #4ade80;
-  border: 1px solid rgba(34, 197, 94, 0.3);
+.alert-tag-pending,
+.alert-tag-sending {
+  background: rgba(251, 191, 36, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.3);
 }
 
-.alert-badge-failed {
+.alert-tag-failed {
   background: rgba(239, 68, 68, 0.15);
-  color: #f87171;
+  color: #ef4444;
   border: 1px solid rgba(239, 68, 68, 0.3);
 }
 
-.alert-badge-none {
-  background: rgba(100, 116, 139, 0.15);
+.alert-tag-none {
+  background: rgba(148, 163, 184, 0.08);
   color: #64748b;
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 /* Load More */
-.load-more-wrap {
+.load-more-container {
   display: flex;
   justify-content: center;
-  padding: 16px 0;
+  padding: 20px 0;
 }
 
 .btn-load-more {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   padding: 10px 24px;
-  font-size: 14px;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  color: #cbd5e1;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-/* Empty State */
-.empty-state {
+.btn-load-more:hover {
+  background: rgba(30, 41, 59, 0.9);
+  border-color: rgba(56, 189, 248, 0.4);
+  color: #38bdf8;
+}
+
+/* Empty State Card */
+.empty-state-card {
+  text-align: center;
+  padding: 60px 24px;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  margin: 30px 0;
+}
+
+.empty-icon-ring {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background: rgba(56, 189, 248, 0.08);
+  border: 1px solid rgba(56, 189, 248, 0.2);
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  text-align: center;
-  padding: 60px 20px;
-  background: #0f172a;
-  border: 1px dashed #334155;
-  border-radius: 12px;
-  gap: 12px;
-}
-
-.empty-icon-wrap {
-  color: #475569;
-  margin-bottom: 4px;
+  margin: 0 auto 18px;
+  color: #38bdf8;
 }
 
 .empty-title {
-  font-size: 16px;
-  font-weight: 600;
-  color: #e2e8f0;
-  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #f8fafc;
+  margin-bottom: 8px;
 }
 
 .empty-desc {
   font-size: 14px;
-  color: #64748b;
-  margin: 0;
-  max-width: 420px;
+  color: #94a3b8;
+  max-width: 480px;
+  margin: 0 auto 20px;
+  line-height: 1.5;
 }
 
-.empty-actions {
-  margin-top: 8px;
-}
-
-/* Skeleton Loading */
+/* Skeletons */
 .skeleton-list {
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
-.skeleton-card {
-  background: #0f172a;
-  border: 1px solid #1e293b;
-  border-radius: 12px;
-  padding: 16px;
+.skeleton-signal-row {
   display: grid;
-  grid-template-columns: 220px 1fr 240px;
-  gap: 20px;
-  align-items: center;
+  grid-template-columns: 260px 1fr 300px;
+  gap: 22px;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 14px;
+  padding: 16px;
 }
 
 .skeleton-thumb {
-  width: 100%;
   aspect-ratio: 16 / 9;
-  background: #1e293b;
-  border-radius: 8px;
-  animation: pulse 1.5s infinite;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
 }
 
-.skeleton-content {
+.skeleton-info {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .skeleton-line {
   height: 14px;
-  background: #1e293b;
   border-radius: 4px;
-  animation: pulse 1.5s infinite;
+  background: rgba(255, 255, 255, 0.04);
 }
 
-.w-75 { width: 75%; }
-.w-50 { width: 50%; }
-.w-25 { width: 25%; }
+.line-title { width: 75%; height: 18px; }
+.line-meta { width: 40%; }
+.line-tags { width: 55%; }
 
 .skeleton-metrics {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 10px;
 }
 
-.skeleton-metric-box {
-  height: 28px;
-  background: #1e293b;
-  border-radius: 6px;
-  animation: pulse 1.5s infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 0.6; }
-  50% { opacity: 0.3; }
-}
-
-/* Shared Buttons */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  border: 1px solid transparent;
-  transition: all 0.15s ease;
-}
-
-.btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.btn-primary {
-  background: #0284c7;
-  color: #ffffff;
-}
-
-.btn-primary:hover:not(:disabled) {
-  background: #0369a1;
-}
-
-.btn-secondary {
-  background: #1e293b;
-  border-color: #334155;
-  color: #cbd5e1;
-}
-
-.btn-secondary:hover:not(:disabled) {
-  background: #334155;
-  color: #f8fafc;
-}
-
-.btn-sm {
-  padding: 6px 12px;
-  font-size: 12px;
-}
-
-.spin-anim {
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-.mono {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-}
-
-/* Responsive - Mobile */
-@media (max-width: 900px) {
-  .summary-grid {
+/* Responsive Media Queries */
+@media (max-width: 1024px) {
+  .summary-strip {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  .filter-bar {
+  .filter-controls-grid {
     grid-template-columns: 1fr 1fr;
   }
 
-  .search-box {
-    grid-column: span 2;
+  .signal-row {
+    grid-template-columns: 220px 1fr;
+    grid-template-rows: auto auto;
   }
 
-  .video-card,
-  .skeleton-card {
+  .signal-metrics-panel {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 640px) {
+  .new-videos-page {
+    padding: 16px 16px 40px;
+  }
+
+  .summary-strip {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .filter-controls-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .signal-row {
     grid-template-columns: 1fr;
     gap: 14px;
   }
 
-  .video-thumb-wrap,
-  .skeleton-thumb {
-    max-width: 100%;
+  .signal-thumb-wrap {
+    width: 100%;
   }
 
-  .video-metrics-wrap {
-    display: grid;
+  .actions-line {
+    flex-wrap: wrap;
+  }
+
+  .action-btn-detail,
+  .action-btn-yt {
+    min-height: 44px;
+    justify-content: center;
+    flex: 1;
+  }
+
+  .secondary-metrics-grid {
     grid-template-columns: 1fr 1fr;
-    gap: 10px;
   }
+}
 
-  .alert-metric {
-    grid-column: span 2;
+@media (prefers-reduced-motion: reduce) {
+  .signal-row:hover {
+    transform: none;
+  }
+  .signal-thumb-img:hover {
+    transform: none;
   }
 }
 </style>
