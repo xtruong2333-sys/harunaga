@@ -107,7 +107,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
 import AppModal from '@/components/ui/AppModal.vue';
-import { channelService } from '@/services/channel-service';
+import { channelService, AccessKeyRequiredError } from '@/services/channel-service';
 import { Channel, BulkResolveSummary } from '@/types/channel';
 
 const props = defineProps<{
@@ -118,6 +118,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: 'update:modelValue', value: boolean): void;
   (e: 'bulkAdded'): void;
+  (e: 'access-key-required', retryAction: () => Promise<any>, errorMsg?: string): void;
 }>();
 
 const rawInput = ref('');
@@ -209,7 +210,12 @@ async function handleSubmitBulk() {
     emit('bulkAdded');
     close();
   } catch (err: any) {
+    if (err instanceof AccessKeyRequiredError || err.name === 'AccessKeyRequiredError') {
+      emit('access-key-required', () => handleSubmitBulk(), err.message);
+      throw err;
+    }
     alert(`Lỗi khi thêm kênh: ${err.message}`);
+    throw err;
   } finally {
     submitting.value = false;
   }

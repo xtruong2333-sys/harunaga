@@ -44,7 +44,7 @@
       <div class="config-alert-text">
         <div class="config-alert-title">Chưa kết nối cơ sở dữ liệu</div>
         <div class="config-alert-desc">
-          Ứng dụng đang hoạt động ở chế độ chờ cấu hình Supabase. Vui lòng thiết lập <code>VITE_SUPABASE_URL</code> và <code>VITE_SUPABASE_ANON_KEY</code> trong cài đặt môi trường.
+          Ứng dụng đang hoạt động ở chế độ chờ cấu hình Supabase. Vui lòng thiết lập <code>VITE_SUPABASE_URL</code> và <code>VITE_SUPABASE_PUBLISHABLE_KEY</code> trong cài đặt môi trường.
         </div>
       </div>
     </div>
@@ -141,6 +141,7 @@
       @added="handleChannelAdded"
       @resumed="handleResume"
       @restored="handleRestore"
+      @access-key-required="handleAccessKeyRequired"
     />
 
     <!-- Modal: Thêm Nhiều Kênh -->
@@ -148,6 +149,7 @@
       v-model="showBulkAddModal"
       :existing-channels="channelStore.channels"
       @bulk-added="handleBulkAdded"
+      @access-key-required="handleAccessKeyRequired"
     />
 
     <!-- Modal: Chỉnh Thiết Lập -->
@@ -244,14 +246,18 @@ function handleOpenEdit(channel: Channel) {
 }
 
 
+function handleAccessKeyRequired(action: () => Promise<any>, errorMsg?: string) {
+  pendingAction = action;
+  accessKeyError.value = errorMsg || 'Vui lòng nhập Mã truy cập để thực hiện thao tác.';
+  showAccessKeyModal.value = true;
+}
+
 async function executeWithAccessKey(action: () => Promise<any>) {
   try {
     await action();
   } catch (err: any) {
     if (err instanceof AccessKeyRequiredError || err.name === 'AccessKeyRequiredError') {
-      accessKeyError.value = err.message;
-      pendingAction = action;
-      showAccessKeyModal.value = true;
+      handleAccessKeyRequired(action, err.message);
     } else {
       alert(err.message || 'Thao tác không thành công.');
     }
@@ -261,8 +267,22 @@ async function executeWithAccessKey(action: () => Promise<any>) {
 async function handleAccessKeyConfirmed() {
   if (pendingAction) {
     const action = pendingAction;
-    pendingAction = null;
-    await executeWithAccessKey(action);
+    try {
+      await action();
+      pendingAction = null;
+      showAccessKeyModal.value = false;
+      accessKeyError.value = null;
+    } catch (err: any) {
+      if (err instanceof AccessKeyRequiredError || err.name === 'AccessKeyRequiredError') {
+        accessKeyError.value = err.message;
+        // Giữ pendingAction để cho phép người dùng nhập lại mã
+        showAccessKeyModal.value = true;
+      } else {
+        pendingAction = null;
+        showAccessKeyModal.value = false;
+        alert(err.message || 'Thao tác không thành công.');
+      }
+    }
   }
 }
 

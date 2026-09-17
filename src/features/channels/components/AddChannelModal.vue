@@ -133,7 +133,7 @@
 import { ref, watch } from 'vue';
 import AppModal from '@/components/ui/AppModal.vue';
 import AppIcon from '@/components/ui/AppIcon.vue';
-import { channelService } from '@/services/channel-service';
+import { channelService, AccessKeyRequiredError } from '@/services/channel-service';
 import { Channel, ResolvedChannelPreview, STATUS_LABELS } from '@/types/channel';
 
 const props = defineProps<{
@@ -146,6 +146,7 @@ const emit = defineEmits<{
   (e: 'added', channel: Channel): void;
   (e: 'resumed', id: string): void;
   (e: 'restored', id: string): void;
+  (e: 'access-key-required', retryAction: () => Promise<any>, errorMsg?: string): void;
 }>();
 
 const statusLabels = STATUS_LABELS;
@@ -226,8 +227,15 @@ async function handleAdd() {
     });
     emit('added', created);
     close();
+    return created;
   } catch (err: any) {
+    if (err instanceof AccessKeyRequiredError || err.name === 'AccessKeyRequiredError') {
+      resolveError.value = null;
+      emit('access-key-required', () => handleAdd(), err.message);
+      throw err;
+    }
     resolveError.value = err.message;
+    throw err;
   } finally {
     submitting.value = false;
   }
@@ -236,12 +244,20 @@ async function handleAdd() {
 async function handleResumeExisting() {
   if (!existingChannel.value) return;
   submitting.value = true;
+  resolveError.value = null;
   try {
-    await channelService.resumeChannel(existingChannel.value.id);
+    const resumed = await channelService.resumeChannel(existingChannel.value.id);
     emit('resumed', existingChannel.value.id);
     close();
+    return resumed;
   } catch (err: any) {
+    if (err instanceof AccessKeyRequiredError || err.name === 'AccessKeyRequiredError') {
+      resolveError.value = null;
+      emit('access-key-required', () => handleResumeExisting(), err.message);
+      throw err;
+    }
     resolveError.value = err.message;
+    throw err;
   } finally {
     submitting.value = false;
   }
@@ -250,12 +266,20 @@ async function handleResumeExisting() {
 async function handleRestoreExisting() {
   if (!existingChannel.value) return;
   submitting.value = true;
+  resolveError.value = null;
   try {
-    await channelService.restoreChannel(existingChannel.value.id);
+    const restored = await channelService.restoreChannel(existingChannel.value.id);
     emit('restored', existingChannel.value.id);
     close();
+    return restored;
   } catch (err: any) {
+    if (err instanceof AccessKeyRequiredError || err.name === 'AccessKeyRequiredError') {
+      resolveError.value = null;
+      emit('access-key-required', () => handleRestoreExisting(), err.message);
+      throw err;
+    }
     resolveError.value = err.message;
+    throw err;
   } finally {
     submitting.value = false;
   }

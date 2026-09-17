@@ -126,13 +126,13 @@ export const channelService = {
    * Gọi Edge Function 'manage-channels' để thực hiện mutation an toàn phía server
    */
   async _invokeManage(action: string, payload: any): Promise<Channel> {
-    if (!isSupabaseConfigured()) {
-      throw new DatabaseNotConfiguredError();
-    }
-
     const accessKey = getStoredAccessKey();
     if (!accessKey) {
       throw new AccessKeyRequiredError();
+    }
+
+    if (!isSupabaseConfigured()) {
+      throw new DatabaseNotConfiguredError();
     }
 
     const supabase = getSupabase()!;

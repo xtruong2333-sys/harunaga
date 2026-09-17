@@ -1,7 +1,7 @@
 <template>
   <Teleport to="body">
     <Transition name="modal-fade">
-      <div v-if="modelValue" class="modal-backdrop" @click="handleBackdrop">
+      <div v-if="modelValue" class="modal-backdrop" :style="zIndex ? { zIndex } : {}" @click="handleBackdrop">
         <div class="modal-container" :style="{ maxWidth: maxWidth || '520px' }" @click.stop>
           <div class="modal-header">
             <div>
@@ -34,6 +34,7 @@ const props = withDefaults(
     description?: string;
     maxWidth?: string;
     closeOnBackdrop?: boolean;
+    zIndex?: number;
   }>(),
   {
     closeOnBackdrop: true,

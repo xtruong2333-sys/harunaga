@@ -5,6 +5,7 @@
     title="Mã truy cập"
     description="Nhập mã truy cập để thực hiện các thao tác thay đổi dữ liệu trên hệ thống."
     max-width="440px"
+    :z-index="1100"
   >
     <div class="access-key-form">
       <div class="form-group">
@@ -54,7 +55,7 @@ const emit = defineEmits<{
 }>();
 
 const inputKey = ref('');
-const errorMessage = ref<string | null>(null);
+const errorMessage = ref<string | null>(props.initialError || null);
 
 watch(
   () => props.modelValue,
@@ -63,6 +64,14 @@ watch(
       inputKey.value = '';
       errorMessage.value = props.initialError || null;
     }
+  },
+  { immediate: true }
+);
+
+watch(
+  () => props.initialError,
+  (val) => {
+    errorMessage.value = val || null;
   }
 );
 
@@ -78,7 +87,6 @@ function handleConfirm() {
   }
   setStoredAccessKey(trimmed);
   emit('confirmed', trimmed);
-  close();
 }
 </script>
 
