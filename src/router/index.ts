@@ -3,6 +3,7 @@ import ChannelsPage from '@/pages/ChannelsPage.vue';
 import VideosPage from '@/pages/VideosPage.vue';
 import VideoDetailPage from '@/pages/VideoDetailPage.vue';
 import OverviewPage from '@/pages/OverviewPage.vue';
+import ChannelDetailPage from '@/pages/ChannelDetailPage.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -39,6 +40,14 @@ const routes: Array<RouteRecordRaw> = [
     component: ChannelsPage,
     meta: {
       title: 'Kênh Theo Dõi — Bắt Bài Đối Thủ',
+    },
+  },
+  {
+    path: '/kenh-theo-doi/:id',
+    name: 'ChannelDetail',
+    component: ChannelDetailPage,
+    meta: {
+      title: 'Phân Tích Kênh — Bắt Bài Đối Thủ',
     },
   },
   {

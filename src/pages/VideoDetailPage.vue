@@ -99,7 +99,7 @@
           <h1 class="hero-title">{{ video.title }}</h1>
 
           <!-- Channel row -->
-          <div class="hero-channel-row">
+          <router-link :to="'/kenh-theo-doi/' + video.channel.id" class="hero-channel-row" title="Xem phân tích kênh">
             <div class="channel-avatar-wrap">
               <img
                 v-if="video.channel.avatarUrl"
@@ -118,7 +118,7 @@
                 {{ video.channel.handle }}
               </div>
             </div>
-          </div>
+          </router-link>
 
           <!-- Metadata chips -->
           <div class="hero-metadata-grid">
@@ -699,9 +699,16 @@ onMounted(() => {
 }
 
 .hero-channel-row {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 10px;
+  text-decoration: none;
+  width: fit-content;
+  transition: opacity 0.15s ease;
+}
+
+.hero-channel-row:hover .channel-name {
+  color: var(--accent);
 }
 
 .channel-avatar-wrap {

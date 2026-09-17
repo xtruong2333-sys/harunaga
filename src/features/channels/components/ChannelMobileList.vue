@@ -2,7 +2,11 @@
   <div class="mobile-channel-list">
     <div v-for="channel in channels" :key="channel.id" class="mobile-card">
       <div class="card-top">
-        <div class="avatar-wrap">
+        <router-link
+          :to="'/kenh-theo-doi/' + channel.id"
+          class="avatar-wrap"
+          title="Xem phân tích kênh"
+        >
           <img
             v-if="channel.avatarUrl"
             :src="channel.avatarUrl"
@@ -14,11 +18,17 @@
           <div v-else class="avatar-fallback">
             {{ channel.name.charAt(0).toUpperCase() }}
           </div>
-        </div>
+        </router-link>
 
         <div class="channel-main-info">
           <div class="channel-title-row">
-            <span class="channel-name">{{ channel.name }}</span>
+            <router-link
+              :to="'/kenh-theo-doi/' + channel.id"
+              class="channel-name"
+              title="Xem phân tích kênh"
+            >
+              {{ channel.name }}
+            </router-link>
             <a :href="channel.url" target="_blank" rel="noopener noreferrer" class="link-icon">
               <AppIcon name="external" size="12" />
             </a>
@@ -49,6 +59,11 @@
       </div>
 
       <div class="card-actions">
+        <router-link :to="'/kenh-theo-doi/' + channel.id" class="btn btn-secondary btn-sm">
+          <AppIcon name="activity" size="14" />
+          <span>Phân tích</span>
+        </router-link>
+
         <button class="btn btn-secondary btn-sm" @click="$emit('edit', channel)">
           <AppIcon name="settings" size="14" />
           <span>Thiết lập</span>

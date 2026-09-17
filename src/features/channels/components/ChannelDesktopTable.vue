@@ -16,7 +16,11 @@
           <!-- Kênh -->
           <td class="col-channel">
             <div class="channel-cell">
-              <div class="avatar-wrap">
+              <router-link
+                :to="'/kenh-theo-doi/' + channel.id"
+                class="avatar-wrap"
+                title="Xem phân tích kênh"
+              >
                 <img
                   v-if="channel.avatarUrl"
                   :src="channel.avatarUrl"
@@ -28,10 +32,16 @@
                 <div v-else class="avatar-fallback">
                   {{ channel.name.charAt(0).toUpperCase() }}
                 </div>
-              </div>
+              </router-link>
               <div class="channel-info">
                 <div class="channel-name-row">
-                  <span class="channel-name">{{ channel.name }}</span>
+                  <router-link
+                    :to="'/kenh-theo-doi/' + channel.id"
+                    class="channel-name channel-name-link"
+                    title="Xem phân tích kênh"
+                  >
+                    {{ channel.name }}
+                  </router-link>
                   <a
                     :href="channel.url"
                     target="_blank"
@@ -79,6 +89,15 @@
           <!-- Thao tác -->
           <td class="col-actions">
             <div class="actions-group">
+              <!-- Phân Tích Kênh -->
+              <router-link
+                :to="'/kenh-theo-doi/' + channel.id"
+                class="icon-action-btn icon-action-analytics"
+                title="Phân Tích Kênh"
+              >
+                <AppIcon name="activity" size="16" />
+              </router-link>
+
               <button
                 class="icon-action-btn"
                 @click="$emit('edit', channel)"
@@ -321,6 +340,19 @@ td {
 .icon-action-restore:hover {
   color: var(--accent);
   border-color: var(--accent);
+}
+
+.icon-action-analytics:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.channel-name-link {
+  text-decoration: none;
+}
+
+.channel-name-link:hover {
+  color: var(--accent);
 }
 
 @media (max-width: 900px) {

@@ -294,7 +294,13 @@
           </div>
 
           <div v-else class="channel-summary-list">
-            <div v-for="ch in summary.topChannels" :key="ch.channelId" class="channel-summary-item">
+            <router-link
+              v-for="ch in summary.topChannels"
+              :key="ch.channelId"
+              :to="'/kenh-theo-doi/' + ch.channelId"
+              class="channel-summary-item"
+              title="Xem phân tích kênh"
+            >
               <div class="ch-avatar-wrap">
                 <img
                   v-if="ch.avatarUrl"
@@ -323,7 +329,7 @@
                 </div>
                 <div class="ch-vph-lbl">VPH cao nhất</div>
               </div>
-            </div>
+            </router-link>
           </div>
         </div>
 
@@ -1192,6 +1198,14 @@ onMounted(() => {
   background-color: var(--bg-surface-elevated);
   border: 1px solid var(--border-subtle);
   border-radius: 8px;
+  text-decoration: none;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+  cursor: pointer;
+}
+
+.channel-summary-item:hover {
+  border-color: var(--accent);
+  background-color: rgba(56, 189, 248, 0.05);
 }
 
 .ch-avatar-wrap {
