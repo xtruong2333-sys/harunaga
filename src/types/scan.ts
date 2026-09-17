@@ -13,6 +13,9 @@ export interface ScanRun {
   channelsFailed: number;
   videosFound: number;
   snapshotsCreated: number;
+  alertCandidates?: number;
+  alertsSent?: number;
+  alertsFailed?: number;
   errorSummary: string | null;
   triggerSource: ScanTriggerSource;
 }
@@ -27,6 +30,9 @@ export interface DbScanRun {
   channels_failed: number;
   videos_found: number;
   snapshots_created: number;
+  alert_candidates?: number;
+  alerts_sent?: number;
+  alerts_failed?: number;
   error_summary: string | null;
   trigger_source: ScanTriggerSource;
 }
@@ -42,6 +48,9 @@ export interface CollectorResponse {
     channelsFailed: number;
     videosFound: number;
     snapshotsCreated: number;
+    alertCandidates?: number;
+    alertsSent?: number;
+    alertsFailed?: number;
     status: ScanRunStatus;
     triggerSource?: ScanTriggerSource;
     errorSummary?: string | null;

@@ -47,6 +47,94 @@ function calculateVph(
   return { viewDelta: delta, elapsedSeconds, measuredVph };
 }
 
+/**
+ * Định dạng số nguyên sang chuẩn Việt Nam (ngăn cách hàng nghìn bằng dấu chấm)
+ */
+function formatViNumber(num: number | null | undefined): string {
+  if (num === null || num === undefined || isNaN(num)) return "0";
+  return Math.round(num)
+    .toString()
+    .replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+}
+
+/**
+ * Định dạng số giây sang phút/giờ dễ đọc
+ */
+function formatDurationVi(seconds?: number | null): string {
+  if (!seconds || seconds <= 0) return "0 giây";
+  const minutes = Math.round(seconds / 60);
+  if (minutes < 60) return `${minutes} phút`;
+  const hours = (minutes / 60).toFixed(1);
+  return `${hours} giờ (${minutes} phút)`;
+}
+
+/**
+ * Định dạng ngày giờ xuất bản sang Tiếng Việt
+ */
+function formatDateTimeVi(dateStr: string): string {
+  try {
+    const d = new Date(dateStr);
+    return d.toLocaleString("vi-VN", {
+      timeZone: "Asia/Ho_Chi_Minh",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  } catch {
+    return dateStr;
+  }
+}
+
+/**
+ * Tạo Discord Embed Object chuẩn theo quy định Giai đoạn 2C (Không @everyone, không @here)
+ */
+function buildDiscordEmbed(input: {
+  channelName: string;
+  videoTitle: string;
+  videoUrl: string;
+  thumbnailUrl?: string | null;
+  publishedAt: string;
+  measuredVph: number;
+  currentViews: number;
+  viewDelta?: number | null;
+  elapsedSeconds?: number | null;
+  thresholdVph: number;
+}) {
+  const deltaStr = input.viewDelta !== null && input.viewDelta !== undefined
+    ? `+${formatViNumber(input.viewDelta)}`
+    : "Không rõ";
+
+  const embed: Record<string, unknown> = {
+    title: "🚨 Video đang tăng nhanh",
+    url: input.videoUrl,
+    color: 0xff3366,
+    fields: [
+      { name: "Kênh", value: input.channelName, inline: true },
+      { name: "VPH đo được", value: `**${formatViNumber(input.measuredVph)}** lượt xem/giờ`, inline: true },
+      { name: "Ngưỡng cảnh báo", value: `${formatViNumber(input.thresholdVph)} VPH`, inline: true },
+      { name: "Video", value: `[${input.videoTitle}](${input.videoUrl})` },
+      { name: "Lượt xem hiện tại", value: formatViNumber(input.currentViews), inline: true },
+      { name: "Tăng từ lần trước", value: deltaStr, inline: true },
+      { name: "Khoảng thời gian đo", value: formatDurationVi(input.elapsedSeconds), inline: true },
+      { name: "Xuất bản", value: formatDateTimeVi(input.publishedAt), inline: true },
+    ],
+    footer: {
+      text: "Bắt Bài Đối Thủ • Dữ liệu đo thực tế",
+    },
+    timestamp: new Date().toISOString(),
+  };
+
+  if (input.thumbnailUrl) {
+    embed.thumbnail = { url: input.thumbnailUrl };
+  }
+
+  return {
+    embeds: [embed],
+  };
+}
+
 serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -199,6 +287,9 @@ serve(async (req: Request) => {
     let channelsFailed = 0;
     let videosFound = 0;
     let snapshotsCreated = 0;
+    let alertCandidates = 0;
+    let alertsSent = 0;
+    let alertsFailed = 0;
     let finalStatus: 'success' | 'partial' | 'failed' = 'failed';
     let finalErrorSummary: string | null = null;
     const errors: string[] = [];
@@ -215,6 +306,13 @@ serve(async (req: Request) => {
       }
 
       channelsTotal = channels ? channels.length : 0;
+      const channelThresholdMap = new Map<string, number>();
+      if (channels) {
+        for (const ch of channels) {
+          const thresh = Number(ch.alert_vph_threshold);
+          channelThresholdMap.set(ch.id, isNaN(thresh) || thresh <= 0 ? 5000 : thresh);
+        }
+      }
 
       if (!channels || channels.length === 0) {
         finalStatus = "success";
@@ -228,6 +326,9 @@ serve(async (req: Request) => {
               channelsFailed: 0,
               videosFound: 0,
               snapshotsCreated: 0,
+              alertCandidates: 0,
+              alertsSent: 0,
+              alertsFailed: 0,
               status: "success",
               triggerSource,
             },
@@ -418,7 +519,7 @@ serve(async (req: Request) => {
 
         const vphResult = calculateVph(currentViews, checkTime, previousViews, previousCheckedAt);
 
-        const { error: snapErr } = await supabase
+        const { data: insertedSnap, error: snapErr } = await supabase
           .from("video_snapshots")
           .insert({
             video_id: videoDbId,
@@ -427,7 +528,9 @@ serve(async (req: Request) => {
             measured_vph: vphResult.measuredVph,
             view_delta: vphResult.viewDelta,
             elapsed_seconds: vphResult.elapsedSeconds,
-          });
+          })
+          .select("id")
+          .maybeSingle();
 
         if (!snapErr) {
           snapshotsCreated++;
@@ -437,8 +540,180 @@ serve(async (req: Request) => {
               .from("videos")
               .update({ latest_measured_vph: vphResult.measuredVph })
               .eq("id", videoDbId);
+
+            const channelThreshold = channelThresholdMap.get(vItem.channelDbId) ?? 5000;
+            if (vphResult.measuredVph >= channelThreshold) {
+              alertCandidates++;
+
+              // Đăng ký ứng viên cảnh báo vào hàng đợi.
+              // UNIQUE(video_id) bảo đảm mỗi video chỉ được cảnh báo một lần duy nhất trong toàn bộ vòng đời.
+              await supabase
+                .from("video_alerts")
+                .upsert(
+                  {
+                    video_id: videoDbId,
+                    snapshot_id: insertedSnap?.id || null,
+                    threshold_vph: channelThreshold,
+                    measured_vph: vphResult.measuredVph,
+                    view_count: currentViews,
+                    view_delta: vphResult.viewDelta,
+                    elapsed_seconds: vphResult.elapsedSeconds,
+                    status: "pending",
+                  },
+                  { onConflict: "video_id", ignoreDuplicates: true }
+                );
+            }
           }
         }
+      }
+
+      // 10. Phục hồi các cảnh báo bị kẹt ở trạng thái 'sending' quá 15 phút (chuyển thành failed để retry)
+      try {
+        const staleAlertThreshold = new Date(Date.now() - 15 * 60 * 1000).toISOString();
+        await supabase
+          .from("video_alerts")
+          .update({
+            status: "failed",
+            last_error: "Quá trình gửi trước đó bị treo quá 15 phút.",
+            updated_at: new Date().toISOString(),
+          })
+          .eq("status", "sending")
+          .lt("updated_at", staleAlertThreshold);
+      } catch (recoverErr: any) {
+        console.error("Lỗi phục hồi alert treo:", recoverErr);
+      }
+
+      // 11. Xử lý gửi cảnh báo Discord (Nếu có webhook)
+      const discordWebhookUrl = Deno.env.get("DISCORD_WEBHOOK_URL");
+
+      try {
+        const { data: alertsToProcess, error: alertsQueryErr } = await supabase
+          .from("video_alerts")
+          .select(`
+            id,
+            video_id,
+            snapshot_id,
+            threshold_vph,
+            measured_vph,
+            view_count,
+            view_delta,
+            elapsed_seconds,
+            attempts,
+            status,
+            videos:video_id (
+              id,
+              title,
+              url,
+              thumbnail_url,
+              published_at,
+              channels:channel_id (
+                name
+              )
+            )
+          `)
+          .in("status", ["pending", "failed"])
+          .lt("attempts", 5)
+          .order("created_at", { ascending: true });
+
+        if (!alertsQueryErr && alertsToProcess && alertsToProcess.length > 0) {
+          for (const alert of alertsToProcess) {
+            const currentAttempts = (Number(alert.attempts) || 0) + 1;
+
+            // Chuyển trạng thái sang sending
+            await supabase
+              .from("video_alerts")
+              .update({
+                status: "sending",
+                attempts: currentAttempts,
+                updated_at: new Date().toISOString(),
+              })
+              .eq("id", alert.id);
+
+            if (!discordWebhookUrl || !discordWebhookUrl.trim()) {
+              alertsFailed++;
+              await supabase
+                .from("video_alerts")
+                .update({
+                  status: "failed",
+                  last_error: "Chưa cấu hình DISCORD_WEBHOOK_URL trên máy chủ.",
+                  updated_at: new Date().toISOString(),
+                })
+                .eq("id", alert.id);
+              continue;
+            }
+
+            try {
+              const videoData: any = alert.videos;
+              const channelName = videoData?.channels?.name || "Kênh đối thủ";
+              const videoTitle = videoData?.title || "Video không rõ tiêu đề";
+              const videoUrl = videoData?.url || `https://www.youtube.com/watch?v=${alert.video_id}`;
+              const thumbnailUrl = videoData?.thumbnail_url || null;
+              const publishedAt = videoData?.published_at || new Date().toISOString();
+
+              const embedPayload = buildDiscordEmbed({
+                channelName,
+                videoTitle,
+                videoUrl,
+                thumbnailUrl,
+                publishedAt,
+                measuredVph: Number(alert.measured_vph),
+                currentViews: Number(alert.view_count),
+                viewDelta: alert.view_delta !== null ? Number(alert.view_delta) : null,
+                elapsedSeconds: alert.elapsed_seconds !== null ? Number(alert.elapsed_seconds) : null,
+                thresholdVph: Number(alert.threshold_vph),
+              });
+
+              const discordRes = await fetch(`${discordWebhookUrl}?wait=true`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(embedPayload),
+              });
+
+              if (discordRes.ok) {
+                const resBody = await discordRes.json().catch(() => ({}));
+                const messageId = resBody?.id ? String(resBody.id) : null;
+
+                await supabase
+                  .from("video_alerts")
+                  .update({
+                    status: "sent",
+                    sent_at: new Date().toISOString(),
+                    discord_message_id: messageId,
+                    last_error: null,
+                    updated_at: new Date().toISOString(),
+                  })
+                  .eq("id", alert.id);
+
+                alertsSent++;
+              } else {
+                alertsFailed++;
+                const errText = await discordRes.text().catch(() => "");
+                const safeError = `Discord HTTP ${discordRes.status}: ${errText.slice(0, 300)}`.replace(discordWebhookUrl, "REDACTED");
+                await supabase
+                  .from("video_alerts")
+                  .update({
+                    status: "failed",
+                    last_error: safeError,
+                    updated_at: new Date().toISOString(),
+                  })
+                  .eq("id", alert.id);
+              }
+            } catch (sendErr: any) {
+              alertsFailed++;
+              const safeError = (sendErr.message || String(sendErr)).replace(discordWebhookUrl, "REDACTED");
+              await supabase
+                .from("video_alerts")
+                .update({
+                  status: "failed",
+                  last_error: safeError,
+                  updated_at: new Date().toISOString(),
+                })
+                .eq("id", alert.id);
+            }
+          }
+        }
+      } catch (alertProcessErr: any) {
+        console.error("Lỗi trong vòng lặp gửi cảnh báo Discord:", alertProcessErr);
       }
 
       finalStatus = channelsFailed === 0 ? "success" : channelsSuccess > 0 ? "partial" : "failed";
@@ -454,6 +729,9 @@ serve(async (req: Request) => {
             channelsFailed,
             videosFound,
             snapshotsCreated,
+            alertCandidates,
+            alertsSent,
+            alertsFailed,
             status: finalStatus,
             triggerSource,
             errorSummary: finalErrorSummary,
@@ -481,6 +759,9 @@ serve(async (req: Request) => {
           channels_failed: channelsFailed,
           videos_found: videosFound,
           snapshots_created: snapshotsCreated,
+          alert_candidates: alertCandidates,
+          alerts_sent: alertsSent,
+          alerts_failed: alertsFailed,
           error_summary: finalErrorSummary,
         })
         .eq("id", runId);
