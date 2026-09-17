@@ -1348,7 +1348,7 @@ function handleImgError(e: Event) {
 }
 
 .opportunity-table th {
-  padding: 10px 8px;
+  padding: 10px 6px;
   font-size: 11px;
   font-weight: 600;
   color: var(--text-muted);
@@ -1359,7 +1359,7 @@ function handleImgError(e: Event) {
 }
 
 .opportunity-table td {
-  padding: 10px 8px;
+  padding: 10px 6px;
   border-bottom: 1px solid var(--border-subtle);
   vertical-align: middle;
 }
@@ -1369,14 +1369,14 @@ function handleImgError(e: Event) {
 }
 
 /* Column Specific Widths */
-.th-video, .td-video { min-width: 190px; }
-.th-channel, .td-channel { min-width: 105px; max-width: 130px; }
+.th-video, .td-video { min-width: 175px; }
+.th-channel, .td-channel { min-width: 100px; max-width: 120px; }
 .th-age, .td-age { min-width: 60px; }
 .th-views, .td-views { min-width: 75px; }
 .th-vph, .td-vph { min-width: 75px; }
 .th-delta, .td-delta { min-width: 80px; }
-.th-threshold, .td-threshold { min-width: 105px; }
-.th-alert, .td-alert { min-width: 85px; }
+.th-threshold, .td-threshold { min-width: 100px; }
+.th-alert, .td-alert { min-width: 80px; }
 .th-actions, .td-actions { min-width: 195px; width: 200px; }
 
 /* Table Cells */
@@ -1384,8 +1384,8 @@ function handleImgError(e: Event) {
   display: flex;
   align-items: center;
   gap: 8px;
-  min-width: 190px;
-  max-width: 320px;
+  min-width: 175px;
+  max-width: 300px;
 }
 
 .cell-thumb-wrap {
@@ -1443,15 +1443,22 @@ function handleImgError(e: Event) {
 .cell-channel-link {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   text-decoration: none;
   color: var(--text-primary);
   font-weight: 500;
   white-space: nowrap;
+  max-width: 120px;
 }
 
 .cell-channel-link:hover {
   color: var(--accent);
+}
+
+.cell-channel-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .cell-avatar-wrap {

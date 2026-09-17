@@ -71,14 +71,14 @@ describe('V1.1 Light Theme & Wide Desktop Hotfix Contract Tests', () => {
     });
 
     it('3.2 Opportunity table định nghĩa đầy đủ column widths', () => {
-      expect(opp).toContain('.th-video, .td-video { min-width: 190px; }');
-      expect(opp).toContain('.th-channel, .td-channel { min-width: 105px; max-width: 130px; }');
+      expect(opp).toContain('.th-video, .td-video { min-width: 175px; }');
+      expect(opp).toContain('.th-channel, .td-channel { min-width: 100px; max-width: 120px; }');
       expect(opp).toContain('.th-age, .td-age { min-width: 60px; }');
       expect(opp).toContain('.th-views, .td-views { min-width: 75px; }');
       expect(opp).toContain('.th-vph, .td-vph { min-width: 75px; }');
       expect(opp).toContain('.th-delta, .td-delta { min-width: 80px; }');
-      expect(opp).toContain('.th-threshold, .td-threshold { min-width: 105px; }');
-      expect(opp).toContain('.th-alert, .td-alert { min-width: 85px; }');
+      expect(opp).toContain('.th-threshold, .td-threshold { min-width: 100px; }');
+      expect(opp).toContain('.th-alert, .td-alert { min-width: 80px; }');
       expect(opp).toContain('.th-actions, .td-actions { min-width: 195px;');
     });
 
