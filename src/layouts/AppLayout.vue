@@ -85,6 +85,8 @@ import AppIcon from '@/components/ui/AppIcon.vue';
   display: flex;
   min-height: 100vh;
   background-color: var(--bg-main);
+  max-width: 100vw;
+  overflow-x: hidden;
 }
 
 .sidebar {
@@ -117,6 +119,12 @@ import AppIcon from '@/components/ui/AppIcon.vue';
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
 }
 
 .brand-title {
@@ -186,6 +194,9 @@ import AppIcon from '@/components/ui/AppIcon.vue';
 }
 
 @media (max-width: 900px) {
+  .app-layout {
+    flex-direction: column;
+  }
   .sidebar {
     display: none;
   }
@@ -200,6 +211,8 @@ import AppIcon from '@/components/ui/AppIcon.vue';
     top: 0;
     z-index: 50;
     gap: 12px;
+    max-width: 100vw;
+    box-sizing: border-box;
   }
   .brand-mobile {
     display: flex;
@@ -217,6 +230,13 @@ import AppIcon from '@/components/ui/AppIcon.vue';
     align-items: center;
     gap: 6px;
     overflow-x: auto;
+    min-width: 0;
+    flex: 1;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .mobile-nav::-webkit-scrollbar {
+    display: none;
   }
   .mobile-nav-link {
     font-size: 12px;
@@ -226,6 +246,7 @@ import AppIcon from '@/components/ui/AppIcon.vue';
     color: var(--text-secondary);
     text-decoration: none;
     white-space: nowrap;
+    flex-shrink: 0;
   }
   .mobile-nav-link-active {
     color: var(--accent);
@@ -235,6 +256,9 @@ import AppIcon from '@/components/ui/AppIcon.vue';
   .main-content {
     margin-left: 0;
     padding: 20px 16px;
+    min-width: 0;
+    width: 100%;
+    box-sizing: border-box;
   }
 }
 </style>

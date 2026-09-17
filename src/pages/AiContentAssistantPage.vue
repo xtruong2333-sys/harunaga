@@ -605,6 +605,8 @@ function onThumbError(e: Event) {
   max-width: 1200px;
   margin: 0 auto;
   padding-bottom: 60px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* Page Header */
@@ -642,6 +644,8 @@ function onThumbError(e: Event) {
   padding: 14px 18px;
   border-radius: 8px;
   font-size: 14px;
+  box-sizing: border-box;
+  max-width: 100%;
 }
 
 .error-banner {
@@ -657,6 +661,8 @@ function onThumbError(e: Event) {
 
 .alert-content {
   flex: 1;
+  min-width: 0;
+  word-break: break-word;
 }
 
 .alert-title {
@@ -692,6 +698,8 @@ function onThumbError(e: Event) {
   border: 1px solid var(--border-subtle);
   border-radius: 12px;
   padding: 20px;
+  box-sizing: border-box;
+  max-width: 100%;
 }
 
 /* Selector Card */
