@@ -12,7 +12,7 @@ import {
 import type { AiContentAnalysis } from '../src/types/ai-content';
 import router from '../src/router';
 
-describe('Bắt Bài Đối Thủ — Giai Đoạn 17: Hoàn Thiện Trợ Lý Nội Dung AI Production', () => {
+describe('Bắt Bài Đối Thủ — Giai Đoạn 17.1: Chuyển Trợ Lý Nội Dung AI Sang Groq Free Tier', () => {
   const mockAnalysis: AiContentAnalysis = {
     summary: 'Video chia sẻ 5 kỹ năng lập trình quan trọng nhất năm 2026 giúp tăng gấp đôi hiệu suất.',
     content_angle: 'Tập trung vào tính thực chiến, loại bỏ lý thuyết sáo rỗng, nhắm vào lập trình viên muốn bứt phá thu nhập.',
@@ -143,8 +143,8 @@ describe('Bắt Bài Đối Thủ — Giai Đoạn 17: Hoàn Thiện Trợ Lý N
     });
   });
 
-  // 5. Regression Test: Sửa lỗi cột snapshot (Section 1 & 38)
-  describe('5. Sửa lỗi cột snapshot: checked_at thay vì recorded_at (Section 1 & 38)', () => {
+  // 5. Regression Test: Cột snapshot checked_at (Section 13 & 49)
+  describe('5. Cột snapshot: checked_at thay vì recorded_at (Section 13 & 49)', () => {
     const serviceFile = path.resolve(__dirname, '../src/services/ai-content-service.ts');
     const edgeFuncFile = path.resolve(__dirname, '../supabase/functions/analyze-video-content/index.ts');
     const serviceContent = fs.readFileSync(serviceFile, 'utf-8');
@@ -161,23 +161,65 @@ describe('Bắt Bài Đối Thủ — Giai Đoạn 17: Hoàn Thiện Trợ Lý N
     });
   });
 
-  // 6. Regression Test: Model gpt-5.6-luna (Section 3 & 39)
-  describe('6. Xác nhận model chính xác: gpt-5.6-luna (Section 3 & 39)', () => {
+  // 6. Groq Provider Endpoint & Secret (Section 3, 35 & 36)
+  describe('6. Cấu hình Groq Provider Endpoint và Secret (Section 3, 35 & 36)', () => {
     const edgeFuncFile = path.resolve(__dirname, '../supabase/functions/analyze-video-content/index.ts');
     const edgeFuncContent = fs.readFileSync(edgeFuncFile, 'utf-8');
 
-    it('Edge Function cấu hình model chính xác là gpt-5.6-luna', () => {
-      expect(edgeFuncContent).toContain('model: "gpt-5.6-luna"');
+    it('Edge Function chứa endpoint Groq và KHÔNG chứa endpoint OpenAI', () => {
+      expect(edgeFuncContent).toContain('https://api.groq.com/openai/v1/chat/completions');
+      expect(edgeFuncContent).not.toContain('https://api.openai.com/v1/chat/completions');
+    });
+
+    it('Edge Function đọc GROQ_API_KEY và KHÔNG đọc OPENAI_API_KEY', () => {
+      expect(edgeFuncContent).toContain('Deno.env.get("GROQ_API_KEY")');
+      expect(edgeFuncContent).not.toContain('Deno.env.get("OPENAI_API_KEY")');
+    });
+  });
+
+  // 7. Model và Reasoning (Section 4, 10, 37 & 40)
+  describe('7. Model openai/gpt-oss-120b và reasoning_effort: low (Section 4, 10, 37 & 40)', () => {
+    const edgeFuncFile = path.resolve(__dirname, '../supabase/functions/analyze-video-content/index.ts');
+    const edgeFuncContent = fs.readFileSync(edgeFuncFile, 'utf-8');
+
+    it('Edge Function cấu hình model chính xác là openai/gpt-oss-120b', () => {
+      expect(edgeFuncContent).toContain('model: "openai/gpt-oss-120b"');
+    });
+
+    it('Edge Function không sử dụng gpt-5.6-luna', () => {
+      expect(edgeFuncContent).not.toContain('gpt-5.6-luna');
     });
 
     it('Edge Function cấu hình reasoning_effort: "low" và không có temperature', () => {
       expect(edgeFuncContent).toContain('reasoning_effort: "low"');
       expect(edgeFuncContent).not.toContain('temperature:');
     });
+
+    it('Edge Function không yêu cầu reasoning_format: raw (không lộ CoT)', () => {
+      expect(edgeFuncContent).not.toContain('reasoning_format: "raw"');
+    });
   });
 
-  // 7. Structured Output json_schema strict: true (Section 6, 7 & 40)
-  describe('7. Structured Output json_schema với strict: true (Section 6, 7 & 40)', () => {
+  // 8. Message Roles: system và user (Section 6 & 38)
+  describe('8. Message Roles chuẩn hóa: system và user (Section 6 & 38)', () => {
+    const edgeFuncFile = path.resolve(__dirname, '../supabase/functions/analyze-video-content/index.ts');
+    const edgeFuncContent = fs.readFileSync(edgeFuncFile, 'utf-8');
+
+    it('messages sử dụng role: "system" cho chỉ dẫn hệ thống', () => {
+      expect(edgeFuncContent).toContain('{ role: "system", content: systemPrompt }');
+    });
+
+    it('messages sử dụng role: "user" cho metadata video', () => {
+      expect(edgeFuncContent).toContain('{ role: "user", content: userPrompt }');
+    });
+
+    it('không sử dụng role: "developer" trong messages gọi Groq', () => {
+      expect(edgeFuncContent).not.toContain('{ role: "developer"');
+    });
+  });
+
+  // 9. Structured Output json_schema strict: true (Section 7, 8 & 39)
+  describe('9. Structured Output json_schema với strict: true (Section 7, 8 & 39)', () => {
     const edgeFuncFile = path.resolve(__dirname, '../supabase/functions/analyze-video-content/index.ts');
     const edgeFuncContent = fs.readFileSync(edgeFuncFile, 'utf-8');
 
@@ -192,11 +234,15 @@ describe('Bắt Bài Đối Thủ — Giai Đoạn 17: Hoàn Thiện Trợ Lý N
       expect(edgeFuncContent).toContain('minItems: 5');
       expect(edgeFuncContent).toContain('maxItems: 5');
     });
+
+    it('JSON Schema có additionalProperties: false', () => {
+      expect(edgeFuncContent).toContain('additionalProperties: false');
+    });
   });
 
-  // 8. Bảo mật: Không gọi trực tiếp OpenAI từ frontend browser (Section 41)
-  describe('8. Bảo mật frontend: Không gọi OpenAI trực tiếp từ browser (Section 41)', () => {
-    it('toàn bộ thư mục src/ không chứa api.openai.com hay Authorization tới OpenAI', () => {
+  // 10. Bảo mật: Không gọi trực tiếp Groq từ frontend browser (Section 28 & 41)
+  describe('10. Bảo mật frontend: Không gọi Groq trực tiếp từ browser (Section 28 & 41)', () => {
+    it('toàn bộ thư mục src/ không chứa api.groq.com hay GROQ_API_KEY', () => {
       function searchDir(dir: string): void {
         const entries = fs.readdirSync(dir, { withFileTypes: true });
         for (const entry of entries) {
@@ -205,8 +251,8 @@ describe('Bắt Bài Đối Thủ — Giai Đoạn 17: Hoàn Thiện Trợ Lý N
             searchDir(fullPath);
           } else if (entry.isFile() && (entry.name.endsWith('.ts') || entry.name.endsWith('.vue'))) {
             const content = fs.readFileSync(fullPath, 'utf-8');
-            expect(content, `File ${fullPath} không được gọi trực tiếp OpenAI`).not.toContain('api.openai.com');
-            expect(content, `File ${fullPath} không được chứa OPENAI_API_KEY`).not.toContain('OPENAI_API_KEY');
+            expect(content, `File ${fullPath} không được gọi trực tiếp Groq`).not.toContain('api.groq.com');
+            expect(content, `File ${fullPath} không được chứa GROQ_API_KEY`).not.toContain('GROQ_API_KEY');
           }
         }
       }
@@ -215,8 +261,8 @@ describe('Bắt Bài Đối Thủ — Giai Đoạn 17: Hoàn Thiện Trợ Lý N
     });
   });
 
-  // 9. Read-only: Edge Function không mutation database (Section 42)
-  describe('9. Read-only database: Analyze Edge Function không ghi dữ liệu (Section 42)', () => {
+  // 11. Read-only: Edge Function không mutation database (Section 30 & 50)
+  describe('11. Read-only database: Analyze Edge Function không ghi dữ liệu (Section 30 & 50)', () => {
     const edgeFuncFile = path.resolve(__dirname, '../supabase/functions/analyze-video-content/index.ts');
     const edgeFuncContent = fs.readFileSync(edgeFuncFile, 'utf-8');
 
@@ -228,8 +274,8 @@ describe('Bắt Bài Đối Thủ — Giai Đoạn 17: Hoàn Thiện Trợ Lý N
     });
   });
 
-  // 10. Prompt Injection Defense (Section 20 & 50)
-  describe('10. Phòng thủ Prompt Injection (Section 20 & 50)', () => {
+  // 12. Prompt Injection Defense (Section 17)
+  describe('12. Phòng thủ Prompt Injection (Section 17)', () => {
     const edgeFuncFile = path.resolve(__dirname, '../supabase/functions/analyze-video-content/index.ts');
     const edgeFuncContent = fs.readFileSync(edgeFuncFile, 'utf-8');
 
@@ -241,8 +287,8 @@ describe('Bắt Bài Đối Thủ — Giai Đoạn 17: Hoàn Thiện Trợ Lý N
     });
   });
 
-  // 11. Negative Delta Handling (Section 17 & 51)
-  describe('11. Định dạng Negative Delta (Section 17 & 51)', () => {
+  // 13. Negative Delta Handling (Section 16)
+  describe('13. Định dạng Negative Delta (Section 16)', () => {
     it('delta âm hiển thị đúng dấu trừ, không format +-123', () => {
       const delta = -100;
       let text = '';
@@ -269,8 +315,8 @@ describe('Bắt Bài Đối Thủ — Giai Đoạn 17: Hoàn Thiện Trợ Lý N
     });
   });
 
-  // 12. Server-side validation rejecting wrong array counts (Section 21, 22 & 49)
-  describe('12. Kiểm tra server-side validation từ chối kết quả thiếu hoặc sai số lượng items (Section 49)', () => {
+  // 14. Server-side validation rejecting wrong array counts (Section 9 & 48)
+  describe('14. Kiểm tra server-side validation từ chối kết quả thiếu hoặc sai số lượng items (Section 9 & 48)', () => {
     it('từ chối nếu không đúng chính xác 3 lý do, 5 tiêu đề, 3 thumbnail, 3 hook', () => {
       function validateOutputCounts(parsed: any): boolean {
         const reasonsValid = Array.isArray(parsed.why_it_may_attract_attention) && parsed.why_it_may_attract_attention.length === 3;
@@ -299,6 +345,52 @@ describe('Bắt Bài Đối Thủ — Giai Đoạn 17: Hoàn Thiện Trợ Lý N
       // Missing summary
       const missingSummary = { ...mockAnalysis, summary: '' };
       expect(validateOutputCounts(missingSummary)).toBe(false);
+    });
+  });
+
+  // 15. Error Mapping: 429, 401, 5xx, Timeout, 400 (Section 20, 21, 44, 45 & 46)
+  describe('15. Error Mapping của Edge Function theo chuẩn Phase 17.1 (Section 20 & 21)', () => {
+    const edgeFuncFile = path.resolve(__dirname, '../supabase/functions/analyze-video-content/index.ts');
+    const edgeFuncContent = fs.readFileSync(edgeFuncFile, 'utf-8');
+
+    it('lỗi 429 ánh xạ sang câu thông báo giới hạn sử dụng thân thiện cho Free Tier', () => {
+      expect(edgeFuncContent).toContain('AI miễn phí đã tạm đạt giới hạn sử dụng. Vui lòng thử lại sau.');
+    });
+
+    it('lỗi 401 ánh xạ sang thông báo cấu hình dịch vụ AI không hợp lệ', () => {
+      expect(edgeFuncContent).toContain('Cấu hình dịch vụ AI không hợp lệ.');
+    });
+
+    it('lỗi 400 ánh xạ sang yêu cầu chưa được nhà cung cấp chấp nhận', () => {
+      expect(edgeFuncContent).toContain('Yêu cầu AI chưa được nhà cung cấp chấp nhận.');
+    });
+
+    it('lỗi 5xx ánh xạ sang dịch vụ tạm thời chưa phản hồi', () => {
+      expect(edgeFuncContent).toContain('Dịch vụ AI tạm thời chưa phản hồi. Vui lòng thử lại.');
+    });
+
+    it('lỗi Timeout ánh xạ sang vượt quá thời gian chờ', () => {
+      expect(edgeFuncContent).toContain('Yêu cầu phân tích AI đã vượt quá thời gian chờ. Vui lòng thử lại.');
+    });
+
+    it('thiếu GROQ_API_KEY trả về HTTP 503 với thông báo an toàn', () => {
+      expect(edgeFuncContent).toContain('AI chưa được cấu hình. Thiếu GROQ_API_KEY trên hệ thống máy chủ.');
+      expect(edgeFuncContent).toContain('status: 503');
+    });
+  });
+
+  // 16. Zero-Cost & Không Fallback Trả Phí (Section 0, 5 & 69)
+  describe('16. Tuân thủ nguyên tắc Zero-Cost và không fallback trả phí (Section 0, 5 & 69)', () => {
+    const edgeFuncFile = path.resolve(__dirname, '../supabase/functions/analyze-video-content/index.ts');
+    const edgeFuncContent = fs.readFileSync(edgeFuncFile, 'utf-8');
+
+    it('không có logic fallback tự động sang OpenAI hoặc model trả phí khác', () => {
+      expect(edgeFuncContent).not.toContain('fallback');
+      expect(edgeFuncContent).not.toContain('fetch("https://api.openai.com');
+    });
+
+    it('giới hạn token hợp lý max_tokens để bảo toàn quota miễn phí', () => {
+      expect(edgeFuncContent).toContain('max_tokens: 3000');
     });
   });
 });

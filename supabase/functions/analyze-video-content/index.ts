@@ -1,7 +1,8 @@
 // Supabase Edge Function: analyze-video-content
-// Trợ Lý Nội Dung AI — Bắt Bài Đối Thủ (Giai đoạn 17 Production)
+// Trợ Lý Nội Dung AI — Bắt Bài Đối Thủ (Phase 17.1 Groq Free Tier)
 // Chỉ phân tích nội dung khi người dùng chủ động yêu cầu
 // Xác thực qua APP_WRITE_ACCESS_KEY
+// Sử dụng Groq API với model openai/gpt-oss-120b (Free Tier)
 // Tuyệt đối không ghi dữ liệu vào database, không sửa VPH, không chạy collector
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
@@ -137,13 +138,13 @@ serve(async (req: Request) => {
       }
     }
 
-    // 5. Kiểm tra cấu hình OPENAI_API_KEY
-    const openaiApiKey = Deno.env.get("OPENAI_API_KEY");
-    if (!openaiApiKey || !openaiApiKey.trim()) {
+    // 5. Kiểm tra cấu hình GROQ_API_KEY (Phase 17.1 Zero-Cost Free Tier)
+    const groqApiKey = Deno.env.get("GROQ_API_KEY");
+    if (!groqApiKey || !groqApiKey.trim()) {
       return new Response(
         JSON.stringify({
           success: false,
-          error: "AI chưa được cấu hình. Thiếu OPENAI_API_KEY trên hệ thống máy chủ.",
+          error: "AI chưa được cấu hình. Thiếu GROQ_API_KEY trên hệ thống máy chủ.",
         }),
         { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
@@ -265,22 +266,22 @@ Tăng trưởng snapshot: ${viewDeltaText}
       },
     };
 
-    // 7. Gọi OpenAI API với model gpt-5.6-luna, reasoning_effort: "low", timeout 40s
+    // 7. Gọi Groq API với model openai/gpt-oss-120b, reasoning_effort: "low", timeout 40s
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 40000);
 
     let rawAiText = "";
     try {
-      const openAiRes = await fetch("https://api.openai.com/v1/chat/completions", {
+      const groqRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
         method: "POST",
         headers: {
-          "Authorization": `Bearer ${openaiApiKey.trim()}`,
+          "Authorization": `Bearer ${groqApiKey.trim()}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: "gpt-5.6-luna",
+          model: "openai/gpt-oss-120b",
           messages: [
-            { role: "developer", content: systemPrompt },
+            { role: "system", content: systemPrompt },
             { role: "user", content: userPrompt },
           ],
           response_format: {
@@ -288,14 +289,15 @@ Tăng trưởng snapshot: ${viewDeltaText}
             json_schema: jsonSchema,
           },
           reasoning_effort: "low",
+          max_tokens: 3000,
         }),
         signal: controller.signal,
       });
 
       clearTimeout(timeoutId);
 
-      if (!openAiRes.ok) {
-        if (openAiRes.status === 401) {
+      if (!groqRes.ok) {
+        if (groqRes.status === 401) {
           return new Response(
             JSON.stringify({
               success: false,
@@ -304,16 +306,16 @@ Tăng trưởng snapshot: ${viewDeltaText}
             { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
           );
         }
-        if (openAiRes.status === 429) {
+        if (groqRes.status === 429) {
           return new Response(
             JSON.stringify({
               success: false,
-              error: "Dịch vụ AI đang giới hạn yêu cầu. Vui lòng thử lại sau ít phút.",
+              error: "AI miễn phí đã tạm đạt giới hạn sử dụng. Vui lòng thử lại sau.",
             }),
             { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
           );
         }
-        if (openAiRes.status === 400) {
+        if (groqRes.status === 400) {
           return new Response(
             JSON.stringify({
               success: false,
@@ -322,7 +324,7 @@ Tăng trưởng snapshot: ${viewDeltaText}
             { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
           );
         }
-        if (openAiRes.status >= 500) {
+        if (groqRes.status >= 500) {
           return new Response(
             JSON.stringify({
               success: false,
@@ -340,10 +342,10 @@ Tăng trưởng snapshot: ${viewDeltaText}
         );
       }
 
-      const openAiData = await openAiRes.json();
+      const groqData = await groqRes.json();
 
       // Kiểm tra refusal từ model
-      if (openAiData.choices?.[0]?.message?.refusal) {
+      if (groqData.choices?.[0]?.message?.refusal) {
         return new Response(
           JSON.stringify({
             success: false,
@@ -353,7 +355,7 @@ Tăng trưởng snapshot: ${viewDeltaText}
         );
       }
 
-      rawAiText = openAiData.choices?.[0]?.message?.content || "";
+      rawAiText = groqData.choices?.[0]?.message?.content || "";
     } catch (fetchErr: any) {
       clearTimeout(timeoutId);
       if (fetchErr.name === "AbortError") {
@@ -405,7 +407,7 @@ Tăng trưởng snapshot: ${viewDeltaText}
       );
     }
 
-    // 9. Server-side strict validation: đúng số lượng items theo yêu cầu (Section 21 & 22)
+    // 9. Server-side strict validation: đúng số lượng items theo yêu cầu (Section 8 & 9)
     const reasonsValid = Array.isArray(parsed.why_it_may_attract_attention) && parsed.why_it_may_attract_attention.length === 3;
     const titlesValid = Array.isArray(parsed.title_ideas) && parsed.title_ideas.length === 5;
     const thumbsValid = Array.isArray(parsed.thumbnail_concepts) && parsed.thumbnail_concepts.length === 3;
