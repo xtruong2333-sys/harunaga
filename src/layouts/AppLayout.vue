@@ -15,6 +15,10 @@
       </div>
 
       <nav class="nav-menu">
+        <router-link to="/videos" class="nav-item" active-class="nav-item-active">
+          <AppIcon name="trending-up" size="18" />
+          <span>Video Đang Tăng</span>
+        </router-link>
         <router-link to="/kenh-theo-doi" class="nav-item" active-class="nav-item-active">
           <AppIcon name="tv" size="18" />
           <span>Kênh Theo Dõi</span>
@@ -35,6 +39,9 @@
         <span class="brand-mobile-title">BẮT BÀI ĐỐI THỦ</span>
       </div>
       <nav class="mobile-nav">
+        <router-link to="/videos" class="mobile-nav-link" active-class="mobile-nav-link-active">
+          Video Đang Tăng
+        </router-link>
         <router-link to="/kenh-theo-doi" class="mobile-nav-link" active-class="mobile-nav-link-active">
           Kênh Theo Dõi
         </router-link>
@@ -107,6 +114,9 @@ import AppIcon from '@/components/ui/AppIcon.vue';
 .nav-menu {
   padding: 16px 12px;
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .nav-item {
@@ -118,6 +128,7 @@ import AppIcon from '@/components/ui/AppIcon.vue';
   color: var(--text-secondary);
   font-weight: 500;
   transition: all 0.15s ease;
+  text-decoration: none;
 }
 
 .nav-item:hover {
@@ -161,33 +172,44 @@ import AppIcon from '@/components/ui/AppIcon.vue';
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 14px 20px;
+    padding: 14px 16px;
     background-color: var(--bg-surface);
     border-bottom: 1px solid var(--border-subtle);
     position: sticky;
     top: 0;
     z-index: 50;
+    gap: 12px;
   }
   .brand-mobile {
     display: flex;
     align-items: center;
     gap: 8px;
+    flex-shrink: 0;
   }
   .brand-mobile-title {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 700;
     color: var(--text-primary);
   }
+  .mobile-nav {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    overflow-x: auto;
+  }
   .mobile-nav-link {
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 500;
-    padding: 6px 12px;
+    padding: 6px 10px;
     border-radius: 6px;
     color: var(--text-secondary);
+    text-decoration: none;
+    white-space: nowrap;
   }
   .mobile-nav-link-active {
     color: var(--accent);
     background-color: var(--accent-subtle);
+    font-weight: 600;
   }
   .main-content {
     margin-left: 0;

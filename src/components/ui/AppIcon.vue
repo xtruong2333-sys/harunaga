@@ -106,6 +106,23 @@
       <path d="M18 9v6" />
       <path d="M21 12h-6" />
     </template>
+
+    <!-- Trending Up -->
+    <template v-else-if="name === 'trending-up'">
+      <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+      <polyline points="17 6 23 6 23 12" />
+    </template>
+
+    <!-- Video -->
+    <template v-else-if="name === 'video'">
+      <polygon points="23 7 16 12 23 17 23 7" />
+      <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+    </template>
+
+    <!-- Flame / Fire -->
+    <template v-else-if="name === 'flame'">
+      <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 3z" />
+    </template>
   </svg>
 </template>
 

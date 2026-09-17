@@ -75,3 +75,49 @@ export function mapDbVideoToVideo(db: DbVideo): Video {
     updatedAt: db.updated_at,
   };
 }
+
+export interface VideoChannelMeta {
+  id: string;
+  name: string;
+  handle: string | null;
+  avatarUrl: string | null;
+  alertVphThreshold: number;
+}
+
+export interface VideoAlertMeta {
+  id: string;
+  status: 'pending' | 'sending' | 'sent' | 'failed';
+  measuredVph: number | null;
+  sentAt: string | null;
+}
+
+export interface VideoListItem {
+  id: string;
+  youtubeVideoId: string;
+  channelId: string;
+  title: string;
+  url: string;
+  thumbnailUrl: string | null;
+  publishedAt: string;
+  latestViewCount: number;
+  latestMeasuredVph: number | null;
+  channel: VideoChannelMeta;
+  alert: VideoAlertMeta | null;
+  latestSnapshot?: {
+    viewDelta: number | null;
+    checkedAt: string;
+  } | null;
+  latestDeltaViews: number | null;
+  isOverThreshold: boolean;
+}
+
+export type VideoSortOption = 'vph_desc' | 'views_desc' | 'published_desc' | 'delta_desc';
+export type VideoFilterOption = 'all' | 'rising' | 'alerted' | 'unalerted';
+
+export interface VideoStatsSummary {
+  totalVideos: number;
+  risingVideos: number;
+  maxVph: number | null;
+  alertedVideos: number;
+}
+

@@ -1,10 +1,19 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router';
 import ChannelsPage from '@/pages/ChannelsPage.vue';
+import VideosPage from '@/pages/VideosPage.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
-    redirect: '/kenh-theo-doi',
+    redirect: '/videos',
+  },
+  {
+    path: '/videos',
+    name: 'Videos',
+    component: VideosPage,
+    meta: {
+      title: 'Video Đang Tăng — Bắt Bài Đối Thủ',
+    },
   },
   {
     path: '/kenh-theo-doi',
@@ -16,7 +25,7 @@ const routes: Array<RouteRecordRaw> = [
   },
   {
     path: '/:pathMatch(.*)*',
-    redirect: '/kenh-theo-doi',
+    redirect: '/videos',
   },
 ];
 
