@@ -26,6 +26,15 @@
           <span>Video Mới</span>
         </router-link>
 
+        <router-link
+          :to="'/lich-dang-doi-thu?channel=' + analysis.channel.id"
+          class="btn btn-secondary btn-sm"
+          title="Xem lịch đăng của kênh này"
+        >
+          <AppIcon name="calendar" size="14" />
+          <span>Lịch Đăng</span>
+        </router-link>
+
         <button
           class="btn btn-secondary btn-sm"
           :disabled="loading"

@@ -12,13 +12,14 @@ describe('Bắt Bài Đối Thủ — Giai Đoạn 11: Route Maintenance & Lazy 
     { path: '/kenh-theo-doi', name: 'KenhTheoDoi', title: 'Kênh Theo Dõi — Bắt Bài Đối Thủ' },
     { path: '/kenh-theo-doi/:id', name: 'ChannelDetail', title: 'Phân Tích Kênh — Bắt Bài Đối Thủ' },
     { path: '/so-sanh-kenh', name: 'ChannelComparison', title: 'So Sánh Kênh — Bắt Bài Đối Thủ' },
+    { path: '/lich-dang-doi-thu', name: 'PublishingSchedule', title: 'Lịch Đăng Của Đối Thủ — Bắt Bài Đối Thủ' },
     { path: '/lich-su-canh-bao', name: 'AlertHistory', title: 'Lịch Sử Cảnh Báo — Bắt Bài Đối Thủ' },
     { path: '/tro-ly-noi-dung', name: 'AiContentAssistant', title: 'Trợ Lý Nội Dung AI — Bắt Bài Đối Thủ' },
     { path: '/tien-do-san-xuat', name: 'Production', title: 'Tiến Độ Sản Xuất — Bắt Bài Đối Thủ' },
     { path: '/tinh-trang-du-lieu', name: 'DataHealth', title: 'Tình Trạng Dữ Liệu — Bắt Bài Đối Thủ' },
   ];
 
-  it('Tất cả 13 routes chính đều được đăng ký đầy đủ và không bị mất', () => {
+  it('Tất cả 14 routes chính đều được đăng ký đầy đủ và không bị mất', () => {
     const registeredRoutes = router.getRoutes();
     for (const expected of EXPECTED_ROUTES) {
       const found = registeredRoutes.find(r => r.path === expected.path);
@@ -48,7 +49,7 @@ describe('Bắt Bài Đối Thủ — Giai Đoạn 11: Route Maintenance & Lazy 
     const registeredRoutes = router.getRoutes();
     const pageRoutes = registeredRoutes.filter(r => r.path !== '/' && !r.path.includes(':pathMatch'));
 
-    expect(pageRoutes.length).toBe(12);
+    expect(pageRoutes.length).toBe(13);
 
     for (const route of pageRoutes) {
       const comp = route.components?.default;

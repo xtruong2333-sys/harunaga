@@ -39,6 +39,10 @@
           <AppIcon name="bar-chart-2" size="18" />
           <span>So Sánh Kênh</span>
         </router-link>
+        <router-link to="/lich-dang-doi-thu" class="nav-item" active-class="nav-item-active">
+          <AppIcon name="calendar" size="18" />
+          <span>Lịch Đăng Của Đối Thủ</span>
+        </router-link>
         <router-link to="/lich-su-canh-bao" class="nav-item" active-class="nav-item-active">
           <AppIcon name="bell" size="18" />
           <span>Lịch Sử Cảnh Báo</span>
@@ -88,6 +92,9 @@
         </router-link>
         <router-link to="/so-sanh-kenh" class="mobile-nav-link" active-class="mobile-nav-link-active">
           So Sánh
+        </router-link>
+        <router-link to="/lich-dang-doi-thu" class="mobile-nav-link" active-class="mobile-nav-link-active">
+          Lịch Đăng
         </router-link>
         <router-link to="/lich-su-canh-bao" class="mobile-nav-link" active-class="mobile-nav-link-active">
           Cảnh Báo

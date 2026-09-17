@@ -11,6 +11,7 @@ const DataHealthPage = () => import('@/pages/DataHealthPage.vue');
 const ChannelComparisonPage = () => import('@/pages/ChannelComparisonPage.vue');
 const AlertHistoryPage = () => import('@/pages/AlertHistoryPage.vue');
 const NewVideosPage = () => import('@/pages/NewVideosPage.vue');
+const PublishingSchedulePage = () => import('@/pages/PublishingSchedulePage.vue');
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -79,6 +80,14 @@ const routes: Array<RouteRecordRaw> = [
     component: ChannelComparisonPage,
     meta: {
       title: 'So Sánh Kênh — Bắt Bài Đối Thủ',
+    },
+  },
+  {
+    path: '/lich-dang-doi-thu',
+    name: 'PublishingSchedule',
+    component: PublishingSchedulePage,
+    meta: {
+      title: 'Lịch Đăng Của Đối Thủ — Bắt Bài Đối Thủ',
     },
   },
   {

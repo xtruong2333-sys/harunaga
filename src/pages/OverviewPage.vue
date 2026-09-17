@@ -169,6 +169,10 @@
             <AppIcon name="clock" size="13" />
             Xem Video Mới Đăng
           </router-link>
+          <router-link to="/lich-dang-doi-thu" class="overview-alert-link">
+            <AppIcon name="calendar" size="13" />
+            Xem Lịch Đăng Đối Thủ
+          </router-link>
           <router-link to="/lich-su-canh-bao" class="overview-alert-link">
             <AppIcon name="bell" size="13" />
             Xem Lịch Sử Cảnh Báo
