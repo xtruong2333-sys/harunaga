@@ -4,6 +4,7 @@ import VideosPage from '@/pages/VideosPage.vue';
 import VideoDetailPage from '@/pages/VideoDetailPage.vue';
 import OverviewPage from '@/pages/OverviewPage.vue';
 import ChannelDetailPage from '@/pages/ChannelDetailPage.vue';
+import OpportunityVideosPage from '@/pages/OpportunityVideosPage.vue';
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -16,6 +17,14 @@ const routes: Array<RouteRecordRaw> = [
     component: OverviewPage,
     meta: {
       title: 'Tổng Quan — Bắt Bài Đối Thủ',
+    },
+  },
+  {
+    path: '/video-tiem-nang',
+    name: 'OpportunityVideos',
+    component: OpportunityVideosPage,
+    meta: {
+      title: 'Video Tiềm Năng — Bắt Bài Đối Thủ',
     },
   },
   {

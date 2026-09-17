@@ -173,10 +173,16 @@
             <div class="section-title">Video Tăng Nhanh Nhất</div>
             <div class="section-subtitle">Top 5 video có tốc độ tăng trưởng VPH cao nhất hiện tại</div>
           </div>
-          <router-link to="/videos" class="section-link">
-            <span>Xem tất cả video</span>
-            <AppIcon name="arrow-left" size="14" style="transform: rotate(180deg);" />
-          </router-link>
+          <div class="section-actions">
+            <router-link to="/video-tiem-nang" class="section-link section-link-subtle">
+              <AppIcon name="zap" size="14" />
+              <span>Xem Video Tiềm Năng</span>
+            </router-link>
+            <router-link to="/videos" class="section-link">
+              <span>Xem tất cả video</span>
+              <AppIcon name="arrow-left" size="14" style="transform: rotate(180deg);" />
+            </router-link>
+          </div>
         </div>
 
         <div v-if="summary.topVideos.length === 0" class="panel-empty">
@@ -904,6 +910,12 @@ onMounted(() => {
   color: var(--text-secondary);
 }
 
+.section-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
 .section-link {
   display: inline-flex;
   align-items: center;
@@ -916,6 +928,14 @@ onMounted(() => {
 
 .section-link:hover {
   color: var(--accent-hover);
+}
+
+.section-link-subtle {
+  color: var(--text-secondary);
+}
+
+.section-link-subtle:hover {
+  color: var(--accent);
 }
 
 .panel-empty {
