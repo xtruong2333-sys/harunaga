@@ -15,6 +15,7 @@ import {
 } from '@/types/channel';
 
 export const ACCESS_KEY_STORAGE_KEY = 'bbdt_access_key';
+export const INVALID_KEY_ERROR_MESSAGE = 'Mã truy cập không chính xác. Vui lòng nhập lại.';
 
 export function getStoredAccessKey(): string | null {
   try {
@@ -149,7 +150,7 @@ export const channelService = {
       const { message, isAuthError } = await parseEdgeFunctionError(error, 'Lỗi xử lý từ máy chủ.');
       if (isAuthError) {
         clearStoredAccessKey();
-        throw new AccessKeyRequiredError(message);
+        throw new AccessKeyRequiredError(INVALID_KEY_ERROR_MESSAGE);
       }
       throw new Error(message);
     }
@@ -157,7 +158,7 @@ export const channelService = {
     if (!data?.success || !data?.channel) {
       if (data?.error && (data.error.includes('Mã truy cập') || data.error.includes('truy cập'))) {
         clearStoredAccessKey();
-        throw new AccessKeyRequiredError(data.error);
+        throw new AccessKeyRequiredError(INVALID_KEY_ERROR_MESSAGE);
       }
       throw new Error(data?.error || 'Thao tác không thành công.');
     }

@@ -248,7 +248,11 @@ function handleOpenEdit(channel: Channel) {
 
 function handleAccessKeyRequired(action: () => Promise<any>, errorMsg?: string) {
   pendingAction = action;
-  accessKeyError.value = errorMsg || 'Vui lòng nhập Mã truy cập để thực hiện thao tác.';
+  if (errorMsg && (errorMsg.includes('không chính xác') || errorMsg.includes('truy cập') || errorMsg.includes('từ chối'))) {
+    accessKeyError.value = 'Mã truy cập không chính xác. Vui lòng nhập lại.';
+  } else {
+    accessKeyError.value = errorMsg || 'Vui lòng nhập Mã truy cập để thực hiện thao tác.';
+  }
   showAccessKeyModal.value = true;
 }
 
@@ -268,13 +272,14 @@ async function handleAccessKeyConfirmed() {
   if (pendingAction) {
     const action = pendingAction;
     try {
+      accessKeyError.value = null;
       await action();
       pendingAction = null;
       showAccessKeyModal.value = false;
       accessKeyError.value = null;
     } catch (err: any) {
       if (err instanceof AccessKeyRequiredError || err.name === 'AccessKeyRequiredError') {
-        accessKeyError.value = err.message;
+        accessKeyError.value = 'Mã truy cập không chính xác. Vui lòng nhập lại.';
         // Giữ pendingAction để cho phép người dùng nhập lại mã
         showAccessKeyModal.value = true;
       } else {

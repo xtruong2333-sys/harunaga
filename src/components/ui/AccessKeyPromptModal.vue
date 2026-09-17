@@ -72,8 +72,17 @@ watch(
   () => props.initialError,
   (val) => {
     errorMessage.value = val || null;
+    if (val) {
+      inputKey.value = '';
+    }
   }
 );
+
+watch(inputKey, (val) => {
+  if (errorMessage.value && val) {
+    errorMessage.value = null;
+  }
+});
 
 function close() {
   emit('update:modelValue', false);
