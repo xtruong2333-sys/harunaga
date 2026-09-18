@@ -1,7 +1,22 @@
-// Types: Báo Cáo 24h / 7 Ngày (Phase 16)
+// Types: Báo Cáo 24h / 7 Ngày (Phase 16 - Wave 3.11)
 // 100% Read-Only
 
 export type ReportRange = '24h' | '7d';
+
+export type ReportViewMode = 'brief' | 'videos' | 'channels' | 'operations';
+
+export interface ViewModeOption {
+  id: ReportViewMode;
+  label: string;
+  icon: string;
+}
+
+export const REPORT_VIEW_MODES: ViewModeOption[] = [
+  { id: 'brief', label: 'Tổng hợp', icon: 'file-text' },
+  { id: 'videos', label: 'Video', icon: 'video' },
+  { id: 'channels', label: 'Kênh', icon: 'tv' },
+  { id: 'operations', label: 'Vận hành', icon: 'activity' },
+];
 
 export interface ReportVideo {
   id: string;
@@ -18,7 +33,7 @@ export interface ReportVideo {
   hasAlert?: boolean;
 }
 
-export type ReportAlertStatus = 'pending' | 'sending' | 'sent' | 'failed';
+export type ReportAlertStatus = 'pending' | 'sending' | 'sent' | 'failed' | 'unknown';
 
 export interface ReportAlert {
   id: string;
@@ -38,8 +53,8 @@ export interface ReportAlert {
   createdAt: string;
 }
 
-export type ReportScanStatus = 'running' | 'success' | 'partial' | 'failed';
-export type ReportScanTrigger = 'manual' | 'schedule';
+export type ReportScanStatus = 'running' | 'success' | 'partial' | 'failed' | 'unknown';
+export type ReportScanTrigger = 'manual' | 'schedule' | 'unknown';
 
 export interface ReportScan {
   id: string;
@@ -72,9 +87,11 @@ export interface ReportSummary {
 
 export interface ReportScanSummary {
   totalScans: number;
+  runningScans: number;
   successScans: number;
   partialScans: number;
   failedScans: number;
+  unknownScans: number;
   totalSnapshots: number;
 }
 
@@ -85,7 +102,9 @@ export interface ReportChannelActivity {
   channelAvatarUrl: string | null;
   newVideosCount: number;
   latestPublishedAt: string;
+  latestVideoId: string;
   latestVideoTitle: string;
+  latestVideoYoutubeId: string | null;
   maxCurrentVph: number | null;
   risingCount: number;
 }
