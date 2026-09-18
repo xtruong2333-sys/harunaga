@@ -1,67 +1,8 @@
-/* Wave 2.2 — Bright Intelligence OS visual layer */
+/* Wave 3.0 — Light Intelligence UI / Premium Analytics (White + Blue) */
 
-/* 1. Theme Tokens */
-[data-theme="light"] {
-  --bg-main: #F5F8FC;
-  --bg-surface: rgba(255, 255, 255, 0.84);
-  --bg-surface-elevated: #FFFFFF;
-  --bg-surface-hover: #F4F8FC;
-  --bg-inset: #EEF4F8;
-
-  --text-primary: #102033;
-  --text-secondary: #52657A;
-  --text-muted: #8191A4;
-
-  --accent: #0284C7;
-  --accent-text: #FFFFFF;
-  --accent-hover: #0369A1;
-  --accent-subtle: rgba(2, 132, 199, 0.08);
-  --accent-glow: rgba(2, 132, 199, 0.16);
-
-  --border-subtle: rgba(15, 60, 90, 0.10);
-  --border-strong: rgba(2, 132, 199, 0.24);
-  --border-line: rgba(15, 60, 90, 0.08);
-
-  --signal-accent: #0284C7;
-  --signal-positive: #059669;
-  --signal-warning: #D97706;
-
-  --card-shadow: 0 8px 30px rgba(35, 65, 95, 0.08);
-  --card-shadow-hover: 0 14px 40px rgba(35, 65, 95, 0.13), 0 0 0 1px rgba(2, 132, 199, 0.15);
-}
-
-:root,
-[data-theme="dark"] {
-  --bg-main: #05070d;
-  --bg-surface: rgba(9, 14, 24, 0.72);
-  --bg-surface-elevated: rgba(13, 20, 34, 0.78);
-  --bg-surface-hover: rgba(18, 29, 48, 0.84);
-  --bg-inset: rgba(3, 7, 13, 0.78);
-  --border-subtle: rgba(125, 211, 252, 0.10);
-  --border-strong: rgba(125, 211, 252, 0.26);
-  --border-line: rgba(255, 255, 255, 0.07);
-  --accent: #67e8f9;
-  --accent-hover: #38bdf8;
-  --accent-subtle: rgba(34, 211, 238, 0.09);
-  --accent-glow: rgba(34, 211, 238, 0.18);
-  --card-shadow: 0 18px 60px rgba(0, 0, 0, 0.28);
-  --card-shadow-hover: 0 24px 70px rgba(0, 0, 0, 0.38), 0 0 0 1px rgba(103, 232, 249, 0.04);
-}
-
-html,
-body,
-#app {
-  min-height: 100%;
-}
-
-#app {
-  position: relative;
-  isolation: isolate;
-}
-
-/* 2. Light Mode Glass & Cards */
+/* 1. Theme Scoping & Surface Definitions */
 [data-theme="light"] body {
-  background-color: #F5F8FC;
+  background-color: var(--bg-page, #F5F8FC);
 }
 
 [data-theme="light"] .surface-card,
@@ -72,11 +13,11 @@ body,
 [data-theme="light"] .panel-card,
 [data-theme="light"] .empty-card,
 [data-theme="light"] .table-card {
-  background: rgba(255, 255, 255, 0.84);
-  border: 1px solid rgba(15, 60, 90, 0.09);
-  box-shadow: 0 8px 28px rgba(35, 65, 95, 0.07);
-  backdrop-filter: blur(18px) saturate(130%);
-  -webkit-backdrop-filter: blur(18px) saturate(130%);
+  background: #FFFFFF;
+  border: 1px solid var(--border, #E3EBF3);
+  box-shadow: var(--shadow-sm, 0 4px 14px rgba(30, 60, 90, 0.05));
+  backdrop-filter: blur(16px) saturate(130%);
+  -webkit-backdrop-filter: blur(16px) saturate(130%);
 }
 
 [data-theme="light"] .stat-card:hover,
@@ -85,61 +26,63 @@ body,
 [data-theme="light"] .channel-summary-item:hover {
   transform: translateY(-2px);
   background: #FFFFFF;
-  border-color: rgba(2, 132, 199, 0.24);
-  box-shadow: 0 14px 36px rgba(35, 65, 95, 0.12);
+  border-color: #BFDBFE;
+  box-shadow: var(--shadow-md, 0 10px 30px rgba(30, 60, 90, 0.08));
 }
 
 [data-theme="light"] .top-video-card {
   background: #FFFFFF;
-  border: 1px solid rgba(15, 60, 90, 0.09);
-  box-shadow: 0 4px 16px rgba(35, 65, 95, 0.05);
-  border-radius: 14px;
+  border: 1px solid var(--border, #E3EBF3);
+  box-shadow: 0 2px 10px rgba(30, 60, 90, 0.04);
+  border-radius: 12px;
 }
 
 [data-theme="light"] .channel-summary-item {
   background: #FFFFFF;
-  border: 1px solid rgba(15, 60, 90, 0.09);
+  border: 1px solid var(--border, #E3EBF3);
 }
 
 [data-theme="light"] .btn-primary {
-  background: #0284C7;
+  background: var(--primary, #2563EB);
   color: #FFFFFF;
-  box-shadow: 0 6px 20px rgba(2, 132, 199, 0.22);
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.22);
+  border: 1px solid transparent;
 }
 
 [data-theme="light"] .btn-primary:hover:not(:disabled) {
-  background: #0369A1;
+  background: var(--primary-hover, #1D4ED8);
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.3);
 }
 
 [data-theme="light"] .btn-secondary {
   background: #FFFFFF;
   color: #334155;
-  border: 1px solid #DDE6EE;
-  box-shadow: 0 2px 8px rgba(35, 65, 95, 0.04);
+  border: 1px solid var(--border, #E3EBF3);
+  box-shadow: 0 2px 6px rgba(30, 60, 90, 0.04);
 }
 
 [data-theme="light"] .btn-secondary:hover:not(:disabled) {
-  background: #F4F8FC;
+  background: var(--surface-hover, #F3F7FB);
   border-color: #CBD5E1;
-  color: #102033;
+  color: #0F1F35;
 }
 
 [data-theme="light"] .scan-table th {
-  background: #F0F5F9;
+  background: #F8FAFC;
   color: #475569;
-  border-bottom: 1px solid #E2E8F0;
+  border-bottom: 1px solid var(--border, #E3EBF3);
 }
 
 [data-theme="light"] .scan-table td {
-  border-bottom: 1px solid #EBF1F6;
-  color: #102033;
+  border-bottom: 1px solid #F1F5F9;
+  color: #0F1F35;
 }
 
 [data-theme="light"] .scan-row:hover td {
-  background: #F8FAFC;
+  background: #F8FAFD;
 }
 
-/* 3. Dark Mode Glass & Cards */
+/* 2. Dark Mode Parity (Secondary Theme) */
 [data-theme="dark"] body {
   background: #05070d;
 }
@@ -152,9 +95,9 @@ body,
 [data-theme="dark"] .panel-card,
 [data-theme="dark"] .empty-card,
 [data-theme="dark"] .table-card {
-  background: linear-gradient(145deg, rgba(10, 16, 28, 0.78), rgba(7, 12, 21, 0.58));
+  background: linear-gradient(145deg, rgba(10, 16, 28, 0.82), rgba(7, 12, 21, 0.64));
   border-color: rgba(125, 211, 252, 0.10);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.025), 0 18px 54px rgba(0,0,0,0.20);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.025), 0 18px 54px rgba(0, 0, 0, 0.22);
   backdrop-filter: blur(18px) saturate(120%);
   -webkit-backdrop-filter: blur(18px) saturate(120%);
 }
@@ -163,24 +106,29 @@ body,
 [data-theme="dark"] .interactive-card:hover,
 [data-theme="dark"] .top-video-card:hover,
 [data-theme="dark"] .channel-summary-item:hover {
-  transform: translateY(-3px) scale(1.003);
-  border-color: rgba(103, 232, 249, 0.22);
+  transform: translateY(-2px);
+  border-color: rgba(103, 232, 249, 0.24);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.4);
 }
 
 [data-theme="dark"] .top-video-card {
-  border-radius: 14px;
-  background: rgba(10, 17, 29, 0.54);
+  border-radius: 12px;
+  background: rgba(10, 17, 29, 0.58);
   backdrop-filter: blur(12px);
+  border: 1px solid rgba(125, 211, 252, 0.10);
 }
 
 [data-theme="dark"] .btn-primary {
-  background: linear-gradient(135deg, #67e8f9, #38bdf8);
+  background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+  color: #03111C;
+  font-weight: 600;
   box-shadow: 0 8px 30px rgba(56, 189, 248, 0.20);
 }
 
 [data-theme="dark"] .btn-secondary {
-  background: rgba(10, 18, 30, 0.62);
+  background: rgba(10, 18, 30, 0.65);
   backdrop-filter: blur(12px);
+  border-color: rgba(125, 211, 252, 0.12);
 }
 
 [data-theme="dark"] .scan-table th {
@@ -191,67 +139,61 @@ body,
   background: rgba(20, 35, 56, 0.46);
 }
 
-/* 4. Common Typography & Utilities */
+/* 3. Typography & Global Polish */
 .page-title {
-  font-size: clamp(26px, 3vw, 38px);
-  letter-spacing: -0.035em;
-  line-height: 1.05;
+  font-size: clamp(24px, 2.5vw, 32px);
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  font-weight: 750;
+  color: var(--text-primary);
 }
 
 .page-kicker {
-  letter-spacing: 0.16em;
+  letter-spacing: 0.12em;
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
 }
 
 [data-theme="light"] .page-kicker {
-  color: #0284C7;
+  color: var(--primary, #2563EB);
 }
 
 [data-theme="dark"] .page-kicker {
-  color: #67e8f9;
+  color: #38BDF8;
 }
 
 .btn {
-  border-radius: 10px;
+  border-radius: 8px;
   min-height: 38px;
+  font-weight: 500;
+  transition: all 0.15s ease;
 }
 
 .stat-card {
-  border-radius: 16px;
+  border-radius: 14px;
   padding: 18px 20px;
 }
 
 .stat-val {
-  font-size: clamp(28px, 3vw, 38px);
-  letter-spacing: -0.035em;
-  font-weight: 700;
+  font-size: clamp(26px, 2.5vw, 34px);
+  letter-spacing: -0.03em;
+  font-weight: 750;
 }
 
 .section-container,
 .system-status-card,
 .panel-card {
-  border-radius: 18px;
+  border-radius: 14px;
 }
 
 ::selection {
-  background: rgba(2, 132, 199, 0.20);
+  background: rgba(37, 99, 235, 0.18);
   color: inherit;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
   .page-title {
-    font-size: 28px;
-  }
-
-  .surface-card,
-  .interactive-card,
-  .stat-card,
-  .system-status-card,
-  .section-container,
-  .panel-card {
-    backdrop-filter: blur(10px);
+    font-size: 24px;
   }
 }
-

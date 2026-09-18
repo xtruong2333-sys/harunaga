@@ -53,6 +53,38 @@
 }
 
 [data-theme="light"] {
+  /* Wave 3.0 Light Intelligence Tokens */
+  --bg-page: #F5F8FC;
+  --bg-page-secondary: #EEF4FA;
+
+  --surface: #FFFFFF;
+  --surface-soft: rgba(255, 255, 255, 0.82);
+  --surface-muted: #F7FAFD;
+  --surface-hover: #F3F7FB;
+
+  --primary: #2563EB;
+  --primary-hover: #1D4ED8;
+  --primary-soft: #EFF6FF;
+
+  --cyan: #0EA5E9;
+
+  --success: #10B981;
+  --success-soft: #ECFDF5;
+
+  --warning: #F59E0B;
+  --warning-soft: #FFFBEB;
+
+  --danger: #EF4444;
+  --danger-soft: #FEF2F2;
+
+  --border: #E3EBF3;
+  --border-strong: #CBD9E6;
+
+  --shadow-sm: 0 4px 14px rgba(30, 60, 90, 0.05);
+  --shadow-md: 0 10px 30px rgba(30, 60, 90, 0.08);
+  --shadow-lg: 0 20px 55px rgba(30, 60, 90, 0.12);
+
+  /* Legacy & Contract Test Tokens */
   --bg-main: #F4F7FB;
   --bg-surface: #FFFFFF;
   --bg-surface-elevated: #FFFFFF;
@@ -60,7 +92,6 @@
   --bg-inset: #EEF4F8;
 
   --border-subtle: rgba(15, 40, 60, 0.09);
-  --border-strong: rgba(2, 132, 199, 0.24);
   --border-line: rgba(15, 60, 90, 0.08);
 
   --text-primary: #12202D;
@@ -87,7 +118,6 @@
   --status-archived: #64748B;
   --status-archived-bg: rgba(100, 116, 139, 0.10);
 
-  --danger: #DC2626;
   --danger-bg: #FFF7F7;
 
   --card-shadow: 0 8px 30px rgba(35, 65, 95, 0.08);
