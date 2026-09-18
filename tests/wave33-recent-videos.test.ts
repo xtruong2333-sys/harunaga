@@ -84,11 +84,11 @@ describe('Wave 3.3 — Recent Video Intelligence Library Components', () => {
       expect(wrapper.find('.thumbnail-fallback').exists()).toBe(true);
     });
 
-    it('1.3 Displays fresh badge when provided', () => {
+    it('1.3 Displays neutral VPH badge without arbitrary high-vph threshold class', () => {
       const wrapper = mount(VideoThumbnail, {
         props: {
           src: mockVideo.thumbnailUrl,
-          freshBadge: 'Vừa đăng',
+          vphBadge: 4800,
         },
         global: {
           stubs: {
@@ -97,17 +97,19 @@ describe('Wave 3.3 — Recent Video Intelligence Library Components', () => {
         },
       });
 
-      expect(wrapper.text()).toContain('Vừa đăng');
-      expect(wrapper.find('.is-just-now').exists()).toBe(true);
+      expect(wrapper.find('.vph-overlay-badge').text()).toContain('4.8K VPH');
+      expect(wrapper.find('.is-high-vph').exists()).toBe(false);
     });
   });
 
   // 2. RecentVideoSummaryStrip.vue
   describe('2. RecentVideoSummaryStrip.vue', () => {
-    it('2.1 Renders all 4 metrics correctly', () => {
+    it('2.1 Renders 4 metrics correctly when loaded', () => {
       const wrapper = mount(RecentVideoSummaryStrip, {
         props: {
           summary: mockSummary,
+          loading: false,
+          hasMore: false,
         },
       });
 
@@ -115,6 +117,33 @@ describe('Wave 3.3 — Recent Video Intelligence Library Components', () => {
       expect(wrapper.text()).toContain('12');
       expect(wrapper.text()).toContain('18');
       expect(wrapper.text()).toContain('12K VPH');
+      expect(wrapper.text()).toContain('VIDEO MỚI');
+    });
+
+    it('2.2 Renders skeleton boxes when loading prop is true', () => {
+      const wrapper = mount(RecentVideoSummaryStrip, {
+        props: {
+          summary: mockSummary,
+          loading: true,
+        },
+      });
+
+      const skeletons = wrapper.findAll('.skeleton-summary-item');
+      expect(skeletons.length).toBe(4);
+    });
+
+    it('2.3 Displays (ĐÃ TẢI) suffix when hasMore is true', () => {
+      const wrapper = mount(RecentVideoSummaryStrip, {
+        props: {
+          summary: mockSummary,
+          loading: false,
+          hasMore: true,
+        },
+      });
+
+      expect(wrapper.text()).toContain('VIDEO (ĐÃ TẢI)');
+      expect(wrapper.text()).toContain('KÊNH (ĐÃ TẢI)');
+      expect(wrapper.text()).toContain('MAX VPH (ĐÃ TẢI)');
     });
   });
 

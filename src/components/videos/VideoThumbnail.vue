@@ -33,9 +33,9 @@
       </span>
     </div>
 
-    <!-- VPH / Alert Badge Overlay (Top-Right) -->
+    <!-- VPH Badge Overlay (Top-Right, Neutral Display) -->
     <div v-if="vphBadge !== undefined && vphBadge !== null" class="badge-slot-top-right">
-      <span class="vph-overlay-badge" :class="{ 'is-high-vph': isHighVph }">
+      <span class="vph-overlay-badge">
         <AppIcon name="zap" size="11" />
         <span>{{ formattedVphBadge }}</span>
       </span>
@@ -97,15 +97,9 @@ const props = withDefaults(
 
 const hasError = ref(false);
 
-const isHighVph = computed(() => {
-  if (typeof props.vphBadge === 'number') {
-    return props.vphBadge >= 1000;
-  }
-  return false;
-});
-
 const formattedVphBadge = computed(() => {
   if (typeof props.vphBadge === 'number') {
+    if (props.vphBadge === 0) return '0 VPH';
     if (props.vphBadge >= 1000) {
       return `${(props.vphBadge / 1000).toFixed(1).replace(/\.0$/, '')}K VPH`;
     }
@@ -243,18 +237,11 @@ const formattedVphBadge = computed(() => {
   padding: 3px 7px;
   border-radius: 6px;
   font-size: 11px;
-  font-weight: 750;
-  background: rgba(15, 23, 42, 0.85);
+  font-weight: 700;
+  background: rgba(15, 23, 42, 0.82);
   color: #38BDF8;
   backdrop-filter: blur(4px);
-  border: 1px solid rgba(56, 189, 248, 0.3);
-}
-
-.vph-overlay-badge.is-high-vph {
-  background: rgba(37, 99, 235, 0.9);
-  color: #FFFFFF;
-  border-color: rgba(255, 255, 255, 0.3);
-  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.35);
+  border: 1px solid rgba(56, 189, 248, 0.25);
 }
 
 /* Hover Overlay */

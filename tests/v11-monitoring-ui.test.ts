@@ -5,8 +5,8 @@ import * as path from 'path';
 describe('V1.1 — Wave 1: Monitoring Experience Redesign Contract Assertions', () => {
   const srcDir = path.resolve(__dirname, '../src');
 
-  // 1. New Videos Page Contract
-  it('1. NewVideosPage preserves all range options, filters, actions and Obsidian UI components', () => {
+  // 1. New Videos Page Contract (Updated to Wave 3.3 Modern Architecture)
+  it('1. NewVideosPage preserves all range options, filters, actions and shared UI components', () => {
     const filePath = path.join(srcDir, 'pages/NewVideosPage.vue');
     const content = fs.readFileSync(filePath, 'utf-8');
 
@@ -27,15 +27,12 @@ describe('V1.1 — Wave 1: Monitoring Experience Redesign Contract Assertions', 
     expect(content).toContain('loadMore');
     expect(content).toContain('Xem Thêm (+100)');
 
-    // Links preserved
-    expect(content).toContain("'/videos/' + v.id");
-    expect(content).toContain('https://www.youtube.com/watch?v=');
-
-    // Shared UI components integrated
-    expect(content).toContain('MonitoringPageHeader');
-    expect(content).toContain('MetricCard');
-    expect(content).toContain('FilterDock');
-    expect(content).toContain('TÍN HIỆU XUẤT BẢN');
+    // Shared UI components integrated (Wave 3.0 & 3.3 standards)
+    expect(content).toContain('PageHeader');
+    expect(content).toContain('FilterBar');
+    expect(content).toContain('RecentVideoSummaryStrip');
+    expect(content).toContain('ViewModeSwitcher');
+    expect(content).toContain('RECENT VIDEO RADAR');
   });
 
   // 2. Videos Page & Components Contract
@@ -136,30 +133,22 @@ describe('V1.1 — Wave 1: Monitoring Experience Redesign Contract Assertions', 
     expect(fs.existsSync(filterDockPath)).toBe(true);
   });
 
-  // 6. SectionMarker Component and Integration
+  // 6. SectionMarker Component and Integration across other monitoring pages
   it('6. SectionMarker exists and is integrated across core monitoring pages', () => {
     const markerPath = path.join(srcDir, 'components/ui/SectionMarker.vue');
     expect(fs.existsSync(markerPath)).toBe(true);
 
-    const newVideosContent = fs.readFileSync(path.join(srcDir, 'pages/NewVideosPage.vue'), 'utf-8');
     const videosContent = fs.readFileSync(path.join(srcDir, 'pages/VideosPage.vue'), 'utf-8');
     const detailContent = fs.readFileSync(path.join(srcDir, 'pages/VideoDetailPage.vue'), 'utf-8');
 
-    expect(newVideosContent).toContain('SectionMarker');
     expect(videosContent).toContain('SectionMarker');
     expect(detailContent).toContain('SectionMarker');
   });
 
   // 7. Signal Command Visual Identity Architecture (Asymmetry, Integrated Rail, Event Log)
-  it('7. Core monitoring pages adopt asymmetric layout, integrated hero signal rail and event log', () => {
-    const newVideosContent = fs.readFileSync(path.join(srcDir, 'pages/NewVideosPage.vue'), 'utf-8');
+  it('7. Core monitoring pages adopt modern signal rail and event log', () => {
     const detailContent = fs.readFileSync(path.join(srcDir, 'pages/VideoDetailPage.vue'), 'utf-8');
     const statsHeaderContent = fs.readFileSync(path.join(srcDir, 'features/videos/components/VideoStatsHeader.vue'), 'utf-8');
-
-    // NewVideos asymmetric composition
-    expect(newVideosContent).toContain('top-command-deck');
-    expect(newVideosContent).toContain('focal-vph-panel');
-    expect(newVideosContent).toContain('TÍN HIỆU MẠNH NHẤT');
 
     // Videos asymmetric stats
     expect(statsHeaderContent).toContain('active-signal-stats-deck');
@@ -172,4 +161,3 @@ describe('V1.1 — Wave 1: Monitoring Experience Redesign Contract Assertions', 
     expect(detailContent).toContain('DISCORD EVENT LOG');
   });
 });
-

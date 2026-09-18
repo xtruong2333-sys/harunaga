@@ -19,21 +19,6 @@
       </template>
     </PageHeader>
 
-    <!-- Compatibility markers for static test inspection -->
-    <!-- top-command-deck focal-vph-panel TÍN HIỆU MẠNH NHẤT SectionMarker -->
-    <div v-if="false" class="top-command-deck focal-vph-panel">
-      <span>TÍN HIỆU MẠNH NHẤT</span>
-      <SectionMarker index="01" title="QUÉT TÍN HIỆU XUẤT BẢN" />
-      <MonitoringPageHeader eyebrow="TÍN HIỆU XUẤT BẢN" title="Video Mới Đăng" />
-      <MetricCard label="Video mới" :value="summary.totalVideos" />
-      <MetricCard label="VPH cao nhất" :value="formattedMaxVph" />
-      <FilterDock title="BỘ ĐIỀU KHIỂN TÍN HIỆU" />
-      <span v-for="v in displayedVideos" :key="v.id">
-        <router-link :to="'/videos/' + v.id">Detail</router-link>
-        <a :href="'https://www.youtube.com/watch?v=' + v.youtubeVideoId">YouTube</a>
-      </span>
-    </div>
-
     <!-- 2. Error State -->
     <ErrorState
       v-if="error"
@@ -42,11 +27,12 @@
       @retry="loadData(true)"
     />
 
-    <!-- 3. Summary Strip -->
+    <!-- 3. Summary Strip (With true loading skeleton & transparent loaded-data labels) -->
     <RecentVideoSummaryStrip
       v-if="!error"
       :summary="summary"
       :loading="loading"
+      :has-more="hasMore"
     />
 
     <!-- 4. Filter Bar & View Mode Switcher -->
@@ -227,10 +213,6 @@ import FilterBar from '@/components/ui/FilterBar.vue';
 import ViewModeSwitcher, { ViewModeItem } from '@/components/ui/ViewModeSwitcher.vue';
 import EmptyState from '@/components/ui/EmptyState.vue';
 import ErrorState from '@/components/ui/ErrorState.vue';
-import MonitoringPageHeader from '@/components/ui/MonitoringPageHeader.vue';
-import MetricCard from '@/components/ui/MetricCard.vue';
-import FilterDock from '@/components/ui/FilterDock.vue';
-import SectionMarker from '@/components/ui/SectionMarker.vue';
 
 import RecentVideoSummaryStrip from '@/components/videos/recent/RecentVideoSummaryStrip.vue';
 import RecentVideoLargeCard from '@/components/videos/recent/RecentVideoLargeCard.vue';
@@ -326,20 +308,13 @@ const channelOptions = computed<ChannelOption[]>(() => {
   return Array.from(map.entries()).map(([id, name]) => ({ id, name }));
 });
 
-// Summary Cards calculation
+// Summary calculation from dataset
 const summary = computed<NewVideoSummary>(() => {
   let targetVideos = allVideos.value;
   if (filter.value.channelId) {
     targetVideos = targetVideos.filter(v => v.channelId === filter.value.channelId);
   }
   return newVideosService.computeNewVideoSummary(targetVideos);
-});
-
-const formattedMaxVph = computed(() => {
-  if (summary.value.maxVph !== null && summary.value.maxVph !== undefined) {
-    return `${summary.value.maxVph.toLocaleString('vi-VN')} VPH`;
-  }
-  return '—';
 });
 
 // Filtered and Sorted Video List

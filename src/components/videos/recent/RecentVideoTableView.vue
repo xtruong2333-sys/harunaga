@@ -20,30 +20,23 @@
             class="table-row"
             :class="{ 'is-rising': v.latestMeasuredVph !== null && v.latestMeasuredVph > 0 }"
           >
-            <!-- Video Column: Mini Thumbnail + Title -->
+            <!-- Video Column: Mini Thumbnail (reused VideoThumbnail) + Title -->
             <td class="col-video">
               <div class="video-cell-main">
                 <div class="mini-thumb-wrap">
-                  <router-link :to="'/videos/' + v.id" class="mini-thumb-link">
-                    <img
-                      v-if="v.thumbnailUrl"
-                      :src="v.thumbnailUrl"
-                      :alt="v.title"
-                      class="mini-thumb-img"
-                      loading="lazy"
-                    />
-                    <div v-else class="mini-thumb-placeholder">
-                      <AppIcon name="video" size="14" />
-                    </div>
-                  </router-link>
+                  <VideoThumbnail
+                    :src="v.thumbnailUrl"
+                    :alt="v.title"
+                    ratio="16-9"
+                    :show-overlay-actions="false"
+                    :detail-url="'/videos/' + v.id"
+                    :fresh-badge="getFreshBadge(v.publishedAt)"
+                  />
                 </div>
                 <div class="video-cell-meta">
                   <router-link :to="'/videos/' + v.id" class="table-title-link" :title="v.title">
                     {{ v.title }}
                   </router-link>
-                  <span v-if="getFreshBadge(v.publishedAt)" class="mini-fresh-badge">
-                    {{ getFreshBadge(v.publishedAt) }}
-                  </span>
                 </div>
               </div>
             </td>
@@ -107,6 +100,7 @@
 
 <script setup lang="ts">
 import AppIcon from '@/components/ui/AppIcon.vue';
+import VideoThumbnail from '@/components/videos/VideoThumbnail.vue';
 import { formatVideoAge, getFreshBadge, formatViewDelta } from '@/services/new-videos-service';
 import type { NewVideoItem } from '@/types/new-videos';
 
@@ -188,27 +182,8 @@ function formatNumber(num: number): string {
 }
 
 .mini-thumb-wrap {
-  width: 100px;
-  aspect-ratio: 16 / 9;
-  border-radius: 6px;
-  overflow: hidden;
-  background: var(--bg-inset, #EEF4F8);
+  width: 108px;
   flex-shrink: 0;
-}
-
-.mini-thumb-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.mini-thumb-placeholder {
-  width: 100%;
-  height: 100%;
-  display: grid;
-  place-items: center;
-  color: var(--text-muted);
 }
 
 .video-cell-meta {
@@ -218,7 +193,7 @@ function formatNumber(num: number): string {
 }
 
 .table-title-link {
-  font-weight: 600;
+  font-weight: 650;
   color: var(--text-primary);
   text-decoration: none;
   display: -webkit-box;
@@ -230,17 +205,6 @@ function formatNumber(num: number): string {
 
 .table-title-link:hover {
   color: var(--primary, #2563EB);
-}
-
-.mini-fresh-badge {
-  display: inline-block;
-  align-self: flex-start;
-  padding: 1px 6px;
-  border-radius: 4px;
-  font-size: 10px;
-  font-weight: 700;
-  background: #059669;
-  color: #FFFFFF;
 }
 
 .table-channel-link {

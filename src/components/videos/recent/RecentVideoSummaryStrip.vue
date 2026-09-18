@@ -1,56 +1,70 @@
 <template>
   <div class="recent-video-summary-strip surface-card">
-    <!-- 1. Total Videos in Range -->
-    <div class="summary-metric-item">
-      <div class="metric-icon-wrap icon-videos">
-        <AppIcon name="video" size="16" />
-      </div>
-      <div class="metric-content">
-        <div class="metric-val mono">{{ formatNumber(summary.totalVideos) }}</div>
-        <div class="metric-lbl">VIDEO MỚI</div>
-      </div>
-    </div>
-
-    <div class="metric-divider"></div>
-
-    <!-- 2. Active Channels with New Videos -->
-    <div class="summary-metric-item">
-      <div class="metric-icon-wrap icon-channels">
-        <AppIcon name="tv" size="16" />
-      </div>
-      <div class="metric-content">
-        <div class="metric-val mono">{{ formatNumber(summary.totalChannels) }}</div>
-        <div class="metric-lbl">KÊNH VỪA ĐĂNG</div>
-      </div>
-    </div>
-
-    <div class="metric-divider"></div>
-
-    <!-- 3. Rising Videos Count -->
-    <div class="summary-metric-item">
-      <div class="metric-icon-wrap icon-rising">
-        <AppIcon name="trending-up" size="16" />
-      </div>
-      <div class="metric-content">
-        <div class="metric-val mono text-accent">{{ formatNumber(summary.risingVideos) }}</div>
-        <div class="metric-lbl">ĐANG TĂNG (VPH > 0)</div>
-      </div>
-    </div>
-
-    <div class="metric-divider"></div>
-
-    <!-- 4. Max Measured VPH -->
-    <div class="summary-metric-item">
-      <div class="metric-icon-wrap icon-vph">
-        <AppIcon name="zap" size="16" />
-      </div>
-      <div class="metric-content">
-        <div class="metric-val mono text-positive">
-          {{ formattedMaxVph }}
+    <!-- Skeleton when loading -->
+    <template v-if="loading">
+      <div v-for="i in 4" :key="i" class="summary-metric-item skeleton-summary-item">
+        <div class="skeleton-icon-box"></div>
+        <div class="skeleton-content">
+          <div class="skeleton-val"></div>
+          <div class="skeleton-lbl"></div>
         </div>
-        <div class="metric-lbl">MAX VPH KHUNG GIỜ</div>
       </div>
-    </div>
+    </template>
+
+    <!-- Real Summary Metrics -->
+    <template v-else>
+      <!-- 1. Total Videos in Range / Loaded -->
+      <div class="summary-metric-item">
+        <div class="metric-icon-wrap icon-videos">
+          <AppIcon name="video" size="16" />
+        </div>
+        <div class="metric-content">
+          <div class="metric-val mono">{{ formatNumber(summary.totalVideos) }}</div>
+          <div class="metric-lbl">{{ hasMore ? 'VIDEO (ĐÃ TẢI)' : 'VIDEO MỚI' }}</div>
+        </div>
+      </div>
+
+      <div class="metric-divider"></div>
+
+      <!-- 2. Active Channels with New Videos -->
+      <div class="summary-metric-item">
+        <div class="metric-icon-wrap icon-channels">
+          <AppIcon name="tv" size="16" />
+        </div>
+        <div class="metric-content">
+          <div class="metric-val mono">{{ formatNumber(summary.totalChannels) }}</div>
+          <div class="metric-lbl">{{ hasMore ? 'KÊNH (ĐÃ TẢI)' : 'KÊNH VỪA ĐĂNG' }}</div>
+        </div>
+      </div>
+
+      <div class="metric-divider"></div>
+
+      <!-- 3. Rising Videos Count -->
+      <div class="summary-metric-item">
+        <div class="metric-icon-wrap icon-rising">
+          <AppIcon name="trending-up" size="16" />
+        </div>
+        <div class="metric-content">
+          <div class="metric-val mono text-accent">{{ formatNumber(summary.risingVideos) }}</div>
+          <div class="metric-lbl">ĐANG TĂNG (VPH > 0)</div>
+        </div>
+      </div>
+
+      <div class="metric-divider"></div>
+
+      <!-- 4. Max Measured VPH -->
+      <div class="summary-metric-item">
+        <div class="metric-icon-wrap icon-vph">
+          <AppIcon name="zap" size="16" />
+        </div>
+        <div class="metric-content">
+          <div class="metric-val mono text-positive">
+            {{ formattedMaxVph }}
+          </div>
+          <div class="metric-lbl">{{ hasMore ? 'MAX VPH (ĐÃ TẢI)' : 'MAX VPH KHUNG GIỜ' }}</div>
+        </div>
+      </div>
+    </template>
   </div>
 </template>
 
@@ -59,10 +73,17 @@ import { computed } from 'vue';
 import AppIcon from '@/components/ui/AppIcon.vue';
 import type { NewVideoSummary } from '@/types/new-videos';
 
-const props = defineProps<{
-  summary: NewVideoSummary;
-  loading?: boolean;
-}>();
+const props = withDefaults(
+  defineProps<{
+    summary: NewVideoSummary;
+    loading?: boolean;
+    hasMore?: boolean;
+  }>(),
+  {
+    loading: false,
+    hasMore: false,
+  }
+);
 
 const formattedMaxVph = computed(() => {
   if (props.summary.maxVph !== null && props.summary.maxVph !== undefined && props.summary.maxVph > 0) {
@@ -192,6 +213,49 @@ function formatNumber(num: number): string {
 
 [data-theme="dark"] .text-positive {
   color: #4ADE80;
+}
+
+/* Skeleton Loading for Summary Strip */
+.skeleton-summary-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.skeleton-icon-box {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(90deg, #EEF4F8 25%, #E2E8F0 50%, #EEF4F8 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  flex-shrink: 0;
+}
+
+.skeleton-content {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.skeleton-val {
+  width: 60%;
+  height: 18px;
+  border-radius: 4px;
+  background: #E2E8F0;
+}
+
+.skeleton-lbl {
+  width: 80%;
+  height: 11px;
+  border-radius: 3px;
+  background: #EEF4F8;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
 }
 
 @media (max-width: 1024px) {
