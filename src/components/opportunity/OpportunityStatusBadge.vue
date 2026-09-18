@@ -15,6 +15,7 @@ const props = withDefaults(
   defineProps<{
     type?: 'threshold' | 'rising' | 'alert';
     isOverThreshold?: boolean;
+    hasThreshold?: boolean;
     measuredVph?: number | null;
     alertStatus?: string | null;
     customLabel?: string;
@@ -22,6 +23,7 @@ const props = withDefaults(
   {
     type: 'threshold',
     isOverThreshold: false,
+    hasThreshold: true,
   }
 );
 
@@ -29,6 +31,7 @@ const label = computed(() => {
   if (props.customLabel) return props.customLabel;
 
   if (props.type === 'threshold') {
+    if (!props.hasThreshold) return 'CHƯA CÓ NGƯỠNG';
     return props.isOverThreshold ? 'VƯỢT NGƯỠNG' : 'CHƯA VƯỢT';
   }
 
@@ -58,6 +61,7 @@ const label = computed(() => {
 
 const tone = computed(() => {
   if (props.type === 'threshold') {
+    if (!props.hasThreshold) return 'neutral';
     return props.isOverThreshold ? 'success' : 'neutral';
   }
   if (props.type === 'rising') {

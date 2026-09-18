@@ -43,8 +43,14 @@
         <!-- Meta -->
         <div class="col-meta">
           <OpportunityStatusBadge
+            v-if="v.channel.alertVphThreshold !== null && v.channel.alertVphThreshold > 0"
             type="threshold"
             :is-over-threshold="v.isOverThreshold"
+          />
+          <OpportunityStatusBadge
+            v-else
+            type="rising"
+            :measured-vph="v.latestMeasuredVph"
           />
           <h4 class="col-title" :title="v.title">
             <router-link :to="'/videos/' + v.id" class="title-link">
@@ -82,13 +88,13 @@
 
           <div class="compare-metric-row">
             <span class="c-lbl">NGƯỠNG KÊNH</span>
-            <span class="c-val mono">{{ formatNumber(v.channel.alertVphThreshold) }} VPH</span>
+            <span class="c-val mono">{{ v.channel.alertVphThreshold !== null ? formatNumber(v.channel.alertVphThreshold) + ' VPH' : '—' }}</span>
           </div>
 
           <div class="compare-metric-row">
             <span class="c-lbl">TỶ LỆ / NGƯỠNG</span>
             <span class="c-val mono" :class="{ 'text-positive font-bold': v.isOverThreshold }">
-              {{ v.thresholdRatio }}%
+              {{ v.thresholdRatio !== null ? v.thresholdRatio + '%' : '—' }}
             </span>
           </div>
         </div>
@@ -177,7 +183,8 @@ function formatDelta(delta: number | null | undefined): string {
   return formatNumber(delta);
 }
 
-function formatNumber(num: number): string {
+function formatNumber(num: number | null | undefined): string {
+  if (num === null || num === undefined) return '—';
   if (num >= 1_000_000) {
     return (num / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'M';
   }

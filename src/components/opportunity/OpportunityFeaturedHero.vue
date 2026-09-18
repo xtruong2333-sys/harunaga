@@ -3,11 +3,17 @@
     <div class="hero-top-badge-row">
       <div class="featured-kicker">
         <span class="pulse-point"></span>
-        <span>TÍN HIỆU NỔI BẬT #1</span>
+        <span>TÍN HIỆU NỔI BẬT</span>
       </div>
       <OpportunityStatusBadge
+        v-if="video.channel.alertVphThreshold !== null && video.channel.alertVphThreshold > 0"
         type="threshold"
         :is-over-threshold="video.isOverThreshold"
+      />
+      <OpportunityStatusBadge
+        v-else
+        type="rising"
+        :measured-vph="video.latestMeasuredVph"
       />
     </div>
 
@@ -84,7 +90,7 @@
             </div>
             <div class="micro-cell">
               <span class="micro-lbl">NGƯỠNG KÊNH</span>
-              <span class="micro-val mono">{{ formatNumber(video.channel.alertVphThreshold) }} VPH</span>
+              <span class="micro-val mono">{{ video.channel.alertVphThreshold !== null ? formatNumber(video.channel.alertVphThreshold) + ' VPH' : '—' }}</span>
             </div>
           </div>
         </div>
@@ -169,7 +175,8 @@ function formatDelta(delta: number | null | undefined): string {
   return formatNumber(delta);
 }
 
-function formatNumber(num: number): string {
+function formatNumber(num: number | null | undefined): string {
+  if (num === null || num === undefined) return '—';
   if (num >= 1_000_000) {
     return (num / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'M';
   }

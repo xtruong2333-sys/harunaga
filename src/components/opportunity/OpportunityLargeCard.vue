@@ -21,8 +21,14 @@
         <span class="video-age">{{ video.videoAge }}</span>
         <div class="status-badge-wrap">
           <OpportunityStatusBadge
+            v-if="video.channel.alertVphThreshold !== null && video.channel.alertVphThreshold > 0"
             type="threshold"
             :is-over-threshold="video.isOverThreshold"
+          />
+          <OpportunityStatusBadge
+            v-else
+            type="rising"
+            :measured-vph="video.latestMeasuredVph"
           />
         </div>
       </div>
@@ -59,17 +65,23 @@
       </div>
 
       <!-- Threshold progress -->
-      <div class="threshold-progress-wrap">
+      <div v-if="video.channel.alertVphThreshold !== null && video.channel.alertVphThreshold > 0" class="threshold-progress-wrap">
         <div class="progress-info">
           <span class="progress-lbl">Tiến độ ngưỡng</span>
-          <span class="progress-val mono">{{ video.thresholdRatio }}% (Ngưỡng: {{ formatNumber(video.channel.alertVphThreshold) }})</span>
+          <span class="progress-val mono">{{ video.thresholdRatio !== null ? video.thresholdRatio + '%' : '—' }} (Ngưỡng: {{ formatNumber(video.channel.alertVphThreshold) }})</span>
         </div>
         <div class="progress-bar-track">
           <div
             class="progress-bar-fill"
             :class="{ 'fill-over': video.isOverThreshold }"
-            :style="{ width: `${Math.min(100, Math.max(2, video.thresholdRatio))}%` }"
+            :style="{ width: `${Math.min(100, Math.max(2, video.thresholdRatio || 0))}%` }"
           ></div>
+        </div>
+      </div>
+      <div v-else class="threshold-progress-wrap">
+        <div class="progress-info">
+          <span class="progress-lbl">Ngưỡng kênh</span>
+          <span class="progress-val mono text-muted">— (Chưa cấu hình)</span>
         </div>
       </div>
 
@@ -135,7 +147,8 @@ function formatDelta(delta: number | null | undefined): string {
   return formatNumber(delta);
 }
 
-function formatNumber(num: number): string {
+function formatNumber(num: number | null | undefined): string {
+  if (num === null || num === undefined) return '—';
   if (num >= 1_000_000) {
     return (num / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'M';
   }

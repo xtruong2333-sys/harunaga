@@ -30,7 +30,7 @@ export const opportunityService = {
     const rawVideos = await fetchAllBatches<any>((from, to) =>
       supabase
         .from('videos')
-        .select('*, channels(id, name, handle, avatar_url, alert_vph_threshold), video_alerts(id, status, measured_vph, sent_at)')
+        .select('*, channels(id, name, handle, avatar_url, alert_vph_threshold), video_alerts(id, status, measured_vph, sent_at, created_at)')
         .gt('latest_measured_vph', 0)
         .order('latest_measured_vph', { ascending: false })
         .order('id', { ascending: true })
@@ -46,7 +46,14 @@ export const opportunityService = {
     const now = new Date();
     return candidateVideos.map((raw: any) => {
       const channelData = raw.channels || {};
-      const channelThreshold = Number(channelData.alert_vph_threshold) || 5000;
+      const rawThreshold = channelData.alert_vph_threshold;
+      const channelThreshold =
+        rawThreshold !== null &&
+        rawThreshold !== undefined &&
+        !isNaN(Number(rawThreshold)) &&
+        Number(rawThreshold) > 0
+          ? Number(rawThreshold)
+          : null;
 
       const channelMeta: OpportunityChannelMeta = {
         id: channelData.id || raw.channel_id,
@@ -58,20 +65,33 @@ export const opportunityService = {
 
       let alertMeta: OpportunityAlertMeta | null = null;
       if (raw.video_alerts) {
-        const a = Array.isArray(raw.video_alerts) ? raw.video_alerts[0] : raw.video_alerts;
-        if (a) {
-          alertMeta = {
-            id: a.id,
-            status: a.status,
-            measuredVph: a.measured_vph !== null ? Number(a.measured_vph) : null,
-            sentAt: a.sent_at || null,
-          };
+        const alertsArray = Array.isArray(raw.video_alerts) ? raw.video_alerts : [raw.video_alerts];
+        if (alertsArray.length > 0) {
+          const sorted = [...alertsArray].sort((a, b) => {
+            const timeA = new Date(a.sent_at || a.created_at || 0).getTime();
+            const timeB = new Date(b.sent_at || b.created_at || 0).getTime();
+            return timeB - timeA;
+          });
+          const a = sorted[0];
+          if (a && a.id) {
+            alertMeta = {
+              id: a.id,
+              status: a.status,
+              measuredVph: a.measured_vph !== null && a.measured_vph !== undefined ? Number(a.measured_vph) : null,
+              sentAt: a.sent_at || null,
+            };
+          }
         }
       }
 
       const vph = Number(raw.latest_measured_vph) || 0;
-      const ratio = channelThreshold > 0 ? Math.round((vph / channelThreshold) * 100) : 0;
-      const isOver = channelThreshold > 0 && vph >= channelThreshold;
+      const ratio = channelThreshold !== null && channelThreshold > 0 ? Math.round((vph / channelThreshold) * 100) : null;
+      const isOver = channelThreshold !== null && channelThreshold > 0 && vph >= channelThreshold;
+
+      const latestViews =
+        raw.latest_view_count !== null && raw.latest_view_count !== undefined && !isNaN(Number(raw.latest_view_count))
+          ? Number(raw.latest_view_count)
+          : null;
 
       return {
         id: raw.id,
@@ -82,7 +102,7 @@ export const opportunityService = {
         thumbnailUrl: raw.thumbnail_url || null,
         publishedAt: raw.published_at,
         videoAge: this.formatVideoAge(raw.published_at, now),
-        latestViewCount: Number(raw.latest_view_count) || 0,
+        latestViewCount: latestViews,
         latestMeasuredVph: vph,
         latestDeltaViews: raw.latest_view_delta !== null && raw.latest_view_delta !== undefined ? Number(raw.latest_view_delta) : null,
         channel: channelMeta,
@@ -155,7 +175,7 @@ export const opportunityService = {
       }
 
       // Quick filter
-      if (filters.quickFilter === 'over_threshold' && !v.isOverThreshold) {
+      if (filters.quickFilter === 'over_threshold' && (!v.isOverThreshold || v.channel.alertVphThreshold === null || v.channel.alertVphThreshold <= 0)) {
         return false;
       }
       if (filters.quickFilter === 'alerted' && (!v.alert || v.alert.status !== 'sent')) {
@@ -187,7 +207,7 @@ export const opportunityService = {
       case 'delta_desc':
         return list.sort((a, b) => (b.latestDeltaViews ?? 0) - (a.latestDeltaViews ?? 0));
       case 'threshold_ratio_desc':
-        return list.sort((a, b) => b.thresholdRatio - a.thresholdRatio);
+        return list.sort((a, b) => (b.thresholdRatio ?? -1) - (a.thresholdRatio ?? -1));
       default:
         return list;
     }
@@ -215,7 +235,7 @@ export const opportunityService = {
       if (maxVph === null || v.latestMeasuredVph > maxVph) {
         maxVph = v.latestMeasuredVph;
       }
-      if (v.isOverThreshold) {
+      if (v.isOverThreshold && v.channel.alertVphThreshold !== null && v.channel.alertVphThreshold > 0) {
         overThresholdCount++;
       }
     }
@@ -264,14 +284,14 @@ export const opportunityService = {
    */
   formatThresholdProgress(
     vph: number,
-    threshold: number
+    threshold: number | null
   ): {
     ratio: number;
     percentText: string;
     visualWidthPercent: number;
     isOver: boolean;
   } {
-    if (!threshold || threshold <= 0) {
+    if (threshold === null || threshold === undefined || threshold <= 0) {
       return { ratio: 0, percentText: '—', visualWidthPercent: 0, isOver: false };
     }
     const ratio = Math.round((vph / threshold) * 100);

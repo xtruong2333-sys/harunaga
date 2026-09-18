@@ -37,9 +37,9 @@
           <div class="rail-metrics-row">
             <span class="rail-vph mono text-accent">{{ formatNumber(Math.round(v.latestMeasuredVph)) }} VPH</span>
             <OpportunityStatusBadge
-              v-if="v.isOverThreshold"
+              v-if="v.channel.alertVphThreshold !== null && v.channel.alertVphThreshold > 0"
               type="threshold"
-              :is-over-threshold="true"
+              :is-over-threshold="v.isOverThreshold"
             />
           </div>
         </div>
@@ -62,7 +62,8 @@ defineEmits<{
   (e: 'select', video: OpportunityVideo): void;
 }>();
 
-function formatNumber(num: number): string {
+function formatNumber(num: number | null | undefined): string {
+  if (num === null || num === undefined) return '—';
   if (num >= 1_000_000) {
     return (num / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'M';
   }

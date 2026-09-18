@@ -19,8 +19,14 @@
         <span class="meta-dot">•</span>
         <span class="video-age">{{ video.videoAge }}</span>
         <OpportunityStatusBadge
+          v-if="video.channel.alertVphThreshold !== null && video.channel.alertVphThreshold > 0"
           type="threshold"
           :is-over-threshold="video.isOverThreshold"
+        />
+        <OpportunityStatusBadge
+          v-else
+          type="rising"
+          :measured-vph="video.latestMeasuredVph"
         />
       </div>
 
@@ -109,7 +115,8 @@ function formatDelta(delta: number | null | undefined): string {
   return formatNumber(delta);
 }
 
-function formatNumber(num: number): string {
+function formatNumber(num: number | null | undefined): string {
+  if (num === null || num === undefined) return '—';
   if (num >= 1_000_000) {
     return (num / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'M';
   }

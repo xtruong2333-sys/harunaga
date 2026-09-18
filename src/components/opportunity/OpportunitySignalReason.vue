@@ -15,12 +15,12 @@
       </li>
 
       <!-- 2. Threshold Comparison Fact -->
-      <li v-if="video.channel.alertVphThreshold > 0" class="reason-item">
+      <li v-if="video.channel.alertVphThreshold !== null && video.channel.alertVphThreshold > 0" class="reason-item">
         <span class="bullet-dot">•</span>
-        <span v-if="video.isOverThreshold">
-          Vượt ngưỡng kênh: <strong>+{{ formatNumber(video.latestMeasuredVph - video.channel.alertVphThreshold) }} VPH</strong> ({{ video.thresholdRatio }}%)
+        <span v-if="video.isOverThreshold && video.channel.alertVphThreshold !== null">
+          Vượt ngưỡng kênh: <strong>+{{ formatNumber(video.latestMeasuredVph - video.channel.alertVphThreshold) }} VPH</strong> ({{ video.thresholdRatio !== null ? video.thresholdRatio + '%' : '—' }})
         </span>
-        <span v-else>
+        <span v-else-if="video.thresholdRatio !== null && video.channel.alertVphThreshold !== null">
           So với ngưỡng kênh: <strong>{{ video.thresholdRatio }}%</strong> (Ngưỡng: {{ formatNumber(video.channel.alertVphThreshold) }} VPH)
         </span>
       </li>
@@ -66,7 +66,8 @@ const formattedVph = computed(() => {
   return `${formatNumber(Math.round(props.video.latestMeasuredVph))} VPH`;
 });
 
-function formatNumber(num: number): string {
+function formatNumber(num: number | null | undefined): string {
+  if (num === null || num === undefined) return '—';
   if (num >= 1_000_000) {
     return (num / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'M';
   }

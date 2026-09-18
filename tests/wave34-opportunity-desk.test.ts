@@ -10,6 +10,7 @@ import OpportunityListRow from '@/components/opportunity/OpportunityListRow.vue'
 import OpportunityTableView from '@/components/opportunity/OpportunityTableView.vue';
 import OpportunityCompareView from '@/components/opportunity/OpportunityCompareView.vue';
 import OpportunityChartView from '@/components/opportunity/OpportunityChartView.vue';
+import { opportunityService } from '@/services/opportunity-service';
 import type { OpportunityVideo, OpportunityStats } from '@/types/opportunity';
 
 const routerLinkStub = {
@@ -292,6 +293,123 @@ describe('Wave 3.4 — Opportunity Intelligence Desk Components', () => {
       expect(wrapper.text()).toContain('LƯỢT XEM TĂNG GẦN NHẤT (DELTA)');
       expect(wrapper.text()).toContain('6.2K VPH');
       expect(wrapper.text()).toContain('+1.2K');
+    });
+  });
+
+  // 11. Data Integrity & Null Safety (Wave 3.4 Fixes)
+  describe('11. Data Integrity & Null Safety', () => {
+    const videoWithNulls: OpportunityVideo = {
+      id: 'opp-vid-null',
+      youtubeVideoId: 'yt-opp-null',
+      channelId: 'ch-opp-null',
+      title: 'Video Không Có Ngưỡng Và View Count',
+      url: 'https://youtube.com/watch?v=yt-opp-null',
+      thumbnailUrl: null,
+      publishedAt: new Date(Date.now() - 2 * 3600 * 1000).toISOString(),
+      videoAge: '2 giờ',
+      latestViewCount: null,
+      latestMeasuredVph: 1500,
+      latestDeltaViews: null,
+      channel: {
+        id: 'ch-opp-null',
+        name: 'Kênh Chưa Cấu Hình',
+        handle: null,
+        avatarUrl: null,
+        alertVphThreshold: null,
+      },
+      thresholdRatio: null,
+      isOverThreshold: false,
+      alert: null,
+    };
+
+    it('11.1 Missing threshold does NOT create 5000 fallback and returns — and isOver false', () => {
+      const prog = opportunityService.formatThresholdProgress(1500, null);
+      expect(prog.ratio).toBe(0);
+      expect(prog.percentText).toBe('—');
+      expect(prog.isOver).toBe(false);
+
+      const progZero = opportunityService.formatThresholdProgress(1500, 0);
+      expect(progZero.ratio).toBe(0);
+      expect(progZero.percentText).toBe('—');
+      expect(progZero.isOver).toBe(false);
+    });
+
+    it('11.2 Missing threshold does NOT render over-threshold badge in SignalReason or Hero', () => {
+      const hero = mount(OpportunityFeaturedHero, {
+        props: {
+          video: videoWithNulls,
+        },
+        global: {
+          stubs: {
+            'router-link': routerLinkStub,
+          },
+        },
+      });
+
+      expect(hero.text()).not.toContain('VƯỢT NGƯỠNG');
+      expect(hero.text()).toContain('ĐANG TĂNG');
+
+      const reason = mount(OpportunitySignalReason, {
+        props: {
+          video: videoWithNulls,
+        },
+      });
+
+      expect(reason.text()).not.toContain('Vượt ngưỡng kênh');
+      expect(reason.text()).not.toContain('So với ngưỡng kênh');
+    });
+
+    it('11.3 Missing view count renders — across all components', () => {
+      const hero = mount(OpportunityFeaturedHero, {
+        props: { video: videoWithNulls },
+        global: { stubs: { 'router-link': routerLinkStub } },
+      });
+      expect(hero.text()).toContain('—');
+
+      const card = mount(OpportunityLargeCard, {
+        props: { video: videoWithNulls },
+        global: { stubs: { 'router-link': routerLinkStub } },
+      });
+      expect(card.text()).toContain('—');
+
+      const row = mount(OpportunityListRow, {
+        props: { video: videoWithNulls },
+        global: { stubs: { 'router-link': routerLinkStub } },
+      });
+      expect(row.text()).toContain('—');
+
+      const table = mount(OpportunityTableView, {
+        props: { videos: [videoWithNulls] },
+        global: { stubs: { 'router-link': routerLinkStub } },
+      });
+      expect(table.text()).toContain('—');
+    });
+
+    it('11.4 over_threshold filter excludes videos with null threshold', () => {
+      const filtered = opportunityService.filterOpportunityVideos(
+        [mockVideo, videoWithNulls],
+        {
+          timeWindow: 'all',
+          channelId: 'all',
+          searchQuery: '',
+          quickFilter: 'over_threshold',
+          sortOption: 'vph_desc',
+        }
+      );
+
+      expect(filtered.length).toBe(1);
+      expect(filtered[0].id).toBe(mockVideo.id);
+    });
+
+    it('11.5 Sorts threshold_ratio_desc safely with null ratios at the bottom', () => {
+      const sorted = opportunityService.sortOpportunityVideos(
+        [videoWithNulls, mockVideo, mockVideo2],
+        'threshold_ratio_desc'
+      );
+
+      expect(sorted[0].id).toBe(mockVideo.id); // ratio 124
+      expect(sorted[1].id).toBe(mockVideo2.id); // ratio 80
+      expect(sorted[2].id).toBe(videoWithNulls.id); // ratio null
     });
   });
 });

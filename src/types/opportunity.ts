@@ -1,4 +1,4 @@
-﻿// Định nghĩa kiểu dữ liệu cho màn hình Video Tiềm Năng (Phase 7)
+// Định nghĩa kiểu dữ liệu cho màn hình Video Tiềm Năng (Phase 7)
 // Nguồn dữ liệu 100% FACTUAL từ Supabase production.
 // TUYỆT ĐỐI KHÔNG TẠO SCORE CHỦ QUAN / KHÔNG AI.
 
@@ -17,7 +17,7 @@ export interface OpportunityChannelMeta {
   name: string;
   handle: string | null;
   avatarUrl: string | null;
-  alertVphThreshold: number;
+  alertVphThreshold: number | null;
 }
 
 export interface OpportunityAlertMeta {
@@ -36,11 +36,11 @@ export interface OpportunityVideo {
   thumbnailUrl: string | null;
   publishedAt: string;
   videoAge: string;
-  latestViewCount: number;
+  latestViewCount: number | null;
   latestMeasuredVph: number;
   latestDeltaViews: number | null;
   channel: OpportunityChannelMeta;
-  thresholdRatio: number; // e.g. 25 = 25% ngưỡng
+  thresholdRatio: number | null; // e.g. 25 = 25% ngưỡng, hoặc null nếu kênh chưa có ngưỡng
   isOverThreshold: boolean;
   alert: OpportunityAlertMeta | null;
 }

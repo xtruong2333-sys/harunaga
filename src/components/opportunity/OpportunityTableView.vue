@@ -37,9 +37,9 @@
                     {{ v.title }}
                   </router-link>
                   <OpportunityStatusBadge
-                    v-if="v.isOverThreshold"
+                    v-if="v.channel.alertVphThreshold !== null && v.channel.alertVphThreshold > 0"
                     type="threshold"
-                    :is-over-threshold="true"
+                    :is-over-threshold="v.isOverThreshold"
                   />
                 </div>
               </div>
@@ -76,11 +76,14 @@
 
             <!-- Threshold Col -->
             <td class="col-threshold">
-              <div class="threshold-cell">
+              <div v-if="v.channel.alertVphThreshold !== null && v.channel.alertVphThreshold > 0" class="threshold-cell">
                 <span class="mono" :class="{ 'text-positive font-bold': v.isOverThreshold }">
-                  {{ v.thresholdRatio }}%
+                  {{ v.thresholdRatio !== null ? v.thresholdRatio + '%' : '—' }}
                 </span>
                 <span class="threshold-sub mono">{{ formatNumber(v.channel.alertVphThreshold) }} VPH</span>
+              </div>
+              <div v-else class="threshold-cell">
+                <span class="mono text-muted">—</span>
               </div>
             </td>
 
@@ -146,7 +149,8 @@ function formatDelta(delta: number | null | undefined): string {
   return formatNumber(delta);
 }
 
-function formatNumber(num: number): string {
+function formatNumber(num: number | null | undefined): string {
+  if (num === null || num === undefined) return '—';
   if (num >= 1_000_000) {
     return (num / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'M';
   }
