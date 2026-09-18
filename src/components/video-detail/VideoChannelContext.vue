@@ -52,7 +52,7 @@
 
       <div class="config-item">
         <span class="cfg-lbl">Ngưỡng cảnh báo</span>
-        <span class="cfg-val mono">{{ channel.alertVphThreshold ? channel.alertVphThreshold.toLocaleString('vi-VN') + ' VPH' : '—' }}</span>
+        <span class="cfg-val mono">{{ channel.alertVphThreshold !== null && channel.alertVphThreshold !== undefined ? channel.alertVphThreshold.toLocaleString('vi-VN') + ' VPH' : '—' }}</span>
       </div>
     </div>
 

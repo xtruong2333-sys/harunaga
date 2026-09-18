@@ -77,9 +77,15 @@
       </div>
     </main>
 
+    <!-- Toast Notification -->
+    <div v-if="toastMessage" class="toast-notification">
+      {{ toastMessage }}
+    </div>
+
     <!-- Access Key Prompt Modal -->
     <AccessKeyPromptModal
-      v-model="showAccessKeyModal"
+      :model-value="showAccessKeyModal"
+      @update:model-value="onAccessModalChange"
       :initial-error="accessKeyError"
       @confirmed="onAccessKeyConfirmed"
     />
@@ -117,6 +123,24 @@ const productionItemId = ref<string | null>(null);
 const isAddingToProduction = ref(false);
 const showAccessKeyModal = ref(false);
 const accessKeyError = ref<string | null>(null);
+const toastMessage = ref<string | null>(null);
+let toastTimer: any = null;
+
+function showToast(msg: string) {
+  toastMessage.value = msg;
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => {
+    toastMessage.value = null;
+  }, 3500);
+}
+
+function onAccessModalChange(isOpen: boolean) {
+  showAccessKeyModal.value = isOpen;
+  if (!isOpen) {
+    accessKeyError.value = null;
+    isAddingToProduction.value = false;
+  }
+}
 
 async function checkProductionStatus() {
   if (!videoId) return;
@@ -148,12 +172,13 @@ async function handleAddToProduction() {
       getStoredAccessKey() || undefined
     );
     productionItemId.value = item.id;
+    showToast('Đã đưa video vào Tiến Độ Sản Xuất!');
   } catch (err: any) {
     if (err instanceof AccessKeyRequiredError || err.message?.includes('access key') || err.message?.includes('Mã truy cập')) {
       accessKeyError.value = err.message;
       showAccessKeyModal.value = true;
     } else {
-      alert(err.message || 'Không thể đưa video vào sản xuất.');
+      showToast(err.message || 'Không thể đưa video vào sản xuất.');
     }
   } finally {
     isAddingToProduction.value = false;
@@ -369,5 +394,26 @@ onMounted(() => {
   .context-columns-grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* Toast */
+.toast-notification {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  padding: 12px 20px;
+  border-radius: 10px;
+  background: #0F172A;
+  color: #FFFFFF;
+  font-size: 13.5px;
+  font-weight: 600;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  animation: toastIn 0.2s ease;
+}
+
+@keyframes toastIn {
+  from { transform: translateY(10px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
 </style>

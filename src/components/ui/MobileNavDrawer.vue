@@ -57,11 +57,7 @@
 
           <!-- Drawer Footer -->
           <div class="drawer-footer">
-            <div class="footer-status">
-              <span class="pulse-dot"></span>
-              <span>Hệ thống sẵn sàng</span>
-            </div>
-            <div class="footer-version">v1.1 Live</div>
+            <div class="footer-brand">Bắt Bài Đối Thủ</div>
           </div>
         </div>
       </div>
@@ -362,25 +358,12 @@ onUnmounted(() => {
   border-color: rgba(125, 211, 252, 0.10);
 }
 
-.footer-status {
-  display: flex;
-  align-items: center;
-  gap: 6px;
+.footer-brand {
   font-size: 11px;
+  font-weight: 600;
   color: var(--text-muted);
-}
-
-.pulse-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #10B981;
-  box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
-}
-
-.footer-version {
-  font-size: 10.5px;
-  color: var(--text-muted);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 /* Transitions */

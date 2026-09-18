@@ -58,7 +58,7 @@
 
         <div class="alert-item-right">
           <span class="alert-vph-val mono text-accent">
-            {{ a.measuredVph ? Math.round(a.measuredVph).toLocaleString('vi-VN') + ' VPH' : '—' }}
+            {{ a.measuredVph !== null && a.measuredVph !== undefined ? Math.round(a.measuredVph).toLocaleString('vi-VN') + ' VPH' : '—' }}
           </span>
           <span class="badge-alert" :class="`alert-${a.status}`">
             {{ formatAlertStatus(a.status) }}

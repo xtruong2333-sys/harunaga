@@ -272,8 +272,14 @@
       @save="handleSaveEdit"
     />
 
+    <!-- Toast Notification -->
+    <div v-if="toastMessage" class="toast-notification">
+      {{ toastMessage }}
+    </div>
+
     <AccessKeyPromptModal
-      v-model="showAccessKeyModal"
+      :model-value="showAccessKeyModal"
+      @update:model-value="handleAccessModalChange"
       :initial-error="accessKeyError"
       @confirmed="handleAccessKeyConfirmed"
     />
@@ -357,6 +363,26 @@ const accessKeyError = ref<string | null>(null);
 const isCollecting = ref(false);
 const collectNotification = ref<string | null>(null);
 let pendingAction: (() => Promise<any>) | null = null;
+const accessActionRunning = ref(false);
+
+const toastMessage = ref<string | null>(null);
+let toastTimer: any = null;
+
+function showToast(msg: string) {
+  toastMessage.value = msg;
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => {
+    toastMessage.value = null;
+  }, 3500);
+}
+
+function handleAccessModalChange(isOpen: boolean) {
+  showAccessKeyModal.value = isOpen;
+  if (!isOpen) {
+    pendingAction = null;
+    accessKeyError.value = null;
+  }
+}
 
 // Telemetry Stats Map
 const channelStatsMap = ref<Record<string, { totalVideos: number; risingCount: number; maxVph: number | null }>>({});
@@ -523,50 +549,58 @@ async function executeWithAccessKey(action: () => Promise<any>) {
     if (err instanceof AccessKeyRequiredError || err.name === 'AccessKeyRequiredError') {
       handleAccessKeyRequired(action, err.message);
     } else {
-      alert(err.message || 'Thao tác không thành công.');
+      showToast(err.message || 'Thao tác không thành công.');
     }
   }
 }
 
 async function handleAccessKeyConfirmed() {
-  if (pendingAction) {
-    const action = pendingAction;
-    try {
-      accessKeyError.value = null;
-      await action();
+  if (!pendingAction || accessActionRunning.value) return;
+  const action = pendingAction;
+  accessActionRunning.value = true;
+  try {
+    accessKeyError.value = null;
+    await action();
+    pendingAction = null;
+    showAccessKeyModal.value = false;
+    accessKeyError.value = null;
+  } catch (err: any) {
+    if (err instanceof AccessKeyRequiredError || err.name === 'AccessKeyRequiredError') {
+      pendingAction = action;
+      accessKeyError.value = 'Mã truy cập không chính xác. Vui lòng nhập lại.';
+      showAccessKeyModal.value = true;
+    } else {
       pendingAction = null;
       showAccessKeyModal.value = false;
-      accessKeyError.value = null;
-    } catch (err: any) {
-      if (err instanceof AccessKeyRequiredError || err.name === 'AccessKeyRequiredError') {
-        accessKeyError.value = 'Mã truy cập không chính xác. Vui lòng nhập lại.';
-        showAccessKeyModal.value = true;
-      } else {
-        pendingAction = null;
-        showAccessKeyModal.value = false;
-        alert(err.message || 'Thao tác không thành công.');
-      }
+      showToast(err.message || 'Thao tác không thành công.');
     }
+  } finally {
+    accessActionRunning.value = false;
   }
 }
 
 async function handlePause(id: string) {
+  if (showAccessKeyModal.value || pendingAction !== null || accessActionRunning.value) return;
   await executeWithAccessKey(() => channelStore.pauseChannel(id));
 }
 
 async function handleResume(id: string) {
+  if (showAccessKeyModal.value || pendingAction !== null || accessActionRunning.value) return;
   await executeWithAccessKey(() => channelStore.resumeChannel(id));
 }
 
 async function handleArchive(id: string) {
+  if (showAccessKeyModal.value || pendingAction !== null || accessActionRunning.value) return;
   await executeWithAccessKey(() => channelStore.archiveChannel(id));
 }
 
 async function handleRestore(id: string) {
+  if (showAccessKeyModal.value || pendingAction !== null || accessActionRunning.value) return;
   await executeWithAccessKey(() => channelStore.restoreChannel(id));
 }
 
 async function handleSaveEdit(payload: { id: string; scanLimit: number | null; alertThreshold: number | null; notes: string }) {
+  if (showAccessKeyModal.value || pendingAction !== null || accessActionRunning.value) return;
   await executeWithAccessKey(() => channelStore.updateChannel(payload.id, {
     scanLimit: payload.scanLimit,
     alertVphThreshold: payload.alertThreshold,
@@ -583,7 +617,7 @@ function handleBulkAdded() {
 }
 
 async function handleTriggerCollection() {
-  if (isCollecting.value) return;
+  if (isCollecting.value || showAccessKeyModal.value || pendingAction !== null || accessActionRunning.value) return;
   await executeWithAccessKey(async () => {
     isCollecting.value = true;
     collectNotification.value = null;
@@ -829,5 +863,26 @@ async function handleTriggerCollection() {
   .medium-grid-layout {
     grid-template-columns: 1fr;
   }
+}
+
+/* Toast */
+.toast-notification {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  padding: 12px 20px;
+  border-radius: 10px;
+  background: #0F172A;
+  color: #FFFFFF;
+  font-size: 13.5px;
+  font-weight: 600;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  animation: toastIn 0.2s ease;
+}
+
+@keyframes toastIn {
+  from { transform: translateY(10px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
 </style>

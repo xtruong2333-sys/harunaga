@@ -20,7 +20,7 @@
       <div class="message-content">
         <p v-if="alert?.status === 'sent' && alert.sentAt" class="event-text">
           Hệ thống đã phát tín hiệu cảnh báo đến Discord lúc <strong>{{ formatDateTime(alert.sentAt) }}</strong>
-          với tốc độ đo được <strong>{{ alert.measuredVph ? alert.measuredVph.toLocaleString('vi-VN') : '—' }} VPH</strong>.
+          với tốc độ đo được <strong>{{ alert.measuredVph !== null && alert.measuredVph !== undefined ? alert.measuredVph.toLocaleString('vi-VN') + ' VPH' : '—' }}</strong>.
         </p>
         <p v-else-if="alert?.status === 'pending'" class="event-text">
           Video đã vượt ngưỡng cảnh báo và đang nằm trong hàng đợi phát tín hiệu tới Discord webhook.

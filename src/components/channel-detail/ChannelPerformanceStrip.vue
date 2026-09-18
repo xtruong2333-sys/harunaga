@@ -26,7 +26,7 @@
           <AppIcon name="zap" size="18" class="m-icon text-accent" />
         </div>
         <div class="m-val mono text-accent">
-          {{ analysis.maxVph !== null && analysis.maxVph > 0 ? analysis.maxVph.toLocaleString('vi-VN') + ' VPH' : '—' }}
+          {{ analysis.maxVph !== null && analysis.maxVph !== undefined ? analysis.maxVph.toLocaleString('vi-VN') + ' VPH' : '—' }}
         </div>
         <div class="m-sub">Tốc độ tăng cao nhất hiện tại</div>
       </div>

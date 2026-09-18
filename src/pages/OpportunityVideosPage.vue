@@ -222,7 +222,8 @@
 
     <!-- Access Key Prompt Modal -->
     <AccessKeyPromptModal
-      v-model="showAccessKeyModal"
+      :model-value="showAccessKeyModal"
+      @update:model-value="onAccessModalChange"
       :initial-error="accessKeyError"
       @confirmed="onAccessKeyConfirmed"
     />
@@ -324,10 +325,18 @@ async function handleAddToProduction(v: OpportunityVideo) {
     } else if (err?.message?.includes('đã có trong quy trình') || err?.message?.includes('409')) {
       showToast('Video này đã có trong Tiến Độ Sản Xuất!');
     } else {
-      alert(err.message || 'Không thể đưa vào Tiến Độ Sản Xuất.');
+      showToast(err.message || 'Không thể đưa vào Tiến Độ Sản Xuất.');
     }
   } finally {
     addingVideoId.value = null;
+  }
+}
+
+function onAccessModalChange(isOpen: boolean) {
+  showAccessKeyModal.value = isOpen;
+  if (!isOpen) {
+    pendingVideoToAdd.value = null;
+    accessKeyError.value = null;
   }
 }
 

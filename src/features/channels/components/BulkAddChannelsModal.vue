@@ -69,6 +69,10 @@
             </li>
           </ul>
         </div>
+
+        <div v-if="submitError" class="modal-submit-error">
+          {{ submitError }}
+        </div>
       </div>
     </div>
 
@@ -127,6 +131,7 @@ const progressCurrent = ref(0);
 const progressTotal = ref(0);
 const summary = ref<BulkResolveSummary | null>(null);
 const submitting = ref(false);
+const submitError = ref<string | null>(null);
 
 const inputLinesCount = computed(() => {
   return rawInput.value
@@ -156,6 +161,7 @@ function reset() {
   progressTotal.value = 0;
   summary.value = null;
   submitting.value = false;
+  submitError.value = null;
 }
 
 function close() {
@@ -192,6 +198,7 @@ async function handleCheck() {
 async function handleSubmitBulk() {
   if (!summary.value || summary.value.valid.length === 0) return;
   submitting.value = true;
+  submitError.value = null;
 
   try {
     for (const item of summary.value.valid) {
@@ -214,7 +221,7 @@ async function handleSubmitBulk() {
       emit('access-key-required', () => handleSubmitBulk(), err.message);
       throw err;
     }
-    alert(`Lỗi khi thêm kênh: ${err.message}`);
+    submitError.value = `Lỗi khi thêm kênh: ${err.message}`;
     throw err;
   } finally {
     submitting.value = false;
@@ -362,5 +369,16 @@ async function handleSubmitBulk() {
 .summary-footer-actions {
   display: flex;
   gap: 10px;
+}
+
+.modal-submit-error {
+  margin-top: 12px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  color: #EF4444;
+  font-size: 13px;
+  font-weight: 500;
 }
 </style>

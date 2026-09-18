@@ -38,8 +38,10 @@
         :loading="loading"
         :is-pausing-or-resuming="isPausingOrResuming"
         :is-archiving-or-restoring="isArchivingOrRestoring"
-        @refresh="loadChannelData"
-        @edit="showEditModal = true"
+        :is-collecting="isCollecting"
+        :disabled="interactionLocked"
+        @refresh="!interactionLocked && loadChannelData()"
+        @edit="!interactionLocked && (showEditModal = true)"
         @toggle-pause="handleTogglePause"
         @toggle-archive="handleToggleArchive"
         @trigger-collection="handleTriggerCollection"
@@ -90,7 +92,8 @@
 
     <!-- Access Key Prompt Modal -->
     <AccessKeyPromptModal
-      v-model="showAccessKeyModal"
+      :model-value="showAccessKeyModal"
+      @update:model-value="handleAccessModalChange"
       :initial-error="accessKeyError"
       @confirmed="onAccessKeyConfirmed"
     />
@@ -98,7 +101,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import AppIcon from '@/components/ui/AppIcon.vue';
 import AccessKeyPromptModal from '@/components/ui/AccessKeyPromptModal.vue';
@@ -132,10 +135,30 @@ const showEditModal = ref(false);
 const isSavingEdit = ref(false);
 const isPausingOrResuming = ref(false);
 const isArchivingOrRestoring = ref(false);
+const isCollecting = ref(false);
 
 const showAccessKeyModal = ref(false);
 const accessKeyError = ref<string | null>(null);
 const pendingAction = ref<(() => Promise<void>) | null>(null);
+
+const interactionLocked = computed(() => {
+  return (
+    showAccessKeyModal.value ||
+    pendingAction.value !== null ||
+    isSavingEdit.value ||
+    isPausingOrResuming.value ||
+    isArchivingOrRestoring.value ||
+    isCollecting.value
+  );
+});
+
+function handleAccessModalChange(isOpen: boolean) {
+  showAccessKeyModal.value = isOpen;
+  if (!isOpen) {
+    pendingAction.value = null;
+    accessKeyError.value = null;
+  }
+}
 
 async function executeWithAccessKey(action: () => Promise<void>) {
   try {
@@ -143,21 +166,40 @@ async function executeWithAccessKey(action: () => Promise<void>) {
   } catch (err: any) {
     if (err instanceof AccessKeyRequiredError || err.message?.includes('access key') || err.message?.includes('Mã truy cập')) {
       pendingAction.value = action;
-      accessKeyError.value = err.message;
+      accessKeyError.value = err.message || 'Vui lòng nhập Mã truy cập để thực hiện thao tác.';
       showAccessKeyModal.value = true;
     } else {
-      alert(err.message || 'Thao tác không thành công.');
+      notificationMsg.value = err.message || 'Thao tác không thành công.';
+      setTimeout(() => { notificationMsg.value = null; }, 5000);
     }
   }
 }
 
 async function onAccessKeyConfirmed(key: string) {
   setStoredAccessKey(key);
-  showAccessKeyModal.value = false;
   if (pendingAction.value) {
     const action = pendingAction.value;
-    pendingAction.value = null;
-    await action();
+    try {
+      accessKeyError.value = null;
+      await action();
+      pendingAction.value = null;
+      showAccessKeyModal.value = false;
+      accessKeyError.value = null;
+    } catch (err: any) {
+      if (err instanceof AccessKeyRequiredError || err.message?.includes('access key') || err.message?.includes('Mã truy cập')) {
+        pendingAction.value = action;
+        accessKeyError.value = 'Mã truy cập không chính xác. Vui lòng nhập lại.';
+        showAccessKeyModal.value = true;
+      } else {
+        pendingAction.value = null;
+        showAccessKeyModal.value = false;
+        notificationMsg.value = err.message || 'Thao tác không thành công.';
+        setTimeout(() => { notificationMsg.value = null; }, 5000);
+      }
+    }
+  } else {
+    showAccessKeyModal.value = false;
+    accessKeyError.value = null;
   }
 }
 
@@ -187,18 +229,19 @@ async function loadChannelData() {
 }
 
 async function handleTogglePause() {
-  if (!analysis.value || isPausingOrResuming.value) return;
-  isPausingOrResuming.value = true;
+  if (!analysis.value || interactionLocked.value) return;
   const isCurrentlyActive = analysis.value.channel.status === 'active';
+  const channelName = analysis.value.channel.name;
 
   await executeWithAccessKey(async () => {
+    isPausingOrResuming.value = true;
     try {
       if (isCurrentlyActive) {
         await channelService.pauseChannel(channelId);
-        notificationMsg.value = `Đã tạm dừng theo dõi kênh ${analysis.value?.channel.name}.`;
+        notificationMsg.value = `Đã tạm dừng theo dõi kênh ${channelName}.`;
       } else {
         await channelService.resumeChannel(channelId);
-        notificationMsg.value = `Đã tiếp tục theo dõi kênh ${analysis.value?.channel.name}.`;
+        notificationMsg.value = `Đã tiếp tục theo dõi kênh ${channelName}.`;
       }
       await loadChannelData();
       setTimeout(() => { notificationMsg.value = null; }, 5000);
@@ -206,22 +249,22 @@ async function handleTogglePause() {
       isPausingOrResuming.value = false;
     }
   });
-  isPausingOrResuming.value = false;
 }
 
 async function handleToggleArchive() {
-  if (!analysis.value || isArchivingOrRestoring.value) return;
-  isArchivingOrRestoring.value = true;
+  if (!analysis.value || interactionLocked.value) return;
   const isCurrentlyArchived = analysis.value.channel.status === 'archived';
+  const channelName = analysis.value.channel.name;
 
   await executeWithAccessKey(async () => {
+    isArchivingOrRestoring.value = true;
     try {
       if (isCurrentlyArchived) {
         await channelService.restoreChannel(channelId);
-        notificationMsg.value = `Đã khôi phục kênh ${analysis.value?.channel.name}.`;
+        notificationMsg.value = `Đã khôi phục kênh ${channelName}.`;
       } else {
         await channelService.archiveChannel(channelId);
-        notificationMsg.value = `Đã lưu trữ kênh ${analysis.value?.channel.name}.`;
+        notificationMsg.value = `Đã lưu trữ kênh ${channelName}.`;
       }
       await loadChannelData();
       setTimeout(() => { notificationMsg.value = null; }, 5000);
@@ -229,14 +272,13 @@ async function handleToggleArchive() {
       isArchivingOrRestoring.value = false;
     }
   });
-  isArchivingOrRestoring.value = false;
 }
 
 async function handleSaveEdit(payload: { alertThreshold: number | null; scanLimit: number | null }) {
   if (!analysis.value || isSavingEdit.value) return;
-  isSavingEdit.value = true;
 
   await executeWithAccessKey(async () => {
+    isSavingEdit.value = true;
     try {
       await channelService.updateChannel(channelId, {
         alertVphThreshold: payload.alertThreshold,
@@ -250,11 +292,13 @@ async function handleSaveEdit(payload: { alertThreshold: number | null; scanLimi
       isSavingEdit.value = false;
     }
   });
-  isSavingEdit.value = false;
 }
 
 async function handleTriggerCollection() {
+  if (!analysis.value || interactionLocked.value) return;
+
   await executeWithAccessKey(async () => {
+    isCollecting.value = true;
     notificationMsg.value = 'Đang kích hoạt quét dữ liệu...';
     try {
       const res = await collectorService.triggerCollection();
@@ -267,6 +311,8 @@ async function handleTriggerCollection() {
       setTimeout(() => { notificationMsg.value = null; }, 6000);
     } catch (err: any) {
       notificationMsg.value = err.message || 'Không thể quét dữ liệu.';
+    } finally {
+      isCollecting.value = false;
     }
   });
 }

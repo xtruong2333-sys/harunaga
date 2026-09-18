@@ -28,7 +28,7 @@
       <div class="cfg-row">
         <span class="cfg-lbl">Ngưỡng cảnh báo VPH</span>
         <span class="cfg-val mono text-accent">
-          {{ channel.alertVphThreshold ? channel.alertVphThreshold.toLocaleString('vi-VN') + ' VPH' : '—' }}
+          {{ channel.alertVphThreshold !== null && channel.alertVphThreshold !== undefined ? channel.alertVphThreshold.toLocaleString('vi-VN') + ' VPH' : 'Chưa đặt' }}
         </span>
       </div>
 

@@ -58,7 +58,7 @@
         <div class="telemetry-cell">
           <span class="tel-lbl">NGƯỠNG CẢNH BÁO</span>
           <span class="tel-val mono text-accent">
-            {{ channel.alertVphThreshold ? channel.alertVphThreshold.toLocaleString('vi-VN') + ' VPH' : '—' }}
+            {{ channel.alertVphThreshold !== null && channel.alertVphThreshold !== undefined ? channel.alertVphThreshold.toLocaleString('vi-VN') + ' VPH' : '—' }}
           </span>
         </div>
 
@@ -89,7 +89,7 @@
         <button
           type="button"
           class="btn btn-secondary btn-sm"
-          :disabled="loading"
+          :disabled="loading || disabled"
           @click="$emit('refresh')"
           title="Tải lại dữ liệu mới nhất từ hệ thống"
         >
@@ -100,6 +100,7 @@
         <button
           type="button"
           class="btn btn-secondary btn-sm"
+          :disabled="disabled"
           @click="$emit('edit')"
           title="Chỉnh sửa cấu hình ngưỡng và quét của kênh"
         >
@@ -110,7 +111,7 @@
         <button
           type="button"
           class="btn btn-secondary btn-sm"
-          :disabled="isPausingOrResuming"
+          :disabled="isPausingOrResuming || disabled"
           @click="$emit('toggle-pause')"
           :title="channel.status === 'active' ? 'Tạm dừng theo dõi kênh này' : 'Tiếp tục theo dõi kênh này'"
         >
@@ -121,7 +122,7 @@
         <button
           type="button"
           class="btn btn-secondary btn-sm"
-          :disabled="isArchivingOrRestoring"
+          :disabled="isArchivingOrRestoring || disabled"
           @click="$emit('toggle-archive')"
           :title="channel.status === 'archived' ? 'Khôi phục kênh' : 'Lưu trữ kênh này'"
         >
@@ -161,11 +162,12 @@
         <button
           type="button"
           class="btn btn-primary btn-sm btn-collector"
+          :disabled="isCollecting || disabled"
           @click="$emit('trigger-collection')"
-          title="Kích hoạt kiểm tra dữ liệu kênh này ngay lập tức"
+          title="Kích hoạt kiểm tra dữ liệu cho các kênh đang theo dõi"
         >
-          <AppIcon name="zap" size="14" />
-          <span>Kiểm Tra Dữ Liệu</span>
+          <AppIcon name="zap" size="14" :class="{ 'spin-anim': isCollecting }" />
+          <span>{{ isCollecting ? 'Đang kích hoạt...' : 'Kiểm Tra Dữ Liệu' }}</span>
         </button>
       </div>
     </div>
@@ -182,6 +184,8 @@ const props = defineProps<{
   loading?: boolean;
   isPausingOrResuming?: boolean;
   isArchivingOrRestoring?: boolean;
+  isCollecting?: boolean;
+  disabled?: boolean;
 }>();
 
 defineEmits<{

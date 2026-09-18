@@ -69,21 +69,6 @@
         <div class="sidebar-theme-wrapper rail-theme-wrapper">
           <ThemeToggle size="sm" />
         </div>
-        <div
-          v-if="!sidebarCollapsed"
-          class="rail-health system-status-indicator"
-          title="Hệ thống sẵn sàng"
-        >
-          <span class="pulse-dot"></span>
-          <span class="status-text">Hệ thống sẵn sàng</span>
-        </div>
-        <div
-          v-else
-          class="rail-health compact-health"
-          title="Hệ thống sẵn sàng"
-        >
-          <span class="pulse-dot"></span>
-        </div>
       </div>
     </aside>
 
@@ -117,9 +102,8 @@
       </div>
 
       <div class="workspace-actions">
-        <div class="live-pill">
-          <span class="live-pill__dot"></span>
-          <span>LIVE SIGNAL</span>
+        <div class="workspace-mode-badge">
+          <span>INTELLIGENCE WORKSPACE</span>
         </div>
         <ThemeToggle size="sm" />
       </div>
@@ -717,35 +701,30 @@ const currentTitle = computed(() => {
   gap: 12px;
 }
 
-.live-pill {
+.workspace-mode-badge {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 5px 12px;
-  border-radius: 9999px;
+  padding: 4px 10px;
+  border-radius: 6px;
   font-size: 11px;
   font-weight: 600;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
+  border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.1));
+  background: var(--bg-inset, rgba(255, 255, 255, 0.05));
+  color: var(--text-secondary, #94A3B8);
 }
 
-[data-theme="light"] .live-pill {
-  background: #ECFDF5;
-  color: #059669;
-  border: 1px solid #A7F3D0;
+[data-theme="light"] .workspace-mode-badge {
+  background: #F1F5F9;
+  color: #64748B;
+  border-color: #E2E8F0;
 }
 
-[data-theme="dark"] .live-pill {
-  background: rgba(34, 197, 94, 0.12);
-  color: #34D399;
-  border: 1px solid rgba(34, 197, 94, 0.28);
-}
-
-.live-pill__dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: currentColor;
-  animation: signal-pulse 2s infinite ease-in-out;
+[data-theme="dark"] .workspace-mode-badge {
+  background: rgba(255, 255, 255, 0.05);
+  color: #94A3B8;
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
 /* ==========================================================================

@@ -40,10 +40,10 @@
 
       <div class="fact-item">
         <span class="fact-lbl">Ngưỡng kênh theo dõi:</span>
-        <span class="fact-val mono">{{ video.channel.alertVphThreshold ? formatNumber(video.channel.alertVphThreshold) + ' VPH' : 'Chưa thiết lập' }}</span>
+        <span class="fact-val mono">{{ video.channel.alertVphThreshold !== null && video.channel.alertVphThreshold !== undefined ? formatNumber(video.channel.alertVphThreshold) + ' VPH' : 'Chưa thiết lập' }}</span>
       </div>
 
-      <div class="fact-item" v-if="video.channel.alertVphThreshold && video.latestMeasuredVph">
+      <div class="fact-item" v-if="video.channel.alertVphThreshold !== null && video.channel.alertVphThreshold !== undefined && video.latestMeasuredVph !== null && video.latestMeasuredVph !== undefined">
         <span class="fact-lbl">Chênh lệch so với ngưỡng:</span>
         <span
           class="fact-val mono"
@@ -91,7 +91,7 @@ const latestSnapshotTime = computed(() => {
 const thresholdDelta = computed(() => {
   const t = props.video.channel.alertVphThreshold;
   const v = props.video.latestMeasuredVph;
-  if (!t || v === null || v === undefined) return 0;
+  if (t === null || t === undefined || v === null || v === undefined) return 0;
   return Math.round(v - t);
 });
 
