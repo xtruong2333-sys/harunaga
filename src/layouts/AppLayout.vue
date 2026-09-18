@@ -1,92 +1,62 @@
 <template>
   <div class="app-layout">
-    <!-- Desktop Sidebar -->
-    <aside class="sidebar">
-      <div class="brand">
-        <div class="brand-logo-icon">
-          <svg viewBox="0 0 24 24" width="22" height="22" fill="#38BDF8">
-            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/>
-          </svg>
-        </div>
-        <div class="brand-text">
-          <div class="brand-title">BẮT BÀI ĐỐI THỦ</div>
-          <div class="brand-subtitle">Theo dõi đối thủ YouTube</div>
-        </div>
-      </div>
+    <IntelligenceField />
 
-      <nav class="nav-menu">
-        <router-link to="/tong-quan" class="nav-item" active-class="nav-item-active">
-          <AppIcon name="dashboard" size="18" />
-          <span>Tổng Quan</span>
-        </router-link>
-        <router-link to="/bao-cao" class="nav-item" active-class="nav-item-active">
-          <AppIcon name="file-text" size="18" />
-          <span>Báo Cáo</span>
-        </router-link>
-        <router-link to="/video-moi-dang" class="nav-item" active-class="nav-item-active">
-          <AppIcon name="clock" size="18" />
-          <span>Video Mới Đăng</span>
-        </router-link>
-        <router-link to="/video-tiem-nang" class="nav-item" active-class="nav-item-active">
-          <AppIcon name="zap" size="18" />
-          <span>Video Tiềm Năng</span>
-        </router-link>
-        <router-link to="/videos" class="nav-item" active-class="nav-item-active">
-          <AppIcon name="trending-up" size="18" />
-          <span>Video Đang Tăng</span>
-        </router-link>
-        <router-link to="/kenh-theo-doi" class="nav-item" active-class="nav-item-active">
-          <AppIcon name="tv" size="18" />
-          <span>Kênh Theo Dõi</span>
-        </router-link>
-        <router-link to="/so-sanh-kenh" class="nav-item" active-class="nav-item-active">
-          <AppIcon name="bar-chart-2" size="18" />
-          <span>So Sánh Kênh</span>
-        </router-link>
-        <router-link to="/lich-dang-doi-thu" class="nav-item" active-class="nav-item-active">
-          <AppIcon name="calendar" size="18" />
-          <span>Lịch Đăng Của Đối Thủ</span>
-        </router-link>
-        <router-link to="/lich-su-canh-bao" class="nav-item" active-class="nav-item-active">
-          <AppIcon name="bell" size="18" />
-          <span>Lịch Sử Cảnh Báo</span>
-        </router-link>
-        <router-link to="/tro-ly-noi-dung" class="nav-item" active-class="nav-item-active">
-          <AppIcon name="sparkles" size="18" />
-          <span>Trợ Lý Nội Dung AI</span>
-        </router-link>
-        <router-link to="/tien-do-san-xuat" class="nav-item" active-class="nav-item-active">
-          <AppIcon name="clipboard-list" size="18" />
-          <span>Tiến Độ Sản Xuất</span>
-        </router-link>
-        <router-link to="/tinh-trang-du-lieu" class="nav-item" active-class="nav-item-active">
-          <AppIcon name="database" size="18" />
-          <span>Tình Trạng Dữ Liệu</span>
+    <aside class="command-rail" aria-label="Điều hướng chính">
+      <router-link to="/tong-quan" class="rail-brand" title="BẮT BÀI ĐỐI THỦ">
+        <span class="rail-brand__core"></span>
+        <span class="rail-brand__pulse"></span>
+      </router-link>
+
+      <nav class="rail-nav">
+        <router-link
+          v-for="item in navItems"
+          :key="item.to"
+          :to="item.to"
+          class="rail-item"
+          active-class="rail-item--active"
+        >
+          <AppIcon :name="item.icon" size="19" />
+          <span class="rail-label">
+            <strong>{{ item.label }}</strong>
+            <small>{{ item.hint }}</small>
+          </span>
         </router-link>
       </nav>
 
-      <div class="sidebar-footer">
-        <div class="sidebar-theme-wrapper">
-          <span class="theme-label">Giao diện</span>
-          <ThemeToggle size="md" />
-        </div>
-        <div class="footer-status-pill">
+      <div class="rail-footer">
+        <ThemeToggle size="sm" />
+        <div class="rail-health" title="Hệ thống sẵn sàng">
           <span class="pulse-dot"></span>
-          <span>Hệ thống sẵn sàng</span>
         </div>
-        <div class="version-tag">Phiên bản 1.0</div>
       </div>
     </aside>
 
-    <!-- Mobile Topbar with Hamburger Menu -->
+    <header class="workspace-topbar">
+      <div class="workspace-context">
+        <div class="workspace-eyebrow">
+          <span class="signal-dot"></span>
+          INTELLIGENCE OS
+        </div>
+        <div class="workspace-title">{{ currentTitle }}</div>
+      </div>
+
+      <div class="workspace-actions">
+        <div class="live-pill">
+          <span class="live-pill__dot"></span>
+          LIVE SIGNAL
+        </div>
+        <ThemeToggle size="sm" />
+      </div>
+    </header>
+
     <header class="mobile-topbar">
       <div class="brand-mobile">
-        <div class="brand-mobile-icon">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="#38BDF8">
-            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/>
-          </svg>
+        <span class="brand-mobile-core"></span>
+        <div>
+          <div class="brand-mobile-title">BẮT BÀI ĐỐI THỦ</div>
+          <div class="brand-mobile-subtitle">YouTube Intelligence</div>
         </div>
-        <span class="brand-mobile-title">BẮT BÀI ĐỐI THỦ</span>
       </div>
 
       <div class="mobile-topbar-actions">
@@ -98,247 +68,417 @@
           @click="mobileDrawerOpen = true"
         >
           <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="3" y1="6" x2="21" y2="6"></line>
-            <line x1="3" y1="12" x2="21" y2="12"></line>
-            <line x1="3" y1="18" x2="21" y2="18"></line>
+            <line x1="4" y1="7" x2="20" y2="7"></line>
+            <line x1="4" y1="12" x2="20" y2="12"></line>
+            <line x1="4" y1="17" x2="20" y2="17"></line>
           </svg>
         </button>
       </div>
     </header>
 
-    <!-- Mobile Drawer -->
     <MobileNavDrawer v-model="mobileDrawerOpen" />
 
-    <!-- Main Content Area -->
     <main class="main-content">
-      <slot />
+      <div class="main-content__inner">
+        <slot />
+      </div>
     </main>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
+import { useRoute } from 'vue-router';
 import AppIcon from '@/components/ui/AppIcon.vue';
 import ThemeToggle from '@/components/ui/ThemeToggle.vue';
 import MobileNavDrawer from '@/components/ui/MobileNavDrawer.vue';
+import IntelligenceField from '@/components/motion/IntelligenceField.vue';
 
 const mobileDrawerOpen = ref(false);
+const route = useRoute();
+
+const navItems = [
+  { to: '/tong-quan', icon: 'dashboard', label: 'Tổng Quan', hint: 'Trung tâm tín hiệu' },
+  { to: '/bao-cao', icon: 'file-text', label: 'Báo Cáo', hint: 'Tổng hợp dữ liệu' },
+  { to: '/video-moi-dang', icon: 'clock', label: 'Video Mới', hint: 'Theo dõi upload mới' },
+  { to: '/video-tiem-nang', icon: 'zap', label: 'Cơ Hội', hint: 'Video có tiềm năng' },
+  { to: '/videos', icon: 'trending-up', label: 'Radar Tăng', hint: 'Video đang breakout' },
+  { to: '/kenh-theo-doi', icon: 'tv', label: 'Đối Thủ', hint: 'Mạng lưới kênh' },
+  { to: '/so-sanh-kenh', icon: 'bar-chart-2', label: 'So Sánh', hint: 'Đối chiếu kênh' },
+  { to: '/lich-dang-doi-thu', icon: 'calendar', label: 'Lịch Đăng', hint: 'Pattern xuất bản' },
+  { to: '/lich-su-canh-bao', icon: 'bell', label: 'Cảnh Báo', hint: 'Lịch sử tín hiệu' },
+  { to: '/tro-ly-noi-dung', icon: 'sparkles', label: 'AI Studio', hint: 'Trợ lý nội dung' },
+  { to: '/tien-do-san-xuat', icon: 'clipboard-list', label: 'Sản Xuất', hint: 'Pipeline nội dung' },
+  { to: '/tinh-trang-du-lieu', icon: 'database', label: 'Dữ Liệu', hint: 'Sức khỏe hệ thống' },
+] as const;
+
+const currentTitle = computed(() => {
+  const title = typeof route.meta.title === 'string' ? route.meta.title : 'Bắt Bài Đối Thủ';
+  return title.replace(' — Bắt Bài Đối Thủ', '');
+});
 </script>
 
 <style scoped>
 .app-layout {
-  display: flex;
+  position: relative;
   min-height: 100vh;
-  background-color: var(--bg-main);
   max-width: 100vw;
-  overflow-x: hidden;
+  overflow-x: clip;
+  background: transparent;
 }
 
-.sidebar {
-  width: 260px;
-  background-color: var(--bg-surface);
-  border-right: 1px solid var(--border-subtle);
-  display: flex;
-  flex-direction: column;
+.command-rail {
   position: fixed;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  z-index: 40;
-}
-
-.brand {
-  padding: 22px 20px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  border-bottom: 1px solid var(--border-subtle);
-}
-
-.brand-logo-icon {
-  width: 38px;
-  height: 38px;
-  border-radius: 10px;
-  background-color: var(--accent-subtle);
-  border: 1px solid rgba(56, 189, 248, 0.25);
-  box-shadow: 0 0 15px rgba(56, 189, 248, 0.15);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.brand-text {
+  inset: 18px auto 18px 18px;
+  z-index: 60;
+  width: 66px;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  border: 1px solid rgba(125, 211, 252, 0.11);
+  border-radius: 22px;
+  background: linear-gradient(180deg, rgba(8, 14, 24, 0.86), rgba(6, 11, 20, 0.66));
+  box-shadow: 0 20px 80px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255,255,255,0.04);
+  backdrop-filter: blur(20px) saturate(130%);
+  -webkit-backdrop-filter: blur(20px) saturate(130%);
 }
 
-.brand-title {
-  font-size: 14.5px;
-  font-weight: 700;
-  letter-spacing: 0.03em;
-  color: var(--text-primary);
+.rail-brand {
+  position: relative;
+  width: 42px;
+  height: 42px;
+  margin-top: 12px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  background: radial-gradient(circle at 35% 28%, rgba(103,232,249,.28), rgba(14,165,233,.06) 45%, rgba(3,7,18,.2) 70%);
+  border: 1px solid rgba(103,232,249,.24);
+  box-shadow: 0 0 30px rgba(56,189,248,.13);
 }
 
-.brand-subtitle {
-  font-size: 11px;
-  color: var(--text-secondary);
-  margin-top: 1px;
+.rail-brand__core {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #67e8f9;
+  box-shadow: 0 0 14px #38bdf8, 0 0 30px rgba(56,189,248,.5);
 }
 
-.nav-menu {
-  padding: 16px 12px;
+.rail-brand__pulse {
+  position: absolute;
+  inset: 8px;
+  border: 1px solid rgba(103,232,249,.3);
+  border-radius: 50%;
+  animation: orbit-pulse 2.8s ease-out infinite;
+}
+
+.rail-nav {
+  width: 100%;
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  overflow-y: auto;
-}
-
-.nav-item {
-  display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 10px 14px;
-  border-radius: 8px;
-  color: var(--text-secondary);
-  font-weight: 500;
-  font-size: 13.5px;
-  transition: all var(--duration-normal) var(--ease-out-expo);
-  text-decoration: none;
+  gap: 5px;
+  padding: 16px 0 12px;
+  overflow-y: auto;
+  overflow-x: visible;
+  scrollbar-width: none;
+}
+
+.rail-nav::-webkit-scrollbar {
+  display: none;
+}
+
+.rail-item {
   position: relative;
+  width: 44px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  color: #71849b;
+  border-radius: 13px;
+  border: 1px solid transparent;
+  transition: color 180ms ease, background 180ms ease, border-color 180ms ease, transform 180ms ease;
 }
 
-.nav-item:hover {
-  color: var(--text-primary);
-  background-color: var(--bg-surface-elevated);
+.rail-item:hover {
+  color: #dff8ff;
+  background: rgba(103,232,249,.055);
+  border-color: rgba(103,232,249,.10);
+  transform: translateX(2px);
 }
 
-.nav-item-active {
-  color: var(--accent);
-  background-color: var(--accent-subtle);
-  font-weight: 600;
-  box-shadow: inset 3px 0 0 var(--accent);
+.rail-item--active {
+  color: #67e8f9;
+  background: linear-gradient(135deg, rgba(34,211,238,.15), rgba(59,130,246,.08));
+  border-color: rgba(103,232,249,.20);
+  box-shadow: inset 0 0 24px rgba(56,189,248,.06), 0 0 24px rgba(56,189,248,.05);
 }
 
-.sidebar-footer {
-  padding: 16px 20px;
-  border-top: 1px solid var(--border-subtle);
+.rail-item--active::before {
+  content: "";
+  position: absolute;
+  left: -12px;
+  width: 3px;
+  height: 18px;
+  border-radius: 999px;
+  background: #67e8f9;
+  box-shadow: 0 0 12px rgba(103,232,249,.7);
+}
+
+.rail-label {
+  position: absolute;
+  left: 58px;
+  top: 50%;
+  transform: translate(8px, -50%);
+  width: max-content;
+  min-width: 168px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(7, 13, 23, 0.95);
+  border: 1px solid rgba(125,211,252,.13);
+  box-shadow: 0 18px 45px rgba(0,0,0,.35);
+  backdrop-filter: blur(18px);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 140ms ease, transform 140ms ease, visibility 140ms ease;
+}
+
+.rail-label strong,
+.rail-label small {
+  display: block;
+}
+
+.rail-label strong {
+  color: #eefaff;
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.rail-label small {
+  margin-top: 2px;
+  color: #6f849b;
+  font-size: 10.5px;
+}
+
+.rail-item:hover .rail-label {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(0, -50%);
+}
+
+.rail-footer {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 10px;
+  padding: 11px 0 14px;
 }
 
-.sidebar-theme-wrapper {
+.rail-health {
+  width: 31px;
+  height: 31px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  border: 1px solid rgba(52,211,153,.14);
+  background: rgba(52,211,153,.04);
+}
+
+.workspace-topbar {
+  position: fixed;
+  top: 18px;
+  left: 98px;
+  right: 18px;
+  z-index: 50;
+  min-height: 62px;
+  padding: 10px 14px 10px 18px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 4px 0;
+  gap: 18px;
+  border: 1px solid rgba(125,211,252,.09);
+  border-radius: 18px;
+  background: linear-gradient(90deg, rgba(7,13,23,.72), rgba(8,14,24,.54));
+  box-shadow: 0 14px 50px rgba(0,0,0,.20), inset 0 1px 0 rgba(255,255,255,.025);
+  backdrop-filter: blur(18px) saturate(125%);
+  -webkit-backdrop-filter: blur(18px) saturate(125%);
 }
 
-.theme-label {
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--text-secondary);
+.workspace-context {
+  min-width: 0;
 }
 
-.footer-status-pill {
+.workspace-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #6e859d;
+  font-size: 9px;
+  font-weight: 750;
+  letter-spacing: .18em;
+}
+
+.signal-dot,
+.live-pill__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #67e8f9;
+  box-shadow: 0 0 10px rgba(103,232,249,.8);
+}
+
+.workspace-title {
+  margin-top: 3px;
+  color: #eaf7ff;
+  font-size: 16px;
+  font-weight: 650;
+  letter-spacing: -.02em;
+}
+
+.workspace-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.live-pill {
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  font-size: 11.5px;
-  color: var(--text-secondary);
+  padding: 7px 10px;
+  border-radius: 999px;
+  color: #8ca0b7;
+  border: 1px solid rgba(103,232,249,.10);
+  background: rgba(6,12,21,.46);
+  font-size: 9px;
+  font-weight: 750;
+  letter-spacing: .12em;
 }
 
-.version-tag {
-  font-size: 11px;
-  color: var(--text-muted);
+.live-pill__dot {
+  width: 5px;
+  height: 5px;
+  animation: signal-pulse 2s ease-in-out infinite;
+}
+
+.main-content {
+  position: relative;
+  z-index: 10;
+  margin-left: 98px;
+  min-height: 100vh;
+  width: calc(100% - 98px);
+  padding: 100px clamp(18px, 2vw, 32px) 38px 0;
+}
+
+.main-content__inner {
+  width: min(1600px, 100%);
+  margin: 0 auto;
 }
 
 .mobile-topbar {
   display: none;
 }
 
-.main-content {
-  flex: 1;
-  margin-left: 260px;
-  min-height: 100vh;
-  padding: clamp(20px, 2vw, 32px);
-  width: calc(100% - 260px);
-  max-width: none;
-  min-width: 0;
-  box-sizing: border-box;
+@keyframes orbit-pulse {
+  0% { transform: scale(.75); opacity: 0; }
+  35% { opacity: .65; }
+  100% { transform: scale(1.45); opacity: 0; }
+}
+
+@keyframes signal-pulse {
+  0%,100% { opacity: 1; transform: scale(1); }
+  50% { opacity: .35; transform: scale(.8); }
+}
+
+@media (max-height: 760px) and (min-width: 901px) {
+  .rail-item {
+    height: 36px;
+  }
+
+  .rail-nav {
+    gap: 3px;
+    padding-top: 10px;
+  }
 }
 
 @media (max-width: 900px) {
-  .app-layout {
-    flex-direction: column;
-  }
-  .sidebar {
+  .command-rail,
+  .workspace-topbar {
     display: none;
   }
+
   .mobile-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 60;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 12px 18px;
-    background-color: var(--bg-surface);
-    border-bottom: 1px solid var(--border-subtle);
-    position: sticky;
-    top: 0;
-    z-index: 50;
-    max-width: 100vw;
-    box-sizing: border-box;
+    gap: 14px;
+    padding: 12px 15px;
+    border-bottom: 1px solid rgba(125,211,252,.10);
+    background: rgba(6, 11, 20, .82);
+    backdrop-filter: blur(18px);
   }
+
   .brand-mobile {
     display: flex;
     align-items: center;
     gap: 10px;
   }
-  .brand-mobile-icon {
-    width: 30px;
-    height: 30px;
-    border-radius: 8px;
-    background: var(--accent-subtle);
-    border: 1px solid rgba(56, 189, 248, 0.2);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+
+  .brand-mobile-core {
+    width: 29px;
+    height: 29px;
+    border-radius: 10px;
+    border: 1px solid rgba(103,232,249,.2);
+    background: radial-gradient(circle, rgba(103,232,249,.55) 0 18%, rgba(14,165,233,.08) 20% 100%);
+    box-shadow: 0 0 20px rgba(56,189,248,.10);
   }
+
   .brand-mobile-title {
-    font-size: 13.5px;
-    font-weight: 700;
-    color: var(--text-primary);
-    letter-spacing: 0.02em;
+    color: #eefaff;
+    font-size: 12.5px;
+    font-weight: 750;
+    letter-spacing: .03em;
   }
+
+  .brand-mobile-subtitle {
+    color: #63778d;
+    font-size: 9.5px;
+  }
+
   .mobile-topbar-actions {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
   }
+
   .mobile-menu-btn {
-    background: transparent;
-    border: 1px solid var(--border-subtle);
-    border-radius: 8px;
-    color: var(--text-primary);
-    padding: 6px 10px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.15s ease;
+    display: grid;
+    place-items: center;
+    min-width: 37px;
+    height: 37px;
+    padding: 0;
+    border: 1px solid rgba(125,211,252,.12);
+    border-radius: 11px;
+    color: #d9f6ff;
+    background: rgba(9,16,27,.65);
   }
-  .mobile-menu-btn:hover {
-    border-color: var(--border-strong);
-    background-color: var(--bg-surface-elevated);
-  }
+
   .main-content {
     margin-left: 0;
-    padding: 20px 16px;
-    min-width: 0;
     width: 100%;
-    box-sizing: border-box;
+    padding: 18px 14px 30px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rail-brand__pulse,
+  .live-pill__dot {
+    animation: none;
   }
 }
 </style>
-
