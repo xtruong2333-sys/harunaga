@@ -349,3 +349,202 @@ table td {
     text-rendering: optimizeLegibility;
   }
 }
+
+
+/* ==========================================================================
+   Card / Surface Contrast Hotfix
+   Stronger visual separation without changing layout or business semantics.
+   ========================================================================== */
+[data-theme="light"] {
+  --bg-page: #EEF4F9;
+  --bg-main: #EEF4F9;
+  --bg-page-secondary: #E7EFF7;
+  --surface-muted: #F1F5F9;
+  --surface-hover: #EAF2FA;
+  --bg-inset: #E8EFF6;
+
+  --border: #D2DEE9;
+  --border-strong: #B8CADB;
+  --border-subtle: rgba(45, 72, 98, 0.16);
+  --border-line: rgba(45, 72, 98, 0.14);
+
+  --primary-soft: #E4EEFF;
+  --success-soft: #DCF7EA;
+  --warning-soft: #FFF1CC;
+  --danger-soft: #FDE7E7;
+
+  --status-active-bg: rgba(5, 150, 105, 0.15);
+  --status-paused-bg: rgba(217, 119, 6, 0.16);
+  --status-archived-bg: rgba(100, 116, 139, 0.14);
+
+  --shadow-sm: 0 5px 16px rgba(30, 60, 90, 0.08), 0 1px 2px rgba(30, 60, 90, 0.05);
+  --shadow-md: 0 10px 28px rgba(30, 60, 90, 0.12), 0 2px 5px rgba(30, 60, 90, 0.06);
+  --card-shadow: 0 6px 18px rgba(35, 65, 95, 0.09), 0 1px 2px rgba(35, 65, 95, 0.05);
+  --table-header-bg: #E9F0F7;
+}
+
+[data-theme="light"] body {
+  background-color: #EEF4F9;
+}
+
+[data-theme="light"] .surface-card,
+[data-theme="light"] .interactive-card,
+[data-theme="light"] .stat-card,
+[data-theme="light"] .system-status-card,
+[data-theme="light"] .section-container,
+[data-theme="light"] .panel-card,
+[data-theme="light"] .empty-card,
+[data-theme="light"] .table-card,
+[data-theme="light"] .summary-rail,
+[data-theme="light"] .production-summary-rail {
+  background: linear-gradient(180deg, #FFFFFF 0%, #FBFDFF 100%) !important;
+  border-color: #D2DEE9 !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+
+[data-theme="light"] .surface-card:hover,
+[data-theme="light"] .interactive-card:hover,
+[data-theme="light"] .stat-card:hover,
+[data-theme="light"] .top-video-card:hover,
+[data-theme="light"] .channel-summary-item:hover,
+[data-theme="light"] .summary-card:hover,
+[data-theme="light"] .telemetry-card:hover {
+  border-color: #AFC7DE !important;
+  box-shadow: var(--shadow-md) !important;
+}
+
+/* Secondary cards and inset telemetry: visible as a separate layer from white surfaces */
+[data-theme="light"] .telemetry-box,
+[data-theme="light"] .telemetry-card,
+[data-theme="light"] .summary-card,
+[data-theme="light"] .summary-metric-card,
+[data-theme="light"] .channel-row,
+[data-theme="light"] .pipeline-row,
+[data-theme="light"] .health-row,
+[data-theme="light"] .rail-item {
+  background-color: #F3F7FB !important;
+  border-color: #D6E1EC !important;
+}
+
+[data-theme="light"] .telemetry-box,
+[data-theme="light"] .telemetry-card,
+[data-theme="light"] .summary-card,
+[data-theme="light"] .summary-metric-card {
+  box-shadow: 0 2px 7px rgba(35, 65, 95, 0.06);
+}
+
+/* Table headers and row boundaries need a stronger visual anchor */
+[data-theme="light"] table thead,
+[data-theme="light"] table th,
+[data-theme="light"] .scan-table th,
+[data-theme="light"] .ops-table th,
+[data-theme="light"] .channel-table th,
+[data-theme="light"] .video-table th,
+[data-theme="light"] .growth-table th,
+[data-theme="light"] .opportunity-table th {
+  background-color: #EAF1F8 !important;
+  border-bottom-color: #C8D6E4 !important;
+}
+
+[data-theme="light"] table td {
+  border-bottom-color: #DDE6EF !important;
+}
+
+[data-theme="light"] table tbody tr:hover td {
+  background-color: #F1F6FB !important;
+}
+
+/* Status / signal chips: keep pastel character, but with enough saturation to read at a glance */
+[data-theme="light"] .badge-active,
+[data-theme="light"] .status-success,
+[data-theme="light"] .pill-success,
+[data-theme="light"] .badge-success {
+  background-color: #DDF7EA !important;
+  border-color: #A9E7CB !important;
+  color: #047857 !important;
+}
+
+[data-theme="light"] .badge-paused,
+[data-theme="light"] .status-warning,
+[data-theme="light"] .pill-warning,
+[data-theme="light"] .badge-warning {
+  background-color: #FFF0C7 !important;
+  border-color: #F7D77D !important;
+  color: #A65F00 !important;
+}
+
+[data-theme="light"] .status-danger,
+[data-theme="light"] .pill-danger,
+[data-theme="light"] .badge-danger,
+[data-theme="light"] .pill-failed {
+  background-color: #FDE5E5 !important;
+  border-color: #F5B8B8 !important;
+  color: #C62828 !important;
+}
+
+[data-theme="light"] .status-info,
+[data-theme="light"] .pill-info,
+[data-theme="light"] .badge-info,
+[data-theme="light"] .trigger-schedule,
+[data-theme="light"] .ch-vph-badge {
+  background-color: #E2ECFF !important;
+  border-color: #B9CFFF !important;
+  color: #1D4ED8 !important;
+}
+
+[data-theme="light"] .badge-archived,
+[data-theme="light"] .status-neutral,
+[data-theme="light"] .badge-neutral {
+  background-color: #E8EDF3 !important;
+  border-color: #CBD5E1 !important;
+  color: #475569 !important;
+}
+
+/* Icon/metric tinted tiles: stronger but still restrained */
+[data-theme="light"] .icon-candidates,
+[data-theme="light"] .is-blue {
+  background-color: #E2ECFF !important;
+}
+
+[data-theme="light"] .icon-threshold,
+[data-theme="light"] .is-emerald {
+  background-color: #DDF7EA !important;
+}
+
+[data-theme="light"] .icon-fresh,
+[data-theme="light"] .is-cyan {
+  background-color: #DFF6FC !important;
+}
+
+[data-theme="light"] .icon-vph,
+[data-theme="light"] .is-indigo {
+  background-color: #E8E7FF !important;
+}
+
+[data-theme="light"] .is-amber {
+  background-color: #FFF0C7 !important;
+}
+
+[data-theme="light"] .is-rose {
+  background-color: #FDE5EA !important;
+}
+
+/* Dark mode parity: cards should not merge into the page background */
+[data-theme="dark"] .surface-card,
+[data-theme="dark"] .interactive-card,
+[data-theme="dark"] .stat-card,
+[data-theme="dark"] .system-status-card,
+[data-theme="dark"] .section-container,
+[data-theme="dark"] .panel-card,
+[data-theme="dark"] .table-card {
+  border-color: rgba(125, 211, 252, 0.16) !important;
+  background: linear-gradient(145deg, rgba(13, 21, 35, 0.94), rgba(8, 14, 25, 0.88)) !important;
+}
+
+[data-theme="dark"] .telemetry-box,
+[data-theme="dark"] .telemetry-card,
+[data-theme="dark"] .summary-card,
+[data-theme="dark"] .summary-metric-card {
+  border-color: rgba(125, 211, 252, 0.14) !important;
+  background-color: rgba(18, 30, 48, 0.72) !important;
+}
