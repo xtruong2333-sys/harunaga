@@ -16,14 +16,12 @@
           <!-- Drawer Header -->
           <div class="drawer-header">
             <div class="brand">
-              <div class="brand-logo-icon">
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="#38BDF8">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/>
-                </svg>
+              <div class="brand-logo-mark">
+                <span class="brand-core"></span>
               </div>
               <div class="brand-text">
                 <div class="brand-title">BẮT BÀI ĐỐI THỦ</div>
-                <div class="brand-subtitle">Theo dõi đối thủ YouTube</div>
+                <div class="brand-subtitle">YouTube Intelligence OS</div>
               </div>
             </div>
 
@@ -33,35 +31,37 @@
               aria-label="Đóng menu"
               @click="close"
             >
-              <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
+              <AppIcon name="x" size="18" />
             </button>
           </div>
 
-          <!-- Navigation Links -->
+          <!-- Navigation Links Grouped -->
           <nav class="drawer-nav">
-            <router-link
-              v-for="item in navItems"
-              :key="item.path"
-              :to="item.path"
-              class="drawer-nav-item"
-              active-class="drawer-nav-item-active"
-              @click="close"
-            >
-              <AppIcon :name="item.icon" size="18" />
-              <span>{{ item.label }}</span>
-            </router-link>
+            <div v-for="group in navGroups" :key="group.title" class="drawer-group">
+              <div class="drawer-group-title">{{ group.title }}</div>
+              <div class="drawer-group-items">
+                <router-link
+                  v-for="item in group.items"
+                  :key="item.path"
+                  :to="item.path"
+                  class="drawer-nav-item"
+                  active-class="drawer-nav-item-active"
+                  @click="close"
+                >
+                  <AppIcon :name="item.icon" size="17" class="drawer-item-icon" />
+                  <span class="drawer-item-label">{{ item.label }}</span>
+                </router-link>
+              </div>
+            </div>
           </nav>
 
           <!-- Drawer Footer -->
           <div class="drawer-footer">
             <div class="footer-status">
-              <span class="status-dot"></span>
+              <span class="pulse-dot"></span>
               <span>Hệ thống sẵn sàng</span>
             </div>
-            <div class="footer-version">Phiên bản 1.0</div>
+            <div class="footer-version">v1.1 Live</div>
           </div>
         </div>
       </div>
@@ -73,6 +73,17 @@
 import { watch, onMounted, onUnmounted } from 'vue';
 import AppIcon from '@/components/ui/AppIcon.vue';
 
+interface NavItem {
+  path: string;
+  label: string;
+  icon: string;
+}
+
+interface NavGroup {
+  title: string;
+  items: NavItem[];
+}
+
 const props = defineProps<{
   modelValue: boolean;
 }>();
@@ -82,19 +93,39 @@ const emit = defineEmits<{
   (e: 'close'): void;
 }>();
 
-const navItems = [
-  { path: '/tong-quan', label: 'Tổng Quan', icon: 'dashboard' },
-  { path: '/bao-cao', label: 'Báo Cáo', icon: 'file-text' },
-  { path: '/video-moi-dang', label: 'Video Mới Đăng', icon: 'clock' },
-  { path: '/video-tiem-nang', label: 'Video Tiềm Năng', icon: 'zap' },
-  { path: '/videos', label: 'Video Đang Tăng', icon: 'trending-up' },
-  { path: '/kenh-theo-doi', label: 'Kênh Theo Dõi', icon: 'tv' },
-  { path: '/so-sanh-kenh', label: 'So Sánh Kênh', icon: 'bar-chart-2' },
-  { path: '/lich-dang-doi-thu', label: 'Lịch Đăng Của Đối Thủ', icon: 'calendar' },
-  { path: '/lich-su-canh-bao', label: 'Lịch Sử Cảnh Báo', icon: 'bell' },
-  { path: '/tro-ly-noi-dung', label: 'Trợ Lý Nội Dung AI', icon: 'sparkles' },
-  { path: '/tien-do-san-xuat', label: 'Tiến Độ Sản Xuất', icon: 'clipboard-list' },
-  { path: '/tinh-trang-du-lieu', label: 'Tình Trạng Dữ Liệu', icon: 'database' },
+const navGroups: NavGroup[] = [
+  {
+    title: 'TỔNG QUAN',
+    items: [
+      { path: '/tong-quan', label: 'Tổng Quan', icon: 'dashboard' },
+      { path: '/bao-cao', label: 'Báo Cáo', icon: 'file-text' },
+    ],
+  },
+  {
+    title: 'THEO DÕI VIDEO',
+    items: [
+      { path: '/video-moi-dang', label: 'Video Mới Đăng', icon: 'clock' },
+      { path: '/video-tiem-nang', label: 'Cơ Hội Tăng Trưởng', icon: 'zap' },
+      { path: '/videos', label: 'Radar Tốc Độ', icon: 'trending-up' },
+    ],
+  },
+  {
+    title: 'ĐỐI THỦ & LỊCH',
+    items: [
+      { path: '/kenh-theo-doi', label: 'Mạng Lưới Kênh', icon: 'tv' },
+      { path: '/so-sanh-kenh', label: 'So Sánh Kênh', icon: 'bar-chart-2' },
+      { path: '/lich-dang-doi-thu', label: 'Lịch Đăng Đối Thủ', icon: 'calendar' },
+    ],
+  },
+  {
+    title: 'HỆ THỐNG & AI',
+    items: [
+      { path: '/lich-su-canh-bao', label: 'Cảnh Báo Discord', icon: 'bell' },
+      { path: '/tro-ly-noi-dung', label: 'Trợ Lý AI Studio', icon: 'sparkles' },
+      { path: '/tien-do-san-xuat', label: 'Tiến Độ Sản Xuất', icon: 'clipboard-list' },
+      { path: '/tinh-trang-du-lieu', label: 'Sức Khỏe Dữ Liệu', icon: 'database' },
+    ],
+  },
 ];
 
 function close() {
@@ -145,29 +176,41 @@ onUnmounted(() => {
   position: fixed;
   inset: 0;
   z-index: 9999;
-  background-color: rgba(3, 7, 13, 0.75);
-  backdrop-filter: blur(4px);
+  background-color: rgba(15, 31, 53, 0.45);
+  backdrop-filter: blur(6px);
   display: flex;
+}
+
+[data-theme="dark"] .drawer-backdrop {
+  background-color: rgba(3, 7, 13, 0.75);
 }
 
 .drawer-panel {
-  width: 280px;
+  width: 290px;
   max-width: 85vw;
   height: 100%;
-  background-color: var(--bg-surface);
-  border-right: 1px solid var(--border-subtle);
+  background-color: var(--surface, #FFFFFF);
+  border-right: 1px solid var(--border, #E3EBF3);
   display: flex;
   flex-direction: column;
-  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.25);
-  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: var(--shadow-lg, 0 20px 55px rgba(30, 60, 90, 0.12));
+}
+
+[data-theme="dark"] .drawer-panel {
+  background-color: #090E18;
+  border-color: rgba(125, 211, 252, 0.12);
 }
 
 .drawer-header {
-  padding: 18px 16px;
+  padding: 16px 18px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border, #E3EBF3);
+}
+
+[data-theme="dark"] .drawer-header {
+  border-color: rgba(125, 211, 252, 0.10);
 }
 
 .brand {
@@ -176,16 +219,33 @@ onUnmounted(() => {
   gap: 10px;
 }
 
-.brand-logo-icon {
+.brand-logo-mark {
   width: 32px;
   height: 32px;
-  border-radius: 8px;
-  background-color: rgba(56, 189, 248, 0.12);
-  border: 1px solid rgba(56, 189, 248, 0.25);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  border-radius: 9px;
+  background: radial-gradient(circle at 35% 28%, rgba(37, 99, 235, 0.15), rgba(14, 165, 233, 0.06) 60%, rgba(255, 255, 255, 0.9) 100%);
+  border: 1px solid rgba(37, 99, 235, 0.20);
+  display: grid;
+  place-items: center;
   flex-shrink: 0;
+}
+
+[data-theme="dark"] .brand-logo-mark {
+  background: radial-gradient(circle at 35% 28%, rgba(103, 232, 249, 0.28), rgba(14, 165, 233, 0.06) 60%, rgba(3, 7, 18, 0.2) 100%);
+  border-color: rgba(103, 232, 249, 0.24);
+}
+
+.brand-core {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--primary, #2563EB);
+  box-shadow: 0 0 8px var(--primary, #2563EB);
+}
+
+[data-theme="dark"] .brand-core {
+  background: #38BDF8;
+  box-shadow: 0 0 8px #38BDF8;
 }
 
 .brand-text {
@@ -195,106 +255,143 @@ onUnmounted(() => {
 
 .brand-title {
   font-size: 13.5px;
-  font-weight: 700;
+  font-weight: 750;
   color: var(--text-primary);
-  letter-spacing: 0.02em;
+  letter-spacing: -0.01em;
 }
 
 .brand-subtitle {
-  font-size: 10.5px;
-  color: var(--text-secondary);
+  font-size: 10px;
+  color: var(--text-muted);
 }
 
 .close-btn {
   background: transparent;
-  border: none;
+  border: 1px solid var(--border, #E3EBF3);
   color: var(--text-secondary);
-  padding: 6px;
-  border-radius: 6px;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: grid;
+  place-items: center;
   transition: all 0.15s ease;
 }
 
 .close-btn:hover {
   color: var(--text-primary);
-  background-color: var(--bg-surface-elevated);
+  background-color: var(--surface-hover, #F3F7FB);
 }
 
 .drawer-nav {
   flex: 1;
   overflow-y: auto;
-  padding: 14px 10px;
+  padding: 16px 12px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 16px;
+}
+
+.drawer-group {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.drawer-group-title {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  padding: 0 10px 4px;
+  text-transform: uppercase;
+}
+
+.drawer-group-items {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .drawer-nav-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 10px 12px;
+  gap: 10px;
+  padding: 9px 12px;
   border-radius: 8px;
   color: var(--text-secondary);
-  font-size: 13.5px;
+  font-size: 13px;
   font-weight: 500;
   text-decoration: none;
+  border: 1px solid transparent;
   transition: all 0.15s ease;
 }
 
 .drawer-nav-item:hover {
-  color: var(--text-primary);
-  background-color: var(--bg-surface-elevated);
+  color: var(--primary, #2563EB);
+  background-color: var(--surface-hover, #F3F7FB);
 }
 
 .drawer-nav-item-active {
-  color: var(--accent);
-  background: rgba(56, 189, 248, 0.1);
+  color: #1D4ED8;
+  background: #EFF6FF;
+  border-color: #BFDBFE;
   font-weight: 600;
-  border-left: 3px solid var(--accent);
+}
+
+[data-theme="dark"] .drawer-nav-item:hover {
+  color: #38BDF8;
+  background-color: rgba(14, 165, 233, 0.08);
+}
+
+[data-theme="dark"] .drawer-nav-item-active {
+  color: #38BDF8;
+  background: rgba(14, 165, 233, 0.14);
+  border-color: rgba(56, 189, 248, 0.3);
 }
 
 .drawer-footer {
-  padding: 14px 16px;
-  border-top: 1px solid var(--border-subtle);
+  padding: 14px 18px;
+  border-top: 1px solid var(--border, #E3EBF3);
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+
+[data-theme="dark"] .drawer-footer {
+  border-color: rgba(125, 211, 252, 0.10);
 }
 
 .footer-status {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 11.5px;
+  font-size: 11px;
   color: var(--text-muted);
 }
 
-.status-dot {
-  width: 6px;
-  height: 6px;
+.pulse-dot {
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
-  background-color: var(--status-active);
-  box-shadow: 0 0 6px var(--status-active);
+  background: #10B981;
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
 }
 
 .footer-version {
-  font-size: 11px;
+  font-size: 10.5px;
   color: var(--text-muted);
 }
 
 /* Transitions */
 .drawer-fade-enter-active,
 .drawer-fade-leave-active {
-  transition: opacity 0.28s ease;
+  transition: opacity 0.25s ease;
 }
 
 .drawer-fade-enter-active .drawer-panel,
 .drawer-fade-leave-active .drawer-panel {
-  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .drawer-fade-enter-from,

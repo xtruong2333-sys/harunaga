@@ -1,25 +1,44 @@
 <template>
-  <div class="app-layout">
+  <div class="app-layout" :class="{ 'is-sidebar-collapsed': sidebarCollapsed }">
     <IntelligenceField />
 
-    <!-- Desktop Sidebar (260px) -->
-    <aside class="app-sidebar command-rail" aria-label="Điều hướng chính">
+    <!-- Desktop Sidebar (260px -> 72px) -->
+    <aside
+      class="app-sidebar command-rail"
+      :class="{ 'sidebar-collapsed': sidebarCollapsed }"
+      aria-label="Điều hướng chính"
+    >
+      <!-- Sidebar Header -->
       <div class="sidebar-header">
         <router-link to="/tong-quan" class="sidebar-brand rail-brand" title="BẮT BÀI ĐỐI THỦ">
           <div class="brand-logo-mark">
             <span class="rail-brand__core"></span>
             <span class="rail-brand__pulse"></span>
           </div>
-          <div class="brand-info">
+          <div v-if="!sidebarCollapsed" class="brand-info">
             <div class="brand-name">BẮT BÀI ĐỐI THỦ</div>
             <div class="brand-tagline">YouTube Intelligence OS</div>
           </div>
         </router-link>
+
+        <button
+          type="button"
+          class="sidebar-collapse-btn"
+          :title="sidebarCollapsed ? 'Mở rộng thanh bên' : 'Thu gọn thanh bên'"
+          :aria-label="sidebarCollapsed ? 'Mở rộng thanh bên' : 'Thu gọn thanh bên'"
+          @click="toggleSidebar"
+        >
+          <AppIcon
+            :name="sidebarCollapsed ? 'chevron-right' : 'chevron-left'"
+            size="16"
+          />
+        </button>
       </div>
 
+      <!-- Navigation Body -->
       <nav class="sidebar-nav rail-nav">
         <div v-for="group in navGroups" :key="group.title" class="nav-group">
-          <div class="nav-group-title">{{ group.title }}</div>
+          <div v-if="!sidebarCollapsed" class="nav-group-title">{{ group.title }}</div>
           <div class="nav-group-items">
             <router-link
               v-for="item in group.items"
@@ -27,32 +46,54 @@
               :to="item.to"
               class="sidebar-item rail-item"
               active-class="sidebar-item--active rail-item--active"
+              :title="sidebarCollapsed ? item.label : undefined"
             >
               <div class="item-icon-wrap">
                 <AppIcon :name="item.icon" size="18" />
               </div>
-              <span class="item-label-wrap rail-label">
+              <span v-if="!sidebarCollapsed" class="item-label-wrap rail-label">
                 <strong class="item-title">{{ item.label }}</strong>
                 <small v-if="item.hint" class="item-hint">{{ item.hint }}</small>
               </span>
+
+              <!-- Hover Tooltip when Collapsed -->
+              <div v-if="sidebarCollapsed" class="sidebar-tooltip">
+                <div class="tooltip-title">{{ item.label }}</div>
+                <div v-if="item.hint" class="tooltip-hint">{{ item.hint }}</div>
+              </div>
             </router-link>
           </div>
         </div>
       </nav>
 
+      <!-- Sidebar Footer -->
       <div class="sidebar-footer rail-footer">
         <div class="sidebar-theme-wrapper rail-theme-wrapper">
           <ThemeToggle size="sm" />
         </div>
-        <div class="rail-health system-status-indicator" title="Hệ thống sẵn sàng">
+        <div
+          v-if="!sidebarCollapsed"
+          class="rail-health system-status-indicator"
+          title="Hệ thống sẵn sàng"
+        >
           <span class="pulse-dot"></span>
           <span class="status-text">Hệ thống sẵn sàng</span>
+        </div>
+        <div
+          v-else
+          class="rail-health compact-health"
+          title="Hệ thống sẵn sàng"
+        >
+          <span class="pulse-dot"></span>
         </div>
       </div>
     </aside>
 
     <!-- Desktop Topbar -->
-    <header class="workspace-topbar">
+    <header
+      class="workspace-topbar"
+      :class="{ 'topbar-collapsed': sidebarCollapsed }"
+    >
       <div class="workspace-context">
         <div class="workspace-eyebrow">
           <span class="signal-dot"></span>
@@ -100,7 +141,10 @@
     <MobileNavDrawer v-model="mobileDrawerOpen" />
 
     <!-- Main Content Area -->
-    <main class="main-content">
+    <main
+      class="main-content"
+      :class="{ 'content-collapsed': sidebarCollapsed }"
+    >
       <div class="main-content__inner">
         <slot />
       </div>
@@ -109,7 +153,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import AppIcon from '@/components/ui/AppIcon.vue';
 import ThemeToggle from '@/components/ui/ThemeToggle.vue';
@@ -129,6 +173,7 @@ interface NavGroup {
 }
 
 const mobileDrawerOpen = ref(false);
+const sidebarCollapsed = ref(false);
 const route = useRoute();
 
 const navGroups: NavGroup[] = [
@@ -166,6 +211,30 @@ const navGroups: NavGroup[] = [
   },
 ];
 
+function toggleSidebar() {
+  sidebarCollapsed.value = !sidebarCollapsed.value;
+  if (typeof localStorage !== 'undefined') {
+    try {
+      localStorage.setItem('bbdt_sidebar_collapsed', String(sidebarCollapsed.value));
+    } catch {
+      // Ignore localStorage write error
+    }
+  }
+}
+
+onMounted(() => {
+  if (typeof localStorage !== 'undefined') {
+    try {
+      const saved = localStorage.getItem('bbdt_sidebar_collapsed');
+      if (saved !== null) {
+        sidebarCollapsed.value = saved === 'true';
+      }
+    } catch {
+      // Ignore localStorage read error
+    }
+  }
+});
+
 const currentTitle = computed(() => {
   const title = typeof route.meta.title === 'string' ? route.meta.title : 'Bắt Bài Đối Thủ';
   return title.replace(' — Bắt Bài Đối Thủ', '');
@@ -182,7 +251,7 @@ const currentTitle = computed(() => {
 }
 
 /* ==========================================================================
-   Desktop Sidebar (260px)
+   Desktop Sidebar (260px -> 72px)
    ========================================================================== */
 .app-sidebar,
 .command-rail {
@@ -194,12 +263,16 @@ const currentTitle = computed(() => {
   width: 260px;
   display: flex;
   flex-direction: column;
-  transition: all 0.25s var(--ease-out-expo, cubic-bezier(0.16, 1, 0.3, 1));
+  transition: width 0.25s var(--ease-out-expo, cubic-bezier(0.16, 1, 0.3, 1));
+}
+
+.sidebar-collapsed {
+  width: 72px;
 }
 
 [data-theme="light"] .app-sidebar,
 [data-theme="light"] .command-rail {
-  background: rgba(255, 255, 255, 0.94);
+  background: rgba(255, 255, 255, 0.95);
   border-right: 1px solid var(--border, #E3EBF3);
   box-shadow: var(--shadow-sm, 0 4px 14px rgba(30, 60, 90, 0.05));
   backdrop-filter: blur(20px) saturate(140%);
@@ -215,18 +288,28 @@ const currentTitle = computed(() => {
   -webkit-backdrop-filter: blur(20px) saturate(130%);
 }
 
-/* Sidebar Brand Header */
+/* Sidebar Header */
 .sidebar-header {
-  padding: 20px 20px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 16px 14px;
   border-bottom: 1px solid var(--border-line, rgba(15, 60, 90, 0.06));
+  position: relative;
+}
+
+.sidebar-collapsed .sidebar-header {
+  padding: 16px 12px;
+  justify-content: center;
 }
 
 .sidebar-brand,
 .rail-brand {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   text-decoration: none;
+  min-width: 0;
 }
 
 .brand-logo-mark {
@@ -281,6 +364,7 @@ const currentTitle = computed(() => {
   display: flex;
   flex-direction: column;
   gap: 1px;
+  overflow: hidden;
 }
 
 .brand-name {
@@ -288,12 +372,39 @@ const currentTitle = computed(() => {
   font-weight: 750;
   letter-spacing: -0.01em;
   color: var(--text-primary);
+  white-space: nowrap;
 }
 
 .brand-tagline {
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 500;
   color: var(--text-muted);
+  white-space: nowrap;
+}
+
+/* Sidebar Collapse Button */
+.sidebar-collapse-btn {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  border: 1px solid var(--border, #E3EBF3);
+  background: var(--surface-muted, #F7FAFD);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.sidebar-collapse-btn:hover {
+  background: var(--primary-soft, #EFF6FF);
+  color: var(--primary, #2563EB);
+  border-color: #BFDBFE;
+}
+
+.sidebar-collapsed .sidebar-collapse-btn {
+  display: none;
 }
 
 /* Sidebar Nav */
@@ -301,11 +412,17 @@ const currentTitle = computed(() => {
 .rail-nav {
   flex: 1;
   overflow-y: auto;
-  padding: 16px 14px;
+  overflow-x: visible;
+  padding: 14px 10px;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 16px;
   scrollbar-width: thin;
+}
+
+.sidebar-collapsed .sidebar-nav {
+  padding: 14px 8px;
+  gap: 8px;
 }
 
 .sidebar-nav::-webkit-scrollbar {
@@ -324,7 +441,7 @@ const currentTitle = computed(() => {
 }
 
 .nav-group-title {
-  font-size: 10.5px;
+  font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.08em;
   color: var(--text-muted);
@@ -352,6 +469,14 @@ const currentTitle = computed(() => {
   color: var(--text-secondary);
   border: 1px solid transparent;
   transition: all 0.15s ease;
+}
+
+.sidebar-collapsed .sidebar-item {
+  padding: 8px;
+  justify-content: center;
+  width: 44px;
+  height: 40px;
+  margin: 0 auto;
 }
 
 [data-theme="light"] .sidebar-item,
@@ -425,14 +550,77 @@ const currentTitle = computed(() => {
   line-height: 1.2;
 }
 
+/* Floating Tooltip when Collapsed */
+.sidebar-tooltip {
+  position: absolute;
+  left: calc(100% + 10px);
+  top: 50%;
+  transform: translateY(-50%) translateX(-4px);
+  opacity: 0;
+  pointer-events: none;
+  background: #0F1F35;
+  color: #FFFFFF;
+  padding: 6px 12px;
+  border-radius: 8px;
+  white-space: nowrap;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  z-index: 999;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+[data-theme="dark"] .sidebar-tooltip {
+  background: #111827;
+  border: 1px solid rgba(125, 211, 252, 0.2);
+  color: #F8FAFC;
+}
+
+.sidebar-tooltip::before {
+  content: "";
+  position: absolute;
+  right: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent #0F1F35 transparent transparent;
+}
+
+[data-theme="dark"] .sidebar-tooltip::before {
+  border-color: transparent #111827 transparent transparent;
+}
+
+.sidebar-item:hover .sidebar-tooltip {
+  opacity: 1;
+  transform: translateY(-50%) translateX(0);
+}
+
+.tooltip-title {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.tooltip-hint {
+  font-size: 10px;
+  color: #94A3B8;
+}
+
 /* Sidebar Footer */
 .sidebar-footer,
 .rail-footer {
-  padding: 14px 16px;
+  padding: 12px 14px;
   border-top: 1px solid var(--border-line, rgba(15, 60, 90, 0.06));
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 8px;
+}
+
+.sidebar-collapsed .sidebar-footer {
+  padding: 12px 6px;
+  flex-direction: column;
   gap: 10px;
 }
 
@@ -449,6 +637,10 @@ const currentTitle = computed(() => {
   gap: 6px;
   font-size: 11px;
   color: var(--text-muted);
+}
+
+.compact-health {
+  justify-content: center;
 }
 
 .pulse-dot {
@@ -475,11 +667,15 @@ const currentTitle = computed(() => {
   padding: 0 clamp(20px, 2vw, 32px);
   backdrop-filter: blur(18px) saturate(130%);
   -webkit-backdrop-filter: blur(18px) saturate(130%);
-  transition: all 0.2s ease;
+  transition: margin-left 0.25s var(--ease-out-expo, cubic-bezier(0.16, 1, 0.3, 1));
+}
+
+.topbar-collapsed {
+  margin-left: 72px;
 }
 
 [data-theme="light"] .workspace-topbar {
-  background: rgba(245, 248, 252, 0.82);
+  background: rgba(245, 248, 252, 0.84);
   border-bottom: 1px solid var(--border, #E3EBF3);
 }
 
@@ -570,6 +766,13 @@ const currentTitle = computed(() => {
   padding: clamp(20px, 2vw, 32px);
   min-height: calc(100vh - 60px);
   box-sizing: border-box;
+  transition: margin-left 0.25s var(--ease-out-expo, cubic-bezier(0.16, 1, 0.3, 1)),
+              width 0.25s var(--ease-out-expo, cubic-bezier(0.16, 1, 0.3, 1));
+}
+
+.content-collapsed {
+  margin-left: 72px;
+  width: calc(100% - 72px);
 }
 
 .main-content__inner {
@@ -680,8 +883,8 @@ const currentTitle = computed(() => {
   }
 
   .main-content {
-    margin-left: 0;
-    width: 100%;
+    margin-left: 0 !important;
+    width: 100% !important;
     padding: 16px;
     min-height: auto;
   }
