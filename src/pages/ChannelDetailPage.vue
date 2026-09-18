@@ -87,98 +87,102 @@
 
     <!-- Main Detail Content -->
     <template v-else>
-      <!-- 1. Channel Header Card -->
+      <!-- 1. Channel Intelligence Hero -->
       <div class="channel-hero-card">
-        <div class="hero-left">
-          <div class="hero-avatar-wrap">
-            <img
-              v-if="analysis.channel.avatarUrl"
-              :src="analysis.channel.avatarUrl"
-              :alt="analysis.channel.name"
-              class="hero-avatar"
-              @error="handleAvatarError"
-            />
-            <div v-else class="hero-avatar-fallback">
-              {{ analysis.channel.name.charAt(0).toUpperCase() }}
+        <div class="hero-main-row">
+          <!-- Left: Channel Identity -->
+          <div class="hero-left">
+            <div class="hero-avatar-wrap">
+              <img
+                v-if="analysis.channel.avatarUrl"
+                :src="analysis.channel.avatarUrl"
+                :alt="analysis.channel.name"
+                class="hero-avatar"
+                @error="handleAvatarError"
+              />
+              <div v-else class="hero-avatar-fallback">
+                {{ analysis.channel.name.charAt(0).toUpperCase() }}
+              </div>
+            </div>
+
+            <div class="hero-titles">
+              <div class="hero-title-row">
+                <h1 class="hero-name">{{ analysis.channel.name }}</h1>
+                <span class="badge" :class="`badge-${analysis.channel.status}`">
+                  {{ analysis.channel.status === 'active' ? 'Đang theo dõi' : analysis.channel.status === 'paused' ? 'Tạm dừng' : 'Đã lưu trữ' }}
+                </span>
+              </div>
+              <div v-if="analysis.channel.handle" class="hero-handle">
+                {{ analysis.channel.handle }}
+              </div>
             </div>
           </div>
 
-          <div class="hero-titles">
-            <div class="hero-title-row">
-              <h1 class="hero-name">{{ analysis.channel.name }}</h1>
-              <span class="badge" :class="`badge-${analysis.channel.status}`">
-                {{ analysis.channel.status === 'active' ? 'Đang theo dõi' : analysis.channel.status === 'paused' ? 'Tạm dừng' : 'Đã lưu trữ' }}
-              </span>
+          <!-- Right: Focal Intelligence Metrics Grid -->
+          <div class="hero-stats-grid">
+            <!-- Focal Metric: VPH cao nhất -->
+            <div class="hero-stat-box focal-stat-box">
+              <div class="hero-stat-label">VPH CAO NHẤT</div>
+              <div
+                class="hero-stat-val"
+                :class="analysis.maxVph !== null && analysis.maxVph > 0 ? 'text-max-vph' : 'text-muted'"
+              >
+                {{ videoService.formatVph(analysis.maxVph) }}
+              </div>
+              <div class="hero-stat-sub">Tốc độ tăng cao nhất</div>
             </div>
-            <div v-if="analysis.channel.handle" class="hero-handle">
-              {{ analysis.channel.handle }}
+
+            <!-- Video đang tăng -->
+            <div class="hero-stat-box">
+              <div class="hero-stat-label">VIDEO ĐANG TĂNG</div>
+              <div class="hero-stat-val mono text-rising">{{ analysis.risingVideos }}</div>
+              <div class="hero-stat-sub">Có VPH đo được &gt; 0</div>
+            </div>
+
+            <!-- Tổng video -->
+            <div class="hero-stat-box">
+              <div class="hero-stat-label">TỔNG VIDEO</div>
+              <div class="hero-stat-val mono">{{ analysis.totalVideos }}</div>
+              <div class="hero-stat-sub">Đang trong hệ thống</div>
+            </div>
+
+            <!-- VPH trung bình -->
+            <div class="hero-stat-box">
+              <div class="hero-stat-label">VPH TRUNG BÌNH</div>
+              <div
+                class="hero-stat-val"
+                :class="analysis.avgVph !== null ? 'text-avg-vph' : 'text-muted'"
+              >
+                {{ analysis.avgVph !== null ? `${analysis.avgVph.toLocaleString('vi-VN')} VPH` : 'Chưa đủ dữ liệu' }}
+              </div>
+              <div class="hero-stat-sub">Các video đang tăng</div>
             </div>
           </div>
         </div>
 
-        <!-- Channel Configuration Info (Read-only) -->
-        <div class="hero-config-grid">
-          <div class="config-item">
-            <div class="config-lbl">Video kiểm tra</div>
-            <div class="config-val mono">{{ analysis.channel.scanLimit }} video</div>
+        <!-- Technical Configuration Strip -->
+        <div class="hero-config-strip">
+          <div class="config-cell">
+            <span class="config-lbl">Kiểm tra:</span>
+            <span class="config-val mono">{{ analysis.channel.scanLimit }} video / lần</span>
           </div>
-          <div class="config-item">
-            <div class="config-lbl">Ngưỡng cảnh báo</div>
-            <div class="config-val mono text-threshold">
-              {{ analysis.channel.alertVphThreshold.toLocaleString('vi-VN') }} VPH
-            </div>
+          <div class="config-divider"></div>
+          <div class="config-cell">
+            <span class="config-lbl">Ngưỡng cảnh báo:</span>
+            <span class="config-val mono text-threshold">{{ analysis.channel.alertVphThreshold.toLocaleString('vi-VN') }} VPH</span>
           </div>
-          <div class="config-item">
-            <div class="config-lbl">Cập nhật gần nhất</div>
-            <div class="config-val" :title="analysis.channel.lastScanAt ? formatFullDateTime(analysis.channel.lastScanAt) : ''">
+          <div class="config-divider"></div>
+          <div class="config-cell">
+            <span class="config-lbl">Quét gần nhất:</span>
+            <span class="config-val" :title="analysis.channel.lastScanAt ? formatFullDateTime(analysis.channel.lastScanAt) : ''">
               {{ analysis.channel.lastScanAt ? formatRelativeTime(analysis.channel.lastScanAt) : 'Chưa kiểm tra' }}
-            </div>
+            </span>
           </div>
-          <div class="config-item">
-            <div class="config-lbl">Ngày thêm</div>
-            <div class="config-val">{{ formatDateOnly(analysis.channel.createdAt) }}</div>
+          <div class="config-divider"></div>
+          <div class="config-cell">
+            <span class="config-lbl">Ngày thêm:</span>
+            <span class="config-val">{{ formatDateOnly(analysis.channel.createdAt) }}</span>
           </div>
-        </div>
-      </div>
-
-      <!-- 2. 4 Main Stat Cards -->
-      <div class="stats-grid">
-        <!-- Tổng video -->
-        <div class="stat-card">
-          <div class="stat-label">Tổng video</div>
-          <div class="stat-val mono">{{ analysis.totalVideos }}</div>
-          <div class="stat-desc">Số video của kênh trong hệ thống</div>
-        </div>
-
-        <!-- Video đang tăng -->
-        <div class="stat-card">
-          <div class="stat-label">Video đang tăng</div>
-          <div class="stat-val mono stat-rising">{{ analysis.risingVideos }}</div>
-          <div class="stat-desc">Video có VPH đo được lớn hơn 0</div>
-        </div>
-
-        <!-- VPH cao nhất -->
-        <div class="stat-card">
-          <div class="stat-label">VPH cao nhất</div>
-          <div
-            class="stat-val"
-            :class="analysis.maxVph !== null && analysis.maxVph > 0 ? 'stat-max-vph' : 'stat-muted'"
-          >
-            {{ videoService.formatVph(analysis.maxVph) }}
-          </div>
-          <div class="stat-desc">Tốc độ tăng cao nhất của kênh</div>
-        </div>
-
-        <!-- VPH trung bình -->
-        <div class="stat-card">
-          <div class="stat-label">VPH trung bình</div>
-          <div
-            class="stat-val"
-            :class="analysis.avgVph !== null ? 'stat-avg-vph' : 'stat-muted'"
-          >
-            {{ analysis.avgVph !== null ? `${analysis.avgVph.toLocaleString('vi-VN')} VPH` : 'Chưa đủ dữ liệu' }}
-          </div>
-          <div class="stat-desc">Trung bình các video đang tăng của kênh</div>
         </div>
       </div>
 
@@ -188,130 +192,232 @@
           <AppIcon name="video" size="32" />
         </div>
         <div class="empty-v-title">Chưa có dữ liệu video cho kênh này.</div>
-        <div class="empty-v-desc">Hãy chờ lần quét dữ liệu tiếp theo của hệ thống.</div>
+        <div class="empty-v-desc">Hãy nhấn "Kiểm Tra Dữ Liệu" hoặc chờ lần quét tự động tiếp theo của hệ thống.</div>
       </div>
 
       <template v-else>
-        <!-- 3. Section: Tình Trạng Video (VPH Distribution) -->
+        <!-- 2. Section: Tình Trạng Video (Segmented Distribution Rail) -->
         <div class="section-card">
           <div class="section-card-header">
             <div class="s-title">Tình Trạng Video</div>
-            <div class="s-subtitle">Phân loại video theo mức độ tăng trưởng VPH đo được</div>
+            <div class="s-subtitle">Phân loại tổng {{ analysis.totalVideos }} video theo mức độ tăng trưởng VPH đo được thực tế</div>
           </div>
 
+          <!-- Proportional Distribution Rail -->
+          <div class="distribution-rail-wrap">
+            <div class="distribution-rail-track">
+              <div
+                v-if="analysis.distribution.overThresholdCount > 0"
+                class="rail-segment seg-threshold"
+                :style="{ flex: analysis.distribution.overThresholdCount }"
+                :title="`Vượt ngưỡng: ${analysis.distribution.overThresholdCount} video`"
+              ></div>
+              <div
+                v-if="analysis.distribution.risingCount > 0"
+                class="rail-segment seg-rising"
+                :style="{ flex: analysis.distribution.risingCount }"
+                :title="`Đang tăng: ${analysis.distribution.risingCount} video`"
+              ></div>
+              <div
+                v-if="analysis.distribution.zeroCount > 0"
+                class="rail-segment seg-zero"
+                :style="{ flex: analysis.distribution.zeroCount }"
+                :title="`Không tăng: ${analysis.distribution.zeroCount} video`"
+              ></div>
+              <div
+                v-if="analysis.distribution.nullCount > 0"
+                class="rail-segment seg-null"
+                :style="{ flex: analysis.distribution.nullCount }"
+                :title="`Chưa đủ dữ liệu: ${analysis.distribution.nullCount} video`"
+              ></div>
+            </div>
+          </div>
+
+          <!-- Breakdown Cards -->
           <div class="dist-grid">
-            <div class="dist-box">
-              <div class="dist-lbl">Chưa đủ dữ liệu</div>
-              <div class="dist-val mono text-muted">{{ analysis.distribution.nullCount }}</div>
-              <div class="dist-sub">Cần thêm snapshot</div>
+            <div class="dist-box box-threshold">
+              <div class="dist-lbl">Vượt ngưỡng (&ge; {{ analysis.channel.alertVphThreshold.toLocaleString('vi-VN') }} VPH)</div>
+              <div class="dist-val mono text-threshold">{{ analysis.distribution.overThresholdCount }}</div>
+              <div class="dist-sub">Video kích hoạt cảnh báo</div>
+            </div>
+            <div class="dist-box box-rising">
+              <div class="dist-lbl">Đang tăng (&gt; 0 VPH)</div>
+              <div class="dist-val mono text-accent">{{ analysis.distribution.risingCount }}</div>
+              <div class="dist-sub">Có lượt xem tăng mới</div>
             </div>
             <div class="dist-box">
               <div class="dist-lbl">Không tăng (0 VPH)</div>
               <div class="dist-val mono text-muted">{{ analysis.distribution.zeroCount }}</div>
               <div class="dist-sub">Lượt xem không đổi</div>
             </div>
-            <div class="dist-box box-rising">
-              <div class="dist-lbl">Đang tăng (&gt; 0 VPH)</div>
-              <div class="dist-val mono text-accent">{{ analysis.distribution.risingCount }}</div>
-              <div class="dist-sub">Đang có lượt xem mới</div>
-            </div>
-            <div class="dist-box box-threshold">
-              <div class="dist-lbl">Vượt ngưỡng (&ge; {{ analysis.channel.alertVphThreshold.toLocaleString('vi-VN') }})</div>
-              <div class="dist-val mono text-threshold">{{ analysis.distribution.overThresholdCount }}</div>
-              <div class="dist-sub">Vượt ngưỡng cảnh báo</div>
+            <div class="dist-box">
+              <div class="dist-lbl">Chưa đủ dữ liệu</div>
+              <div class="dist-val mono text-muted">{{ analysis.distribution.nullCount }}</div>
+              <div class="dist-sub">Cần thêm snapshot đo</div>
             </div>
           </div>
         </div>
 
-        <!-- 4. Section: Biểu Đồ VPH -->
+        <!-- 3. Section: Biểu Đồ VPH -->
         <ChannelVphChart
           :videos="analysis.topVphChartVideos"
           :threshold="analysis.channel.alertVphThreshold"
         />
 
-        <!-- 5. Section: Video Tăng Nhanh Nhất (Top 5 Video) -->
+        <!-- 4. Section: Top Signals (Video Tăng Nhanh Nhất) -->
         <div class="section-card">
           <div class="section-card-header">
-            <div class="s-title">Video Tăng Nhanh Nhất</div>
-            <div class="s-subtitle">Top 5 video có VPH cao nhất của kênh</div>
+            <div class="s-title">Video Tăng Nhanh Nhất (Top Signals)</div>
+            <div class="s-subtitle">Top 5 video có tốc độ tăng trưởng VPH cao nhất của kênh</div>
           </div>
 
           <div v-if="analysis.topRisingVideos.length === 0" class="panel-empty">
-            Chưa có video nào ghi nhận tốc độ tăng trưởng.
+            Chưa có video nào ghi nhận tốc độ tăng trưởng VPH lớn hơn 0.
           </div>
 
-          <div v-else class="v-list">
-            <div v-for="(v, index) in analysis.topRisingVideos" :key="v.id" class="v-card-item">
-              <div class="rank-num">#{{ index + 1 }}</div>
-
-              <router-link :to="'/videos/' + v.id" class="v-thumb-wrap" title="Xem chi tiết video">
-                <img
-                  v-if="v.thumbnailUrl"
-                  :src="v.thumbnailUrl"
-                  :alt="v.title"
-                  class="v-thumb"
-                  loading="lazy"
-                  @error="handleImgError"
-                />
-                <div v-else class="v-thumb-fallback">
-                  <AppIcon name="video" size="20" />
-                </div>
-              </router-link>
-
-              <div class="v-details">
-                <router-link :to="'/videos/' + v.id" class="v-title-text" :title="v.title">
-                  {{ v.title }}
-                </router-link>
-                <div class="v-sub-info">
-                  <span>{{ videoService.formatRelativeTime(v.publishedAt) }}</span>
-                  <span v-if="v.isOverThreshold" class="badge-threshold-mini">Vượt ngưỡng</span>
-                </div>
+          <div v-else class="top-signals-wrap">
+            <!-- #1 Video Featured Highlight -->
+            <div v-if="analysis.topRisingVideos[0]" class="featured-video-card">
+              <div class="featured-badge-tag">
+                <AppIcon name="zap" size="14" />
+                <span>#1 TĂNG TRƯỞNG CAO NHẤT</span>
               </div>
+              <div class="featured-body">
+                <router-link :to="'/videos/' + analysis.topRisingVideos[0].id" class="featured-thumb-wrap">
+                  <img
+                    v-if="analysis.topRisingVideos[0].thumbnailUrl"
+                    :src="analysis.topRisingVideos[0].thumbnailUrl"
+                    :alt="analysis.topRisingVideos[0].title"
+                    class="featured-thumb"
+                    loading="lazy"
+                    @error="handleImgError"
+                  />
+                  <div v-else class="featured-thumb-fallback">
+                    <AppIcon name="video" size="28" />
+                  </div>
+                </router-link>
 
-              <div class="v-metrics-row">
-                <div class="v-metric-col">
-                  <div class="vm-lbl">LƯỢT XEM</div>
-                  <div class="vm-val mono">{{ videoService.formatViews(v.latestViewCount) }}</div>
-                </div>
-                <div class="v-metric-col">
-                  <div class="vm-lbl">VPH ĐO ĐƯỢC</div>
-                  <div
-                    class="vm-val"
-                    :class="v.latestMeasuredVph !== null && v.latestMeasuredVph > 0 ? 'text-accent' : 'text-muted'"
-                  >
-                    {{ videoService.formatVph(v.latestMeasuredVph) }}
+                <div class="featured-content">
+                  <router-link :to="'/videos/' + analysis.topRisingVideos[0].id" class="featured-title">
+                    {{ analysis.topRisingVideos[0].title }}
+                  </router-link>
+                  <div class="featured-meta">
+                    <span>{{ videoService.formatRelativeTime(analysis.topRisingVideos[0].publishedAt) }}</span>
+                    <span v-if="analysis.topRisingVideos[0].isOverThreshold" class="badge-threshold-mini">Vượt ngưỡng</span>
+                  </div>
+
+                  <div class="featured-metrics-strip">
+                    <div class="f-metric-box">
+                      <span class="f-lbl">LƯỢT XEM HIỆN TẠI</span>
+                      <span class="f-val mono">{{ videoService.formatViews(analysis.topRisingVideos[0].latestViewCount) }}</span>
+                    </div>
+                    <div class="f-metric-box focal-metric">
+                      <span class="f-lbl">VPH ĐO ĐƯỢC</span>
+                      <span class="f-val mono text-accent">{{ videoService.formatVph(analysis.topRisingVideos[0].latestMeasuredVph) }}</span>
+                    </div>
+                    <div class="f-metric-box">
+                      <span class="f-lbl">TĂNG LẦN GẦN NHẤT</span>
+                      <span class="f-val mono text-positive">{{ videoService.formatViewDelta(analysis.topRisingVideos[0].latestDeltaViews) }}</span>
+                    </div>
+                  </div>
+
+                  <div class="featured-actions">
+                    <router-link :to="'/videos/' + analysis.topRisingVideos[0].id" class="btn btn-secondary btn-sm">
+                      <AppIcon name="activity" size="14" />
+                      <span>Xem Phân Tích Video</span>
+                    </router-link>
+                    <a
+                      :href="analysis.topRisingVideos[0].url"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="btn btn-secondary btn-sm"
+                    >
+                      <span>Mở YouTube</span>
+                      <AppIcon name="external" size="14" />
+                    </a>
                   </div>
                 </div>
-                <div class="v-metric-col">
-                  <div class="vm-lbl">TĂNG LẦN TRƯỚC</div>
-                  <div
-                    class="vm-val"
-                    :class="v.latestDeltaViews !== null && v.latestDeltaViews > 0 ? 'text-positive' : 'text-muted'"
-                  >
-                    {{ videoService.formatViewDelta(v.latestDeltaViews) }}
+              </div>
+            </div>
+
+            <!-- #2 to #5 Compact Rankings -->
+            <div v-if="analysis.topRisingVideos.length > 1" class="secondary-ranking-list">
+              <div
+                v-for="(v, idx) in analysis.topRisingVideos.slice(1)"
+                :key="v.id"
+                class="v-card-item"
+              >
+                <div class="rank-num">#{{ idx + 2 }}</div>
+
+                <router-link :to="'/videos/' + v.id" class="v-thumb-wrap" title="Xem chi tiết video">
+                  <img
+                    v-if="v.thumbnailUrl"
+                    :src="v.thumbnailUrl"
+                    :alt="v.title"
+                    class="v-thumb"
+                    loading="lazy"
+                    @error="handleImgError"
+                  />
+                  <div v-else class="v-thumb-fallback">
+                    <AppIcon name="video" size="20" />
+                  </div>
+                </router-link>
+
+                <div class="v-details">
+                  <router-link :to="'/videos/' + v.id" class="v-title-text" :title="v.title">
+                    {{ v.title }}
+                  </router-link>
+                  <div class="v-sub-info">
+                    <span>{{ videoService.formatRelativeTime(v.publishedAt) }}</span>
+                    <span v-if="v.isOverThreshold" class="badge-threshold-mini">Vượt ngưỡng</span>
                   </div>
                 </div>
-              </div>
 
-              <div class="v-btn-actions">
-                <router-link :to="'/videos/' + v.id" class="btn btn-secondary btn-sm">
-                  <span>Chi Tiết</span>
-                </router-link>
-                <a
-                  :href="v.url"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="btn-youtube-icon"
-                  title="Mở video trên YouTube"
-                >
-                  <AppIcon name="external" size="14" />
-                </a>
+                <div class="v-metrics-row">
+                  <div class="v-metric-col">
+                    <div class="vm-lbl">LƯỢT XEM</div>
+                    <div class="vm-val mono">{{ videoService.formatViews(v.latestViewCount) }}</div>
+                  </div>
+                  <div class="v-metric-col">
+                    <div class="vm-lbl">VPH ĐO ĐƯỢC</div>
+                    <div
+                      class="vm-val mono"
+                      :class="v.latestMeasuredVph !== null && v.latestMeasuredVph > 0 ? 'text-accent' : 'text-muted'"
+                    >
+                      {{ videoService.formatVph(v.latestMeasuredVph) }}
+                    </div>
+                  </div>
+                  <div class="v-metric-col">
+                    <div class="vm-lbl">TĂNG GẦN NHẤT</div>
+                    <div
+                      class="vm-val mono"
+                      :class="v.latestDeltaViews !== null && v.latestDeltaViews > 0 ? 'text-positive' : 'text-muted'"
+                    >
+                      {{ videoService.formatViewDelta(v.latestDeltaViews) }}
+                    </div>
+                  </div>
+                </div>
+
+                <div class="v-btn-actions">
+                  <router-link :to="'/videos/' + v.id" class="btn btn-secondary btn-sm">
+                    <span>Chi Tiết</span>
+                  </router-link>
+                  <a
+                    :href="v.url"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="btn-youtube-icon"
+                    title="Mở video trên YouTube"
+                  >
+                    <AppIcon name="external" size="14" />
+                  </a>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- 6. Section: Video Mới Nhất (Top 10 Video) -->
+        <!-- 5. Section: Video Mới Nhất (Top 10 Video) -->
         <div class="section-card">
           <div class="section-card-header">
             <div class="s-title">Video Mới Nhất</div>
@@ -376,7 +482,7 @@
           </div>
         </div>
 
-        <!-- 7. Section: Cảnh Báo Của Kênh -->
+        <!-- 6. Section: Cảnh Báo Của Kênh -->
         <div class="section-card">
           <div class="section-card-header">
             <div class="s-title">Cảnh Báo Của Kênh</div>
@@ -688,14 +794,21 @@ onMounted(() => {
   color: var(--text-secondary);
 }
 
-/* 1. Channel Hero Card */
+/* 1. Channel Intelligence Hero Card */
 .channel-hero-card {
   background-color: var(--bg-surface);
   border: 1px solid var(--border-subtle);
   border-radius: 12px;
   padding: 24px;
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  gap: 20px;
+  box-shadow: var(--shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.05));
+}
+
+.hero-main-row {
+  display: flex;
+  align-items: stretch;
   justify-content: space-between;
   gap: 24px;
   flex-wrap: wrap;
@@ -704,7 +817,9 @@ onMounted(() => {
 .hero-left {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 18px;
+  flex: 1 1 320px;
+  min-width: 280px;
 }
 
 .hero-avatar-wrap {
@@ -727,8 +842,8 @@ onMounted(() => {
 }
 
 .hero-avatar-fallback {
-  font-size: 24px;
-  font-weight: 700;
+  font-size: 26px;
+  font-weight: 800;
   color: var(--text-secondary);
 }
 
@@ -736,121 +851,144 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  min-width: 0;
 }
 
 .hero-title-row {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   flex-wrap: wrap;
 }
 
 .hero-name {
-  font-size: 20px;
-  font-weight: 700;
+  font-size: 22px;
+  font-weight: 800;
   color: var(--text-primary);
+  letter-spacing: -0.01em;
 }
 
 .hero-handle {
   font-size: 13px;
-  color: var(--text-secondary);
+  color: var(--text-muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
-.hero-config-grid {
-  display: flex;
-  align-items: center;
-  gap: 24px;
-  flex-wrap: wrap;
-  padding: 12px 18px;
+.hero-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  flex: 2 1 540px;
+}
+
+.hero-stat-box {
   background-color: var(--bg-surface-elevated);
   border: 1px solid var(--border-subtle);
-  border-radius: 8px;
-}
-
-.config-item {
+  border-radius: 10px;
+  padding: 14px 16px;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  justify-content: center;
+  gap: 3px;
 }
 
-.config-lbl {
+.focal-stat-box {
+  background-color: var(--accent-subtle);
+  border-color: var(--accent);
+}
+
+.hero-stat-label {
   font-size: 10px;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--text-muted);
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
 
-.config-val {
-  font-size: 12px;
-  font-weight: 600;
+.focal-stat-box .hero-stat-label {
+  color: var(--accent);
+}
+
+.hero-stat-val {
+  font-size: 20px;
+  font-weight: 800;
   color: var(--text-primary);
+  line-height: 1.1;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
-.config-val.mono {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+.hero-stat-sub {
+  font-size: 10px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.text-max-vph {
+  color: var(--signal-positive, #10B981);
+}
+
+.text-rising {
+  color: var(--signal-accent, #38BDF8);
+}
+
+.text-avg-vph {
+  color: var(--signal-accent, #38BDF8);
 }
 
 .text-threshold {
   color: #F59E0B;
 }
 
-/* 2. Stats Grid */
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
+.text-muted {
+  color: var(--text-muted);
 }
 
-.stat-card {
-  background-color: var(--bg-surface);
-  border: 1px solid var(--border-subtle);
-  border-radius: 10px;
-  padding: 18px 20px;
+.text-positive {
+  color: var(--signal-positive, #10B981);
+}
+
+.text-accent {
+  color: var(--accent);
+}
+
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+/* Technical Config Strip */
+.hero-config-strip {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  background-color: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  padding: 10px 16px;
+  flex-wrap: wrap;
+}
+
+.config-cell {
+  display: flex;
+  align-items: center;
   gap: 6px;
 }
 
-.stat-label {
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text-secondary);
-}
-
-.stat-val {
-  font-size: 24px;
-  font-weight: 700;
-  color: var(--text-primary);
-  line-height: 1.1;
-}
-
-.stat-val.mono {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-}
-
-.stat-rising {
-  color: #38BDF8;
-}
-
-.stat-max-vph {
-  color: #34D399;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-}
-
-.stat-avg-vph {
-  color: #38BDF8;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-}
-
-.stat-muted {
-  color: var(--text-muted);
-  font-size: 18px;
-  font-weight: 400;
-}
-
-.stat-desc {
+.config-lbl {
   font-size: 11px;
   color: var(--text-muted);
+  font-weight: 500;
+}
+
+.config-val {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.config-divider {
+  width: 1px;
+  height: 16px;
+  background-color: var(--border-subtle);
 }
 
 /* Section Card */
@@ -858,10 +996,11 @@ onMounted(() => {
   background-color: var(--bg-surface);
   border: 1px solid var(--border-subtle);
   border-radius: 12px;
-  padding: 20px;
+  padding: 22px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 18px;
+  box-shadow: var(--shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.05));
 }
 
 .section-card-header {
@@ -871,8 +1010,8 @@ onMounted(() => {
 }
 
 .s-title {
-  font-size: 15px;
-  font-weight: 600;
+  font-size: 16px;
+  font-weight: 700;
   color: var(--text-primary);
 }
 
@@ -881,7 +1020,44 @@ onMounted(() => {
   color: var(--text-secondary);
 }
 
-/* 3. Distribution Grid */
+/* 2. Proportional Distribution Rail */
+.distribution-rail-wrap {
+  width: 100%;
+}
+
+.distribution-rail-track {
+  display: flex;
+  height: 12px;
+  border-radius: 6px;
+  overflow: hidden;
+  background-color: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  gap: 2px;
+}
+
+.rail-segment {
+  height: 100%;
+  transition: flex 0.3s ease;
+}
+
+.seg-threshold {
+  background-color: #F59E0B;
+}
+
+.seg-rising {
+  background-color: #0284C7;
+}
+
+.seg-zero {
+  background-color: var(--border-strong, #64748B);
+  opacity: 0.5;
+}
+
+.seg-null {
+  background-color: var(--border-subtle, #334155);
+  opacity: 0.3;
+}
+
 .dist-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -901,12 +1077,12 @@ onMounted(() => {
 .dist-lbl {
   font-size: 11px;
   color: var(--text-secondary);
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .dist-val {
-  font-size: 20px;
-  font-weight: 700;
+  font-size: 22px;
+  font-weight: 800;
   color: var(--text-primary);
 }
 
@@ -916,27 +1092,145 @@ onMounted(() => {
 }
 
 .box-rising {
-  border-color: rgba(56, 189, 248, 0.25);
+  border-color: rgba(2, 132, 199, 0.4);
 }
 
 .box-threshold {
-  border-color: rgba(245, 158, 11, 0.25);
+  border-color: rgba(245, 158, 11, 0.4);
 }
 
-.text-accent {
-  color: var(--signal-accent, #38BDF8);
+/* 4. Top Signals: Featured #1 + Rankings */
+.top-signals-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
-.text-positive {
-  color: var(--signal-positive, #34D399);
+.featured-video-card {
+  background-color: var(--bg-surface-elevated);
+  border: 1px solid var(--accent);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 0 0 1px var(--accent-subtle);
 }
 
-.text-muted {
+.featured-badge-tag {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background-color: var(--accent);
+  color: #FFFFFF;
+  padding: 6px 16px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.featured-body {
+  display: flex;
+  gap: 20px;
+  padding: 20px;
+  align-items: center;
+}
+
+.featured-thumb-wrap {
+  width: 220px;
+  aspect-ratio: 16 / 9;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.featured-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.featured-thumb-fallback {
   color: var(--text-muted);
 }
 
-/* 5. Top Videos List */
-.v-list {
+.featured-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.featured-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.4;
+  text-decoration: none;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.featured-title:hover {
+  color: var(--accent);
+}
+
+.featured-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.featured-metrics-strip {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  padding: 10px 16px;
+  flex-wrap: wrap;
+}
+
+.f-metric-box {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.f-lbl {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+}
+
+.f-val {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.focal-metric .f-val {
+  font-size: 16px;
+}
+
+.featured-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Secondary Rankings (#2-#5) */
+.secondary-ranking-list {
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -1053,10 +1347,6 @@ onMounted(() => {
   color: var(--text-primary);
 }
 
-.vm-val.mono {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-}
-
 .v-btn-actions {
   display: flex;
   align-items: center;
@@ -1081,7 +1371,7 @@ onMounted(() => {
   color: var(--accent);
 }
 
-/* 6. Latest Table */
+/* 5. Latest Table */
 .latest-table-wrap {
   overflow-x: auto;
 }
@@ -1096,10 +1386,12 @@ onMounted(() => {
   background-color: var(--bg-surface-elevated);
   padding: 12px 16px;
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--text-secondary);
   border-bottom: 1px solid var(--border-subtle);
   white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .latest-table td {
@@ -1198,7 +1490,7 @@ onMounted(() => {
   text-align: right;
 }
 
-/* 7. Alert Summary Box */
+/* 6. Alert Summary Box */
 .alert-summary-box {
   display: flex;
   flex-direction: column;
@@ -1322,16 +1614,31 @@ onMounted(() => {
 }
 
 /* Responsive adjustments */
-@media (max-width: 900px) {
-  .channel-hero-card {
+@media (max-width: 1024px) {
+  .hero-main-row {
     flex-direction: column;
-    align-items: stretch;
   }
-  .stats-grid {
+  .hero-stats-grid {
     grid-template-columns: repeat(2, 1fr);
   }
   .dist-grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+  .featured-body {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .featured-thumb-wrap {
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero-stats-grid {
+    grid-template-columns: 1fr;
+  }
+  .dist-grid {
+    grid-template-columns: 1fr;
   }
   .v-card-item {
     flex-direction: column;
@@ -1348,17 +1655,12 @@ onMounted(() => {
   .v-btn-actions {
     justify-content: flex-end;
   }
-}
-
-@media (max-width: 600px) {
-  .stats-grid {
-    grid-template-columns: 1fr;
+  .hero-config-strip {
+    flex-direction: column;
+    align-items: flex-start;
   }
-  .dist-grid {
-    grid-template-columns: 1fr;
-  }
-  .v-metrics-row {
-    grid-template-columns: 1fr;
+  .config-divider {
+    display: none;
   }
 }
 </style>

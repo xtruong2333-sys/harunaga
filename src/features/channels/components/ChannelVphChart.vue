@@ -3,7 +3,7 @@
     <div class="chart-card-header">
       <div class="chart-title-wrap">
         <div class="chart-title">Tốc Độ VPH Của Các Video</div>
-        <div class="chart-subtitle">So sánh tốc độ tăng trưởng giữa các video có VPH cao nhất của kênh</div>
+        <div class="chart-subtitle">So sánh tốc độ tăng trưởng (VPH) giữa các video đang hoạt động tốt nhất của kênh</div>
       </div>
       <div v-if="threshold > 0" class="threshold-badge">
         Ngưỡng cảnh báo: <strong>{{ threshold.toLocaleString('vi-VN') }}</strong> VPH
@@ -83,10 +83,11 @@ const effectiveMax = computed(() => {
   background-color: var(--bg-surface);
   border: 1px solid var(--border-subtle);
   border-radius: 12px;
-  padding: 20px;
+  padding: 22px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 18px;
+  box-shadow: var(--shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.05));
 }
 
 .chart-card-header {
@@ -104,8 +105,8 @@ const effectiveMax = computed(() => {
 }
 
 .chart-title {
-  font-size: 15px;
-  font-weight: 600;
+  font-size: 16px;
+  font-weight: 700;
   color: var(--text-primary);
 }
 
@@ -116,15 +117,16 @@ const effectiveMax = computed(() => {
 
 .threshold-badge {
   font-size: 12px;
+  font-weight: 500;
   color: #F59E0B;
-  background-color: rgba(245, 158, 11, 0.1);
-  padding: 4px 10px;
+  background-color: rgba(245, 158, 11, 0.12);
+  padding: 4px 12px;
   border-radius: 6px;
   border: 1px solid rgba(245, 158, 11, 0.25);
 }
 
 .chart-empty-box {
-  padding: 32px 16px;
+  padding: 36px 16px;
   text-align: center;
   color: var(--text-muted);
   font-size: 13px;
@@ -135,7 +137,7 @@ const effectiveMax = computed(() => {
 .bars-container {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
 }
 
 .bar-row {
@@ -145,13 +147,13 @@ const effectiveMax = computed(() => {
 }
 
 .bar-label-col {
-  width: 260px;
+  width: 280px;
   flex-shrink: 0;
 }
 
 .bar-video-title {
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--text-primary);
   text-decoration: none;
   white-space: nowrap;
@@ -168,23 +170,23 @@ const effectiveMax = computed(() => {
 .bar-visual-col {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
   flex: 1;
   min-width: 0;
 }
 
 .bar-track {
   flex: 1;
-  height: 10px;
+  height: 12px;
   background-color: var(--bg-surface-elevated);
-  border-radius: 5px;
+  border-radius: 6px;
   overflow: hidden;
   border: 1px solid var(--border-subtle);
 }
 
 .bar-fill {
   height: 100%;
-  border-radius: 5px;
+  border-radius: 6px;
   background: linear-gradient(90deg, #0284C7 0%, #38BDF8 100%);
   transition: width 0.3s ease;
 }
@@ -196,14 +198,14 @@ const effectiveMax = computed(() => {
 .bar-val-wrap {
   display: flex;
   align-items: center;
-  gap: 6px;
-  width: 140px;
+  gap: 8px;
+  width: 150px;
   flex-shrink: 0;
 }
 
 .bar-val {
-  font-size: 12px;
-  font-weight: 700;
+  font-size: 13px;
+  font-weight: 800;
 }
 
 .bar-val.mono {
@@ -219,10 +221,10 @@ const effectiveMax = computed(() => {
 }
 
 .badge-threshold-tag {
-  padding: 1px 4px;
+  padding: 1px 5px;
   border-radius: 3px;
   font-size: 9px;
-  font-weight: 600;
+  font-weight: 700;
   background-color: rgba(245, 158, 11, 0.15);
   color: #F59E0B;
   text-transform: uppercase;

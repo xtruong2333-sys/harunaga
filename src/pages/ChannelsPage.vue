@@ -3,9 +3,10 @@
     <!-- Page Header -->
     <div class="page-header">
       <div class="page-header-text">
+        <div class="page-eyebrow">GIÁM SÁT ĐỐI THỦ</div>
         <h1 class="page-title">Kênh Theo Dõi</h1>
         <p class="page-description">
-          Thêm và quản lý các kênh YouTube đối thủ mà hệ thống sẽ kiểm tra định kỳ.
+          Danh bạ trung tâm quản lý các kênh YouTube đối thủ và thiết lập cấu hình quét dữ liệu định kỳ.
         </p>
       </div>
 
@@ -16,8 +17,8 @@
           @click="handleTriggerCollection"
           title="Kiểm tra dữ liệu video mới nhất của các kênh đang theo dõi"
         >
-          <AppIcon name="refresh" size="16" />
-          <span>{{ isCollecting ? 'Đang kiểm tra dữ liệu...' : 'Kiểm Tra Dữ Liệu' }}</span>
+          <AppIcon name="refresh" size="16" :class="{ 'spin-anim': isCollecting }" />
+          <span>{{ isCollecting ? 'Đang kiểm tra...' : 'Kiểm Tra Dữ Liệu' }}</span>
         </button>
         <button class="btn btn-secondary" @click="showBulkAddModal = true">
           <AppIcon name="list-plus" size="16" />
@@ -32,7 +33,7 @@
 
     <!-- Thông báo kết quả kiểm tra dữ liệu -->
     <div v-if="collectNotification" class="collect-banner">
-      <AppIcon name="check" size="18" />
+      <AppIcon name="check-circle" size="18" />
       <span>{{ collectNotification }}</span>
     </div>
 
@@ -374,11 +375,29 @@ async function handleTriggerCollection() {
   flex-wrap: wrap;
 }
 
+.page-eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
 .page-title {
   font-size: 26px;
   font-weight: 700;
   color: var(--text-primary);
   letter-spacing: -0.01em;
+}
+
+.spin-anim {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 .page-description {

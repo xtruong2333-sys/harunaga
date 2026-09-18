@@ -3,9 +3,10 @@
     <!-- Page Header -->
     <div class="page-header">
       <div class="page-header-text">
+        <div class="page-eyebrow">ĐỐI SOÁT ĐỐI THỦ</div>
         <h1 class="page-title">So Sánh Kênh</h1>
         <p class="page-description">
-          Đặt dữ liệu đo thực tế của nhiều kênh cạnh nhau để quan sát tốc độ tăng và hiệu suất video.
+          Đặt dữ liệu đo thực tế của 2–4 kênh đối thủ cạnh nhau để đối chiếu tốc độ tăng trưởng, hiệu suất video và xu hướng 24h.
         </p>
       </div>
 
@@ -262,16 +263,16 @@
                   </td>
                 </tr>
 
-                <!-- VPH cao nhất -->
-                <tr>
+                <!-- VPH cao nhất (Focal Row) -->
+                <tr class="row-focal-vph">
                   <td class="metric-name-cell">
-                    <div class="metric-title">VPH cao nhất</div>
+                    <div class="metric-title focal-title">VPH cao nhất ★</div>
                     <div class="metric-hint">Tốc độ tăng cao nhất đo được</div>
                   </td>
                   <td
                     v-for="ch in comparisonData.channels"
                     :key="ch.id"
-                    class="metric-val-cell mono font-semibold"
+                    class="metric-val-cell mono font-semibold focal-val"
                     :class="{ 'cell-max-highlight': isMaxInMetric(ch, 'maxVph') }"
                   >
                     {{ ch.metrics.maxVph !== null ? formatNumber(ch.metrics.maxVph) : '—' }}
@@ -489,7 +490,7 @@
                   :y1="tick.y"
                   x2="880"
                   :y2="tick.y"
-                  stroke="rgba(255, 255, 255, 0.06)"
+                  class="trend-grid-line"
                   stroke-dasharray="3 3"
                 />
               </g>
@@ -1011,8 +1012,17 @@ watch(
   min-width: 260px;
 }
 
+.page-eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
 .page-title {
-  font-size: 24px;
+  font-size: 26px;
   font-weight: 700;
   color: var(--text-primary);
   letter-spacing: -0.01em;
@@ -1515,9 +1525,29 @@ watch(
   vertical-align: middle;
 }
 
-.cell-max-highlight {
-  background-color: rgba(56, 189, 248, 0.06);
+.row-focal-vph {
+  background-color: var(--accent-subtle, rgba(2, 132, 199, 0.08));
+}
+
+.row-focal-vph td {
+  border-top: 1px solid var(--accent);
+  border-bottom: 1px solid var(--accent);
+}
+
+.focal-title {
+  color: var(--accent);
   font-weight: 700;
+}
+
+.focal-val {
+  font-size: 15px;
+  color: var(--accent);
+}
+
+.cell-max-highlight {
+  background-color: var(--accent-subtle);
+  color: var(--accent);
+  font-weight: 800;
 }
 
 .text-rising {
@@ -1627,6 +1657,11 @@ watch(
   min-width: 600px;
   height: auto;
   display: block;
+}
+
+.trend-grid-line {
+  stroke: var(--border-subtle);
+  opacity: 0.8;
 }
 
 .svg-axis-text {

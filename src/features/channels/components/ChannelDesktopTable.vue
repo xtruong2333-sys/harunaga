@@ -12,7 +12,12 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="channel in channels" :key="channel.id" class="table-row">
+        <tr
+          v-for="channel in channels"
+          :key="channel.id"
+          class="table-row"
+          :class="`row-status-${channel.status}`"
+        >
           <!-- Kênh -->
           <td class="col-channel">
             <div class="channel-cell">
@@ -69,19 +74,19 @@
           <!-- Video kiểm tra -->
           <td class="col-scan">
             <span class="metric-value">{{ channel.scanLimit }}</span>
-            <span class="metric-unit">video</span>
+            <span class="metric-unit">video / lần</span>
           </td>
 
           <!-- Ngưỡng cảnh báo -->
           <td class="col-alert">
-            <span class="metric-value">{{ channel.alertVphThreshold.toLocaleString('vi-VN') }}</span>
+            <span class="metric-value text-threshold">{{ channel.alertVphThreshold.toLocaleString('vi-VN') }}</span>
             <span class="metric-unit">VPH</span>
           </td>
 
           <!-- Cập nhật gần nhất -->
           <td class="col-date">
-            <span v-if="channel.lastScanAt" class="date-text">
-              {{ formatDate(channel.lastScanAt) }}
+            <span v-if="channel.lastScanAt" class="date-text" :title="formatFullDate(channel.lastScanAt)">
+              {{ formatRelativeTime(channel.lastScanAt) }}
             </span>
             <span v-else class="date-empty">Chưa kiểm tra</span>
           </td>
@@ -95,7 +100,7 @@
                 class="icon-action-btn icon-action-analytics"
                 title="Phân Tích Kênh"
               >
-                <AppIcon name="activity" size="16" />
+                <AppIcon name="activity" size="15" />
               </router-link>
 
               <!-- So Sánh Kênh -->
@@ -104,7 +109,7 @@
                 class="icon-action-btn icon-action-compare"
                 title="So Sánh Kênh"
               >
-                <AppIcon name="bar-chart-2" size="16" />
+                <AppIcon name="bar-chart-2" size="15" />
               </router-link>
 
               <button
@@ -112,17 +117,17 @@
                 @click="$emit('edit', channel)"
                 title="Chỉnh Thiết Lập"
               >
-                <AppIcon name="settings" size="16" />
+                <AppIcon name="settings" size="15" />
               </button>
 
               <!-- Pause / Resume -->
               <button
                 v-if="channel.status === 'active'"
-                class="icon-action-btn"
+                class="icon-action-btn icon-action-pause"
                 @click="$emit('pause', channel.id)"
                 title="Tạm Dừng"
               >
-                <AppIcon name="pause" size="16" />
+                <AppIcon name="pause" size="15" />
               </button>
               <button
                 v-else-if="channel.status === 'paused'"
@@ -130,17 +135,17 @@
                 @click="$emit('resume', channel.id)"
                 title="Bật Theo Dõi"
               >
-                <AppIcon name="play" size="16" />
+                <AppIcon name="play" size="15" />
               </button>
 
               <!-- Archive / Restore -->
               <button
                 v-if="channel.status !== 'archived'"
-                class="icon-action-btn"
+                class="icon-action-btn icon-action-archive"
                 @click="$emit('archive', channel.id)"
                 title="Lưu Trữ"
               >
-                <AppIcon name="archive" size="16" />
+                <AppIcon name="archive" size="15" />
               </button>
               <button
                 v-else
@@ -148,7 +153,7 @@
                 @click="$emit('restore', channel.id)"
                 title="Bật Theo Dõi Lại"
               >
-                <AppIcon name="restore" size="16" />
+                <AppIcon name="restore" size="15" />
               </button>
             </div>
           </td>
@@ -181,7 +186,7 @@ function handleAvatarError(e: Event) {
   target.style.display = 'none';
 }
 
-function formatDate(iso: string): string {
+function formatFullDate(iso: string): string {
   try {
     const d = new Date(iso);
     return d.toLocaleString('vi-VN', {
@@ -189,10 +194,26 @@ function formatDate(iso: string): string {
       minute: '2-digit',
       day: '2-digit',
       month: '2-digit',
+      year: 'numeric',
     });
   } catch {
     return iso;
   }
+}
+
+function formatRelativeTime(iso: string): string {
+  if (!iso) return '';
+  const now = new Date();
+  const past = new Date(iso);
+  const diffSeconds = Math.floor((now.getTime() - past.getTime()) / 1000);
+
+  if (diffSeconds < 60) return 'Vừa xong';
+  const diffMinutes = Math.floor(diffSeconds / 60);
+  if (diffMinutes < 60) return `${diffMinutes} phút trước`;
+  const diffHours = Math.floor(diffMinutes / 60);
+  if (diffHours < 24) return `${diffHours} giờ trước`;
+  const diffDays = Math.floor(diffHours / 24);
+  return `${diffDays} ngày trước`;
 }
 </script>
 
@@ -202,6 +223,7 @@ function formatDate(iso: string): string {
   border: 1px solid var(--border-subtle);
   border-radius: 12px;
   overflow: hidden;
+  box-shadow: var(--shadow-sm, 0 1px 3px rgba(0, 0, 0, 0.05));
 }
 
 .channel-table {
@@ -214,16 +236,22 @@ th {
   background-color: var(--bg-surface-elevated);
   padding: 14px 20px;
   font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.05em;
+  font-weight: 700;
+  letter-spacing: 0.06em;
   color: var(--text-secondary);
   border-bottom: 1px solid var(--border-subtle);
+  text-transform: uppercase;
 }
 
 td {
   padding: 16px 20px;
   border-bottom: 1px solid var(--border-subtle);
   vertical-align: middle;
+}
+
+.table-row {
+  transition: background-color 0.15s ease;
+  position: relative;
 }
 
 .table-row:last-child td {
@@ -234,15 +262,28 @@ td {
   background-color: var(--bg-surface-hover);
 }
 
+.row-status-active {
+  border-left: 3px solid var(--status-active, #10B981);
+}
+
+.row-status-paused {
+  border-left: 3px solid var(--status-paused, #F59E0B);
+}
+
+.row-status-archived {
+  border-left: 3px solid var(--text-muted);
+  opacity: 0.85;
+}
+
 .channel-cell {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
 }
 
 .avatar-wrap {
-  width: 40px;
-  height: 40px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
   overflow: hidden;
   background-color: var(--bg-surface-elevated);
@@ -251,6 +292,11 @@ td {
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: transform 0.15s ease;
+}
+
+.avatar-wrap:hover {
+  transform: scale(1.05);
 }
 
 .channel-avatar {
@@ -260,7 +306,8 @@ td {
 }
 
 .avatar-fallback {
-  font-weight: 600;
+  font-weight: 700;
+  font-size: 14px;
   color: var(--text-secondary);
 }
 
@@ -268,6 +315,7 @@ td {
   display: flex;
   flex-direction: column;
   gap: 2px;
+  min-width: 0;
 }
 
 .channel-name-row {
@@ -280,40 +328,63 @@ td {
   font-weight: 600;
   color: var(--text-primary);
   font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 280px;
+}
+
+.channel-name-link {
+  text-decoration: none;
+}
+
+.channel-name-link:hover {
+  color: var(--accent);
 }
 
 .channel-link-icon {
   color: var(--text-muted);
   display: inline-flex;
+  transition: color 0.15s ease;
 }
+
 .channel-link-icon:hover {
   color: var(--accent);
 }
 
 .channel-handle {
   font-size: 12px;
-  color: var(--text-secondary);
+  color: var(--text-muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
 .metric-value {
-  font-weight: 600;
+  font-weight: 700;
   color: var(--text-primary);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 13px;
+}
+
+.text-threshold {
+  color: #F59E0B;
 }
 
 .metric-unit {
   font-size: 11px;
-  color: var(--text-secondary);
+  color: var(--text-muted);
   margin-left: 4px;
 }
 
 .date-text {
   font-size: 12px;
   color: var(--text-secondary);
+  font-weight: 500;
 }
 
 .date-empty {
   font-size: 12px;
   color: var(--text-muted);
+  font-style: italic;
 }
 
 .actions-group {
@@ -323,27 +394,28 @@ td {
 }
 
 .icon-action-btn {
-  background: transparent;
+  background-color: var(--bg-surface-elevated);
   border: 1px solid var(--border-subtle);
   border-radius: 6px;
   color: var(--text-secondary);
-  padding: 6px;
+  padding: 7px;
   cursor: pointer;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.15s;
+  transition: all 0.15s ease;
+  text-decoration: none;
 }
 
 .icon-action-btn:hover {
   color: var(--text-primary);
-  background-color: var(--bg-surface-elevated);
-  border-color: var(--border-strong);
+  background-color: var(--bg-surface-hover);
+  border-color: var(--border-strong, var(--border-subtle));
 }
 
 .icon-action-play:hover {
-  color: var(--status-active);
-  border-color: var(--status-active);
+  color: var(--status-active, #10B981);
+  border-color: var(--status-active, #10B981);
 }
 
 .icon-action-restore:hover {
@@ -361,12 +433,14 @@ td {
   border-color: var(--accent);
 }
 
-.channel-name-link {
-  text-decoration: none;
+.icon-action-pause:hover {
+  color: var(--status-paused, #F59E0B);
+  border-color: var(--status-paused, #F59E0B);
 }
 
-.channel-name-link:hover {
-  color: var(--accent);
+.icon-action-archive:hover {
+  color: var(--text-muted);
+  border-color: var(--text-muted);
 }
 
 @media (max-width: 900px) {

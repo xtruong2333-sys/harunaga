@@ -8,7 +8,7 @@
           type="text"
           :value="searchQuery"
           @input="$emit('update:searchQuery', ($event.target as HTMLInputElement).value)"
-          placeholder="Tìm theo tên hoặc @tênkênh..."
+          placeholder="Tìm kiếm kênh theo tên hoặc @handle..."
           class="form-input search-input"
         />
         <button
@@ -16,6 +16,7 @@
           class="clear-search-btn"
           @click="$emit('update:searchQuery', '')"
           title="Xóa tìm kiếm"
+          aria-label="Xóa tìm kiếm"
         >
           <AppIcon name="x" size="14" />
         </button>
@@ -35,29 +36,29 @@
 
     <!-- Bottom row: Filter tabs & Sort Dropdown -->
     <div class="controls-bottom">
-      <div class="filter-tabs">
+      <div class="filter-tabs-track">
         <button
           v-for="tab in filterTabs"
           :key="tab.value"
-          class="tab-btn"
-          :class="{ 'tab-btn-active': currentFilter === tab.value }"
+          class="tab-pill"
+          :class="{ 'tab-pill-active': currentFilter === tab.value }"
           @click="$emit('update:currentFilter', tab.value as ('all' | ChannelStatus))"
         >
-          {{ tab.label }}
-          <span class="tab-count">({{ tab.count }})</span>
+          <span class="pill-label">{{ tab.label }}</span>
+          <span class="pill-count">{{ tab.count }}</span>
         </button>
       </div>
 
-      <div class="sort-selector">
+      <div class="sort-selector-group">
         <span class="sort-label">Sắp xếp:</span>
         <select
           :value="currentSort"
           @change="$emit('update:currentSort', ($event.target as HTMLSelectElement).value as ('newest' | 'name' | 'last_scan'))"
           class="form-select sort-select"
         >
-          <option value="newest">Mới thêm</option>
-          <option value="name">Tên kênh</option>
-          <option value="last_scan">Cập nhật gần nhất</option>
+          <option value="newest">Mới thêm gần nhất</option>
+          <option value="name">Tên kênh (A-Z)</option>
+          <option value="last_scan">Lần quét gần nhất</option>
         </select>
       </div>
     </div>
@@ -116,22 +117,36 @@ const filterTabs = computed(() => [
 .search-box {
   position: relative;
   flex: 1;
-  min-width: 260px;
-  max-width: 480px;
+  min-width: 280px;
+  max-width: 520px;
 }
 
 .search-icon {
   position: absolute;
-  left: 12px;
+  left: 14px;
   top: 50%;
   transform: translateY(-50%);
   color: var(--text-muted);
+  pointer-events: none;
 }
 
 .search-input {
-  padding-left: 36px;
-  padding-right: 32px;
+  width: 100%;
+  padding-left: 38px;
+  padding-right: 36px;
+  height: 40px;
   font-size: 13px;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  color: var(--text-primary);
+  transition: all 0.15s ease;
+}
+
+.search-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-subtle);
+  outline: none;
 }
 
 .clear-search-btn {
@@ -144,15 +159,21 @@ const filterTabs = computed(() => [
   color: var(--text-muted);
   cursor: pointer;
   display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 4px;
 }
+
 .clear-search-btn:hover {
   color: var(--text-primary);
+  background-color: var(--bg-surface-elevated);
 }
 
 .action-buttons {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 
 .controls-bottom {
@@ -165,46 +186,58 @@ const filterTabs = computed(() => [
   flex-wrap: wrap;
 }
 
-.filter-tabs {
+.filter-tabs-track {
   display: flex;
   align-items: center;
   gap: 6px;
   overflow-x: auto;
+  padding: 2px;
 }
 
-.tab-btn {
-  background: transparent;
-  border: none;
+.tab-pill {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
   color: var(--text-secondary);
-  padding: 6px 12px;
-  border-radius: 6px;
+  padding: 6px 14px;
+  border-radius: 8px;
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 6px;
-  transition: all 0.15s;
+  gap: 8px;
+  transition: all 0.15s ease;
   white-space: nowrap;
 }
 
-.tab-btn:hover {
+.tab-pill:hover {
   color: var(--text-primary);
-  background-color: var(--bg-surface-elevated);
+  border-color: var(--border-strong, var(--border-subtle));
+  background-color: var(--bg-surface-hover);
 }
 
-.tab-btn-active {
+.tab-pill-active {
   color: var(--accent);
   background-color: var(--accent-subtle);
+  border-color: var(--accent);
   font-weight: 600;
 }
 
-.tab-count {
+.pill-count {
   font-size: 11px;
-  opacity: 0.8;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 9999px;
+  background-color: var(--bg-surface-elevated);
+  color: var(--text-secondary);
 }
 
-.sort-selector {
+.tab-pill-active .pill-count {
+  background-color: var(--accent);
+  color: #FFFFFF;
+}
+
+.sort-selector-group {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -212,6 +245,7 @@ const filterTabs = computed(() => [
 
 .sort-label {
   font-size: 12px;
+  font-weight: 500;
   color: var(--text-secondary);
   white-space: nowrap;
 }
@@ -219,10 +253,15 @@ const filterTabs = computed(() => [
 .sort-select {
   padding: 6px 12px;
   font-size: 12px;
+  height: 34px;
   width: auto;
+  border-radius: 6px;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-primary);
 }
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   .controls-top {
     flex-direction: column;
     align-items: stretch;
@@ -231,17 +270,14 @@ const filterTabs = computed(() => [
     max-width: 100%;
   }
   .action-buttons {
-    justify-content: stretch;
-  }
-  .action-buttons .btn {
-    flex: 1;
+    display: none; /* Mobile header uses floating or separate actions */
   }
   .controls-bottom {
     flex-direction: column;
     align-items: stretch;
     gap: 12px;
   }
-  .sort-selector {
+  .sort-selector-group {
     justify-content: flex-end;
   }
 }
