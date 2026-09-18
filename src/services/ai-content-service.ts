@@ -16,6 +16,60 @@ import type { AiContentAnalysis, AiVideoOption } from '@/types/ai-content';
 
 export { getStoredAccessKey, setStoredAccessKey, clearStoredAccessKey, AccessKeyRequiredError };
 
+/**
+ * Suy ra URL thumbnail từ thumbnail_url hoặc youtube_video_id.
+ * Tuyệt đối không tạo URL chứa /null/ hoặc /undefined/.
+ */
+export function deriveThumbnailUrl(
+  thumbnailUrl: string | null | undefined,
+  youtubeVideoId: string | null | undefined
+): string | null {
+  if (thumbnailUrl && typeof thumbnailUrl === 'string' && thumbnailUrl.trim().length > 0) {
+    return thumbnailUrl.trim();
+  }
+  if (youtubeVideoId && typeof youtubeVideoId === 'string' && youtubeVideoId.trim().length > 0) {
+    const cleanId = youtubeVideoId.trim();
+    if (cleanId !== 'null' && cleanId !== 'undefined') {
+      return `https://i.ytimg.com/vi/${cleanId}/mqdefault.jpg`;
+    }
+  }
+  return null;
+}
+
+/**
+ * Định dạng số nullable.
+ * null/undefined/NaN -> fallback ('—')
+ * 0 -> '0'
+ */
+export function formatNullableNumber(val: number | null | undefined, fallback = '—'): string {
+  if (val === null || val === undefined || isNaN(Number(val))) return fallback;
+  return Number(val).toLocaleString('vi-VN');
+}
+
+/**
+ * Định dạng VPH.
+ * null/undefined/NaN -> 'Chưa đủ dữ liệu'
+ * 0 -> '0 VPH'
+ */
+export function formatVph(vph: number | null | undefined): string {
+  if (vph === null || vph === undefined || isNaN(Number(vph))) return 'Chưa đủ dữ liệu';
+  return `${Number(vph).toLocaleString('vi-VN')} VPH`;
+}
+
+/**
+ * Định dạng chênh lệch lượt xem giữa 2 lần quét.
+ * null/undefined/NaN -> 'Chưa đủ dữ liệu'
+ * 0 -> '0 view'
+ * > 0 -> '+X view'
+ * < 0 -> '-X view'
+ */
+export function formatViewDelta(delta: number | null | undefined): string {
+  if (delta === null || delta === undefined || isNaN(Number(delta))) return 'Chưa đủ dữ liệu';
+  if (delta === 0) return '0 view';
+  if (delta > 0) return `+${delta.toLocaleString('vi-VN')} view`;
+  return `-${Math.abs(delta).toLocaleString('vi-VN')} view`;
+}
+
 export const aiContentService = {
   /**
    * Lấy danh sách video từ database để người dùng chọn phân tích.
@@ -31,20 +85,26 @@ export const aiContentService = {
 
     const { data, error } = await supabase
       .from('videos')
-      .select('id, youtube_video_id, title, channel_id, published_at, latest_view_count, latest_measured_vph, channels ( id, name, alert_vph_threshold )')
+      .select('id, youtube_video_id, title, channel_id, published_at, latest_view_count, latest_measured_vph, thumbnail_url, channels ( id, name, alert_vph_threshold )')
       .order('latest_measured_vph', { ascending: false, nullsFirst: false })
+      .order('id', { ascending: false })
       .limit(100);
 
-    if (error || !data) {
+    if (error) {
       console.error('Lỗi truy vấn video options cho AI:', error);
-      return [];
+      throw new Error(error.message || 'Không thể tải danh sách video.');
     }
+
+    if (!data) return [];
 
     return data.map((row: any) => {
       const channel = row.channels as any;
+      const rawYtId = row.youtube_video_id && typeof row.youtube_video_id === 'string' ? row.youtube_video_id.trim() : null;
+      const validYtId = rawYtId && rawYtId !== 'null' && rawYtId !== 'undefined' ? rawYtId : null;
+
       return {
         id: row.id,
-        youtube_video_id: row.youtube_video_id,
+        youtube_video_id: validYtId,
         title: row.title,
         channel_id: row.channel_id,
         channel_name: channel?.name || 'Kênh đối thủ',
@@ -52,7 +112,7 @@ export const aiContentService = {
         latest_view_count: row.latest_view_count,
         latest_measured_vph: row.latest_measured_vph,
         alert_vph_threshold: channel?.alert_vph_threshold !== null && channel?.alert_vph_threshold !== undefined && !isNaN(Number(channel.alert_vph_threshold)) ? Number(channel.alert_vph_threshold) : null,
-        thumbnail_url: `https://i.ytimg.com/vi/${row.youtube_video_id}/mqdefault.jpg`,
+        thumbnail_url: deriveThumbnailUrl(row.thumbnail_url, validYtId),
       };
     });
   },
@@ -67,29 +127,56 @@ export const aiContentService = {
 
     const { data: video, error: vErr } = await supabase
       .from('videos')
-      .select('id, youtube_video_id, title, channel_id, published_at, latest_view_count, latest_measured_vph, channels ( id, name, alert_vph_threshold )')
+      .select('id, youtube_video_id, title, channel_id, published_at, latest_view_count, latest_measured_vph, thumbnail_url, channels ( id, name, alert_vph_threshold )')
       .eq('id', videoId)
       .single();
 
-    if (vErr || !video) return null;
+    if (vErr) {
+      if (vErr.code === 'PGRST116' || vErr.message?.includes('0 rows')) {
+        return null;
+      }
+      console.error('Lỗi truy vấn video context:', vErr);
+      throw new Error(vErr.message || 'Lỗi khi tải thông tin video.');
+    }
+
+    if (!video) return null;
 
     // Lấy 2 snapshot gần nhất
-    const { data: snapshots } = await supabase
+    const { data: snapshots, error: sErr } = await supabase
       .from('video_snapshots')
       .select('view_count, checked_at')
       .eq('video_id', videoId)
       .order('checked_at', { ascending: false })
       .limit(2);
 
+    if (sErr) {
+      console.error('Lỗi truy vấn snapshots:', sErr);
+      throw new Error(sErr.message || 'Lỗi khi tải lịch sử snapshot.');
+    }
+
     let viewDelta: number | null = null;
-    if (snapshots && snapshots.length >= 2) {
-      viewDelta = (snapshots[0].view_count ?? 0) - (snapshots[1].view_count ?? 0);
+    if (
+      snapshots &&
+      snapshots.length >= 2 &&
+      snapshots[0].view_count !== null &&
+      snapshots[0].view_count !== undefined &&
+      typeof snapshots[0].view_count === 'number' &&
+      !isNaN(snapshots[0].view_count) &&
+      snapshots[1].view_count !== null &&
+      snapshots[1].view_count !== undefined &&
+      typeof snapshots[1].view_count === 'number' &&
+      !isNaN(snapshots[1].view_count)
+    ) {
+      viewDelta = snapshots[0].view_count - snapshots[1].view_count;
     }
 
     const channel = video.channels as any;
+    const rawYtId = video.youtube_video_id && typeof video.youtube_video_id === 'string' ? video.youtube_video_id.trim() : null;
+    const validYtId = rawYtId && rawYtId !== 'null' && rawYtId !== 'undefined' ? rawYtId : null;
+
     return {
       id: video.id,
-      youtube_video_id: video.youtube_video_id,
+      youtube_video_id: validYtId,
       title: video.title,
       channel_id: video.channel_id,
       channel_name: channel?.name || 'Kênh đối thủ',
@@ -97,7 +184,7 @@ export const aiContentService = {
       latest_view_count: video.latest_view_count,
       latest_measured_vph: video.latest_measured_vph,
       alert_vph_threshold: channel?.alert_vph_threshold !== null && channel?.alert_vph_threshold !== undefined && !isNaN(Number(channel.alert_vph_threshold)) ? Number(channel.alert_vph_threshold) : null,
-      thumbnail_url: `https://i.ytimg.com/vi/${video.youtube_video_id}/mqdefault.jpg`,
+      thumbnail_url: deriveThumbnailUrl(video.thumbnail_url, validYtId),
       view_delta: viewDelta,
     };
   },

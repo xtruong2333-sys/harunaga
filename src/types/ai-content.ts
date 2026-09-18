@@ -30,7 +30,7 @@ export interface AiAnalysisResponse {
 
 export interface AiVideoOption {
   id: string;
-  youtube_video_id: string;
+  youtube_video_id: string | null;
   title: string;
   channel_id: string;
   channel_name: string;
@@ -38,6 +38,16 @@ export interface AiVideoOption {
   latest_view_count: number | null;
   latest_measured_vph: number | null;
   alert_vph_threshold: number | null;
-  thumbnail_url: string;
+  thumbnail_url: string | null;
   view_delta?: number | null;
 }
+
+export type AiOutputMode = 'titles' | 'thumbnails' | 'hooks';
+
+export const AI_OUTPUT_MODES: { id: AiOutputMode; label: string }[] = [
+  { id: 'titles', label: 'Tiêu đề' },
+  { id: 'thumbnails', label: 'Thumbnail' },
+  { id: 'hooks', label: 'Hook mở đầu' },
+];
+
+export const AI_CONTENT_OUTPUT_MODE_STORAGE_KEY = 'bbdt_ai_content_output_mode';

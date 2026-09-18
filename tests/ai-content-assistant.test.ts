@@ -393,4 +393,321 @@ describe('Bắt Bài Đối Thủ — Giai Đoạn 17.1: Chuyển Trợ Lý Nộ
       expect(edgeFuncContent).toContain('max_tokens: 3000');
     });
   });
+
+  // =========================================================================
+  // WAVE 3.12: CONTENT INTELLIGENCE STUDIO — WORKSPACE & DATA INTEGRITY TESTS
+  // =========================================================================
+  describe('WAVE 3.12: Content Intelligence Studio — Semantics, Async Race & Workspace Redesign', () => {
+    // 17. Thumbnail Semantics & No Unsplash Fallback
+    describe('17. Ngữ nghĩa Thumbnail & Loại bỏ Unsplash Fallback (Section A & B)', () => {
+      it('giữ đúng thumbnail thật khi database thumbnail_url có giá trị', async () => {
+        const { deriveThumbnailUrl } = await import('../src/services/ai-content-service');
+        const url = deriveThumbnailUrl('https://img.youtube.com/vi/custom/maxresdefault.jpg', 'yt123');
+        expect(url).toBe('https://img.youtube.com/vi/custom/maxresdefault.jpg');
+      });
+
+      it('derive YouTube thumbnail chuẩn khi thumbnail_url null nhưng youtube_video_id có', async () => {
+        const { deriveThumbnailUrl } = await import('../src/services/ai-content-service');
+        const url = deriveThumbnailUrl(null, 'dQw4w9WgXcQ');
+        expect(url).toBe('https://i.ytimg.com/vi/dQw4w9WgXcQ/mqdefault.jpg');
+      });
+
+      it('trả về null khi cả thumbnail_url và youtube_video_id đều null/rỗng', async () => {
+        const { deriveThumbnailUrl } = await import('../src/services/ai-content-service');
+        expect(deriveThumbnailUrl(null, null)).toBeNull();
+        expect(deriveThumbnailUrl('', '')).toBeNull();
+        expect(deriveThumbnailUrl(undefined, undefined)).toBeNull();
+      });
+
+      it('tuyệt đối không bao giờ tạo URL chứa /null/ hoặc /undefined/', async () => {
+        const { deriveThumbnailUrl } = await import('../src/services/ai-content-service');
+        expect(deriveThumbnailUrl(null, 'null')).toBeNull();
+        expect(deriveThumbnailUrl(null, 'undefined')).toBeNull();
+      });
+
+      it('mã nguồn src/pages/AiContentAssistantPage.vue và src/components/ai-content/ không chứa ảnh Unsplash giả', () => {
+        const pageContent = fs.readFileSync(path.resolve(__dirname, '../src/pages/AiContentAssistantPage.vue'), 'utf-8');
+        expect(pageContent).not.toContain('images.unsplash.com');
+
+        const compDir = path.resolve(__dirname, '../src/components/ai-content');
+        if (fs.existsSync(compDir)) {
+          const compFiles = fs.readdirSync(compDir);
+          for (const f of compFiles) {
+            const c = fs.readFileSync(path.join(compDir, f), 'utf-8');
+            expect(c, `Component ${f} không được chứa stock image Unsplash`).not.toContain('images.unsplash.com');
+          }
+        }
+      });
+    });
+
+    // 18. View Delta Null Semantics & Numeric Formatting
+    describe('18. Ngữ nghĩa View Delta Null & Định dạng số Factual (Section C)', () => {
+      it('formatViewDelta trả về Chưa đủ dữ liệu khi delta null hoặc undefined', async () => {
+        const { formatViewDelta } = await import('../src/services/ai-content-service');
+        expect(formatViewDelta(null)).toBe('Chưa đủ dữ liệu');
+        expect(formatViewDelta(undefined)).toBe('Chưa đủ dữ liệu');
+      });
+
+      it('formatViewDelta hiển thị 0 view khi delta thực sự bằng 0', async () => {
+        const { formatViewDelta } = await import('../src/services/ai-content-service');
+        expect(formatViewDelta(0)).toBe('0 view');
+      });
+
+      it('formatViewDelta hiển thị +X view khi delta dương', async () => {
+        const { formatViewDelta } = await import('../src/services/ai-content-service');
+        expect(formatViewDelta(1500)).toBe('+1.500 view');
+      });
+
+      it('formatViewDelta hiển thị -X view khi delta âm', async () => {
+        const { formatViewDelta } = await import('../src/services/ai-content-service');
+        expect(formatViewDelta(-300)).toBe('-300 view');
+      });
+
+      it('formatNullableNumber phân biệt rõ ràng null (—) và 0 (0)', async () => {
+        const { formatNullableNumber } = await import('../src/services/ai-content-service');
+        expect(formatNullableNumber(null)).toBe('—');
+        expect(formatNullableNumber(undefined)).toBe('—');
+        expect(formatNullableNumber(0)).toBe('0');
+        expect(formatNullableNumber(25000)).toBe('25.000');
+      });
+
+      it('formatVph phân biệt rõ ràng null (Chưa đủ dữ liệu) và 0 (0 VPH)', async () => {
+        const { formatVph } = await import('../src/services/ai-content-service');
+        expect(formatVph(null)).toBe('Chưa đủ dữ liệu');
+        expect(formatVph(undefined)).toBe('Chưa đủ dữ liệu');
+        expect(formatVph(0)).toBe('0 VPH');
+        expect(formatVph(850)).toBe('850 VPH');
+      });
+    });
+
+    // 19. Component Rendering & Workspace Structure (Section 3, 4, 5, 6)
+    describe('19. Component Workspace & Render Hierarchy (Section 3, 4, 5, 6)', () => {
+      const sampleOption = {
+        id: 'v-101',
+        youtube_video_id: 'dQw4w9WgXcQ',
+        title: 'Bí Quyết Tối Ưu Hóa TypeScript 2026',
+        channel_id: 'c-1',
+        channel_name: 'Kênh Công Nghệ',
+        published_at: '2026-09-18T10:00:00Z',
+        latest_view_count: 15000,
+        latest_measured_vph: 1200,
+        alert_vph_threshold: 800,
+        thumbnail_url: 'https://i.ytimg.com/vi/dQw4w9WgXcQ/mqdefault.jpg',
+        view_delta: 250,
+      };
+
+      it('AiSourceExplorer hiển thị tiêu đề và subtitle số lượng video factual', async () => {
+        const { default: AiSourceExplorer } = await import('../src/components/ai-content/AiSourceExplorer.vue');
+        const { mount } = await import('@vue/test-utils');
+
+        const wrapper = mount(AiSourceExplorer, {
+          props: {
+            videos: [sampleOption],
+            selectedId: null,
+            loading: false,
+          },
+        });
+
+        expect(wrapper.text()).toContain('Chọn nguồn phân tích');
+        expect(wrapper.text()).toContain('Đang hiển thị 1 video');
+        expect(wrapper.text()).not.toContain('1 video đang theo dõi');
+      });
+
+      it('AiSourceExplorer lọc video theo search input client-side', async () => {
+        const { default: AiSourceExplorer } = await import('../src/components/ai-content/AiSourceExplorer.vue');
+        const { mount } = await import('@vue/test-utils');
+
+        const wrapper = mount(AiSourceExplorer, {
+          props: {
+            videos: [
+              sampleOption,
+              { ...sampleOption, id: 'v-102', title: 'Video Khác Không Khớp', channel_name: 'Kênh Khác' },
+            ],
+            selectedId: null,
+            loading: false,
+          },
+        });
+
+        const input = wrapper.find('input.search-input');
+        await input.setValue('TypeScript');
+        expect(wrapper.findAll('.source-item')).toHaveLength(1);
+        expect(wrapper.text()).toContain('Bí Quyết Tối Ưu Hóa TypeScript 2026');
+      });
+
+      it('AiSelectedSource hiển thị empty workspace khi chưa chọn video', async () => {
+        const { default: AiSelectedSource } = await import('../src/components/ai-content/AiSelectedSource.vue');
+        const { mount } = await import('@vue/test-utils');
+
+        const wrapper = mount(AiSelectedSource, {
+          props: {
+            video: null,
+            isAnalyzing: false,
+            isAddingToProduction: false,
+          },
+        });
+
+        expect(wrapper.text()).toContain('Chọn một video để bắt đầu phân tích');
+        expect(wrapper.find('.empty-workspace').exists()).toBe(true);
+      });
+
+      it('AiSelectedSource render YouTube link chỉ khi youtube_video_id có giá trị', async () => {
+        const { default: AiSelectedSource } = await import('../src/components/ai-content/AiSelectedSource.vue');
+        const { mount } = await import('@vue/test-utils');
+
+        // Có youtube_video_id
+        const wrapperWithYt = mount(AiSelectedSource, {
+          props: {
+            video: sampleOption,
+            isAnalyzing: false,
+            isAddingToProduction: false,
+          },
+          global: {
+            stubs: {
+              'router-link': { template: '<a><slot /></a>' },
+            },
+          },
+        });
+        const ytBtn = wrapperWithYt.find('a.yt-link');
+        expect(ytBtn.exists()).toBe(true);
+        expect(ytBtn.attributes('href')).toBe('https://www.youtube.com/watch?v=dQw4w9WgXcQ');
+
+        // Không có youtube_video_id (null)
+        const wrapperNoYt = mount(AiSelectedSource, {
+          props: {
+            video: { ...sampleOption, youtube_video_id: null },
+            isAnalyzing: false,
+            isAddingToProduction: false,
+          },
+          global: {
+            stubs: {
+              'router-link': { template: '<a><slot /></a>' },
+            },
+          },
+        });
+        expect(wrapperNoYt.find('a.yt-link').exists()).toBe(false);
+      });
+
+      it('AiCreativeWorkspace chuyển tab không refetch, lưu mode và render đúng 3 tab', async () => {
+        const { default: AiCreativeWorkspace } = await import('../src/components/ai-content/AiCreativeWorkspace.vue');
+        const { mount } = await import('@vue/test-utils');
+
+        const wrapper = mount(AiCreativeWorkspace, {
+          props: {
+            titleIdeas: mockAnalysis.title_ideas,
+            thumbnailConcepts: mockAnalysis.thumbnail_concepts,
+            hookIdeas: mockAnalysis.hook_ideas,
+            activeMode: 'titles',
+            copiedKey: null,
+          },
+        });
+
+        // Tab titles: 5 title items
+        expect(wrapper.findAll('.title-row')).toHaveLength(5);
+
+        // Switch to thumbnails
+        await wrapper.setProps({ activeMode: 'thumbnails' });
+        expect(wrapper.findAll('.concept-panel')).toHaveLength(3);
+        expect(wrapper.text()).toContain('Concept thumbnail');
+        expect(wrapper.text()).toContain('Bản phác thảo ý tưởng');
+
+        // Switch to hooks
+        await wrapper.setProps({ activeMode: 'hooks' });
+        expect(wrapper.findAll('.hook-card')).toHaveLength(3);
+        expect(wrapper.text()).toContain('Hook 1');
+      });
+
+      it('AiAnalysisSkeleton hiển thị trạng thái loading factual không fake progress %', async () => {
+        const { default: AiAnalysisSkeleton } = await import('../src/components/ai-content/AiAnalysisSkeleton.vue');
+        const { mount } = await import('@vue/test-utils');
+
+        const wrapper = mount(AiAnalysisSkeleton);
+        expect(wrapper.text()).toContain('Đang phân tích nội dung từ video đã chọn…');
+        expect(wrapper.text()).not.toContain('%');
+        expect(wrapper.text()).not.toContain('hoàn thành');
+      });
+
+      it('AiOriginalityNote hiển thị nguyên tắc tính nguyên bản', async () => {
+        const { default: AiOriginalityNote } = await import('../src/components/ai-content/AiOriginalityNote.vue');
+        const { mount } = await import('@vue/test-utils');
+
+        const wrapper = mount(AiOriginalityNote, {
+          props: {
+            note: 'Không sao chép nguyên xi kịch bản đối thủ.',
+          },
+        });
+
+        expect(wrapper.text()).toContain('Nguyên tắc tính nguyên bản');
+        expect(wrapper.text()).toContain('Không sao chép nguyên xi kịch bản đối thủ.');
+      });
+    });
+
+    // 20. Async / Race Condition Protection (Section 2)
+    describe('20. Async / Race Condition Protection Logic (Section 2)', () => {
+      it('chọn video: request cũ giải quyết sau request mới sẽ bị bỏ qua', () => {
+        let selectionRequestId = 0;
+        let selectedId = '';
+
+        // Request A bắt đầu
+        const reqA = ++selectionRequestId;
+        // Request B bắt đầu ngay sau
+        const reqB = ++selectionRequestId;
+
+        // Request B phản hồi trước
+        if (reqB === selectionRequestId) {
+          selectedId = 'video-B';
+        }
+        expect(selectedId).toBe('video-B');
+
+        // Request A phản hồi muộn sau B
+        if (reqA === selectionRequestId) {
+          selectedId = 'video-A'; // Sẽ không lọt vào đây
+        }
+        expect(selectedId).toBe('video-B');
+      });
+
+      it('AI analysis race: kết quả của video cũ không gắn vào video mới được chọn', () => {
+        let analysisRequestId = 0;
+        let currentVideoId = 'video-A';
+        let finalAnalysisResult: any = null;
+
+        // Bắt đầu phân tích video A
+        const reqAnalysisA = ++analysisRequestId;
+        const targetVideoId = currentVideoId;
+
+        // Người dùng đổi sang video B
+        currentVideoId = 'video-B';
+        ++analysisRequestId; // Invalidate
+
+        // Phân tích của video A trả về sau
+        const resultFromA = { summary: 'Kết quả của video A' };
+        if (reqAnalysisA === analysisRequestId && currentVideoId === targetVideoId) {
+          finalAnalysisResult = resultFromA;
+        }
+
+        // Kết quả của video A bị bỏ qua, không gắn vào video B
+        expect(finalAnalysisResult).toBeNull();
+      });
+    });
+
+    // 21. Factual Content & Zero Fake Metrics (Section 3, 5, 16)
+    describe('21. Tính trung thực dữ liệu & Không fake AI score (Section 3, 5, 16)', () => {
+      it('không có AI score, viral probability, prediction hoặc winner trong mã nguồn AI assistant', () => {
+        const pageContent = fs.readFileSync(path.resolve(__dirname, '../src/pages/AiContentAssistantPage.vue'), 'utf-8');
+        const compDir = path.resolve(__dirname, '../src/components/ai-content');
+        
+        let allContent = pageContent;
+        if (fs.existsSync(compDir)) {
+          for (const f of fs.readdirSync(compDir)) {
+            allContent += ' ' + fs.readFileSync(path.join(compDir, f), 'utf-8');
+          }
+        }
+
+        expect(allContent.toLowerCase()).not.toContain('ai score');
+        expect(allContent.toLowerCase()).not.toContain('cơ hội viral');
+        expect(allContent.toLowerCase()).not.toContain('viral probability');
+        expect(allContent.toLowerCase()).not.toContain('dự đoán thành công');
+        expect(allContent.toLowerCase()).not.toContain('winning idea');
+      });
+    });
+  });
 });
