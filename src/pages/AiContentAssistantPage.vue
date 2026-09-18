@@ -626,9 +626,9 @@ function formatVphBadge(vph: number | null) {
   return `(${vph.toLocaleString('vi-VN')} VPH)`;
 }
 
-function getVphClass(vph: number | null, threshold: number) {
+function getVphClass(vph: number | null, threshold: number | null) {
   if (vph === null || vph === undefined) return 'text-muted';
-  if (vph >= threshold) return 'text-alert-vph';
+  if (threshold !== null && threshold > 0 && vph >= threshold) return 'text-alert-vph';
   return 'text-growth';
 }
 

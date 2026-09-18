@@ -566,7 +566,7 @@ async function handleRestore(id: string) {
   await executeWithAccessKey(() => channelStore.restoreChannel(id));
 }
 
-async function handleSaveEdit(payload: { id: string; scanLimit: number; alertThreshold: number; notes: string }) {
+async function handleSaveEdit(payload: { id: string; scanLimit: number | null; alertThreshold: number | null; notes: string }) {
   await executeWithAccessKey(() => channelStore.updateChannel(payload.id, {
     scanLimit: payload.scanLimit,
     alertVphThreshold: payload.alertThreshold,

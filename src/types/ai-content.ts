@@ -37,7 +37,7 @@ export interface AiVideoOption {
   published_at: string | null;
   latest_view_count: number | null;
   latest_measured_vph: number | null;
-  alert_vph_threshold: number;
+  alert_vph_threshold: number | null;
   thumbnail_url: string;
   view_delta?: number | null;
 }

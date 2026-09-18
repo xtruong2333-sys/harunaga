@@ -51,7 +51,7 @@ export const aiContentService = {
         published_at: row.published_at,
         latest_view_count: row.latest_view_count,
         latest_measured_vph: row.latest_measured_vph,
-        alert_vph_threshold: channel?.alert_vph_threshold || 5000,
+        alert_vph_threshold: channel?.alert_vph_threshold !== null && channel?.alert_vph_threshold !== undefined && !isNaN(Number(channel.alert_vph_threshold)) ? Number(channel.alert_vph_threshold) : null,
         thumbnail_url: `https://i.ytimg.com/vi/${row.youtube_video_id}/mqdefault.jpg`,
       };
     });
@@ -96,7 +96,7 @@ export const aiContentService = {
       published_at: video.published_at,
       latest_view_count: video.latest_view_count,
       latest_measured_vph: video.latest_measured_vph,
-      alert_vph_threshold: channel?.alert_vph_threshold || 5000,
+      alert_vph_threshold: channel?.alert_vph_threshold !== null && channel?.alert_vph_threshold !== undefined && !isNaN(Number(channel.alert_vph_threshold)) ? Number(channel.alert_vph_threshold) : null,
       thumbnail_url: `https://i.ytimg.com/vi/${video.youtube_video_id}/mqdefault.jpg`,
       view_delta: viewDelta,
     };

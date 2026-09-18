@@ -423,8 +423,8 @@
                     {{ ch.freshnessLabel }}
                   </span>
                 </td>
-                <td class="mono">{{ ch.scanLimit }} video</td>
-                <td class="mono">{{ formatNumber(ch.alertVphThreshold) }} VPH</td>
+                <td class="mono">{{ ch.scanLimit !== null ? `${ch.scanLimit} video` : '—' }}</td>
+                <td class="mono">{{ ch.alertVphThreshold !== null ? `${formatNumber(ch.alertVphThreshold)} VPH` : '—' }}</td>
                 <td>
                   <router-link :to="`/kenh-theo-doi/${ch.id}`" class="table-link">
                     Chi tiết
@@ -470,7 +470,7 @@
               </div>
               <div class="metric-block">
                 <span class="metric-label">Giới hạn / Ngưỡng</span>
-                <span class="metric-val mono">{{ ch.scanLimit }} vid • {{ formatNumber(ch.alertVphThreshold) }} VPH</span>
+                <span class="metric-val mono">{{ ch.scanLimit !== null ? `${ch.scanLimit} vid` : '—' }} • {{ ch.alertVphThreshold !== null ? `${formatNumber(ch.alertVphThreshold)} VPH` : '—' }}</span>
               </div>
             </div>
 

@@ -50,7 +50,7 @@ export interface ChannelComparisonItem {
   avatarUrl: string | null;
   status: 'active' | 'paused' | 'archived';
   statusLabel: string;
-  alertVphThreshold: number;
+  alertVphThreshold: number | null;
   lastScanAt: string | null;
   relativeScanTime: string;
   color: string;

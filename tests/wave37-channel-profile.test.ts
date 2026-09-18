@@ -12,6 +12,12 @@ import { channelService } from '@/services/channel-service';
 import ChannelEditModal from '@/components/channel-detail/ChannelEditModal.vue';
 import type { ChannelAnalysis, ChannelVideoItem } from '@/types/channel-analysis';
 import * as supabaseModule from '@/services/supabase';
+import { setActivePinia, createPinia } from 'pinia';
+import { useChannelStore } from '@/stores/channel-store';
+import ChannelDesktopTable from '@/features/channels/components/ChannelDesktopTable.vue';
+import ChannelMobileList from '@/features/channels/components/ChannelMobileList.vue';
+import EditChannelModal from '@/features/channels/components/EditChannelModal.vue';
+import type { Channel } from '@/types/channel';
 
 vi.mock('vue-router', async () => {
   const actual = await vi.importActual<any>('vue-router');
@@ -648,6 +654,148 @@ describe('Wave 3.7 — Competitor Intelligence Profile (/kenh-theo-doi/:id)', ()
       });
 
       expect(wrapperNoScan.text()).toContain('Chưa có dữ liệu quét.');
+    });
+
+    it('8.1 list channels có threshold null không crash', async () => {
+      setActivePinia(createPinia());
+      const nullChannel: Channel = {
+        id: 'ch-null-cfg-1',
+        youtubeChannelId: 'UC_null_1',
+        name: 'Kênh Threshold Null',
+        handle: '@nullthresh',
+        url: 'https://youtube.com/@nullthresh',
+        avatarUrl: null,
+        status: 'active',
+        scanLimit: 15,
+        alertVphThreshold: null,
+        source: 'manual',
+        notes: null,
+        createdAt: '2026-09-18T00:00:00Z',
+        updatedAt: '2026-09-18T00:00:00Z',
+        lastScanAt: null,
+      };
+
+      vi.spyOn(channelService, 'listChannels').mockResolvedValue([nullChannel]);
+
+      const store = useChannelStore();
+      await store.fetchChannels();
+
+      expect(store.channels).toHaveLength(1);
+      expect(store.channels[0].alertVphThreshold).toBeNull();
+    });
+
+    it('8.2 scanLimit null không crash', async () => {
+      setActivePinia(createPinia());
+      const nullChannel: Channel = {
+        id: 'ch-null-cfg-2',
+        youtubeChannelId: 'UC_null_2',
+        name: 'Kênh ScanLimit Null',
+        handle: '@nullscan',
+        url: 'https://youtube.com/@nullscan',
+        avatarUrl: null,
+        status: 'active',
+        scanLimit: null,
+        alertVphThreshold: 5000,
+        source: 'manual',
+        notes: null,
+        createdAt: '2026-09-18T00:00:00Z',
+        updatedAt: '2026-09-18T00:00:00Z',
+        lastScanAt: null,
+      };
+
+      vi.spyOn(channelService, 'listChannels').mockResolvedValue([nullChannel]);
+
+      const store = useChannelStore();
+      await store.fetchChannels();
+
+      expect(store.channels).toHaveLength(1);
+      expect(store.channels[0].scanLimit).toBeNull();
+    });
+
+    it('8.3 cards/table render —', () => {
+      const nullChannel: Channel = {
+        id: 'ch-cfg-blank',
+        youtubeChannelId: 'UC_blank_3',
+        name: 'Kênh Config Trống Cả Hai',
+        handle: '@blankcfg',
+        url: 'https://youtube.com/@blankcfg',
+        avatarUrl: null,
+        status: 'active',
+        scanLimit: null,
+        alertVphThreshold: null,
+        source: 'manual',
+        notes: null,
+        createdAt: '2026-09-18T00:00:00Z',
+        updatedAt: '2026-09-18T00:00:00Z',
+        lastScanAt: null,
+      };
+
+      const desktopWrapper = mount(ChannelDesktopTable, {
+        props: { channels: [nullChannel] },
+        global: { stubs: { 'router-link': routerLinkStub } },
+      });
+
+      const desktopText = desktopWrapper.text();
+      expect(desktopText).toContain('—');
+      expect(desktopText).not.toContain('null');
+      expect(desktopText).not.toContain('undefined');
+
+      const mobileWrapper = mount(ChannelMobileList, {
+        props: { channels: [nullChannel] },
+        global: { stubs: { 'router-link': routerLinkStub } },
+      });
+
+      const mobileText = mobileWrapper.text();
+      expect(mobileText).toContain('—');
+      expect(mobileText).not.toContain('null');
+      expect(mobileText).not.toContain('undefined');
+    });
+
+    it('8.4 edit modal mở channel có null không tự điền 5000/15', async () => {
+      const nullChannel: Channel = {
+        id: 'ch-null-cfg-4',
+        youtubeChannelId: 'UC_null_4',
+        name: 'Kênh Null Trong Modal',
+        handle: '@nullmodal',
+        url: 'https://youtube.com/@nullmodal',
+        avatarUrl: null,
+        status: 'active',
+        scanLimit: null,
+        alertVphThreshold: null,
+        source: 'manual',
+        notes: null,
+        createdAt: '2026-09-18T00:00:00Z',
+        updatedAt: '2026-09-18T00:00:00Z',
+        lastScanAt: null,
+      };
+
+      const wrapper = mount(EditChannelModal, {
+        props: {
+          modelValue: true,
+          channel: nullChannel,
+        },
+        global: {
+          stubs: {
+            AppModal: {
+              template: '<div class="modal-stub"><slot /></div>',
+            },
+          },
+        },
+      });
+
+      await flushPromises();
+
+      const inputs = wrapper.findAll('input.form-input');
+      expect(inputs.length).toBeGreaterThanOrEqual(2);
+
+      const scanLimitInput = inputs[0].element as HTMLInputElement;
+      const alertThresholdInput = inputs[1].element as HTMLInputElement;
+
+      // Giá trị trong input phải rỗng, KHÔNG tự điền 15 hoặc 5000
+      expect(scanLimitInput.value).toBe('');
+      expect(alertThresholdInput.value).toBe('');
+      expect(scanLimitInput.value).not.toBe('15');
+      expect(alertThresholdInput.value).not.toBe('5000');
     });
   });
 });

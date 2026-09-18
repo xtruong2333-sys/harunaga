@@ -30,7 +30,7 @@ export interface DashboardTopVideo {
   isOverThreshold: boolean;
   channelName: string;
   channelAvatarUrl: string | null;
-  alertVphThreshold: number;
+  alertVphThreshold: number | null;
 }
 
 export interface DashboardChannelSummary {

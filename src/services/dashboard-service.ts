@@ -87,7 +87,7 @@ export const dashboardService = {
     const topVideos: DashboardTopVideo[] = (topVideosData || []).map(v => {
       const ch = channelMap.get(v.channel_id) || {};
       const vph = v.latest_measured_vph !== null && v.latest_measured_vph !== undefined ? Number(v.latest_measured_vph) : null;
-      const threshold = Number(ch.alert_vph_threshold) || 5000;
+      const threshold = ch.alert_vph_threshold !== null && ch.alert_vph_threshold !== undefined && !isNaN(Number(ch.alert_vph_threshold)) ? Number(ch.alert_vph_threshold) : null;
       return {
         id: v.id,
         youtubeVideoId: v.youtube_video_id,
@@ -99,7 +99,7 @@ export const dashboardService = {
         latestViewCount: Number(v.latest_view_count) || 0,
         latestMeasuredVph: vph,
         latestDeltaViews: v.latest_view_delta !== null && v.latest_view_delta !== undefined ? Number(v.latest_view_delta) : null,
-        isOverThreshold: vph !== null && threshold > 0 && vph >= threshold,
+        isOverThreshold: vph !== null && threshold !== null && threshold > 0 && vph >= threshold,
         channelName: ch.name || 'Kênh Chưa Rõ',
         channelAvatarUrl: ch.avatar_url || null,
         alertVphThreshold: threshold,

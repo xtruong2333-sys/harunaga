@@ -49,8 +49,8 @@ export interface ChannelFreshness {
   handle: string | null;
   avatarUrl: string | null;
   lastScanAt: string | null;
-  scanLimit: number;
-  alertVphThreshold: number;
+  scanLimit: number | null;
+  alertVphThreshold: number | null;
   freshnessCategory: FreshnessCategory;
   freshnessLabel: string;
   relativeScanTime: string;

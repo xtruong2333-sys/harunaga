@@ -10,8 +10,8 @@ export interface Channel {
   url: string;
   avatarUrl: string | null;
   status: ChannelStatus;
-  scanLimit: number;
-  alertVphThreshold: number;
+  scanLimit: number | null;
+  alertVphThreshold: number | null;
   source: string;
   notes: string | null;
   createdAt: string;
@@ -30,8 +30,8 @@ export interface DbChannel {
   url: string;
   avatar_url: string | null;
   status: ChannelStatus;
-  scan_limit: number;
-  alert_vph_threshold: number;
+  scan_limit: number | null;
+  alert_vph_threshold: number | null;
   source: string;
   notes: string | null;
   created_at: string;

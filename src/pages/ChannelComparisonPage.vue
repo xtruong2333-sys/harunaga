@@ -343,7 +343,7 @@
                     :key="ch.id"
                     class="metric-val-cell mono text-muted"
                   >
-                    {{ formatNumber(ch.alertVphThreshold) }} VPH
+                    {{ ch.alertVphThreshold !== null ? `${formatNumber(ch.alertVphThreshold)} VPH` : '—' }}
                   </td>
                 </tr>
 
@@ -444,7 +444,7 @@
               <div class="mobile-metric-item">
                 <span class="metric-label">Ngưỡng VPH</span>
                 <span class="metric-val mono text-muted">
-                  {{ formatNumber(ch.alertVphThreshold) }} VPH
+                  {{ ch.alertVphThreshold !== null ? `${formatNumber(ch.alertVphThreshold)} VPH` : '—' }}
                 </span>
               </div>
             </div>

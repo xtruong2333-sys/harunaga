@@ -429,7 +429,7 @@ export const channelComparisonService = {
         avatarUrl: ch.avatar_url || null,
         status: ch.status,
         statusLabel: statusLabels[ch.status] || ch.status,
-        alertVphThreshold: Number(ch.alert_vph_threshold) || 1000,
+        alertVphThreshold: ch.alert_vph_threshold !== null && ch.alert_vph_threshold !== undefined && !isNaN(Number(ch.alert_vph_threshold)) ? Number(ch.alert_vph_threshold) : null,
         lastScanAt: ch.last_scan_at || null,
         relativeScanTime: formatRelativeTime(ch.last_scan_at, nowMs),
         color: channelColor,
