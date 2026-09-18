@@ -51,8 +51,8 @@ export interface CreateChannelInput {
 }
 
 export interface UpdateChannelInput {
-  scanLimit?: number;
-  alertVphThreshold?: number;
+  scanLimit?: number | null;
+  alertVphThreshold?: number | null;
   notes?: string | null;
   status?: ChannelStatus;
 }

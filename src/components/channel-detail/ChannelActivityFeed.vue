@@ -7,6 +7,15 @@
       </div>
     </div>
 
+    <!-- Factual Last Scan Row -->
+    <div class="scan-status-row">
+      <AppIcon name="clock" size="14" class="scan-icon" />
+      <span v-if="lastScanAt" class="scan-info">
+        Lần quét gần nhất: <span class="scan-time mono">{{ formatFullDateTime(lastScanAt) }} ({{ formatRelativeTime(lastScanAt) }})</span>
+      </span>
+      <span v-else class="scan-info text-muted">Chưa có dữ liệu quét.</span>
+    </div>
+
     <!-- Alert Status Pills -->
     <div class="alert-pills-row">
       <div class="a-pill">
@@ -94,6 +103,21 @@ function formatRelativeTime(iso: string): string {
   const diffDays = Math.floor(diffHours / 24);
   return `${diffDays} ngày trước`;
 }
+
+function formatFullDateTime(iso: string): string {
+  try {
+    const d = new Date(iso);
+    return d.toLocaleString('vi-VN', {
+      hour: '2-digit',
+      minute: '2-digit',
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    });
+  } catch {
+    return iso;
+  }
+}
 </script>
 
 <style scoped>
@@ -106,6 +130,44 @@ function formatRelativeTime(iso: string): string {
   display: flex;
   flex-direction: column;
   gap: 20px;
+}
+
+.scan-status-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: var(--bg-card, #F8FAFC);
+  border: 1px solid var(--border, #E2E8F0);
+  border-radius: 10px;
+  font-size: 13px;
+}
+
+.scan-icon {
+  color: var(--text-muted, #64748B);
+  flex-shrink: 0;
+}
+
+.scan-info {
+  color: var(--text-secondary, #334155);
+}
+
+.scan-time {
+  font-weight: 600;
+  color: var(--text-primary, #0F172A);
+}
+
+:root.dark .scan-status-row {
+  background: rgba(30, 41, 59, 0.5);
+  border-color: #334155;
+}
+
+:root.dark .scan-info {
+  color: #CBD5E1;
+}
+
+:root.dark .scan-time {
+  color: #F8FAFC;
 }
 
 .activity-header {

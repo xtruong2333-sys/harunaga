@@ -62,5 +62,6 @@ export interface ChannelAnalysis {
   topRisingVideos: ChannelVideoItem[]; // Top 5 sort VPH DESC
   latestVideos: ChannelVideoItem[];    // Top 10 sort published_at DESC
   topVphChartVideos: ChannelVideoItem[]; // Top 10 sort VPH DESC (cho biểu đồ)
+  publishingVideos: ChannelVideoItem[]; // Toàn bộ video sắp xếp theo published_at DESC cho phân tích nhịp đăng
   alertSummary: ChannelAlertSummary;
 }

@@ -153,8 +153,12 @@ serve(async (req: Request) => {
         }
 
         const updateData: any = {};
-        if (scanLimit !== undefined) updateData.scan_limit = Math.max(1, Math.min(50, Number(scanLimit)));
-        if (alertVphThreshold !== undefined) updateData.alert_vph_threshold = Math.max(1, Number(alertVphThreshold));
+        if (scanLimit !== undefined) {
+          updateData.scan_limit = scanLimit === null ? null : Math.max(1, Math.min(50, Number(scanLimit)));
+        }
+        if (alertVphThreshold !== undefined) {
+          updateData.alert_vph_threshold = alertVphThreshold === null ? null : Math.max(1, Number(alertVphThreshold));
+        }
         if (notes !== undefined) updateData.notes = notes;
         if (status && ["active", "paused", "archived"].includes(status)) updateData.status = status;
 

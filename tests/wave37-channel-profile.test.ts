@@ -8,7 +8,10 @@ import ChannelPublishingRhythm from '@/components/channel-detail/ChannelPublishi
 import ChannelMonitoringConfig from '@/components/channel-detail/ChannelMonitoringConfig.vue';
 import ChannelActivityFeed from '@/components/channel-detail/ChannelActivityFeed.vue';
 import { channelAnalysisService } from '@/services/channel-analysis-service';
-import type { ChannelAnalysis } from '@/types/channel-analysis';
+import { channelService } from '@/services/channel-service';
+import ChannelEditModal from '@/components/channel-detail/ChannelEditModal.vue';
+import type { ChannelAnalysis, ChannelVideoItem } from '@/types/channel-analysis';
+import * as supabaseModule from '@/services/supabase';
 
 vi.mock('vue-router', async () => {
   const actual = await vi.importActual<any>('vue-router');
@@ -117,6 +120,7 @@ const mockAnalysis: ChannelAnalysis = {
     },
   ],
   topVphChartVideos: [],
+  publishingVideos: [],
   alertSummary: {
     total: 3,
     sent: 2,
@@ -373,6 +377,277 @@ describe('Wave 3.7 — Competitor Intelligence Profile (/kenh-theo-doi/:id)', ()
 
       expect(wrapper.text()).toContain('Không tìm thấy kênh này.');
       expect(wrapper.text()).toContain('Quay Lại Kênh Theo Dõi');
+    });
+  });
+
+  // 7. Wave 3.7 Data Integrity & Factual Semantics
+  describe('7. Wave 3.7 Data Integrity & Factual Semantics', () => {
+    it('7.1 multiple alerts cùng video → lấy latest alert đúng timestamp', async () => {
+      const mockSupabase = {
+        from: (table: string) => {
+          if (table === 'channels') {
+            return {
+              select: () => ({
+                eq: () => ({
+                  maybeSingle: async () => ({
+                    data: {
+                      id: 'c1',
+                      name: 'Channel Test',
+                      status: 'active',
+                      scan_limit: 15,
+                      alert_vph_threshold: 5000,
+                    },
+                    error: null,
+                  }),
+                }),
+              }),
+            };
+          }
+          if (table === 'videos') {
+            return {
+              select: () => ({
+                eq: () => ({
+                  order: () => ({
+                    order: () => ({
+                      range: async () => ({
+                        data: [
+                          {
+                            id: 'v1',
+                            channel_id: 'c1',
+                            title: 'Video Multi Alert',
+                            published_at: '2026-09-10T00:00:00Z',
+                            latest_measured_vph: 6000,
+                          },
+                        ],
+                        error: null,
+                      }),
+                    }),
+                  }),
+                }),
+              }),
+            };
+          }
+          if (table === 'video_alerts') {
+            return {
+              select: () => ({
+                in: async () => ({
+                  data: [
+                    {
+                      id: 'alt-old',
+                      video_id: 'v1',
+                      status: 'sent',
+                      measured_vph: 5200,
+                      sent_at: '2026-09-10T10:00:00Z',
+                      created_at: '2026-09-10T09:00:00Z',
+                    },
+                    {
+                      id: 'alt-new',
+                      video_id: 'v1',
+                      status: 'pending',
+                      measured_vph: 6000,
+                      sent_at: null,
+                      created_at: '2026-09-15T12:00:00Z',
+                    },
+                  ],
+                  error: null,
+                }),
+              }),
+            };
+          }
+          return {};
+        },
+      };
+
+      vi.spyOn(supabaseModule, 'getSupabase').mockReturnValue(mockSupabase as any);
+      vi.spyOn(supabaseModule, 'isSupabaseConfigured').mockReturnValue(true);
+
+      const result = await channelAnalysisService.fetchChannelAnalysis('c1');
+      expect(result).not.toBeNull();
+      const v1 = result!.latestVideos.find(v => v.id === 'v1');
+      expect(v1?.alertStatus).toBe('pending');
+    });
+
+    it('7.2 pending/sending mới hơn sent cũ vẫn đứng đúng trong recent alerts', async () => {
+      const mockSupabase = {
+        from: (table: string) => {
+          if (table === 'channels') {
+            return {
+              select: () => ({
+                eq: () => ({
+                  maybeSingle: async () => ({
+                    data: {
+                      id: 'c1',
+                      name: 'Channel Test',
+                      status: 'active',
+                      scan_limit: 15,
+                      alert_vph_threshold: 5000,
+                    },
+                    error: null,
+                  }),
+                }),
+              }),
+            };
+          }
+          if (table === 'videos') {
+            return {
+              select: () => ({
+                eq: () => ({
+                  order: () => ({
+                    order: () => ({
+                      range: async () => ({
+                        data: [
+                          { id: 'v1', channel_id: 'c1', title: 'V1', published_at: '2026-09-10T00:00:00Z' },
+                          { id: 'v2', channel_id: 'c1', title: 'V2', published_at: '2026-09-12T00:00:00Z' },
+                        ],
+                        error: null,
+                      }),
+                    }),
+                  }),
+                }),
+              }),
+            };
+          }
+          if (table === 'video_alerts') {
+            return {
+              select: () => ({
+                in: async () => ({
+                  data: [
+                    {
+                      id: 'alt-sent-old',
+                      video_id: 'v1',
+                      status: 'sent',
+                      measured_vph: 5100,
+                      sent_at: '2026-09-08T10:00:00Z',
+                      created_at: '2026-09-08T09:00:00Z',
+                    },
+                    {
+                      id: 'alt-pending-new',
+                      video_id: 'v2',
+                      status: 'pending',
+                      measured_vph: 7200,
+                      sent_at: null,
+                      created_at: '2026-09-16T08:00:00Z',
+                    },
+                  ],
+                  error: null,
+                }),
+              }),
+            };
+          }
+          return {};
+        },
+      };
+
+      vi.spyOn(supabaseModule, 'getSupabase').mockReturnValue(mockSupabase as any);
+      vi.spyOn(supabaseModule, 'isSupabaseConfigured').mockReturnValue(true);
+
+      const result = await channelAnalysisService.fetchChannelAnalysis('c1');
+      expect(result).not.toBeNull();
+      expect(result!.alertSummary.recentAlerts[0].id).toBe('alt-pending-new');
+      expect(result!.alertSummary.recentAlerts[1].id).toBe('alt-sent-old');
+    });
+
+    it('7.3 20 video trong 30 ngày → rhythm không bị cap ở 10', () => {
+      const now = Date.now();
+      const twentyVideos: ChannelVideoItem[] = Array.from({ length: 20 }, (_, i) => ({
+        id: `v-${i}`,
+        youtubeVideoId: `yt-${i}`,
+        title: `Video ${i}`,
+        url: `https://youtube.com/watch?v=yt-${i}`,
+        thumbnailUrl: null,
+        publishedAt: new Date(now - (i + 1) * 86400 * 1000).toISOString(),
+        latestViewCount: 1000,
+        latestMeasuredVph: 100,
+        latestDeltaViews: 50,
+        isOverThreshold: false,
+        alertStatus: null,
+      }));
+
+      const wrapper = mount(ChannelPublishingRhythm, {
+        props: { videos: twentyVideos },
+      });
+
+      expect(wrapper.text()).toContain('20 video trong 30 ngày');
+      expect(wrapper.text()).not.toContain('10 video trong 30 ngày');
+    });
+
+    it('7.4 clear threshold truyền null thật', async () => {
+      vi.spyOn(channelAnalysisService, 'fetchChannelAnalysis').mockResolvedValue(mockAnalysis);
+      const updateChannelSpy = vi.spyOn(channelService, 'updateChannel').mockResolvedValue({} as any);
+
+      const wrapper = mount(ChannelDetailPage, {
+        global: { stubs: { 'router-link': routerLinkStub, ChannelVphChart: true } },
+      });
+
+      await flushPromises();
+
+      const editModal = wrapper.findComponent(ChannelEditModal);
+      expect(editModal.exists()).toBe(true);
+
+      await editModal.vm.$emit('save', {
+        alertThreshold: null,
+        scanLimit: 15,
+      });
+
+      await flushPromises();
+
+      expect(updateChannelSpy).toHaveBeenCalledWith(
+        'test-ch-1',
+        expect.objectContaining({
+          alertVphThreshold: null,
+        })
+      );
+    });
+
+    it('7.5 clear scanLimit truyền null thật', async () => {
+      vi.spyOn(channelAnalysisService, 'fetchChannelAnalysis').mockResolvedValue(mockAnalysis);
+      const updateChannelSpy = vi.spyOn(channelService, 'updateChannel').mockResolvedValue({} as any);
+
+      const wrapper = mount(ChannelDetailPage, {
+        global: { stubs: { 'router-link': routerLinkStub, ChannelVphChart: true } },
+      });
+
+      await flushPromises();
+
+      const editModal = wrapper.findComponent(ChannelEditModal);
+      expect(editModal.exists()).toBe(true);
+
+      await editModal.vm.$emit('save', {
+        alertThreshold: 5000,
+        scanLimit: null,
+      });
+
+      await flushPromises();
+
+      expect(updateChannelSpy).toHaveBeenCalledWith(
+        'test-ch-1',
+        expect.objectContaining({
+          scanLimit: null,
+        })
+      );
+    });
+
+    it('7.6 activity feed render lastScanAt và factual row', () => {
+      const scanDateIso = '2026-09-18T08:30:00.000Z';
+      const wrapperWithScan = mount(ChannelActivityFeed, {
+        props: {
+          alertSummary: mockAnalysis.alertSummary,
+          lastScanAt: scanDateIso,
+        },
+        global: { stubs: { 'router-link': routerLinkStub } },
+      });
+
+      expect(wrapperWithScan.text()).toContain('Lần quét gần nhất:');
+
+      const wrapperNoScan = mount(ChannelActivityFeed, {
+        props: {
+          alertSummary: mockAnalysis.alertSummary,
+          lastScanAt: null,
+        },
+        global: { stubs: { 'router-link': routerLinkStub } },
+      });
+
+      expect(wrapperNoScan.text()).toContain('Chưa có dữ liệu quét.');
     });
   });
 });

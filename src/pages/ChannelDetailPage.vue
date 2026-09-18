@@ -65,7 +65,7 @@
 
       <!-- 5. Publishing Cadence & Monitoring Config (2 Columns) -->
       <div class="rhythm-config-grid">
-        <ChannelPublishingRhythm :videos="analysis.latestVideos" />
+        <ChannelPublishingRhythm :videos="analysis.publishingVideos || analysis.latestVideos" />
         <ChannelMonitoringConfig
           :channel="analysis.channel"
           @edit="showEditModal = true"
@@ -239,8 +239,8 @@ async function handleSaveEdit(payload: { alertThreshold: number | null; scanLimi
   await executeWithAccessKey(async () => {
     try {
       await channelService.updateChannel(channelId, {
-        alertVphThreshold: payload.alertThreshold ?? undefined,
-        scanLimit: payload.scanLimit ?? undefined,
+        alertVphThreshold: payload.alertThreshold,
+        scanLimit: payload.scanLimit,
       });
       showEditModal.value = false;
       notificationMsg.value = 'Đã cập nhật cấu hình kênh thành công.';
