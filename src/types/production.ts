@@ -13,11 +13,25 @@ export type ProductionStatus =
 
 export type ProductionPriority = 'low' | 'normal' | 'high';
 
+export type ProductionViewMode = 'board' | 'list';
+
+export const PRODUCTION_VIEW_MODE_STORAGE_KEY = 'bbdt_production_view_mode';
+
+export const ACTIVE_WORKFLOW_STATUSES: ProductionStatus[] = [
+  'idea',
+  'research',
+  'script',
+  'thumbnail',
+  'production',
+  'editing',
+  'published',
+];
+
 export interface ProductionSourceVideo {
   id: string;
   title: string;
-  url: string;
-  youtubeVideoId: string;
+  url: string | null;
+  youtubeVideoId: string | null;
   thumbnailUrl: string | null;
   channelName: string;
   channelHandle: string | null;

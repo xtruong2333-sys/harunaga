@@ -1,5 +1,12 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import { productionService } from '../src/services/production-service';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import * as fs from 'fs';
+import * as path from 'path';
+import { mount, flushPromises } from '@vue/test-utils';
+import {
+  productionService,
+  normalizeSourceVideoUrl,
+  deriveProductionThumbnailUrl,
+} from '../src/services/production-service';
 import {
   getStoredAccessKey,
   setStoredAccessKey,
@@ -11,7 +18,12 @@ import type {
   ProductionItem,
   ProductionFilterState,
 } from '../src/types/production';
-import { STATUS_LABELS, PRIORITY_LABELS } from '../src/types/production';
+import {
+  STATUS_LABELS,
+  PRIORITY_LABELS,
+  PRODUCTION_VIEW_MODE_STORAGE_KEY,
+  ACTIVE_WORKFLOW_STATUSES,
+} from '../src/types/production';
 import router from '../src/router';
 
 describe('Bắt Bài Đối Thủ — Giai Đoạn 9: Tiến Độ Sản Xuất (Production Workflow)', () => {
@@ -328,6 +340,451 @@ describe('Bắt Bài Đối Thủ — Giai Đoạn 9: Tiến Độ Sản Xuất 
       expect(prodRoute).toBeDefined();
       expect(prodRoute?.name).toBe('Production');
       expect(prodRoute?.meta?.title).toBe('Tiến Độ Sản Xuất — Bắt Bài Đối Thủ');
+    });
+  });
+
+  // WAVE 3.13: Production Workflow Command Center — Semantics & Integration
+  describe('6. WAVE 3.13: Production Workflow Command Center — Semantics & Integration', () => {
+    // 1. SUPABASE NOT CONFIGURED
+    it('fetchProductionItems ném lỗi khi Supabase chưa cấu hình, không trả mảng rỗng', async () => {
+      const supabaseModule = await import('../src/services/supabase');
+      const origIsConfigured = supabaseModule.isSupabaseConfigured;
+      vi.spyOn(supabaseModule, 'isSupabaseConfigured').mockReturnValue(false);
+
+      try {
+        await expect(productionService.fetchProductionItems()).rejects.toThrow(
+          'Chưa kết nối cơ sở dữ liệu Supabase.'
+        );
+      } finally {
+        vi.spyOn(supabaseModule, 'isSupabaseConfigured').mockImplementation(origIsConfigured);
+      }
+    });
+
+    // 2. CHECK VIDEO IN PRODUCTION SEMANTICS
+    it('checkVideoInProduction: ném lỗi khi Supabase chưa cấu hình hoặc khi query lỗi, trả null khi thật sự không có', async () => {
+      const supabaseModule = await import('../src/services/supabase');
+      const origIsConfigured = supabaseModule.isSupabaseConfigured;
+      const origGetSupabase = supabaseModule.getSupabase;
+
+      try {
+        // A. Supabase chưa config
+        vi.spyOn(supabaseModule, 'isSupabaseConfigured').mockReturnValue(false);
+        await expect(productionService.checkVideoInProduction('vid-1')).rejects.toThrow(
+          'Chưa kết nối cơ sở dữ liệu Supabase.'
+        );
+
+        // B. Query error
+        vi.spyOn(supabaseModule, 'isSupabaseConfigured').mockReturnValue(true);
+        vi.spyOn(supabaseModule, 'getSupabase').mockReturnValue({
+          from: () => ({
+            select: () => ({
+              eq: () => ({
+                maybeSingle: async () => ({ data: null, error: { message: 'Database connection failed' } }),
+              }),
+            }),
+          }),
+        } as any);
+        await expect(productionService.checkVideoInProduction('vid-1')).rejects.toThrow(
+          'Database connection failed'
+        );
+
+        // C. Thật sự không có row -> null
+        vi.spyOn(supabaseModule, 'getSupabase').mockReturnValue({
+          from: () => ({
+            select: () => ({
+              eq: () => ({
+                maybeSingle: async () => ({ data: null, error: null }),
+              }),
+            }),
+          }),
+        } as any);
+        const resNone = await productionService.checkVideoInProduction('vid-none');
+        expect(resNone).toBeNull();
+
+        // D. Có row -> trả id
+        vi.spyOn(supabaseModule, 'getSupabase').mockReturnValue({
+          from: () => ({
+            select: () => ({
+              eq: () => ({
+                maybeSingle: async () => ({ data: { id: 'prod-found' }, error: null }),
+              }),
+            }),
+          }),
+        } as any);
+        const resFound = await productionService.checkVideoInProduction('vid-found');
+        expect(resFound).toBe('prod-found');
+      } finally {
+        vi.spyOn(supabaseModule, 'isSupabaseConfigured').mockImplementation(origIsConfigured);
+        vi.spyOn(supabaseModule, 'getSupabase').mockImplementation(origGetSupabase);
+      }
+    });
+
+    // 3. SOURCE VIDEO & THUMBNAIL SEMANTICS
+    it('normalizeSourceVideoUrl và deriveProductionThumbnailUrl hoạt động chuẩn xác', () => {
+      // normalizeSourceVideoUrl
+      expect(normalizeSourceVideoUrl('https://custom.url/watch', 'yt123')).toBe('https://custom.url/watch');
+      expect(normalizeSourceVideoUrl(null, 'yt123')).toBe('https://www.youtube.com/watch?v=yt123');
+      expect(normalizeSourceVideoUrl(undefined, '  yt456  ')).toBe('https://www.youtube.com/watch?v=yt456');
+      expect(normalizeSourceVideoUrl(null, null)).toBeNull();
+      expect(normalizeSourceVideoUrl('null', 'undefined')).toBeNull();
+      expect(normalizeSourceVideoUrl('', '')).toBeNull();
+
+      // deriveProductionThumbnailUrl
+      expect(deriveProductionThumbnailUrl('https://custom.img/t.jpg', 'yt123')).toBe('https://custom.img/t.jpg');
+      expect(deriveProductionThumbnailUrl(null, 'yt123')).toBe('https://i.ytimg.com/vi/yt123/mqdefault.jpg');
+      expect(deriveProductionThumbnailUrl(undefined, '  yt789  ')).toBe('https://i.ytimg.com/vi/yt789/mqdefault.jpg');
+      expect(deriveProductionThumbnailUrl(null, null)).toBeNull();
+      expect(deriveProductionThumbnailUrl('null', 'undefined')).toBeNull();
+      expect(deriveProductionThumbnailUrl('', '')).toBeNull();
+    });
+
+    // 4. NO UNPLASH OR STOCK IMAGES
+    it('mã nguồn ProductionPage và components không chứa images.unsplash.com', () => {
+      const pageFile = path.resolve(__dirname, '../src/pages/ProductionPage.vue');
+      const compDir = path.resolve(__dirname, '../src/components/production');
+      let allCode = fs.readFileSync(pageFile, 'utf-8');
+      if (fs.existsSync(compDir)) {
+        for (const file of fs.readdirSync(compDir)) {
+          allCode += ' ' + fs.readFileSync(path.join(compDir, file), 'utf-8');
+        }
+      }
+      expect(allCode).not.toContain('images.unsplash.com');
+      expect(allCode).not.toContain('unsplash');
+    });
+
+    // 5. BOARD VIEW: RENDER ĐÚNG 7 ACTIVE WORKFLOW COLUMNS
+    it('ACTIVE_WORKFLOW_STATUSES có đúng 7 trạng thái active, không chứa archived', () => {
+      expect(ACTIVE_WORKFLOW_STATUSES).toEqual([
+        'idea',
+        'research',
+        'script',
+        'thumbnail',
+        'production',
+        'editing',
+        'published',
+      ]);
+      expect(ACTIVE_WORKFLOW_STATUSES.includes('archived' as any)).toBe(false);
+    });
+
+    // 6. VIEW MODE PERSISTENCE & SAFE STORAGE
+    it('chuyển đổi chế độ xem board <-> list lưu localStorage an toàn và không gọi fetchProductionItems lại', async () => {
+      const { default: ProductionPage } = await import('../src/pages/ProductionPage.vue');
+      const { default: ProductionToolbar } = await import('../src/components/production/ProductionToolbar.vue');
+
+      localStorage.removeItem(PRODUCTION_VIEW_MODE_STORAGE_KEY);
+      const fetchSpy = vi.spyOn(productionService, 'fetchProductionItems').mockResolvedValue(sampleItems);
+
+      try {
+        const wrapper = mount(ProductionPage, {
+          global: {
+            plugins: [router],
+            stubs: {
+              'router-link': { template: '<a><slot /></a>' },
+            },
+          },
+        });
+
+        await flushPromises();
+        expect(fetchSpy).toHaveBeenCalledTimes(1);
+
+        const toolbar = wrapper.findComponent(ProductionToolbar);
+        expect(toolbar.props('viewMode')).toBe('board');
+
+        // Switch to list
+        toolbar.vm.$emit('update:viewMode', 'list');
+        await flushPromises();
+
+        expect(toolbar.props('viewMode')).toBe('list');
+        expect(localStorage.getItem(PRODUCTION_VIEW_MODE_STORAGE_KEY)).toBe('list');
+        // Không refetch!
+        expect(fetchSpy).toHaveBeenCalledTimes(1);
+
+        // Switch back to board
+        toolbar.vm.$emit('update:viewMode', 'board');
+        await flushPromises();
+
+        expect(toolbar.props('viewMode')).toBe('board');
+        expect(localStorage.getItem(PRODUCTION_VIEW_MODE_STORAGE_KEY)).toBe('board');
+        expect(fetchSpy).toHaveBeenCalledTimes(1);
+      } finally {
+        fetchSpy.mockRestore();
+      }
+    });
+
+    // 7. ASYNC RACE PROTECTION (loadRequestId)
+    it('stale load response không ghi đè dữ liệu mới hơn khi tải lại', async () => {
+      const { default: ProductionPage } = await import('../src/pages/ProductionPage.vue');
+
+      let resolveFetch1: (val: any) => void;
+      const promise1 = new Promise(r => { resolveFetch1 = r; });
+
+      const itemSet1: ProductionItem[] = [sampleItems[0]];
+      const itemSet2: ProductionItem[] = [sampleItems[0], sampleItems[1]];
+
+      const fetchSpy = vi.spyOn(productionService, 'fetchProductionItems')
+        .mockReturnValueOnce(promise1 as any)
+        .mockResolvedValueOnce(itemSet2);
+
+      try {
+        const wrapper = mount(ProductionPage, {
+          global: {
+            plugins: [router],
+            stubs: {
+              'router-link': { template: '<a><slot /></a>' },
+            },
+          },
+        });
+
+        // First fetch starts and hangs on promise1
+        // Trigger second fetch
+        const refreshBtn = wrapper.find('button[title="Tải lại danh sách tiến độ"]');
+        await refreshBtn.trigger('click');
+        await flushPromises();
+
+        // Second fetch finished with itemSet2
+        // Now resolve first fetch late
+        resolveFetch1!(itemSet1);
+        await flushPromises();
+
+        // Must still show itemSet2, not overwritten by stale itemSet1!
+        const cards = wrapper.findAll('.production-card');
+        expect(cards.length).toBe(2);
+      } finally {
+        fetchSpy.mockRestore();
+      }
+    });
+
+    // 8. ACCESS KEY HARDENING: CANCEL MODAL CLEARS PENDING ACTION
+    it('hủy bỏ modal mã truy cập sẽ xóa pendingAction an toàn', async () => {
+      const { default: ProductionPage } = await import('../src/pages/ProductionPage.vue');
+      const { default: AccessKeyPromptModal } = await import('../src/components/ui/AccessKeyPromptModal.vue');
+
+      clearStoredAccessKey();
+      const fetchSpy = vi.spyOn(productionService, 'fetchProductionItems').mockResolvedValue([sampleItems[0]]);
+      const changeSpy = vi.spyOn(productionService, 'changeProductionStatus');
+
+      try {
+        const wrapper = mount(ProductionPage, {
+          global: {
+            plugins: [router],
+            stubs: {
+              'router-link': { template: '<a><slot /></a>' },
+            },
+          },
+        });
+
+        await flushPromises();
+
+        // Try changing status without key
+        const select = wrapper.find('.stage-select-control');
+        await select.setValue('script');
+        await select.trigger('change');
+        await flushPromises();
+
+        const modal = wrapper.findComponent(AccessKeyPromptModal);
+        expect(modal.props('modelValue')).toBe(true);
+
+        // Cancel modal
+        modal.vm.$emit('update:modelValue', false);
+        await flushPromises();
+
+        expect(modal.props('modelValue')).toBe(false);
+
+        // Even if confirmed is emitted later, pendingAction was cleared
+        modal.vm.$emit('confirmed', 'key-123');
+        await flushPromises();
+
+        expect(changeSpy).not.toHaveBeenCalled();
+      } finally {
+        fetchSpy.mockRestore();
+        changeSpy.mockRestore();
+      }
+    });
+
+    // 9. STATUS CHANGE & RETRY WITH CONFIRMED KEY
+    it('đổi status nhắc mã truy cập, nhập đúng mã sẽ retry và cập nhật UI đúng từ server', async () => {
+      const { default: ProductionPage } = await import('../src/pages/ProductionPage.vue');
+      const { default: AccessKeyPromptModal } = await import('../src/components/ui/AccessKeyPromptModal.vue');
+
+      clearStoredAccessKey();
+      const updatedItem: ProductionItem = {
+        ...sampleItems[0],
+        status: 'production',
+        updatedAt: new Date().toISOString(),
+      };
+
+      const fetchSpy = vi.spyOn(productionService, 'fetchProductionItems').mockResolvedValue([sampleItems[0]]);
+      const changeSpy = vi.spyOn(productionService, 'changeProductionStatus').mockResolvedValue(updatedItem);
+
+      try {
+        const wrapper = mount(ProductionPage, {
+          global: {
+            plugins: [router],
+            stubs: {
+              'router-link': { template: '<a><slot /></a>' },
+            },
+          },
+        });
+
+        await flushPromises();
+
+        const select = wrapper.find('.stage-select-control');
+        await select.setValue('production');
+        await select.trigger('change');
+        await flushPromises();
+
+        const modal = wrapper.findComponent(AccessKeyPromptModal);
+        expect(modal.props('modelValue')).toBe(true);
+
+        // Confirm access key
+        modal.vm.$emit('confirmed', 'valid-write-key');
+        await flushPromises();
+
+        expect(changeSpy).toHaveBeenCalledWith('prod-1', 'production', 'valid-write-key');
+        expect(wrapper.text()).toContain('Đã chuyển sang Đang sản xuất.');
+      } finally {
+        fetchSpy.mockRestore();
+        changeSpy.mockRestore();
+      }
+    });
+
+    // 10. EDIT MODAL SNAPSHOT PAYLOAD & NON-AUTH ERROR DISPLAY
+    it('edit modal snapshot payload và hiển thị modalError khi URL không hợp lệ mà không đóng modal', async () => {
+      const { default: ProductionPage } = await import('../src/pages/ProductionPage.vue');
+      const { default: ProductionEditModal } = await import('../src/components/production/ProductionEditModal.vue');
+
+      setStoredAccessKey('valid-key');
+      const fetchSpy = vi.spyOn(productionService, 'fetchProductionItems').mockResolvedValue([sampleItems[0]]);
+      const updateSpy = vi.spyOn(productionService, 'updateProductionItem').mockRejectedValue(
+        new Error('URL xuất bản phải bắt đầu bằng http:// hoặc https://')
+      );
+
+      try {
+        const wrapper = mount(ProductionPage, {
+          global: {
+            plugins: [router],
+            stubs: {
+              'router-link': { template: '<a><slot /></a>' },
+            },
+          },
+        });
+
+        await flushPromises();
+
+        // Click edit on card
+        const editBtn = wrapper.find('.action-btn.edit-btn');
+        await editBtn.trigger('click');
+        await flushPromises();
+
+        const editModal = wrapper.findComponent(ProductionEditModal);
+        expect(editModal.props('modelValue')).toBe(true);
+
+        // Save with invalid URL
+        editModal.vm.$emit('save', {
+          id: 'prod-1',
+          workingTitle: 'New Title',
+          publishedUrl: 'invalid-url',
+        });
+        await flushPromises();
+
+        expect(updateSpy).toHaveBeenCalled();
+        // Modal remains open and shows error inside modal!
+        expect(editModal.props('modelValue')).toBe(true);
+        expect(editModal.props('modalError')).toBe('URL xuất bản phải bắt đầu bằng http:// hoặc https://');
+      } finally {
+        fetchSpy.mockRestore();
+        updateSpy.mockRestore();
+      }
+    });
+
+    // 11. DELETE MODAL & SAFE ITEM REMOVAL
+    it('delete modal hiển thị cảnh báo an toàn và chỉ xóa local state khi server thành công', async () => {
+      const { default: ProductionPage } = await import('../src/pages/ProductionPage.vue');
+      const { default: ProductionDeleteModal } = await import('../src/components/production/ProductionDeleteModal.vue');
+
+      setStoredAccessKey('valid-key');
+      const fetchSpy = vi.spyOn(productionService, 'fetchProductionItems').mockResolvedValue([sampleItems[0]]);
+      const deleteSpy = vi.spyOn(productionService, 'deleteProductionItem').mockResolvedValue('prod-1');
+
+      try {
+        const wrapper = mount(ProductionPage, {
+          global: {
+            plugins: [router],
+            stubs: {
+              'router-link': { template: '<a><slot /></a>' },
+            },
+          },
+        });
+
+        await flushPromises();
+
+        // Open delete modal
+        const deleteBtn = wrapper.find('.action-btn.delete-btn');
+        await deleteBtn.trigger('click');
+        await flushPromises();
+
+        const deleteModal = wrapper.findComponent(ProductionDeleteModal);
+        expect(deleteModal.props('modelValue')).toBe(true);
+        expect(document.body.textContent).toContain('Video nguồn đối thủ không bị xóa.');
+
+        // Confirm delete
+        deleteModal.vm.$emit('confirm');
+        await flushPromises();
+
+        expect(deleteSpy).toHaveBeenCalledWith('prod-1', 'valid-key');
+        expect(wrapper.findAll('.production-card').length).toBe(0);
+      } finally {
+        fetchSpy.mockRestore();
+        deleteSpy.mockRestore();
+      }
+    });
+
+    // 12. SOURCE VIDEO NULL SAFETY
+    it('hiển thị thông báo khi sourceVideo null và không render liên kết hỏng khi url null', async () => {
+      const { default: ProductionPage } = await import('../src/pages/ProductionPage.vue');
+
+      const nullSourceItem: ProductionItem = {
+        ...sampleItems[0],
+        id: 'prod-null-source',
+        sourceVideo: null,
+      };
+
+      const fetchSpy = vi.spyOn(productionService, 'fetchProductionItems').mockResolvedValue([nullSourceItem]);
+
+      try {
+        const wrapper = mount(ProductionPage, {
+          global: {
+            plugins: [router],
+            stubs: {
+              'router-link': { template: '<a><slot /></a>' },
+            },
+          },
+        });
+
+        await flushPromises();
+
+        expect(wrapper.text()).toContain('Video nguồn không còn trong hệ thống.');
+      } finally {
+        fetchSpy.mockRestore();
+      }
+    });
+
+    // 13. NO FAKE AI METRICS
+    it('không có AI score, viral probability, prediction, deadline hoặc completion % trong mã nguồn', () => {
+      const pageFile = path.resolve(__dirname, '../src/pages/ProductionPage.vue');
+      const compDir = path.resolve(__dirname, '../src/components/production');
+      let allContent = fs.readFileSync(pageFile, 'utf-8');
+      if (fs.existsSync(compDir)) {
+        for (const file of fs.readdirSync(compDir)) {
+          allContent += ' ' + fs.readFileSync(path.join(compDir, file), 'utf-8');
+        }
+      }
+
+      expect(allContent.toLowerCase()).not.toContain('ai score');
+      expect(allContent.toLowerCase()).not.toContain('viral probability');
+      expect(allContent.toLowerCase()).not.toContain('dự đoán viral');
+      expect(allContent.toLowerCase()).not.toContain('completion %');
+      expect(allContent.toLowerCase()).not.toContain('phần trăm hoàn thành');
     });
   });
 });
