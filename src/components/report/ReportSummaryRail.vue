@@ -64,7 +64,7 @@
         <span class="rail-value" :class="{ 'text-rose': summary.attentionScansCount > 0 }">
           {{ formatNumber(summary.attentionScansCount) }}
         </span>
-        <span class="rail-sub">{{ summary.attentionScansCount > 0 ? 'Thất bại/Một phần' : 'Hoạt động ổn định' }}</span>
+        <span class="rail-sub">{{ summary.attentionScansCount > 0 ? 'Thất bại/Một phần' : 'Không có quét Một phần/Thất bại' }}</span>
       </div>
     </div>
   </div>

@@ -144,6 +144,7 @@
           :alerts="reportData.recentAlerts"
           :scans="reportData.recentScans"
           :scan-summary="reportData.scanSummary"
+          :total-alerts="reportData.summary.alertsCount"
           :range="reportData.range"
         />
       </div>

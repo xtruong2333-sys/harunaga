@@ -27,7 +27,8 @@ export function mapAlertStatus(status: string): string {
     case 'pending': return 'Chờ gửi';
     case 'sending': return 'Đang gửi';
     case 'failed': return 'Gửi lỗi';
-    default: return status;
+    case 'unknown': return 'Không rõ';
+    default: return status || 'Không rõ';
   }
 }
 

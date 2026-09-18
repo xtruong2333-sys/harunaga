@@ -41,12 +41,12 @@
           <div class="card-body">
             <div class="channel-row">
               <img
-                v-if="v.channelAvatarUrl"
+                v-if="v.channelAvatarUrl && !avatarErrors[v.channelId]"
                 :src="v.channelAvatarUrl"
                 :alt="v.channelName"
                 class="channel-avatar"
                 loading="lazy"
-                @error="($event.target as HTMLElement).style.display = 'none'"
+                @error="handleAvatarError(v.channelId)"
               />
               <div v-else class="channel-avatar-fallback">
                 {{ v.channelName.slice(0, 1) }}
@@ -148,12 +148,12 @@
           <div class="card-body">
             <div class="channel-row">
               <img
-                v-if="v.channelAvatarUrl"
+                v-if="v.channelAvatarUrl && !avatarErrors[v.channelId]"
                 :src="v.channelAvatarUrl"
                 :alt="v.channelName"
                 class="channel-avatar"
                 loading="lazy"
-                @error="($event.target as HTMLElement).style.display = 'none'"
+                @error="handleAvatarError(v.channelId)"
               />
               <div v-else class="channel-avatar-fallback">
                 {{ v.channelName.slice(0, 1) }}
@@ -218,6 +218,7 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue';
 import AppIcon from '@/components/ui/AppIcon.vue';
 import VideoThumbnail from '@/components/videos/VideoThumbnail.vue';
 import type { ReportVideo, ReportRange } from '@/types/report';
@@ -234,6 +235,12 @@ defineProps<{
   maxCurrentVph: number | null;
   range: ReportRange;
 }>();
+
+const avatarErrors = ref<Record<string, boolean>>({});
+
+function handleAvatarError(channelId: string) {
+  avatarErrors.value[channelId] = true;
+}
 </script>
 
 <style scoped>

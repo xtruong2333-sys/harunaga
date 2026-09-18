@@ -7,13 +7,13 @@
           <div class="section-kicker">CẢNH BÁO TĂNG TRƯỞNG</div>
           <h2 id="alerts-snapshot-title" class="section-title">Cảnh Báo Phát Sinh Trong Kỳ</h2>
           <p class="section-desc">
-            Lịch sử cảnh báo VPH được kích hoạt khi video đối thủ vượt ngưỡng trong {{ range === '24h' ? '24 giờ' : '7 ngày' }} qua.
+            {{ alerts.length < totalAlerts ? '20 cảnh báo gần nhất' : `${alerts.length} cảnh báo` }} ghi nhận khi video đối thủ vượt ngưỡng trong {{ range === '24h' ? '24 giờ' : '7 ngày' }} qua (tổng cộng: {{ totalAlerts }}).
           </p>
         </div>
         <div class="header-actions">
           <div class="alerts-count-pill">
             <AppIcon name="bell" :size="14" />
-            <span>{{ alerts.length }} cảnh báo</span>
+            <span>{{ totalAlerts }} cảnh báo</span>
           </div>
           <router-link to="/lich-su-canh-bao" class="action-link-btn">
             Toàn bộ lịch sử ↗
@@ -43,24 +43,28 @@
               <tr v-for="alt in alerts" :key="alt.id">
                 <td>
                   <div class="alert-video-cell">
-                    <img
-                      v-if="alt.videoThumbnailUrl"
-                      :src="alt.videoThumbnailUrl"
-                      :alt="alt.videoTitle"
-                      class="alert-thumb"
-                      loading="lazy"
-                      @error="($event.target as HTMLElement).style.display = 'none'"
-                    />
-                    <div v-else class="alert-thumb-fallback">
-                      <AppIcon name="video" :size="14" />
+                    <div class="alert-thumb-wrap">
+                      <VideoThumbnail
+                        :src="alt.videoThumbnailUrl"
+                        :alt="alt.videoTitle"
+                        :youtube-video-id="alt.videoYoutubeId || undefined"
+                        :detail-url="`/videos/${alt.videoId}`"
+                        :show-overlay-actions="false"
+                      />
                     </div>
                     <div class="alert-info">
                       <router-link :to="`/videos/${alt.videoId}`" class="alert-v-title" :title="alt.videoTitle">
                         {{ alt.videoTitle }}
                       </router-link>
-                      <router-link :to="`/kenh-theo-doi/${alt.channelId}`" class="alert-v-channel" :title="alt.channelName">
+                      <router-link
+                        v-if="alt.channelId"
+                        :to="`/kenh-theo-doi/${alt.channelId}`"
+                        class="alert-v-channel"
+                        :title="alt.channelName"
+                      >
                         {{ alt.channelName }}
                       </router-link>
+                      <span v-else class="alert-v-channel">{{ alt.channelName }}</span>
                     </div>
                   </div>
                 </td>
@@ -74,7 +78,7 @@
                 </td>
 
                 <td class="text-center">
-                  <AlertStatusBadge :status="alt.status as any" />
+                  <AlertStatusBadge :status="alt.status" />
                 </td>
 
                 <td class="text-secondary" :title="formatVietnamDateTime(alt.createdAt)">
@@ -221,6 +225,7 @@
 import { ref } from 'vue';
 import AppIcon from '@/components/ui/AppIcon.vue';
 import AlertStatusBadge from '@/components/alert-history/AlertStatusBadge.vue';
+import VideoThumbnail from '@/components/videos/VideoThumbnail.vue';
 import type { ReportAlert, ReportScan, ReportScanSummary, ReportRange } from '@/types/report';
 import {
   formatVph,
@@ -232,6 +237,7 @@ defineProps<{
   alerts: ReportAlert[];
   scans: ReportScan[];
   scanSummary: ReportScanSummary;
+  totalAlerts: number;
   range: ReportRange;
 }>();
 
@@ -463,22 +469,8 @@ function toggleErrorView(scanId: string) {
   min-width: 240px;
 }
 
-.alert-thumb {
-  width: 60px;
-  height: 34px;
-  border-radius: 6px;
-  object-fit: cover;
-  flex-shrink: 0;
-}
-
-.alert-thumb-fallback {
-  width: 60px;
-  height: 34px;
-  border-radius: 6px;
-  background: #e2e8f0;
-  color: #64748b;
-  display: grid;
-  place-items: center;
+.alert-thumb-wrap {
+  width: 72px;
   flex-shrink: 0;
 }
 

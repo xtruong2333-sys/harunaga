@@ -14,7 +14,7 @@
         <strong>{{ summary.newVideosCount }} video mới</strong> từ
         <strong>{{ summary.channelsWithNewVideosCount }} kênh đối thủ</strong> đang theo dõi.
         Hiện có <strong>{{ summary.risingNewVideosCount }} video</strong> ghi nhận tốc độ tăng trưởng đo được (VPH &gt; 0)<span v-if="summary.maxCurrentVph !== null">, với mức đỉnh đạt <strong>{{ formatVph(summary.maxCurrentVph) }}</strong></span>.
-        Trong kỳ đã phát sinh <strong>{{ summary.alertsCount }} cảnh báo</strong> VPH và hoàn tất
+        Trong kỳ đã phát sinh <strong>{{ summary.alertsCount }} cảnh báo</strong> VPH và ghi nhận
         <strong>{{ scanSummary.totalScans }} phiên quét</strong> (thu thập {{ formatNumber(summary.snapshotsCount) }} snapshot)<span v-if="summary.attentionScansCount > 0">, ghi nhận <strong class="text-rose">{{ summary.attentionScansCount }} lần quét cần chú ý</strong></span>.
       </p>
     </section>
@@ -33,7 +33,7 @@
             class="see-more-link"
             @click="$emit('change-view', 'videos')"
           >
-            Xem tất cả ({{ risingVideos.length }}) →
+            Xem Top 10 →
           </button>
         </div>
 
@@ -89,7 +89,7 @@
             class="see-more-link"
             @click="$emit('change-view', 'videos')"
           >
-            Xem tất cả ({{ newVideos.length }}) →
+            Xem danh sách →
           </button>
         </div>
 
@@ -148,7 +148,7 @@
             class="see-more-link"
             @click="$emit('change-view', 'channels')"
           >
-            Xem tất cả ({{ channelActivities.length }}) →
+            Xem danh sách kênh →
           </button>
         </div>
 
@@ -165,12 +165,12 @@
           >
             <div class="ch-left">
               <img
-                v-if="ch.channelAvatarUrl"
+                v-if="ch.channelAvatarUrl && !avatarErrors[ch.channelId]"
                 :src="ch.channelAvatarUrl"
                 :alt="ch.channelName"
                 class="ch-avatar"
                 loading="lazy"
-                @error="($event.target as HTMLElement).style.display = 'none'"
+                @error="handleAvatarError(ch.channelId)"
               />
               <div v-else class="ch-avatar-fallback">{{ ch.channelName.slice(0, 1) }}</div>
               <div class="ch-text">
@@ -209,9 +209,9 @@
           <div class="ops-card">
             <div class="ops-card-header">
               <span class="ops-card-title">Cảnh báo VPH</span>
-              <span class="ops-card-badge">{{ recentAlerts.length }} phát sinh</span>
+              <span class="ops-card-badge">{{ summary.alertsCount }} phát sinh</span>
             </div>
-            <p v-if="recentAlerts.length === 0" class="ops-card-desc">
+            <p v-if="summary.alertsCount === 0" class="ops-card-desc">
               Không có video nào vượt ngưỡng cảnh báo trong kỳ.
             </p>
             <div v-else class="ops-mini-list">
@@ -260,6 +260,7 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue';
 import AppIcon from '@/components/ui/AppIcon.vue';
 import VideoThumbnail from '@/components/videos/VideoThumbnail.vue';
 import type {
@@ -293,6 +294,12 @@ defineProps<{
 defineEmits<{
   (e: 'change-view', mode: ReportViewMode): void;
 }>();
+
+const avatarErrors = ref<Record<string, boolean>>({});
+
+function handleAvatarError(channelId: string) {
+  avatarErrors.value[channelId] = true;
+}
 </script>
 
 <style scoped>

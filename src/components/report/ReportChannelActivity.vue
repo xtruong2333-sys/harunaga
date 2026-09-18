@@ -37,12 +37,12 @@
               <td>
                 <div class="channel-info-cell">
                   <img
-                    v-if="ch.channelAvatarUrl"
+                    v-if="ch.channelAvatarUrl && !avatarErrors[ch.channelId]"
                     :src="ch.channelAvatarUrl"
                     :alt="ch.channelName"
                     class="channel-avatar"
                     loading="lazy"
-                    @error="($event.target as HTMLElement).style.display = 'none'"
+                    @error="handleAvatarError(ch.channelId)"
                   />
                   <div v-else class="channel-avatar-fallback">
                     {{ ch.channelName.slice(0, 1) }}
@@ -122,6 +122,7 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue';
 import AppIcon from '@/components/ui/AppIcon.vue';
 import type { ReportChannelActivity, ReportRange } from '@/types/report';
 import {
@@ -134,6 +135,12 @@ defineProps<{
   channels: ReportChannelActivity[];
   range: ReportRange;
 }>();
+
+const avatarErrors = ref<Record<string, boolean>>({});
+
+function handleAvatarError(channelId: string) {
+  avatarErrors.value[channelId] = true;
+}
 </script>
 
 <style scoped>

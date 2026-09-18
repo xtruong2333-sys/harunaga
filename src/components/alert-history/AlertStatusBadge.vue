@@ -37,8 +37,10 @@ const statusClass = computed(() => {
       return 'is-sending';
     case 'failed':
       return 'is-failed';
+    case 'unknown':
+      return 'is-unknown';
     default:
-      return '';
+      return 'is-unknown';
   }
 });
 </script>
@@ -93,6 +95,12 @@ const statusClass = computed(() => {
   background: rgba(239, 68, 68, 0.12);
   color: #dc2626;
   border: 1px solid rgba(239, 68, 68, 0.25);
+}
+
+.is-unknown {
+  background: rgba(100, 116, 139, 0.12);
+  color: #64748b;
+  border: 1px solid rgba(100, 116, 139, 0.25);
 }
 
 .stuck-badge {

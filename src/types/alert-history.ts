@@ -1,4 +1,4 @@
-export type AlertStatus = 'pending' | 'sending' | 'sent' | 'failed';
+export type AlertStatus = 'pending' | 'sending' | 'sent' | 'failed' | 'unknown';
 export type TimeFilterRange = '24h' | '7d' | '30d' | 'all';
 export type AlertHistorySort = 'newest' | 'vph_desc' | 'views_desc' | 'attempts_desc';
 export type AlertViewMode = 'timeline' | 'table' | 'video' | 'failed';

@@ -348,6 +348,19 @@ describe('Bắt Bài Đối Thủ — Wave 3.11: Executive Intelligence Report (
       expect(vnStr).toContain('17/09/2026');
       expect(vnStr).toContain('20:00');
     });
+
+    it('formatNumber định dạng số với dấu chấm phân cách hàng nghìn', () => {
+      expect(formatNumber(null)).toBe('0');
+      expect(formatNumber(1080)).toContain('1.080');
+      expect(formatNumber(25000)).toContain('25.000');
+    });
+
+    it('formatRelativeTime tính thời gian tương đối', () => {
+      const now = 1700000000000;
+      expect(formatRelativeTime(null, now)).toBe('—');
+      expect(formatRelativeTime(new Date(now - 30 * 1000).toISOString(), now)).toBe('Vừa xong');
+      expect(formatRelativeTime(new Date(now - 15 * 60 * 1000).toISOString(), now)).toBe('15 phút trước');
+    });
   });
 
   // 8. Copy Summary Text
@@ -828,6 +841,7 @@ describe('Bắt Bài Đối Thủ — Wave 3.11: Executive Intelligence Report (
           alerts: [],
           scans,
           scanSummary: sampleScanSummary,
+          totalAlerts: 0,
           range: '24h',
         },
         global: {
@@ -845,6 +859,230 @@ describe('Bắt Bài Đối Thủ — Wave 3.11: Executive Intelligence Report (
       await toggleBtn.trigger('click');
       expect(wrapper.text()).toContain('Sanitized error detail [Mã bí mật ẩn]');
       expect(wrapper.find('.btn-toggle-error').text()).toBe('Đóng lỗi');
+    });
+
+    it('1205 alerts -> summary/header nói 1205, list vẫn 20 gần nhất', () => {
+      const alerts: ReportAlert[] = Array.from({ length: 20 }, (_, i) => ({
+        id: `alt-${i}`,
+        videoId: `v-${i}`,
+        videoTitle: `Alert Video ${i}`,
+        videoYoutubeId: `yt-${i}`,
+        videoThumbnailUrl: null,
+        channelId: `ch-${i}`,
+        channelName: `Kênh ${i}`,
+        channelHandle: `@ch${i}`,
+        channelAvatarUrl: null,
+        measuredVph: 1500,
+        thresholdVph: 1000,
+        viewCount: 3000,
+        status: 'sent' as const,
+        statusLabel: 'Đã cảnh báo',
+        createdAt: '2026-09-17T12:00:00Z',
+      }));
+
+      const wrapper = mount(ReportOperationsView, {
+        props: {
+          alerts,
+          scans: [],
+          scanSummary: sampleScanSummary,
+          totalAlerts: 1205,
+          range: '24h',
+        },
+        global: {
+          stubs: {
+            'router-link': { template: '<a><slot /></a>' },
+          },
+        },
+      });
+
+      expect(wrapper.text()).toContain('1205 cảnh báo');
+      expect(wrapper.text()).toContain('20 cảnh báo gần nhất');
+      expect(wrapper.findAll('.ops-table tbody tr')).toHaveLength(20);
+    });
+
+    it('ReportBriefView không còn text "Xem tất cả" cho truncated arrays', () => {
+      const wrapper = mount(ReportBriefView, {
+        props: {
+          summary: sampleSummary,
+          scanSummary: sampleScanSummary,
+          risingVideos: [makeVideo({ id: 'rv-1' })],
+          newVideos: [makeVideo({ id: 'nv-1' })],
+          channelActivities: [{
+            channelId: 'ch-1',
+            channelName: 'Channel One',
+            channelHandle: '@one',
+            channelAvatarUrl: null,
+            newVideosCount: 3,
+            latestPublishedAt: '2026-09-17T12:00:00Z',
+            latestVideoId: 'v-1',
+            latestVideoTitle: 'Video 1',
+            latestVideoYoutubeId: 'yt-1',
+            maxCurrentVph: 550,
+            risingCount: 1,
+          }],
+          recentAlerts: [],
+          recentScans: [],
+          range: '24h',
+        },
+        global: {
+          stubs: {
+            'router-link': { template: '<a><slot /></a>' },
+          },
+        },
+      });
+
+      expect(wrapper.text()).not.toContain('Xem tất cả');
+      expect(wrapper.text()).toContain('Xem Top 10 →');
+      expect(wrapper.text()).toContain('Xem danh sách →');
+      expect(wrapper.text()).toContain('Xem danh sách kênh →');
+    });
+
+    it('running scan không bị gọi là "hoàn tất", mà dùng "ghi nhận"', () => {
+      const wrapper = mount(ReportBriefView, {
+        props: {
+          summary: sampleSummary,
+          scanSummary: { ...sampleScanSummary, runningScans: 1 },
+          risingVideos: [],
+          newVideos: [],
+          channelActivities: [],
+          recentAlerts: [],
+          recentScans: [],
+          range: '24h',
+        },
+        global: {
+          stubs: {
+            'router-link': { template: '<a><slot /></a>' },
+          },
+        },
+      });
+
+      expect(wrapper.text()).toContain('ghi nhận 8 phiên quét');
+      expect(wrapper.text()).not.toContain('hoàn tất 8 phiên quét');
+    });
+
+    it('attention=0 không render "Hoạt động ổn định", mà render factual "Không có quét Một phần/Thất bại"', () => {
+      const zeroAttentionSummary = { ...sampleSummary, attentionScansCount: 0 };
+      const wrapper = mount(ReportSummaryRail, {
+        props: {
+          summary: zeroAttentionSummary,
+          range: '24h',
+        },
+      });
+
+      expect(wrapper.text()).not.toContain('Hoạt động ổn định');
+      expect(wrapper.text()).toContain('Không có quét Một phần/Thất bại');
+    });
+
+    it('broken avatar trong ReportChannelActivity kích hoạt handleAvatarError và hiển thị fallback initial', async () => {
+      const channels = [{
+        channelId: 'ch-broken',
+        channelName: 'Kênh Broken Avatar',
+        channelHandle: '@broken',
+        channelAvatarUrl: 'https://invalid.url/broken.jpg',
+        newVideosCount: 1,
+        latestPublishedAt: '2026-09-17T12:00:00Z',
+        latestVideoId: 'v-1',
+        latestVideoTitle: 'Video 1',
+        latestVideoYoutubeId: 'yt-1',
+        maxCurrentVph: 100,
+        risingCount: 1,
+      }];
+
+      const wrapper = mount(ReportChannelActivityComponent, {
+        props: {
+          channels,
+          range: '24h',
+        },
+        global: {
+          stubs: {
+            'router-link': { template: '<a><slot /></a>' },
+          },
+        },
+      });
+
+      const img = wrapper.find('.channel-avatar');
+      expect(img.exists()).toBe(true);
+      await img.trigger('error');
+      expect(wrapper.find('.channel-avatar').exists()).toBe(false);
+      expect(wrapper.find('.channel-avatar-fallback').text()).toBe('K');
+    });
+
+    it('unknown alert status hiển thị "Không rõ" với neutral styling', () => {
+      const alertWithUnknown: ReportAlert[] = [{
+        id: 'alt-unk',
+        videoId: 'v-unk',
+        videoTitle: 'Video Unknown Alert',
+        videoYoutubeId: null,
+        videoThumbnailUrl: null,
+        channelId: 'ch-unk',
+        channelName: 'Channel Unknown',
+        channelHandle: '@unk',
+        channelAvatarUrl: null,
+        measuredVph: 1000,
+        thresholdVph: 500,
+        viewCount: 2000,
+        status: 'unknown',
+        statusLabel: 'Không rõ',
+        createdAt: '2026-09-17T12:00:00Z',
+      }];
+
+      const wrapper = mount(ReportOperationsView, {
+        props: {
+          alerts: alertWithUnknown,
+          scans: [],
+          scanSummary: sampleScanSummary,
+          totalAlerts: 1,
+          range: '24h',
+        },
+        global: {
+          stubs: {
+            'router-link': { template: '<a><slot /></a>' },
+          },
+        },
+      });
+
+      expect(wrapper.text()).toContain('Không rõ');
+      expect(wrapper.find('.is-unknown').exists()).toBe(true);
+    });
+
+    it('alert table sử dụng VideoThumbnail component thay raw img và guard channelId', () => {
+      const alertItem: ReportAlert[] = [{
+        id: 'alt-yt',
+        videoId: 'v-yt',
+        videoTitle: 'Video With YouTube',
+        videoYoutubeId: 'dQw4w9WgXcQ',
+        videoThumbnailUrl: 'https://img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg',
+        channelId: '',
+        channelName: 'Kênh Ẩn ID',
+        channelHandle: null,
+        channelAvatarUrl: null,
+        measuredVph: 1200,
+        thresholdVph: 800,
+        viewCount: 5000,
+        status: 'sent',
+        statusLabel: 'Đã cảnh báo',
+        createdAt: '2026-09-17T12:00:00Z',
+      }];
+
+      const wrapper = mount(ReportOperationsView, {
+        props: {
+          alerts: alertItem,
+          scans: [],
+          scanSummary: sampleScanSummary,
+          totalAlerts: 1,
+          range: '24h',
+        },
+        global: {
+          stubs: {
+            'router-link': { template: '<a><slot /></a>' },
+          },
+        },
+      });
+
+      expect(wrapper.findComponent({ name: 'VideoThumbnail' }).exists()).toBe(true);
+      const channelSpan = wrapper.find('span.alert-v-channel');
+      expect(channelSpan.exists()).toBe(true);
+      expect(channelSpan.text()).toBe('Kênh Ẩn ID');
     });
   });
 });
