@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import * as fs from 'fs';
 import * as path from 'path';
-import { aiContentService } from '../src/services/ai-content-service';
+import { aiContentService, computeViewDeltaFromSnapshots } from '../src/services/ai-content-service';
 import {
   getStoredAccessKey,
   setStoredAccessKey,
@@ -1202,6 +1202,406 @@ describe('Bắt Bài Đối Thủ — Giai Đoạn 17.1: Chuyển Trợ Lý Nộ
         expect(allContent.toLowerCase()).not.toContain('viral probability');
         expect(allContent.toLowerCase()).not.toContain('dự đoán thành công');
         expect(allContent.toLowerCase()).not.toContain('winning idea');
+      });
+    });
+
+    // 22. Wave 3.12 Final Semantic Fixes & Edge Cases
+    describe('22. Wave 3.12 Final Semantic Fixes & Edge Cases', () => {
+      it('A. COMPUTE VIEW DELTA HELPER: tính toán delta đúng factual và trả null khi dữ liệu không đủ', () => {
+        // null + 1000 -> null
+        expect(computeViewDeltaFromSnapshots([
+          { view_count: null },
+          { view_count: 1000 },
+        ])).toBeNull();
+
+        // 1000 + 1000 -> 0
+        expect(computeViewDeltaFromSnapshots([
+          { view_count: 1000 },
+          { view_count: 1000 },
+        ])).toBe(0);
+
+        // 1500 + 1000 -> 500
+        expect(computeViewDeltaFromSnapshots([
+          { view_count: 1500 },
+          { view_count: 1000 },
+        ])).toBe(500);
+
+        // Under 2 snapshots -> null
+        expect(computeViewDeltaFromSnapshots([])).toBeNull();
+        expect(computeViewDeltaFromSnapshots([{ view_count: 1000 }])).toBeNull();
+        expect(computeViewDeltaFromSnapshots(null)).toBeNull();
+        expect(computeViewDeltaFromSnapshots(undefined)).toBeNull();
+
+        // NaN -> null
+        expect(computeViewDeltaFromSnapshots([
+          { view_count: NaN },
+          { view_count: 1000 },
+        ])).toBeNull();
+      });
+
+      it('B. SUPABASE NOT CONFIGURED: ném lỗi factual thay vì trả [] hoặc null', async () => {
+        const supabaseModule = await import('../src/services/supabase');
+        const origIsConfigured = supabaseModule.isSupabaseConfigured;
+        vi.spyOn(supabaseModule, 'isSupabaseConfigured').mockReturnValue(false);
+
+        try {
+          await expect(aiContentService.fetchAiVideoOptions()).rejects.toThrow('Chưa kết nối cơ sở dữ liệu Supabase.');
+          await expect(aiContentService.fetchVideoContext('any-video')).rejects.toThrow('Chưa kết nối cơ sở dữ liệu Supabase.');
+        } finally {
+          vi.spyOn(supabaseModule, 'isSupabaseConfigured').mockImplementation(origIsConfigured);
+        }
+      });
+
+      it('C. INITIAL OPTIONS ERROR: lỗi tải danh sách ban đầu không bị clearSelection xóa khi không có ?video=', async () => {
+        const { default: AiContentAssistantPage } = await import('../src/pages/AiContentAssistantPage.vue');
+        const { mount, flushPromises } = await import('@vue/test-utils');
+
+        const optionsSpy = vi.spyOn(aiContentService, 'fetchAiVideoOptions').mockRejectedValue(new Error('Lỗi kết nối máy chủ Supabase'));
+
+        try {
+          await router.push('/tro-ly-noi-dung');
+          const wrapper = mount(AiContentAssistantPage, {
+            global: {
+              plugins: [router],
+              stubs: {
+                'router-link': { template: '<a><slot /></a>' },
+              },
+            },
+          });
+
+          await flushPromises();
+
+          // Error must NOT be wiped by clearSelection()!
+          expect(wrapper.text()).toContain('Lỗi kết nối máy chủ Supabase');
+          expect(wrapper.find('.error-state-box').exists()).toBe(true);
+          expect(wrapper.find('.empty-workspace').exists()).toBe(false);
+        } finally {
+          optionsSpy.mockRestore();
+        }
+      });
+
+      it('D. ROUTE CLEAR: xoá query ?video= sau khi đã chọn video -> xoá selection và kết quả phân tích', async () => {
+        const { default: AiContentAssistantPage } = await import('../src/pages/AiContentAssistantPage.vue');
+        const { default: AiSelectedSource } = await import('../src/components/ai-content/AiSelectedSource.vue');
+        const { default: AiIntelligenceBrief } = await import('../src/components/ai-content/AiIntelligenceBrief.vue');
+        const { mount, flushPromises } = await import('@vue/test-utils');
+
+        const videoA = {
+          id: 'v-a',
+          youtube_video_id: 'yt-a',
+          title: 'Video A Alpha',
+          channel_id: 'ch-a',
+          channel_name: 'Channel Alpha',
+          published_at: '2026-09-18T10:00:00Z',
+          latest_view_count: 1000,
+          latest_measured_vph: 100,
+          alert_vph_threshold: 80,
+          thumbnail_url: 'https://example.com/a.jpg',
+          view_delta: 50,
+        };
+
+        const optionsSpy = vi.spyOn(aiContentService, 'fetchAiVideoOptions').mockResolvedValue([videoA]);
+        const contextSpy = vi.spyOn(aiContentService, 'fetchVideoContext').mockResolvedValue(videoA);
+        const analyzeSpy = vi.spyOn(aiContentService, 'analyzeVideoContent').mockResolvedValue(mockAnalysis);
+        setStoredAccessKey('valid-key');
+
+        try {
+          await router.push('/tro-ly-noi-dung?video=v-a');
+          const wrapper = mount(AiContentAssistantPage, {
+            global: {
+              plugins: [router],
+              stubs: {
+                'router-link': { template: '<a><slot /></a>' },
+              },
+            },
+          });
+
+          await flushPromises();
+          expect(wrapper.findComponent(AiSelectedSource).props('video')?.id).toBe('v-a');
+
+          // Phân tích video
+          wrapper.findComponent(AiSelectedSource).vm.$emit('analyze');
+          await flushPromises();
+          expect(wrapper.findComponent(AiIntelligenceBrief).exists()).toBe(true);
+
+          // User navigates away / removes ?video=
+          await router.push('/tro-ly-noi-dung');
+          await flushPromises();
+
+          // Selection and analysis results must be cleared
+          expect(wrapper.findComponent(AiSelectedSource).props('video')).toBeNull();
+          expect(wrapper.findComponent(AiIntelligenceBrief).exists()).toBe(false);
+        } finally {
+          optionsSpy.mockRestore();
+          contextSpy.mockRestore();
+          analyzeSpy.mockRestore();
+        }
+      });
+
+      it('E. THUMBNAIL REMOUNT: VideoThumbnail nhận :key="video.id", không bị dính fallback khi đổi video', async () => {
+        const { default: AiSelectedSource } = await import('../src/components/ai-content/AiSelectedSource.vue');
+        const { mount } = await import('@vue/test-utils');
+
+        const videoA = {
+          id: 'v-a',
+          youtube_video_id: 'yt-a',
+          title: 'Video A Alpha',
+          channel_id: 'ch-a',
+          channel_name: 'Channel Alpha',
+          published_at: '2026-09-18T10:00:00Z',
+          latest_view_count: 1000,
+          latest_measured_vph: 100,
+          alert_vph_threshold: 80,
+          thumbnail_url: 'https://example.com/broken.jpg',
+          view_delta: 50,
+        };
+
+        const videoB = {
+          id: 'v-b',
+          youtube_video_id: 'yt-b',
+          title: 'Video B Beta',
+          channel_id: 'ch-b',
+          channel_name: 'Channel Beta',
+          published_at: '2026-09-18T11:00:00Z',
+          latest_view_count: 2000,
+          latest_measured_vph: 200,
+          alert_vph_threshold: 150,
+          thumbnail_url: 'https://example.com/valid.jpg',
+          view_delta: 100,
+        };
+
+        const wrapper = mount(AiSelectedSource, {
+          props: {
+            video: videoA,
+            isAnalyzing: false,
+            isAddingToProduction: false,
+          },
+          global: {
+            stubs: {
+              'router-link': { template: '<a><slot /></a>' },
+            },
+          },
+        });
+
+        // Initially renders image for videoA
+        const imgA = wrapper.find('img.thumbnail-image');
+        expect(imgA.exists()).toBe(true);
+
+        // Image error occurs on videoA
+        await imgA.trigger('error');
+        expect(wrapper.find('.thumbnail-fallback').exists()).toBe(true);
+
+        // Switch to videoB (with different id)
+        await wrapper.setProps({ video: videoB });
+
+        // VideoThumbnail remounts via :key="video.id", fresh state without sticky fallback
+        const imgB = wrapper.find('img.thumbnail-image');
+        expect(imgB.exists()).toBe(true);
+        expect(imgB.attributes('src')).toBe('https://example.com/valid.jpg');
+        expect(wrapper.find('.thumbnail-fallback').exists()).toBe(false);
+      });
+
+      it('F. COPY ALL FAILURE: clipboard reject thì không hiện Đã sao chép, hiện toast lỗi', async () => {
+        const { default: AiContentAssistantPage } = await import('../src/pages/AiContentAssistantPage.vue');
+        const { default: AiIntelligenceBrief } = await import('../src/components/ai-content/AiIntelligenceBrief.vue');
+        const { mount, flushPromises } = await import('@vue/test-utils');
+
+        const videoA = {
+          id: 'v-a',
+          youtube_video_id: 'yt-a',
+          title: 'Video A Alpha',
+          channel_id: 'ch-a',
+          channel_name: 'Channel Alpha',
+          published_at: '2026-09-18T10:00:00Z',
+          latest_view_count: 1000,
+          latest_measured_vph: 100,
+          alert_vph_threshold: 80,
+          thumbnail_url: 'https://example.com/a.jpg',
+          view_delta: 50,
+        };
+
+        const optionsSpy = vi.spyOn(aiContentService, 'fetchAiVideoOptions').mockResolvedValue([videoA]);
+        const contextSpy = vi.spyOn(aiContentService, 'fetchVideoContext').mockResolvedValue(videoA);
+        const analyzeSpy = vi.spyOn(aiContentService, 'analyzeVideoContent').mockResolvedValue(mockAnalysis);
+        setStoredAccessKey('valid-key');
+
+        const failClipboardMock = vi.fn().mockRejectedValue(new Error('Clipboard write denied'));
+        Object.defineProperty(navigator, 'clipboard', {
+          value: { writeText: failClipboardMock },
+          configurable: true,
+          writable: true,
+        });
+
+        try {
+          await router.push('/tro-ly-noi-dung?video=v-a');
+          const wrapper = mount(AiContentAssistantPage, {
+            global: {
+              plugins: [router],
+              stubs: {
+                'router-link': { template: '<a><slot /></a>' },
+              },
+            },
+          });
+
+          await flushPromises();
+
+          // Phân tích video
+          wrapper.findComponent({ name: 'AiSelectedSource' }).vm.$emit('analyze');
+          await flushPromises();
+
+          const brief = wrapper.findComponent(AiIntelligenceBrief);
+          expect(brief.exists()).toBe(true);
+
+          // Click Sao chép toàn bộ
+          brief.vm.$emit('copy-all');
+          await flushPromises();
+
+          expect(failClipboardMock).toHaveBeenCalled();
+          expect(wrapper.text()).not.toContain('Đã sao chép toàn bộ nội dung phân tích!');
+          expect(wrapper.text()).toContain('Không thể sao chép vào bộ nhớ tạm.');
+          expect(brief.props('copiedAll')).toBe(false);
+        } finally {
+          optionsSpy.mockRestore();
+          contextSpy.mockRestore();
+          analyzeSpy.mockRestore();
+        }
+      });
+
+      it('G. INVALID ACCESS KEY ERROR: modal hiển thị thông báo lỗi từ AccessKeyRequiredError', async () => {
+        const { default: AiContentAssistantPage } = await import('../src/pages/AiContentAssistantPage.vue');
+        const { default: AccessKeyPromptModal } = await import('../src/components/ui/AccessKeyPromptModal.vue');
+        const { mount, flushPromises } = await import('@vue/test-utils');
+
+        const videoA = {
+          id: 'v-a',
+          youtube_video_id: 'yt-a',
+          title: 'Video A Alpha',
+          channel_id: 'ch-a',
+          channel_name: 'Channel Alpha',
+          published_at: '2026-09-18T10:00:00Z',
+          latest_view_count: 1000,
+          latest_measured_vph: 100,
+          alert_vph_threshold: 80,
+          thumbnail_url: 'https://example.com/a.jpg',
+          view_delta: 50,
+        };
+
+        setStoredAccessKey('invalid-key');
+
+        const optionsSpy = vi.spyOn(aiContentService, 'fetchAiVideoOptions').mockResolvedValue([videoA]);
+        const contextSpy = vi.spyOn(aiContentService, 'fetchVideoContext').mockResolvedValue(videoA);
+        const analyzeSpy = vi.spyOn(aiContentService, 'analyzeVideoContent').mockRejectedValue(
+          new AccessKeyRequiredError('Mã truy cập không chính xác. Vui lòng thử lại.')
+        );
+
+        try {
+          await router.push('/tro-ly-noi-dung?video=v-a');
+          const wrapper = mount(AiContentAssistantPage, {
+            global: {
+              plugins: [router],
+              stubs: {
+                'router-link': { template: '<a><slot /></a>' },
+              },
+            },
+          });
+
+          await flushPromises();
+
+          // Click analyze
+          wrapper.findComponent({ name: 'AiSelectedSource' }).vm.$emit('analyze');
+          await flushPromises();
+
+          const modal = wrapper.findComponent(AccessKeyPromptModal);
+          expect(modal.props('modelValue')).toBe(true);
+          expect(modal.props('initialError')).toBe('Mã truy cập không chính xác. Vui lòng thử lại.');
+        } finally {
+          optionsSpy.mockRestore();
+          contextSpy.mockRestore();
+          analyzeSpy.mockRestore();
+        }
+      });
+
+      it('H. STALE ACCESS KEY ACTION: đổi video khi modal đang mở -> đóng modal, hủy pending action, không gọi nhầm video mới', async () => {
+        const { default: AiContentAssistantPage } = await import('../src/pages/AiContentAssistantPage.vue');
+        const { default: AccessKeyPromptModal } = await import('../src/components/ui/AccessKeyPromptModal.vue');
+        const { productionService } = await import('../src/services/production-service');
+        const { mount, flushPromises } = await import('@vue/test-utils');
+
+        const videoA = {
+          id: 'v-a',
+          youtube_video_id: 'yt-a',
+          title: 'Video A Alpha',
+          channel_id: 'ch-a',
+          channel_name: 'Channel Alpha',
+          published_at: '2026-09-18T10:00:00Z',
+          latest_view_count: 1000,
+          latest_measured_vph: 100,
+          alert_vph_threshold: 80,
+          thumbnail_url: 'https://example.com/a.jpg',
+          view_delta: 50,
+        };
+
+        const videoB = {
+          id: 'v-b',
+          youtube_video_id: 'yt-b',
+          title: 'Video B Beta',
+          channel_id: 'ch-b',
+          channel_name: 'Channel Beta',
+          published_at: '2026-09-18T11:00:00Z',
+          latest_view_count: 2000,
+          latest_measured_vph: 200,
+          alert_vph_threshold: 150,
+          thumbnail_url: 'https://example.com/b.jpg',
+          view_delta: 100,
+        };
+
+        clearStoredAccessKey();
+
+        const optionsSpy = vi.spyOn(aiContentService, 'fetchAiVideoOptions').mockResolvedValue([videoA, videoB]);
+        const contextSpy = vi.spyOn(aiContentService, 'fetchVideoContext').mockImplementation((id: string) => {
+          if (id === 'v-a') return Promise.resolve(videoA);
+          if (id === 'v-b') return Promise.resolve(videoB);
+          return Promise.resolve(null);
+        });
+        const createProdSpy = vi.spyOn(productionService, 'createProductionItem').mockResolvedValue({ id: 'prod-1' } as any);
+
+        try {
+          await router.push('/tro-ly-noi-dung?video=v-a');
+          const wrapper = mount(AiContentAssistantPage, {
+            global: {
+              plugins: [router],
+              stubs: {
+                'router-link': { template: '<a><slot /></a>' },
+              },
+            },
+          });
+
+          await flushPromises();
+
+          // User clicks add to production without access key -> modal opens
+          wrapper.findComponent({ name: 'AiSelectedSource' }).vm.$emit('add-to-production');
+          await flushPromises();
+
+          const modal = wrapper.findComponent(AccessKeyPromptModal);
+          expect(modal.props('modelValue')).toBe(true);
+
+          // User switches to video B
+          wrapper.findComponent({ name: 'AiSourceExplorer' }).vm.$emit('select', 'v-b');
+          await flushPromises();
+
+          // Modal should be closed and pending action invalidated
+          expect(modal.props('modelValue')).toBe(false);
+
+          // If modal somehow emits confirmed, pendingKeyRetry was cleared
+          modal.vm.$emit('confirmed', 'new-key-789');
+          await flushPromises();
+
+          expect(createProdSpy).not.toHaveBeenCalled();
+        } finally {
+          optionsSpy.mockRestore();
+          contextSpy.mockRestore();
+          createProdSpy.mockRestore();
+        }
       });
     });
   });

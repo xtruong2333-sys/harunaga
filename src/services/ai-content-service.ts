@@ -70,6 +70,23 @@ export function formatViewDelta(delta: number | null | undefined): string {
   return `-${Math.abs(delta).toLocaleString('vi-VN')} view`;
 }
 
+/**
+ * Tính chênh lệch view giữa 2 lần snapshot gần nhất.
+ * snapshots[0] là snapshot mới nhất, snapshots[1] là snapshot liền kề trước đó.
+ * Cần cả 2 đều có số view hợp lệ.
+ */
+export function computeViewDeltaFromSnapshots(
+  snapshots: Array<{ view_count: number | null | undefined }> | null | undefined
+): number | null {
+  if (!snapshots || snapshots.length < 2) return null;
+  const s0 = snapshots[0]?.view_count;
+  const s1 = snapshots[1]?.view_count;
+  if (typeof s0 === 'number' && !isNaN(s0) && typeof s1 === 'number' && !isNaN(s1)) {
+    return s0 - s1;
+  }
+  return null;
+}
+
 export const aiContentService = {
   /**
    * Lấy danh sách video từ database để người dùng chọn phân tích.
@@ -77,11 +94,13 @@ export const aiContentService = {
    */
   async fetchAiVideoOptions(): Promise<AiVideoOption[]> {
     if (!isSupabaseConfigured()) {
-      return [];
+      throw new Error('Chưa kết nối cơ sở dữ liệu Supabase.');
     }
 
     const supabase = getSupabase();
-    if (!supabase) return [];
+    if (!supabase) {
+      throw new Error('Chưa kết nối cơ sở dữ liệu Supabase.');
+    }
 
     const { data, error } = await supabase
       .from('videos')
@@ -121,9 +140,13 @@ export const aiContentService = {
    * Lấy chi tiết 1 video cùng thông tin 2 snapshot gần nhất để hiển thị video context card
    */
   async fetchVideoContext(videoId: string): Promise<AiVideoOption | null> {
-    if (!isSupabaseConfigured()) return null;
+    if (!isSupabaseConfigured()) {
+      throw new Error('Chưa kết nối cơ sở dữ liệu Supabase.');
+    }
     const supabase = getSupabase();
-    if (!supabase) return null;
+    if (!supabase) {
+      throw new Error('Chưa kết nối cơ sở dữ liệu Supabase.');
+    }
 
     const { data: video, error: vErr } = await supabase
       .from('videos')
@@ -154,21 +177,7 @@ export const aiContentService = {
       throw new Error(sErr.message || 'Lỗi khi tải lịch sử snapshot.');
     }
 
-    let viewDelta: number | null = null;
-    if (
-      snapshots &&
-      snapshots.length >= 2 &&
-      snapshots[0].view_count !== null &&
-      snapshots[0].view_count !== undefined &&
-      typeof snapshots[0].view_count === 'number' &&
-      !isNaN(snapshots[0].view_count) &&
-      snapshots[1].view_count !== null &&
-      snapshots[1].view_count !== undefined &&
-      typeof snapshots[1].view_count === 'number' &&
-      !isNaN(snapshots[1].view_count)
-    ) {
-      viewDelta = snapshots[0].view_count - snapshots[1].view_count;
-    }
+    const viewDelta = computeViewDeltaFromSnapshots(snapshots);
 
     const channel = video.channels as any;
     const rawYtId = video.youtube_video_id && typeof video.youtube_video_id === 'string' ? video.youtube_video_id.trim() : null;

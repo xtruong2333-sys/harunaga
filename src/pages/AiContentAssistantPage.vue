@@ -212,24 +212,37 @@ function showToast(message: string, type: ToastType = 'success') {
 onMounted(async () => {
   document.title = 'Trợ Lý Nội Dung AI — Bắt Bài Đối Thủ';
   await loadVideoOptions();
-  await checkRouteQueryParam();
+  const qVideoId = route?.query?.video as string | undefined;
+  if (qVideoId && typeof qVideoId === 'string' && qVideoId.trim().length > 0) {
+    await selectVideoById(qVideoId.trim());
+  }
 });
 
 watch(
   () => route?.query?.video,
-  async () => {
-    await checkRouteQueryParam();
+  async (newVal, oldVal) => {
+    if (newVal && typeof newVal === 'string' && newVal.trim().length > 0) {
+      await selectVideoById(newVal.trim());
+    } else if (oldVal) {
+      // User cleared route query param after having a selection
+      clearSelection({ clearError: true });
+    }
   }
 );
 
-function clearSelection() {
+function clearSelection(options?: { clearError?: boolean }) {
   ++selectionRequestId;
   ++analysisRequestId;
   selectedVideoId.value = '';
   selectedVideo.value = null;
   analysisResult.value = null;
   isAnalyzing.value = false;
-  pageError.value = null;
+  pendingKeyRetry = null;
+  showAccessKeyModal.value = false;
+  accessKeyError.value = null;
+  if (options?.clearError) {
+    pageError.value = null;
+  }
 }
 
 async function loadVideoOptions() {
@@ -245,20 +258,16 @@ async function loadVideoOptions() {
   }
 }
 
-async function checkRouteQueryParam() {
-  const qVideoId = route?.query?.video as string | undefined;
-  if (qVideoId && typeof qVideoId === 'string' && qVideoId.trim().length > 0) {
-    await selectVideoById(qVideoId.trim());
-  } else {
-    clearSelection();
-  }
-}
-
 async function handleSelectVideo(id: string) {
   await selectVideoById(id);
 }
 
 async function selectVideoById(id: string) {
+  // Invalidate any pending access key retry and close modal on video switch
+  pendingKeyRetry = null;
+  showAccessKeyModal.value = false;
+  accessKeyError.value = null;
+
   // Race protection for video selection
   const currentReqId = ++selectionRequestId;
 
@@ -311,8 +320,8 @@ async function handleAnalyzeClick() {
   await runAnalysis(key);
 }
 
-function promptForAccessKey(action: (key: string) => Promise<void>) {
-  accessKeyError.value = null;
+function promptForAccessKey(action: (key: string) => Promise<void>, errorMessage?: string | null) {
+  accessKeyError.value = errorMessage ?? null;
   pendingKeyRetry = action;
   showAccessKeyModal.value = true;
 }
@@ -320,6 +329,7 @@ function promptForAccessKey(action: (key: string) => Promise<void>) {
 async function onAccessKeyConfirmed(key: string) {
   setStoredAccessKey(key);
   showAccessKeyModal.value = false;
+  accessKeyError.value = null;
   if (pendingKeyRetry) {
     const action = pendingKeyRetry;
     pendingKeyRetry = null;
@@ -350,10 +360,9 @@ async function runAnalysis(key: string) {
     if (currentReqId !== analysisRequestId) return;
 
     if (err instanceof AccessKeyRequiredError) {
-      accessKeyError.value = err.message;
       promptForAccessKey(async (k: string) => {
         await runAnalysis(k);
-      });
+      }, err.message);
     } else {
       pageError.value = err.message || 'Đã xảy ra lỗi khi phân tích nội dung.';
     }
@@ -392,10 +401,9 @@ async function addToProductionWithKey(key: string) {
     showToast('Đã đưa video vào Tiến Độ Sản Xuất.', 'success');
   } catch (err: any) {
     if (err instanceof AccessKeyRequiredError) {
-      accessKeyError.value = err.message;
       promptForAccessKey(async (k: string) => {
         await addToProductionWithKey(k);
-      });
+      }, err.message);
     } else if (err?.message?.includes('đã có trong quy trình') || err?.message?.includes('409')) {
       showToast('Video này đã có trong Tiến Độ Sản Xuất.', 'error');
     } else {
