@@ -350,20 +350,16 @@ onMounted(async () => {
     // Validate IDs against loaded channels (discard deleted or invalid ones)
     const validIds = initialIds.filter(id => allComparableChannels.value.some(c => c.id === id));
 
-    if (validIds.length >= 2) {
-      selectedChannelIds.value = Array.from(new Set(validIds)).slice(0, 4);
-    } else if (validIds.length === 1) {
-      // If only 1 valid id was saved, keep it and add another active channel if possible
-      const otherActive = allComparableChannels.value.find(c => c.id !== validIds[0] && c.status === 'active');
-      selectedChannelIds.value = otherActive ? [validIds[0], otherActive.id] : [validIds[0]];
-    } else {
-      // Default: pick first 2 active channels
-      const defaultActive = allComparableChannels.value
-        .filter(c => c.status === 'active')
-        .slice(0, 2)
-        .map(c => c.id);
-      selectedChannelIds.value = defaultActive;
+    // Deduplicate valid IDs while preserving order, max 4 (no auto-selection)
+    const dedupedValidIds: string[] = [];
+    for (const id of validIds) {
+      if (!dedupedValidIds.includes(id)) {
+        dedupedValidIds.push(id);
+      }
+      if (dedupedValidIds.length === 4) break;
     }
+
+    selectedChannelIds.value = dedupedValidIds;
 
     persistAndSync();
 

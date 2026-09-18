@@ -39,7 +39,7 @@ vi.mock('vue-router', async () => {
 });
 
 const routerLinkStub = {
-  template: '<a><slot /></a>',
+  template: '<a :href="to"><slot /></a>',
   props: ['to'],
 };
 
@@ -500,22 +500,59 @@ describe('Bắt Bài Đối Thủ — Giai Đoạn 12: So Sánh Kênh (Channel C
       expect(wrapper.text()).toContain('@doithub');
     });
 
-    it('7.8 ComparisonSignalColumns hiển thị top video tín hiệu của từng kênh', () => {
+    it('7.8 ComparisonSignalColumns sử dụng route /videos/:id và hiển thị top video tín hiệu', () => {
       const wrapper = mount(ComparisonSignalColumns, {
         props: {
           channels: [mockItemA, mockItemB],
+        },
+        global: {
+          stubs: {
+            'router-link': routerLinkStub,
+            VideoThumbnail: {
+              props: ['detailUrl', 'src', 'alt', 'youtubeVideoId', 'ratio'],
+              template: '<div class="video-thumbnail-stub" :data-detail-url="detailUrl"></div>',
+            },
+          },
+        },
+      });
+
+      expect(wrapper.text()).toContain('TÍN HIỆU VIDEO NỔI BẬT THEO VPH');
+      expect(wrapper.text()).toContain('Video Top A');
+
+      // Video detail route là /videos/:id
+      const routerLinks = wrapper.findAll('a');
+      const hrefs = routerLinks.map(l => l.attributes('href'));
+      expect(hrefs).toContain('/videos/v-1');
+
+      const thumbStubs = wrapper.findAll('.video-thumbnail-stub');
+      expect(thumbStubs[0].attributes('data-detail-url')).toBe('/videos/v-1');
+    });
+
+    it('7.9 ComparisonSignalColumns hiển thị empty state khi kênh không có video VPH > 0', () => {
+      const emptyChannel: ChannelComparisonItem = {
+        ...mockItemA,
+        id: 'ch-zero',
+        name: 'Kênh Không Tăng',
+        topVideos: [],
+      };
+      const wrapper = mount(ComparisonSignalColumns, {
+        props: {
+          channels: [emptyChannel],
         },
         global: {
           stubs: { 'router-link': routerLinkStub },
         },
       });
 
-      expect(wrapper.text()).toContain('TÍN HIỆU VIDEO NỔI BẬT THEO VPH');
-      expect(wrapper.text()).toContain('Video Top A');
+      expect(wrapper.text()).toContain('Chưa có video đang tăng trong khoảng thời gian này.');
     });
 
-    it('7.9 ChannelComparisonPage hiển thị empty selection khi chưa đủ 2 kênh', async () => {
-      vi.spyOn(channelComparisonService, 'fetchComparableChannels').mockResolvedValue([]);
+    it('7.10 ChannelComparisonPage: no saved selection giữ 0 channel và không tự chọn', async () => {
+      localStorage.clear();
+      vi.spyOn(channelComparisonService, 'fetchComparableChannels').mockResolvedValue([
+        { id: 'c1', name: 'Channel 1', handle: '@c1', avatarUrl: null, status: 'active' },
+        { id: 'c2', name: 'Channel 2', handle: '@c2', avatarUrl: null, status: 'active' },
+      ]);
       
       const wrapper = mount(ChannelComparisonPage, {
         global: {
@@ -528,7 +565,35 @@ describe('Bắt Bài Đối Thủ — Giai Đoạn 12: So Sánh Kênh (Channel C
 
       await flushPromises();
 
+      // Giữ đúng 0 kênh được chọn, không tự thêm active channels
       expect(wrapper.text()).toContain('Chọn ít nhất 2 kênh để bắt đầu so sánh');
+      const selector = wrapper.findComponent(ComparisonChannelSelector);
+      expect(selector.props('selectedChannels').length).toBe(0);
+    });
+
+    it('7.11 ChannelComparisonPage: one valid saved channel giữ đúng 1 channel, không tự thêm', async () => {
+      localStorage.setItem('bbdt_compare_channel_ids', JSON.stringify(['c1']));
+      vi.spyOn(channelComparisonService, 'fetchComparableChannels').mockResolvedValue([
+        { id: 'c1', name: 'Channel 1', handle: '@c1', avatarUrl: null, status: 'active' },
+        { id: 'c2', name: 'Channel 2', handle: '@c2', avatarUrl: null, status: 'active' },
+      ]);
+      
+      const wrapper = mount(ChannelComparisonPage, {
+        global: {
+          stubs: {
+            'router-link': routerLinkStub,
+            AppModal: { template: '<div class="modal-stub"><slot /></div>' },
+          },
+        },
+      });
+
+      await flushPromises();
+
+      // Giữ đúng 1 kênh, không tự thêm c2
+      expect(wrapper.text()).toContain('Hãy chọn thêm 1 kênh để bắt đầu đối chiếu');
+      const selector = wrapper.findComponent(ComparisonChannelSelector);
+      expect(selector.props('selectedChannels').length).toBe(1);
+      expect(selector.props('selectedChannels')[0].id).toBe('c1');
     });
   });
 
@@ -551,7 +616,7 @@ describe('Bắt Bài Đối Thủ — Giai Đoạn 12: So Sánh Kênh (Channel C
           thumbnail_url: null,
           published_at: new Date().toISOString(),
           latest_view_count: null, // null preserved
-          latest_measured_vph: null,
+          latest_measured_vph: 800, // positive VPH so it appears in topVideos
           latest_view_delta: null,
         },
       ];
@@ -614,6 +679,87 @@ describe('Bắt Bài Đối Thủ — Giai Đoạn 12: So Sánh Kênh (Channel C
 
       // Alert mới nhất chọn đúng alert có timestamp mới hơn (pending với created_at 05:00 > sent với sent_at 00:00)
       expect(result.channels[0].topVideos[0].alertStatus).toBe('pending');
+    });
+
+    it('8.2 VPH 0 và null không bao giờ xuất hiện trong topVideos', async () => {
+      const mockRawChannels = [
+        { id: 'c1', name: 'Channel 1', handle: '@c1', avatar_url: null, status: 'active', alert_vph_threshold: null, last_scan_at: null },
+      ];
+
+      const mockVideos = [
+        {
+          id: 'v-zero',
+          channel_id: 'c1',
+          youtube_video_id: 'yt0',
+          title: 'Video Zero VPH',
+          thumbnail_url: null,
+          published_at: new Date().toISOString(),
+          latest_view_count: 1000,
+          latest_measured_vph: 0,
+          latest_view_delta: 0,
+        },
+        {
+          id: 'v-null',
+          channel_id: 'c1',
+          youtube_video_id: 'ytnull',
+          title: 'Video Null VPH',
+          thumbnail_url: null,
+          published_at: new Date().toISOString(),
+          latest_view_count: 2000,
+          latest_measured_vph: null,
+          latest_view_delta: null,
+        },
+        {
+          id: 'v-pos',
+          channel_id: 'c1',
+          youtube_video_id: 'ytpos',
+          title: 'Video Positive VPH',
+          thumbnail_url: null,
+          published_at: new Date().toISOString(),
+          latest_view_count: 5000,
+          latest_measured_vph: 250,
+          latest_view_delta: 50,
+        },
+      ];
+
+      const mockSupabase = {
+        from: vi.fn((table: string) => {
+          if (table === 'channels') {
+            return {
+              select: vi.fn().mockReturnThis(),
+              in: vi.fn().mockResolvedValue({ data: mockRawChannels, error: null }),
+            };
+          }
+          if (table === 'videos') {
+            return {
+              select: vi.fn().mockReturnThis(),
+              in: vi.fn().mockReturnThis(),
+              order: vi.fn().mockReturnThis(),
+              range: vi.fn().mockResolvedValue({ data: mockVideos, error: null }),
+            };
+          }
+          if (table === 'video_alerts') {
+            return {
+              select: vi.fn().mockReturnThis(),
+              in: vi.fn().mockResolvedValue({ data: [], error: null }),
+            };
+          }
+          return {
+            select: vi.fn().mockReturnThis(),
+            in: vi.fn().mockResolvedValue({ data: [], error: null }),
+          };
+        }),
+        rpc: vi.fn().mockResolvedValue({ data: [], error: null }),
+      };
+
+      vi.spyOn(supabaseModule, 'getSupabase').mockReturnValue(mockSupabase as any);
+      vi.spyOn(supabaseModule, 'isSupabaseConfigured').mockReturnValue(true);
+
+      const result = await channelComparisonService.fetchChannelComparison(['c1'], '7d');
+      expect(result.channels[0].topVideos.length).toBe(1);
+      expect(result.channels[0].topVideos[0].id).toBe('v-pos');
+      expect(result.channels[0].topVideos.some(v => v.id === 'v-zero')).toBe(false);
+      expect(result.channels[0].topVideos.some(v => v.id === 'v-null')).toBe(false);
     });
   });
 });

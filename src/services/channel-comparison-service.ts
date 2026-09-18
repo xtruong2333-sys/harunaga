@@ -554,7 +554,12 @@ export const channelComparisonService = {
         return timeB - timeA;
       });
 
-      const top5Videos: ChannelComparisonVideo[] = sortedVideos.slice(0, 5).map(v => {
+      const positiveSignalVideos = sortedVideos.filter(v => {
+        const vph = toFiniteNumber(v.latest_measured_vph);
+        return vph !== null && vph > 0;
+      });
+
+      const top5Videos: ChannelComparisonVideo[] = positiveSignalVideos.slice(0, 5).map(v => {
         const alertStatusRaw = latestAlertMap.get(v.id) || null;
         const mappedAlert = mapAlertStatus(alertStatusRaw);
 

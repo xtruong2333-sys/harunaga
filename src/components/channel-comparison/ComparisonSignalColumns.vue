@@ -36,7 +36,7 @@
                 :src="v.thumbnailUrl"
                 :alt="v.title"
                 :youtube-video-id="v.youtubeVideoId"
-                :detail-url="`/chi-tiet-video/${v.id}`"
+                :detail-url="`/videos/${v.id}`"
                 ratio="16-9"
               />
             </div>
@@ -44,7 +44,7 @@
             <!-- Video Metadata -->
             <div class="card-meta">
               <router-link
-                :to="`/chi-tiet-video/${v.id}`"
+                :to="`/videos/${v.id}`"
                 class="video-title"
                 :title="v.title"
               >
