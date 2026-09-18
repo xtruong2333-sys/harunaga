@@ -32,10 +32,22 @@
           <span class="c-vph mono text-accent">{{ formatVph(v.latestMeasuredVph) }}</span>
           <span v-if="v.latestDeltaViews" class="c-delta mono text-positive">+{{ formatNumber(v.latestDeltaViews) }}</span>
           <GrowthStatusBadge
-            v-if="v.alert && v.alert.status === 'sent'"
+            v-if="v.alert"
             type="alert"
-            alert-status="sent"
+            :alert-status="v.alert.status"
           />
+          <template v-else>
+            <GrowthStatusBadge
+              v-if="v.latestMeasuredVph && v.latestMeasuredVph > 0"
+              type="rising"
+              :measured-vph="v.latestMeasuredVph"
+            />
+            <GrowthStatusBadge
+              v-else
+              type="alert"
+              alert-status="unalerted"
+            />
+          </template>
         </div>
 
         <div class="compact-actions-row">

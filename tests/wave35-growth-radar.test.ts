@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import { mount } from '@vue/test-utils';
+import { describe, it, expect, vi } from 'vitest';
+import { mount, flushPromises } from '@vue/test-utils';
 import GrowthStatusBadge from '@/components/growth/GrowthStatusBadge.vue';
 import GrowthSummaryStrip from '@/components/growth/GrowthSummaryStrip.vue';
 import GrowthRadarHero from '@/components/growth/GrowthRadarHero.vue';
@@ -9,6 +9,7 @@ import GrowthLargeCard from '@/components/growth/GrowthLargeCard.vue';
 import GrowthListRow from '@/components/growth/GrowthListRow.vue';
 import GrowthTableView from '@/components/growth/GrowthTableView.vue';
 import GrowthCompactGrid from '@/components/growth/GrowthCompactGrid.vue';
+import VideosPage from '@/pages/VideosPage.vue';
 import { videoService } from '@/services/video-service';
 import type { VideoListItem, VideoStatsSummary } from '@/types/video';
 
@@ -41,6 +42,39 @@ const mockVideo: VideoListItem = {
     sentAt: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
   },
   isOverThreshold: true,
+};
+
+const mockVideoPending: VideoListItem = {
+  ...mockVideo,
+  id: 'growth-vid-pending',
+  alert: {
+    id: 'alt-growth-pending',
+    status: 'pending',
+    measuredVph: 8400,
+    sentAt: null,
+  },
+};
+
+const mockVideoSending: VideoListItem = {
+  ...mockVideo,
+  id: 'growth-vid-sending',
+  alert: {
+    id: 'alt-growth-sending',
+    status: 'sending',
+    measuredVph: 8400,
+    sentAt: null,
+  },
+};
+
+const mockVideoFailed: VideoListItem = {
+  ...mockVideo,
+  id: 'growth-vid-failed',
+  alert: {
+    id: 'alt-growth-failed',
+    status: 'failed',
+    measuredVph: 8400,
+    sentAt: null,
+  },
 };
 
 const mockVideo2: VideoListItem = {
@@ -129,6 +163,72 @@ describe('Wave 3.5 — Growth Signal Radar Components', () => {
         props: { type: 'rising', measuredVph: 0 },
       });
       expect(notRising.text()).toBe('CHƯA TĂNG');
+    });
+
+    it('1.3 Renders pending, sending, and failed alert statuses accurately', () => {
+      const pending = mount(GrowthStatusBadge, {
+        props: { type: 'alert', alertStatus: 'pending' },
+      });
+      expect(pending.text()).toBe('CHỜ GỬI');
+      expect(pending.classes()).toContain('tone-warning');
+
+      const sending = mount(GrowthStatusBadge, {
+        props: { type: 'alert', alertStatus: 'sending' },
+      });
+      expect(sending.text()).toBe('ĐANG GỬI');
+      expect(sending.classes()).toContain('tone-warning');
+
+      const failed = mount(GrowthStatusBadge, {
+        props: { type: 'alert', alertStatus: 'failed' },
+      });
+      expect(failed.text()).toBe('GỬI LỖI');
+      expect(failed.classes()).toContain('tone-danger');
+    });
+
+    it('1.4 Renders alert statuses correctly across all 6 growth view components', () => {
+      // Hero: pending -> CHỜ GỬI
+      const heroPending = mount(GrowthRadarHero, {
+        props: { video: mockVideoPending, isVphSelection: false },
+        global: { stubs: { 'router-link': routerLinkStub } },
+      });
+      expect(heroPending.text()).toContain('CHỜ GỬI');
+
+      // LargeCard: sending -> ĐANG GỬI
+      const cardSending = mount(GrowthLargeCard, {
+        props: { video: mockVideoSending },
+        global: { stubs: { 'router-link': routerLinkStub } },
+      });
+      expect(cardSending.text()).toContain('ĐANG GỬI');
+
+      // ListRow: failed -> GỬI LỖI
+      const rowFailed = mount(GrowthListRow, {
+        props: { video: mockVideoFailed },
+        global: { stubs: { 'router-link': routerLinkStub } },
+      });
+      expect(rowFailed.text()).toContain('GỬI LỖI');
+
+      // TableView: pending, sending, failed all rendered
+      const tableView = mount(GrowthTableView, {
+        props: { videos: [mockVideoPending, mockVideoSending, mockVideoFailed] },
+        global: { stubs: { 'router-link': routerLinkStub } },
+      });
+      expect(tableView.text()).toContain('CHỜ GỬI');
+      expect(tableView.text()).toContain('ĐANG GỬI');
+      expect(tableView.text()).toContain('GỬI LỖI');
+
+      // CompactGrid: sending -> ĐANG GỬI
+      const compact = mount(GrowthCompactGrid, {
+        props: { videos: [mockVideoSending] },
+        global: { stubs: { 'router-link': routerLinkStub } },
+      });
+      expect(compact.text()).toContain('ĐANG GỬI');
+
+      // CandidateStream: failed -> GỬI LỖI
+      const stream = mount(GrowthRadarCandidateStream, {
+        props: { candidates: [mockVideoFailed] },
+        global: { stubs: { 'router-link': routerLinkStub } },
+      });
+      expect(stream.text()).toContain('GỬI LỖI');
     });
   });
 
@@ -398,6 +498,58 @@ describe('Wave 3.5 — Growth Signal Radar Components', () => {
       );
       expect(filteredByChannel.length).toBe(1);
       expect(filteredByChannel[0].id).toBe(mockVideo2.id);
+    });
+  });
+
+  // 11. VideosPage Integration Contract
+  describe('11. VideosPage Integration Contract', () => {
+    it('11.1 Custom featured selection does not carry VPH CAO NHẤT label (renders TÍN HIỆU NỔI BẬT)', async () => {
+      vi.spyOn(videoService, 'fetchTrendingVideos').mockResolvedValueOnce({
+        videos: [mockVideo, mockVideo2], // mockVideo has 8400, mockVideo2 has 1200
+        stats: mockStats,
+      });
+
+      const wrapper = mount(VideosPage, {
+        global: {
+          stubs: {
+            'router-link': routerLinkStub,
+          },
+        },
+      });
+
+      await flushPromises();
+
+      // Ban đầu mockVideo (8400 - max VPH) được chọn làm featured
+      expect(wrapper.find('.featured-kicker').text()).toContain('TÍN HIỆU VPH CAO NHẤT');
+
+      // Click vào candidate mockVideo2 (1200 - không phải max VPH)
+      const streamRow = wrapper.find('.stream-row');
+      await streamRow.trigger('click');
+
+      // Bây giờ featured là mockVideo2, không được mang label VPH CAO NHẤT mà phải là TÍN HIỆU NỔI BẬT
+      expect(wrapper.find('.featured-kicker').text()).toContain('TÍN HIỆU NỔI BẬT');
+      expect(wrapper.find('.featured-kicker').text()).not.toContain('TÍN HIỆU VPH CAO NHẤT');
+    });
+
+    it('11.2 Empty state has route /video-moi-dang via action-to', async () => {
+      vi.spyOn(videoService, 'fetchTrendingVideos').mockResolvedValueOnce({
+        videos: [],
+        stats: { totalVideos: 0, risingVideos: 0, maxVph: null, totalDelta: null, alertedVideos: 0 },
+      });
+
+      const wrapper = mount(VideosPage, {
+        global: {
+          stubs: {
+            'router-link': routerLinkStub,
+          },
+        },
+      });
+
+      await flushPromises();
+
+      const emptyState = wrapper.findComponent({ name: 'EmptyState' });
+      expect(emptyState.exists()).toBe(true);
+      expect(emptyState.props('actionTo')).toBe('/video-moi-dang');
     });
   });
 });

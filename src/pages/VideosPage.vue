@@ -123,7 +123,7 @@
         title="Chưa có video đang tăng"
         description="Hệ thống chưa ghi nhận video nào có VPH tăng trong điều kiện hiện tại."
         action-text="Xem Video Mới Đăng"
-        action-url="/video-moi-dang"
+        action-to="/video-moi-dang"
       />
 
       <!-- No Filter Results State -->
@@ -143,7 +143,7 @@
           <GrowthRadarHero
             v-if="featuredVideo"
             :video="featuredVideo"
-            :is-vph-selection="currentSort === 'vph_desc'"
+            :is-vph-selection="isFeaturedTopVph"
             :is-adding-to-production="addingVideoId === featuredVideo.id"
             @add-production="handleAddToProduction"
           />
@@ -397,6 +397,26 @@ const featuredVideo = computed(() => {
     return selectedFeaturedVideo.value;
   }
   return filteredAndSortedVideos.value[0] || null;
+});
+
+// Chỉ hiển thị 'TÍN HIỆU VPH CAO NHẤT' nếu featured hiện tại thực sự là item có VPH cao nhất trong danh sách
+const isFeaturedTopVph = computed(() => {
+  if (!featuredVideo.value || filteredAndSortedVideos.value.length === 0) return false;
+  const currentFeaturedVph = featuredVideo.value.latestMeasuredVph;
+  if (currentFeaturedVph === null || currentFeaturedVph === undefined || currentFeaturedVph <= 0) {
+    return false;
+  }
+
+  let maxVph = -Infinity;
+  for (const v of filteredAndSortedVideos.value) {
+    if (v.latestMeasuredVph !== null && v.latestMeasuredVph !== undefined && v.latestMeasuredVph > 0) {
+      if (v.latestMeasuredVph > maxVph) {
+        maxVph = v.latestMeasuredVph;
+      }
+    }
+  }
+
+  return maxVph > 0 && currentFeaturedVph === maxVph;
 });
 
 // Stream candidates (all except current featured)

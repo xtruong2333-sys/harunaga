@@ -7,14 +7,22 @@
       </div>
       <div class="badge-cluster">
         <GrowthStatusBadge
-          type="rising"
-          :measured-vph="video.latestMeasuredVph"
-        />
-        <GrowthStatusBadge
-          v-if="video.alert && video.alert.status === 'sent'"
+          v-if="video.alert"
           type="alert"
-          alert-status="sent"
+          :alert-status="video.alert.status"
         />
+        <template v-else>
+          <GrowthStatusBadge
+            v-if="video.latestMeasuredVph && video.latestMeasuredVph > 0"
+            type="rising"
+            :measured-vph="video.latestMeasuredVph"
+          />
+          <GrowthStatusBadge
+            v-else
+            type="alert"
+            alert-status="unalerted"
+          />
+        </template>
       </div>
     </div>
 
@@ -275,6 +283,13 @@ function formatVideoAge(publishedAt: string): string {
   0% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.6); }
   70% { box-shadow: 0 0 0 6px rgba(37, 99, 235, 0); }
   100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pulse-point {
+    animation: none;
+    box-shadow: none;
+  }
 }
 
 .badge-cluster {

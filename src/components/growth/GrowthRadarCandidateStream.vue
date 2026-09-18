@@ -31,10 +31,22 @@
             <span class="meta-dot">•</span>
             <span class="stream-time">{{ formatVideoAge(v.publishedAt) }}</span>
             <GrowthStatusBadge
-              v-if="v.alert && v.alert.status === 'sent'"
+              v-if="v.alert"
               type="alert"
-              alert-status="sent"
+              :alert-status="v.alert.status"
             />
+            <template v-else>
+              <GrowthStatusBadge
+                v-if="v.latestMeasuredVph && v.latestMeasuredVph > 0"
+                type="rising"
+                :measured-vph="v.latestMeasuredVph"
+              />
+              <GrowthStatusBadge
+                v-else
+                type="alert"
+                alert-status="unalerted"
+              />
+            </template>
           </div>
 
           <h4 class="stream-video-title" :title="v.title">

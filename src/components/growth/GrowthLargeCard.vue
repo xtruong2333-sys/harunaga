@@ -21,15 +21,22 @@
         <span class="video-age">{{ formatVideoAge(video.publishedAt) }}</span>
         <div class="status-badge-wrap">
           <GrowthStatusBadge
-            v-if="video.alert && video.alert.status === 'sent'"
+            v-if="video.alert"
             type="alert"
-            alert-status="sent"
+            :alert-status="video.alert.status"
           />
-          <GrowthStatusBadge
-            v-else
-            type="rising"
-            :measured-vph="video.latestMeasuredVph"
-          />
+          <template v-else>
+            <GrowthStatusBadge
+              v-if="video.latestMeasuredVph && video.latestMeasuredVph > 0"
+              type="rising"
+              :measured-vph="video.latestMeasuredVph"
+            />
+            <GrowthStatusBadge
+              v-else
+              type="alert"
+              alert-status="unalerted"
+            />
+          </template>
         </div>
       </div>
 
