@@ -16,11 +16,11 @@ describe('V1.1 Theme System — Light / Dark Mode', () => {
       expect(THEME_STORAGE_KEY).toBe('bbdt_theme');
     });
 
-    it('1.2 Default theme phải là "dark" khi localStorage trống', () => {
+    it('1.2 Default theme phải là "light" khi localStorage trống', () => {
       const { theme, isDark } = useTheme();
-      expect(theme.value).toBe('dark');
-      expect(isDark.value).toBe(true);
-      expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
+      expect(theme.value).toBe('light');
+      expect(isDark.value).toBe(false);
+      expect(document.documentElement.getAttribute('data-theme')).toBe('light');
     });
 
     it('1.3 setTheme("light") cập nhật reactive state, DOM data-theme và localStorage', () => {

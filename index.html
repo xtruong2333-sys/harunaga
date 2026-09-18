@@ -18,10 +18,10 @@
       (function(){
         try {
           var t = localStorage.getItem('bbdt_theme');
-          var theme = (t === 'light' || t === 'dark') ? t : 'dark';
+          var theme = (t === 'light' || t === 'dark') ? t : 'light';
           document.documentElement.setAttribute('data-theme', theme);
         } catch (e) {
-          document.documentElement.setAttribute('data-theme', 'dark');
+          document.documentElement.setAttribute('data-theme', 'light');
         }
       })();
     </script>

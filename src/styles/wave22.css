@@ -1,4 +1,35 @@
-/* Wave 2.2 — Intelligence OS visual layer */
+/* Wave 2.2 — Bright Intelligence OS visual layer */
+
+/* 1. Theme Tokens */
+[data-theme="light"] {
+  --bg-main: #F5F8FC;
+  --bg-surface: rgba(255, 255, 255, 0.84);
+  --bg-surface-elevated: #FFFFFF;
+  --bg-surface-hover: #F4F8FC;
+  --bg-inset: #EEF4F8;
+
+  --text-primary: #102033;
+  --text-secondary: #52657A;
+  --text-muted: #8191A4;
+
+  --accent: #0284C7;
+  --accent-text: #FFFFFF;
+  --accent-hover: #0369A1;
+  --accent-subtle: rgba(2, 132, 199, 0.08);
+  --accent-glow: rgba(2, 132, 199, 0.16);
+
+  --border-subtle: rgba(15, 60, 90, 0.10);
+  --border-strong: rgba(2, 132, 199, 0.24);
+  --border-line: rgba(15, 60, 90, 0.08);
+
+  --signal-accent: #0284C7;
+  --signal-positive: #059669;
+  --signal-warning: #D97706;
+
+  --card-shadow: 0 8px 30px rgba(35, 65, 95, 0.08);
+  --card-shadow-hover: 0 14px 40px rgba(35, 65, 95, 0.13), 0 0 0 1px rgba(2, 132, 199, 0.15);
+}
+
 :root,
 [data-theme="dark"] {
   --bg-main: #05070d;
@@ -23,148 +54,195 @@ body,
   min-height: 100%;
 }
 
-body {
-  background: #05070d !important;
-  background-image: none !important;
-}
-
 #app {
   position: relative;
   isolation: isolate;
 }
 
-.surface-card,
-.interactive-card,
-.stat-card,
-.system-status-card,
-.section-container,
-.panel-card,
-.empty-card,
-.table-card,
-.skeleton-card,
-.skeleton-panel,
-.skeleton-system,
-.skeleton-table,
-.skeleton-top-videos {
-  background: linear-gradient(145deg, rgba(10, 16, 28, 0.78), rgba(7, 12, 21, 0.58)) !important;
-  border-color: rgba(125, 211, 252, 0.10) !important;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.025), 0 18px 54px rgba(0,0,0,0.20) !important;
+/* 2. Light Mode Glass & Cards */
+[data-theme="light"] body {
+  background-color: #F5F8FC;
+}
+
+[data-theme="light"] .surface-card,
+[data-theme="light"] .interactive-card,
+[data-theme="light"] .stat-card,
+[data-theme="light"] .system-status-card,
+[data-theme="light"] .section-container,
+[data-theme="light"] .panel-card,
+[data-theme="light"] .empty-card,
+[data-theme="light"] .table-card {
+  background: rgba(255, 255, 255, 0.84);
+  border: 1px solid rgba(15, 60, 90, 0.09);
+  box-shadow: 0 8px 28px rgba(35, 65, 95, 0.07);
+  backdrop-filter: blur(18px) saturate(130%);
+  -webkit-backdrop-filter: blur(18px) saturate(130%);
+}
+
+[data-theme="light"] .stat-card:hover,
+[data-theme="light"] .interactive-card:hover,
+[data-theme="light"] .top-video-card:hover,
+[data-theme="light"] .channel-summary-item:hover {
+  transform: translateY(-2px);
+  background: #FFFFFF;
+  border-color: rgba(2, 132, 199, 0.24);
+  box-shadow: 0 14px 36px rgba(35, 65, 95, 0.12);
+}
+
+[data-theme="light"] .top-video-card {
+  background: #FFFFFF;
+  border: 1px solid rgba(15, 60, 90, 0.09);
+  box-shadow: 0 4px 16px rgba(35, 65, 95, 0.05);
+  border-radius: 14px;
+}
+
+[data-theme="light"] .channel-summary-item {
+  background: #FFFFFF;
+  border: 1px solid rgba(15, 60, 90, 0.09);
+}
+
+[data-theme="light"] .btn-primary {
+  background: #0284C7;
+  color: #FFFFFF;
+  box-shadow: 0 6px 20px rgba(2, 132, 199, 0.22);
+}
+
+[data-theme="light"] .btn-primary:hover:not(:disabled) {
+  background: #0369A1;
+}
+
+[data-theme="light"] .btn-secondary {
+  background: #FFFFFF;
+  color: #334155;
+  border: 1px solid #DDE6EE;
+  box-shadow: 0 2px 8px rgba(35, 65, 95, 0.04);
+}
+
+[data-theme="light"] .btn-secondary:hover:not(:disabled) {
+  background: #F4F8FC;
+  border-color: #CBD5E1;
+  color: #102033;
+}
+
+[data-theme="light"] .scan-table th {
+  background: #F0F5F9;
+  color: #475569;
+  border-bottom: 1px solid #E2E8F0;
+}
+
+[data-theme="light"] .scan-table td {
+  border-bottom: 1px solid #EBF1F6;
+  color: #102033;
+}
+
+[data-theme="light"] .scan-row:hover td {
+  background: #F8FAFC;
+}
+
+/* 3. Dark Mode Glass & Cards */
+[data-theme="dark"] body {
+  background: #05070d;
+}
+
+[data-theme="dark"] .surface-card,
+[data-theme="dark"] .interactive-card,
+[data-theme="dark"] .stat-card,
+[data-theme="dark"] .system-status-card,
+[data-theme="dark"] .section-container,
+[data-theme="dark"] .panel-card,
+[data-theme="dark"] .empty-card,
+[data-theme="dark"] .table-card {
+  background: linear-gradient(145deg, rgba(10, 16, 28, 0.78), rgba(7, 12, 21, 0.58));
+  border-color: rgba(125, 211, 252, 0.10);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.025), 0 18px 54px rgba(0,0,0,0.20);
   backdrop-filter: blur(18px) saturate(120%);
   -webkit-backdrop-filter: blur(18px) saturate(120%);
 }
 
-.stat-card,
-.interactive-card,
-.top-video-card,
-.channel-summary-item {
-  position: relative;
-  overflow: hidden;
+[data-theme="dark"] .stat-card:hover,
+[data-theme="dark"] .interactive-card:hover,
+[data-theme="dark"] .top-video-card:hover,
+[data-theme="dark"] .channel-summary-item:hover {
+  transform: translateY(-3px) scale(1.003);
+  border-color: rgba(103, 232, 249, 0.22);
 }
 
-.stat-card::before,
-.interactive-card::before,
-.top-video-card::before,
-.channel-summary-item::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: radial-gradient(600px circle at var(--mx, 50%) var(--my, 0%), rgba(103,232,249,0.07), transparent 38%);
-  opacity: 0;
-  transition: opacity 220ms ease;
-}
-
-.stat-card:hover::before,
-.interactive-card:hover::before,
-.top-video-card:hover::before,
-.channel-summary-item:hover::before {
-  opacity: 1;
-}
-
-.stat-card:hover,
-.interactive-card:hover,
-.top-video-card:hover,
-.channel-summary-item:hover {
-  transform: translateY(-3px) scale(1.003) !important;
-  border-color: rgba(103, 232, 249, 0.22) !important;
-}
-
-.page-title {
-  font-size: clamp(28px, 3vw, 42px) !important;
-  letter-spacing: -0.045em !important;
-  line-height: 1.02 !important;
-}
-
-.page-kicker {
-  letter-spacing: 0.18em !important;
-  color: #67e8f9 !important;
-}
-
-.page-description,
-.section-subtitle,
-.panel-subtitle,
-.status-subtitle {
-  color: #8aa0b8 !important;
-}
-
-.btn {
-  border-radius: 11px !important;
-  min-height: 38px;
-}
-
-.btn-primary {
-  background: linear-gradient(135deg, #67e8f9, #38bdf8) !important;
-  box-shadow: 0 8px 30px rgba(56, 189, 248, 0.20);
-}
-
-.btn-secondary {
-  background: rgba(10, 18, 30, 0.62) !important;
+[data-theme="dark"] .top-video-card {
+  border-radius: 14px;
+  background: rgba(10, 17, 29, 0.54);
   backdrop-filter: blur(12px);
 }
 
-.stats-grid {
-  gap: 14px !important;
+[data-theme="dark"] .btn-primary {
+  background: linear-gradient(135deg, #67e8f9, #38bdf8);
+  box-shadow: 0 8px 30px rgba(56, 189, 248, 0.20);
+}
+
+[data-theme="dark"] .btn-secondary {
+  background: rgba(10, 18, 30, 0.62);
+  backdrop-filter: blur(12px);
+}
+
+[data-theme="dark"] .scan-table th {
+  background: rgba(6, 12, 21, 0.76);
+}
+
+[data-theme="dark"] .scan-row:hover td {
+  background: rgba(20, 35, 56, 0.46);
+}
+
+/* 4. Common Typography & Utilities */
+.page-title {
+  font-size: clamp(26px, 3vw, 38px);
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+}
+
+.page-kicker {
+  letter-spacing: 0.16em;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+[data-theme="light"] .page-kicker {
+  color: #0284C7;
+}
+
+[data-theme="dark"] .page-kicker {
+  color: #67e8f9;
+}
+
+.btn {
+  border-radius: 10px;
+  min-height: 38px;
 }
 
 .stat-card {
-  min-height: 126px;
-  border-radius: 18px !important;
-  padding: 20px 22px !important;
+  border-radius: 16px;
+  padding: 18px 20px;
 }
 
 .stat-val {
-  font-size: clamp(30px, 3vw, 42px) !important;
-  letter-spacing: -0.045em;
+  font-size: clamp(28px, 3vw, 38px);
+  letter-spacing: -0.035em;
+  font-weight: 700;
 }
 
 .section-container,
 .system-status-card,
 .panel-card {
-  border-radius: 20px !important;
-}
-
-.top-video-card {
-  border-radius: 14px !important;
-  background: rgba(10, 17, 29, 0.54) !important;
-  backdrop-filter: blur(12px);
-}
-
-.scan-table th {
-  background: rgba(6, 12, 21, 0.76) !important;
-}
-
-.scan-row:hover td {
-  background: rgba(20, 35, 56, 0.46) !important;
+  border-radius: 18px;
 }
 
 ::selection {
-  background: rgba(103, 232, 249, 0.24);
-  color: #f8fafc;
+  background: rgba(2, 132, 199, 0.20);
+  color: inherit;
 }
 
 @media (max-width: 900px) {
   .page-title {
-    font-size: 30px !important;
+    font-size: 28px;
   }
 
   .surface-card,
@@ -176,3 +254,4 @@ body {
     backdrop-filter: blur(10px);
   }
 }
+

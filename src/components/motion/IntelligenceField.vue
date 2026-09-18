@@ -5,15 +5,22 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref } from 'vue';
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import * as THREE from 'three';
+import { useTheme } from '@/composables/useTheme';
 
 const host = ref<HTMLDivElement | null>(null);
+const { isDark } = useTheme();
 
 let renderer: any = null;
 let scene: any = null;
 let camera: any = null;
 let rootGroup: any = null;
+let orbMaterial: any = null;
+let haloMaterial: any = null;
+let particlesMaterial: any = null;
+let gridHelper: any = null;
+let glowLight: any = null;
 let frame = 0;
 let resizeObserver: ResizeObserver | null = null;
 let pointerX = 0;
@@ -22,6 +29,84 @@ let targetX = 0;
 let targetY = 0;
 let isVisible = true;
 let reducedMotion = false;
+
+function applyThemeVisuals(dark: boolean) {
+  if (!scene) return;
+
+  if (dark) {
+    // Dark Mode Theme Visuals
+    scene.fog.color.setHex(0x05070d);
+    scene.fog.density = 0.055;
+
+    if (orbMaterial) {
+      orbMaterial.color.setHex(0x38bdf8);
+      orbMaterial.opacity = 0.12;
+    }
+
+    if (haloMaterial) {
+      haloMaterial.color.setHex(0x60a5fa);
+      haloMaterial.opacity = 0.20;
+    }
+
+    if (particlesMaterial) {
+      particlesMaterial.color.setHex(0x7dd3fc);
+      particlesMaterial.opacity = 0.58;
+      particlesMaterial.size = 0.035;
+      particlesMaterial.blending = THREE.AdditiveBlending;
+    }
+
+    if (glowLight) {
+      glowLight.color.setHex(0x38bdf8);
+      glowLight.intensity = 7;
+    }
+
+    if (gridHelper) {
+      const gridMaterials = Array.isArray(gridHelper.material) ? gridHelper.material : [gridHelper.material];
+      gridMaterials.forEach((material: any) => {
+        material.color.setHex(0x0ea5e9);
+        material.opacity = 0.055;
+      });
+    }
+  } else {
+    // Light Mode Theme Visuals (Bright Intelligence UI: airy, clean, icy blue)
+    scene.fog.color.setHex(0xf5f8fc);
+    scene.fog.density = 0.04;
+
+    if (orbMaterial) {
+      orbMaterial.color.setHex(0x0284c7);
+      orbMaterial.opacity = 0.08;
+    }
+
+    if (haloMaterial) {
+      haloMaterial.color.setHex(0x38bdf8);
+      haloMaterial.opacity = 0.09;
+    }
+
+    if (particlesMaterial) {
+      particlesMaterial.color.setHex(0x0ea5e9);
+      particlesMaterial.opacity = 0.18;
+      particlesMaterial.size = 0.028;
+      particlesMaterial.blending = THREE.NormalBlending;
+    }
+
+    if (glowLight) {
+      glowLight.color.setHex(0x38bdf8);
+      glowLight.intensity = 2.5;
+    }
+
+    if (gridHelper) {
+      const gridMaterials = Array.isArray(gridHelper.material) ? gridHelper.material : [gridHelper.material];
+      gridMaterials.forEach((material: any) => {
+        material.color.setHex(0xcbd5e1);
+        material.opacity = 0.038;
+      });
+    }
+  }
+}
+
+watch(isDark, (newVal) => {
+  applyThemeVisuals(newVal);
+});
 
 function onPointerMove(event: PointerEvent) {
   targetX = (event.clientX / window.innerWidth - 0.5) * 2;
@@ -73,21 +158,26 @@ onMounted(() => {
   camera = new THREE.PerspectiveCamera(46, 1, 0.1, 100);
   camera.position.set(0, 0, 12);
 
-  renderer = new THREE.WebGLRenderer({
-    antialias: !reducedMotion,
-    alpha: true,
-    powerPreference: 'high-performance',
-  });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
-  renderer.setClearColor(0x000000, 0);
-  renderer.outputColorSpace = THREE.SRGBColorSpace;
-  host.value.prepend(renderer.domElement);
+  try {
+    renderer = new THREE.WebGLRenderer({
+      antialias: !reducedMotion,
+      alpha: true,
+      powerPreference: 'high-performance',
+    });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+    renderer.setClearColor(0x000000, 0);
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    host.value.prepend(renderer.domElement);
+  } catch {
+    // WebGL unsupported or in headless test environment
+    return;
+  }
 
   rootGroup = new THREE.Group();
   scene.add(rootGroup);
 
   const orbGeometry = new THREE.IcosahedronGeometry(2.1, 2);
-  const orbMaterial = new THREE.MeshBasicMaterial({
+  orbMaterial = new THREE.MeshBasicMaterial({
     color: 0x38bdf8,
     wireframe: true,
     transparent: true,
@@ -98,7 +188,7 @@ onMounted(() => {
   rootGroup.add(orb);
 
   const haloGeometry = new THREE.TorusGeometry(2.85, 0.012, 8, 180);
-  const haloMaterial = new THREE.MeshBasicMaterial({
+  haloMaterial = new THREE.MeshBasicMaterial({
     color: 0x60a5fa,
     transparent: true,
     opacity: 0.2,
@@ -125,7 +215,7 @@ onMounted(() => {
   particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
   particlesGeometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
 
-  const particlesMaterial = new THREE.PointsMaterial({
+  particlesMaterial = new THREE.PointsMaterial({
     color: 0x7dd3fc,
     size: 0.035,
     transparent: true,
@@ -137,19 +227,22 @@ onMounted(() => {
   const particles = new THREE.Points(particlesGeometry, particlesMaterial);
   rootGroup.add(particles);
 
-  const grid = new THREE.GridHelper(34, 34, 0x0ea5e9, 0x164e63);
-  const gridMaterials = Array.isArray(grid.material) ? grid.material : [grid.material];
+  gridHelper = new THREE.GridHelper(34, 34, 0x0ea5e9, 0x164e63);
+  const gridMaterials = Array.isArray(gridHelper.material) ? gridHelper.material : [gridHelper.material];
   gridMaterials.forEach((material: any) => {
     material.transparent = true;
     material.opacity = 0.055;
   });
-  grid.position.set(0, -5.4, -4);
-  grid.rotation.x = Math.PI * 0.06;
-  rootGroup.add(grid);
+  gridHelper.position.set(0, -5.4, -4);
+  gridHelper.rotation.x = Math.PI * 0.06;
+  rootGroup.add(gridHelper);
 
-  const glow = new THREE.PointLight(0x38bdf8, 7, 20, 2);
-  glow.position.set(3.2, -0.2, 2);
-  scene.add(glow);
+  glowLight = new THREE.PointLight(0x38bdf8, 7, 20, 2);
+  glowLight.position.set(3.2, -0.2, 2);
+  scene.add(glowLight);
+
+  // Apply initial theme visuals based on current theme
+  applyThemeVisuals(isDark.value);
 
   resizeObserver = new ResizeObserver(resize);
   resizeObserver.observe(host.value);
@@ -192,13 +285,15 @@ onBeforeUnmount(() => {
   background:
     radial-gradient(circle at 78% 18%, rgba(14, 165, 233, 0.10), transparent 27%),
     radial-gradient(circle at 18% 76%, rgba(59, 130, 246, 0.06), transparent 34%);
+  transition: background 0.3s ease;
 }
 
 .intelligence-field :deep(canvas) {
   width: 100%;
   height: 100%;
-  opacity: 0.9;
+  opacity: 0.95;
   filter: saturate(1.08);
+  transition: opacity 0.3s ease;
 }
 
 .intelligence-field__vignette {
@@ -207,16 +302,29 @@ onBeforeUnmount(() => {
   background:
     linear-gradient(90deg, rgba(5, 7, 13, 0.72) 0%, rgba(5, 7, 13, 0.24) 32%, rgba(5, 7, 13, 0.08) 66%, rgba(5, 7, 13, 0.32) 100%),
     radial-gradient(ellipse at center, transparent 30%, rgba(2, 4, 8, 0.54) 100%);
+  transition: background 0.3s ease;
 }
 
 [data-theme="light"] .intelligence-field {
-  opacity: 0.25;
-  filter: invert(1) hue-rotate(165deg);
+  background:
+    radial-gradient(circle at 80% 20%, rgba(56, 189, 248, 0.08), transparent 30%),
+    radial-gradient(circle at 15% 75%, rgba(99, 102, 241, 0.03), transparent 35%);
+  opacity: 1;
+}
+
+[data-theme="light"] .intelligence-field :deep(canvas) {
+  opacity: 0.85;
+}
+
+[data-theme="light"] .intelligence-field__vignette {
+  background:
+    linear-gradient(90deg, rgba(245, 248, 252, 0.75) 0%, rgba(245, 248, 252, 0.25) 32%, rgba(245, 248, 252, 0.06) 66%, rgba(245, 248, 252, 0.35) 100%),
+    radial-gradient(ellipse at center, transparent 40%, rgba(235, 242, 250, 0.5) 100%);
 }
 
 @media (max-width: 900px) {
   .intelligence-field {
-    opacity: 0.5;
+    opacity: 0.6;
   }
 }
 
@@ -226,3 +334,4 @@ onBeforeUnmount(() => {
   }
 }
 </style>
+
