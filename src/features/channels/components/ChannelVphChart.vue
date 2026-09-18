@@ -5,7 +5,7 @@
         <div class="chart-title">Tốc Độ VPH Của Các Video</div>
         <div class="chart-subtitle">So sánh tốc độ tăng trưởng (VPH) giữa các video đang hoạt động tốt nhất của kênh</div>
       </div>
-      <div v-if="threshold > 0" class="threshold-badge">
+      <div v-if="threshold && threshold > 0" class="threshold-badge">
         Ngưỡng cảnh báo: <strong>{{ threshold.toLocaleString('vi-VN') }}</strong> VPH
       </div>
     </div>
@@ -63,7 +63,7 @@ import { ChannelVideoItem } from '@/types/channel-analysis';
 
 const props = defineProps<{
   videos: ChannelVideoItem[];
-  threshold: number;
+  threshold?: number | null;
 }>();
 
 const validVideos = computed(() => {

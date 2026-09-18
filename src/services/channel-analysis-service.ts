@@ -40,14 +40,23 @@ export const channelAnalysisService = {
       return null;
     }
 
-    const threshold = Number(channelData.alert_vph_threshold) || 5000;
+    const rawThreshold = channelData.alert_vph_threshold;
+    const threshold = rawThreshold !== null && rawThreshold !== undefined && !isNaN(Number(rawThreshold)) && Number(rawThreshold) > 0
+      ? Number(rawThreshold)
+      : null;
+
+    const rawScanLimit = channelData.scan_limit;
+    const scanLimit = rawScanLimit !== null && rawScanLimit !== undefined && !isNaN(Number(rawScanLimit)) && Number(rawScanLimit) > 0
+      ? Number(rawScanLimit)
+      : null;
+
     const channelHeader: ChannelAnalysisHeader = {
       id: channelData.id,
       name: channelData.name || 'Kênh Chưa Rõ',
       handle: channelData.handle || null,
       avatarUrl: channelData.avatar_url || null,
       status: channelData.status || 'active',
-      scanLimit: Number(channelData.scan_limit) || 15,
+      scanLimit,
       alertVphThreshold: threshold,
       lastScanAt: channelData.last_scan_at || null,
       createdAt: channelData.created_at,
@@ -99,7 +108,7 @@ export const channelAnalysisService = {
       const vph = v.latest_measured_vph !== null && v.latest_measured_vph !== undefined
         ? Number(v.latest_measured_vph)
         : null;
-      const isOver = vph !== null && threshold > 0 && vph >= threshold;
+      const isOver = vph !== null && threshold !== null && threshold > 0 && vph >= threshold;
       const alert = alertMap.get(v.id);
 
       return {
@@ -109,7 +118,9 @@ export const channelAnalysisService = {
         url: v.url || `https://www.youtube.com/watch?v=${v.youtube_video_id}`,
         thumbnailUrl: v.thumbnail_url || null,
         publishedAt: v.published_at,
-        latestViewCount: Number(v.latest_view_count) || 0,
+        latestViewCount: v.latest_view_count !== null && v.latest_view_count !== undefined && !isNaN(Number(v.latest_view_count))
+          ? Number(v.latest_view_count)
+          : null,
         latestMeasuredVph: vph,
         latestDeltaViews: v.latest_view_delta !== null && v.latest_view_delta !== undefined ? Number(v.latest_view_delta) : null,
         isOverThreshold: isOver,
