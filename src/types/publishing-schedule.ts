@@ -2,6 +2,31 @@
 
 export type PublishingRange = '7d' | '30d' | '90d' | 'all';
 
+export type PublishingViewMode = 'calendar' | 'heatmap' | 'channels' | 'timeline';
+
+export interface ViewModeConfig {
+  id: PublishingViewMode;
+  label: string;
+  icon: string;
+  title: string;
+}
+
+export const PUBLISHING_VIEW_MODES: ViewModeConfig[] = [
+  { id: 'calendar', label: 'Lịch', icon: 'calendar', title: 'Lịch xuất bản tổng quan' },
+  { id: 'heatmap', label: 'Heatmap', icon: 'grid', title: 'Ma trận tần suất 7x24' },
+  { id: 'channels', label: 'Theo kênh', icon: 'users', title: 'Nhịp đăng chi tiết từng kênh' },
+  { id: 'timeline', label: 'Timeline', icon: 'clock', title: 'Dòng thời gian video xuất bản' },
+];
+
+export interface PublishingWeekPatternDay {
+  weekday: number;       // 0..6 (Thứ 2..Chủ Nhật)
+  weekdayName: string;   // 'Thứ 2'..'Chủ Nhật'
+  count: number;
+  percentage: number;
+  peakHour: string;      // e.g. '19:00' or '—'
+  isMax: boolean;
+}
+
 export interface VietnamDateParts {
   year: number;
   month: number;
