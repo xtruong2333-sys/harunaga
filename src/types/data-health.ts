@@ -37,7 +37,6 @@ export interface DataHealthScan {
   snapshotsCreated: number;
   alertsSent: number;
   alertsFailed: number;
-  errorSummary: string | null;
   sanitizedError: string | null;
   durationText: string;
   relativeTime: string;
@@ -49,8 +48,8 @@ export interface ChannelFreshness {
   handle: string | null;
   avatarUrl: string | null;
   lastScanAt: string | null;
-  scanLimit: number;
-  alertVphThreshold: number;
+  scanLimit: number | null;
+  alertVphThreshold: number | null;
   freshnessCategory: FreshnessCategory;
   freshnessLabel: string;
   relativeScanTime: string;
@@ -60,7 +59,7 @@ export interface VideoFreshness {
   id: string;
   title: string;
   thumbnailUrl: string | null;
-  youtubeVideoId: string;
+  youtubeVideoId: string | null;
   channelId: string;
   channelName: string;
   latestSnapshotAt: string | null;
@@ -79,12 +78,13 @@ export interface FailedAlertItem {
   measuredVph: number | null;
   attempts: number;
   updatedAt: string;
-  lastError: string;
   sanitizedError: string;
 }
 
 export interface AlertHealthSummary {
   total: number;
+  sampleLimit: number;
+  sampleSize: number;
   sent: number;
   pending: number;
   sending: number;
@@ -99,6 +99,7 @@ export interface DataHealthSummary {
   latestScheduledScan: DataHealthScan | null;
   channelsNeedAttentionCount: number;
   staleVideosCount: number;
+  activeVideosCount: number;
   failedAlertsCount: number;
   channels: ChannelFreshness[];
   staleVideos: VideoFreshness[];

@@ -7,8 +7,8 @@ export interface ChannelAnalysisHeader {
   handle: string | null;
   avatarUrl: string | null;
   status: 'active' | 'paused' | 'archived';
-  scanLimit: number;
-  alertVphThreshold: number;
+  scanLimit: number | null;
+  alertVphThreshold: number | null;
   lastScanAt: string | null;
   createdAt: string;
   url: string;
@@ -21,7 +21,7 @@ export interface ChannelVideoItem {
   url: string;
   thumbnailUrl: string | null;
   publishedAt: string;
-  latestViewCount: number;
+  latestViewCount: number | null;
   latestMeasuredVph: number | null;
   latestDeltaViews: number | null;
   isOverThreshold: boolean;
@@ -62,5 +62,6 @@ export interface ChannelAnalysis {
   topRisingVideos: ChannelVideoItem[]; // Top 5 sort VPH DESC
   latestVideos: ChannelVideoItem[];    // Top 10 sort published_at DESC
   topVphChartVideos: ChannelVideoItem[]; // Top 10 sort VPH DESC (cho biểu đồ)
+  publishingVideos: ChannelVideoItem[]; // Toàn bộ video sắp xếp theo published_at DESC cho phân tích nhịp đăng
   alertSummary: ChannelAlertSummary;
 }

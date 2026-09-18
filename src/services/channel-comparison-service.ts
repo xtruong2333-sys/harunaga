@@ -9,12 +9,141 @@ import type {
   ComparableChannelOption,
   ChannelComparisonItem,
   ChannelComparisonMetrics,
+  ChannelPublishingMetrics,
   ChannelComparisonVideo,
   ChannelComparisonTrendPoint,
   ChannelComparisonData,
 } from '@/types/channel-comparison';
 import { COMPARISON_PALETTE } from '@/types/channel-comparison';
 import { fetchAllBatches } from './query-pagination';
+
+/**
+ * Chuyển đổi giá trị sang finite number an toàn hoặc null
+ */
+export function toFiniteNumber(value: unknown): number | null {
+  if (value === null || value === undefined || value === '') return null;
+  const n = Number(value);
+  return Number.isFinite(n) ? n : null;
+}
+
+/**
+ * Định dạng biến động lượt xem delta (+500, 0, -500, —)
+ */
+export function formatDelta(delta: number | null | undefined): string {
+  if (delta === null || delta === undefined) return '—';
+  if (delta > 0) return `+${delta.toLocaleString('vi-VN')}`;
+  if (delta === 0) return '0';
+  return delta.toLocaleString('vi-VN');
+}
+
+/**
+ * Tính toán nhịp đăng đối chiếu (Publishing Rhythm) từ toàn bộ video của kênh
+ */
+export function computePublishingMetrics(
+  videos: Array<{ published_at: string | null }>,
+  nowMs: number = Date.now()
+): ChannelPublishingMetrics {
+  const validVideos = videos.filter(v => Boolean(v.published_at));
+  const sampleCount = validVideos.length;
+
+  const ms7d = nowMs - 7 * 24 * 60 * 60 * 1000;
+  const ms30d = nowMs - 30 * 24 * 60 * 60 * 1000;
+
+  let publishedLast7d = 0;
+  let publishedLast30d = 0;
+
+  for (const v of validVideos) {
+    const t = new Date(v.published_at!).getTime();
+    if (t >= ms7d) publishedLast7d++;
+    if (t >= ms30d) publishedLast30d++;
+  }
+
+  // Guard: if sampleCount < 3, insufficient data for reliable cadence insights
+  if (sampleCount < 3) {
+    return {
+      publishedLast7d,
+      publishedLast30d,
+      avgDaysBetweenPosts: null,
+      mostCommonWeekday: 'Chưa đủ dữ liệu',
+      commonHourWindow: 'Chưa đủ dữ liệu',
+      sampleCount,
+    };
+  }
+
+  // Sort timestamps ascending to calculate intervals
+  const sortedTimes = validVideos
+    .map(v => new Date(v.published_at!).getTime())
+    .sort((a, b) => a - b);
+
+  let totalDiffMs = 0;
+  for (let i = 1; i < sortedTimes.length; i++) {
+    totalDiffMs += (sortedTimes[i] - sortedTimes[i - 1]);
+  }
+  const avgDays = (totalDiffMs / (sortedTimes.length - 1)) / (24 * 60 * 60 * 1000);
+  const avgDaysBetweenPosts = Math.round(avgDays * 10) / 10;
+
+  // Most common weekday
+  const weekdayCounts: Record<number, number> = {};
+  const hourCounts: Record<string, number> = {};
+
+  const weekdayNames: Record<number, string> = {
+    0: 'CN',
+    1: 'T2',
+    2: 'T3',
+    3: 'T4',
+    4: 'T5',
+    5: 'T6',
+    6: 'T7',
+  };
+
+  const getHourWindowLabel = (h: number): string => {
+    if (h < 3) return '00–03h';
+    if (h < 6) return '03–06h';
+    if (h < 9) return '06–09h';
+    if (h < 12) return '09–12h';
+    if (h < 15) return '12–15h';
+    if (h < 18) return '15–18h';
+    if (h < 21) return '18–21h';
+    return '21–24h';
+  };
+
+  for (const v of validVideos) {
+    const d = new Date(v.published_at!);
+    const day = d.getDay();
+    weekdayCounts[day] = (weekdayCounts[day] || 0) + 1;
+
+    const win = getHourWindowLabel(d.getHours());
+    hourCounts[win] = (hourCounts[win] || 0) + 1;
+  }
+
+  let bestDay = 0;
+  let maxDayCount = -1;
+  for (const [dayStr, count] of Object.entries(weekdayCounts)) {
+    const d = Number(dayStr);
+    if (count > maxDayCount) {
+      maxDayCount = count;
+      bestDay = d;
+    }
+  }
+
+  let bestHourWindow = '18–21h';
+  let maxHourCount = -1;
+  for (const [win, count] of Object.entries(hourCounts)) {
+    if (count > maxHourCount) {
+      maxHourCount = count;
+      bestHourWindow = win;
+    }
+  }
+
+  return {
+    publishedLast7d,
+    publishedLast30d,
+    avgDaysBetweenPosts,
+    mostCommonWeekday: weekdayNames[bestDay] || 'Chưa đủ dữ liệu',
+    commonHourWindow: bestHourWindow,
+    sampleCount,
+  };
+}
 
 /**
  * Tính toán mốc thời gian dựa trên window lọc (published_at boundary)
@@ -99,12 +228,15 @@ export function computeComparisonMetrics(
 ): ChannelComparisonMetrics {
   const videoCount = videos.length;
 
-  // Lọc các video có measured_vph IS NOT NULL
-  const videosWithVph = videos.filter(v => v.latest_measured_vph !== null && v.latest_measured_vph !== undefined);
+  // Lọc các video có measured_vph IS NOT NULL (bao gồm 0)
+  const videosWithVph = videos.filter(v => {
+    const val = toFiniteNumber(v.latest_measured_vph);
+    return val !== null;
+  });
   const videosWithVphCount = videosWithVph.length;
 
   // Video đang tăng (measured_vph > 0)
-  const risingVideos = videosWithVph.filter(v => v.latest_measured_vph! > 0);
+  const risingVideos = videosWithVph.filter(v => Number(v.latest_measured_vph) > 0);
   const risingVideoCount = risingVideos.length;
 
   // Tỷ lệ video đang tăng = risingVideoCount / videosWithVphCount * 100
@@ -127,17 +259,21 @@ export function computeComparisonMetrics(
   }
 
   // Lượt xem đang theo dõi = SUM(latest_view_count)
-  const trackedViews = videos.reduce((sum, v) => sum + (Number(v.latest_view_count) || 0), 0);
+  // Nếu không có video nào có views -> null; nếu có -> sum
+  const measuredViews = videos
+    .map(v => toFiniteNumber(v.latest_view_count))
+    .filter((v): v is number => v !== null);
+  const trackedViews = measuredViews.length > 0
+    ? measuredViews.reduce((sum, v) => sum + v, 0)
+    : null;
 
   // Lượt xem tăng ở lần đo gần nhất = SUM(view_delta)
-  const hasAnyDelta = videos.some(v => v.view_delta !== null && v.view_delta !== undefined);
-  let latestViewDelta: number | null = null;
-  if (hasAnyDelta) {
-    latestViewDelta = videos.reduce(
-      (sum, v) => sum + (v.view_delta !== null && v.view_delta !== undefined ? Number(v.view_delta) : 0),
-      0
-    );
-  }
+  const measuredDeltas = videos
+    .map(v => toFiniteNumber(v.view_delta))
+    .filter((v): v is number => v !== null);
+  const latestViewDelta = measuredDeltas.length > 0
+    ? measuredDeltas.reduce((sum, v) => sum + v, 0)
+    : null;
 
   return {
     videoCount,
@@ -342,12 +478,18 @@ export const channelComparisonService = {
         const chunk = allVideoIds.slice(i, i + alertChunkSize);
         const { data: alertData } = await supabase
           .from('video_alerts')
-          .select('video_id, status, updated_at')
-          .in('video_id', chunk)
-          .order('updated_at', { ascending: false });
+          .select('video_id, status, sent_at, created_at')
+          .in('video_id', chunk);
 
         if (alertData) {
-          for (const a of alertData) {
+          // Sắp xếp giảm dần theo sent_at || created_at (thống nhất với Wave 3.4-3.7)
+          const sortedAlerts = [...alertData].sort((a, b) => {
+            const timeA = new Date(a.sent_at || a.created_at || 0).getTime();
+            const timeB = new Date(b.sent_at || b.created_at || 0).getTime();
+            return timeB - timeA;
+          });
+
+          for (const a of sortedAlerts) {
             if (!latestAlertMap.has(a.video_id)) {
               latestAlertMap.set(a.video_id, a.status);
             }
@@ -365,6 +507,9 @@ export const channelComparisonService = {
       // Lọc video của kênh này
       const chVideos = allVideos.filter(v => v.channel_id === ch.id);
 
+      // Tính nhịp đăng từ toàn bộ video của kênh (không phụ thuộc timeWindow lọc video phía trên)
+      const publishing = computePublishingMetrics(chVideos, nowMs);
+
       // Lọc video theo time window (published_at)
       const windowVideos = chVideos.filter(v => {
         if (!windowThreshold) return true;
@@ -375,23 +520,46 @@ export const channelComparisonService = {
       // Gộp thông tin delta snapshot mới nhất vào mỗi video từ cache
       const videosWithDelta = windowVideos.map(v => ({
         ...v,
-        latest_view_count: v.latest_view_count !== null && v.latest_view_count !== undefined ? Number(v.latest_view_count) : null,
-        latest_measured_vph: v.latest_measured_vph !== null && v.latest_measured_vph !== undefined ? Number(v.latest_measured_vph) : null,
-        view_delta: v.latest_view_delta !== null && v.latest_view_delta !== undefined ? Number(v.latest_view_delta) : null,
+        latest_view_count: toFiniteNumber(v.latest_view_count),
+        latest_measured_vph: toFiniteNumber(v.latest_measured_vph),
+        view_delta: toFiniteNumber(v.latest_view_delta),
       }));
 
       // Tính metrics
       const metrics = computeComparisonMetrics(videosWithDelta);
 
-      // Sắp xếp top 5 video: latest_measured_vph DESC (NULL ở cuối, VPH > 0 ưu tiên trước, sau đó VPH = 0)
+      // Sắp xếp top 5 video:
+      // 1. latest_measured_vph DESC (NULL ở cuối)
+      // 2. view_delta DESC nếu VPH bằng nhau
+      // 3. published_at DESC (mới nhất)
       const sortedVideos = [...videosWithDelta].sort((a, b) => {
-        if (a.latest_measured_vph === null && b.latest_measured_vph === null) return 0;
-        if (a.latest_measured_vph === null) return 1;
-        if (b.latest_measured_vph === null) return -1;
-        return Number(b.latest_measured_vph) - Number(a.latest_measured_vph);
+        const vphA = toFiniteNumber(a.latest_measured_vph);
+        const vphB = toFiniteNumber(b.latest_measured_vph);
+        if (vphA === null && vphB !== null) return 1;
+        if (vphA !== null && vphB === null) return -1;
+        if (vphA !== null && vphB !== null && vphA !== vphB) {
+          return vphB - vphA;
+        }
+
+        const deltaA = toFiniteNumber(a.view_delta);
+        const deltaB = toFiniteNumber(b.view_delta);
+        if (deltaA === null && deltaB !== null) return 1;
+        if (deltaA !== null && deltaB === null) return -1;
+        if (deltaA !== null && deltaB !== null && deltaA !== deltaB) {
+          return deltaB - deltaA;
+        }
+
+        const timeA = a.published_at ? new Date(a.published_at).getTime() : 0;
+        const timeB = b.published_at ? new Date(b.published_at).getTime() : 0;
+        return timeB - timeA;
       });
 
-      const top5Videos: ChannelComparisonVideo[] = sortedVideos.slice(0, 5).map(v => {
+      const positiveSignalVideos = sortedVideos.filter(v => {
+        const vph = toFiniteNumber(v.latest_measured_vph);
+        return vph !== null && vph > 0;
+      });
+
+      const top5Videos: ChannelComparisonVideo[] = positiveSignalVideos.slice(0, 5).map(v => {
         const alertStatusRaw = latestAlertMap.get(v.id) || null;
         const mappedAlert = mapAlertStatus(alertStatusRaw);
 
@@ -402,9 +570,9 @@ export const channelComparisonService = {
           thumbnailUrl: v.thumbnail_url || (v.youtube_video_id ? `https://i.ytimg.com/vi/${v.youtube_video_id}/mqdefault.jpg` : null),
           publishedAt: v.published_at,
           relativePublishedAt: formatRelativeTime(v.published_at, nowMs),
-          latestViewCount: Number(v.latest_view_count) || 0,
-          latestMeasuredVph: v.latest_measured_vph !== null ? Number(v.latest_measured_vph) : null,
-          latestViewDelta: v.view_delta,
+          latestViewCount: toFiniteNumber(v.latest_view_count),
+          latestMeasuredVph: toFiniteNumber(v.latest_measured_vph),
+          latestViewDelta: toFiniteNumber(v.view_delta),
           alertStatus: mappedAlert.alertStatus,
           alertStatusLabel: mappedAlert.label,
         };
@@ -429,11 +597,12 @@ export const channelComparisonService = {
         avatarUrl: ch.avatar_url || null,
         status: ch.status,
         statusLabel: statusLabels[ch.status] || ch.status,
-        alertVphThreshold: Number(ch.alert_vph_threshold) || 1000,
+        alertVphThreshold: ch.alert_vph_threshold !== null && ch.alert_vph_threshold !== undefined && !isNaN(Number(ch.alert_vph_threshold)) ? Number(ch.alert_vph_threshold) : null,
         lastScanAt: ch.last_scan_at || null,
         relativeScanTime: formatRelativeTime(ch.last_scan_at, nowMs),
         color: channelColor,
         metrics,
+        publishing,
         topVideos: top5Videos,
         trendPoints,
       };

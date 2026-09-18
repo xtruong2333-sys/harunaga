@@ -40,14 +40,23 @@ export const channelAnalysisService = {
       return null;
     }
 
-    const threshold = Number(channelData.alert_vph_threshold) || 5000;
+    const rawThreshold = channelData.alert_vph_threshold;
+    const threshold = rawThreshold !== null && rawThreshold !== undefined && !isNaN(Number(rawThreshold)) && Number(rawThreshold) > 0
+      ? Number(rawThreshold)
+      : null;
+
+    const rawScanLimit = channelData.scan_limit;
+    const scanLimit = rawScanLimit !== null && rawScanLimit !== undefined && !isNaN(Number(rawScanLimit)) && Number(rawScanLimit) > 0
+      ? Number(rawScanLimit)
+      : null;
+
     const channelHeader: ChannelAnalysisHeader = {
       id: channelData.id,
       name: channelData.name || 'Kênh Chưa Rõ',
       handle: channelData.handle || null,
       avatarUrl: channelData.avatar_url || null,
       status: channelData.status || 'active',
-      scanLimit: Number(channelData.scan_limit) || 15,
+      scanLimit,
       alertVphThreshold: threshold,
       lastScanAt: channelData.last_scan_at || null,
       createdAt: channelData.created_at,
@@ -85,8 +94,17 @@ export const channelAnalysisService = {
 
         if (rawAlerts) {
           for (const a of rawAlerts) {
-            alertMap.set(a.video_id, a);
             alertsList.push(a);
+            const existing = alertMap.get(a.video_id);
+            if (!existing) {
+              alertMap.set(a.video_id, a);
+            } else {
+              const existingTime = new Date(existing.sent_at || existing.created_at || 0).getTime();
+              const newTime = new Date(a.sent_at || a.created_at || 0).getTime();
+              if (newTime > existingTime) {
+                alertMap.set(a.video_id, a);
+              }
+            }
           }
         }
       }
@@ -99,7 +117,7 @@ export const channelAnalysisService = {
       const vph = v.latest_measured_vph !== null && v.latest_measured_vph !== undefined
         ? Number(v.latest_measured_vph)
         : null;
-      const isOver = vph !== null && threshold > 0 && vph >= threshold;
+      const isOver = vph !== null && threshold !== null && threshold > 0 && vph >= threshold;
       const alert = alertMap.get(v.id);
 
       return {
@@ -109,7 +127,9 @@ export const channelAnalysisService = {
         url: v.url || `https://www.youtube.com/watch?v=${v.youtube_video_id}`,
         thumbnailUrl: v.thumbnail_url || null,
         publishedAt: v.published_at,
-        latestViewCount: Number(v.latest_view_count) || 0,
+        latestViewCount: v.latest_view_count !== null && v.latest_view_count !== undefined && !isNaN(Number(v.latest_view_count))
+          ? Number(v.latest_view_count)
+          : null,
         latestMeasuredVph: vph,
         latestDeltaViews: v.latest_view_delta !== null && v.latest_view_delta !== undefined ? Number(v.latest_view_delta) : null,
         isOverThreshold: isOver,
@@ -174,16 +194,18 @@ export const channelAnalysisService = {
       })
       .slice(0, 10);
 
+    // Toàn bộ video sắp xếp theo Published DESC (phục vụ phân tích quy luật đăng bài)
+    const publishingVideos = [...mappedVideos]
+      .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
+
     // Top 10 Published DESC (Mới nhất)
-    const latestVideos = [...mappedVideos]
-      .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
-      .slice(0, 10);
+    const latestVideos = publishingVideos.slice(0, 10);
 
     // 8. Tổng kết Alert
     const recentAlerts: ChannelRecentAlert[] = alertsList
       .sort((a, b) => {
-        const timeA = a.sent_at ? new Date(a.sent_at).getTime() : 0;
-        const timeB = b.sent_at ? new Date(b.sent_at).getTime() : 0;
+        const timeA = new Date(a.sent_at || a.created_at || 0).getTime();
+        const timeB = new Date(b.sent_at || b.created_at || 0).getTime();
         return timeB - timeA;
       })
       .slice(0, 5)
@@ -214,6 +236,7 @@ export const channelAnalysisService = {
       topRisingVideos,
       latestVideos,
       topVphChartVideos,
+      publishingVideos,
       alertSummary,
     };
   },

@@ -24,9 +24,64 @@ import type {
 
 export { getStoredAccessKey, setStoredAccessKey, clearStoredAccessKey, AccessKeyRequiredError };
 
+/**
+ * Chuẩn hóa URL video nguồn.
+ * Nếu có dbUrl hợp lệ -> dùng dbUrl.
+ * Nếu dbUrl null nhưng youtubeVideoId hợp lệ -> tạo URL youtube.
+ * Không có cả hai -> null.
+ * Tuyệt đối không tạo URL chứa chuỗi 'null' hay 'undefined'.
+ */
+export function normalizeSourceVideoUrl(
+  dbUrl: string | null | undefined,
+  youtubeVideoId: string | null | undefined
+): string | null {
+  if (dbUrl && typeof dbUrl === 'string' && dbUrl.trim().length > 0) {
+    const trimmed = dbUrl.trim();
+    if (trimmed !== 'null' && trimmed !== 'undefined') {
+      return trimmed;
+    }
+  }
+  if (youtubeVideoId && typeof youtubeVideoId === 'string' && youtubeVideoId.trim().length > 0) {
+    const cleanId = youtubeVideoId.trim();
+    if (cleanId !== 'null' && cleanId !== 'undefined') {
+      return `https://www.youtube.com/watch?v=${cleanId}`;
+    }
+  }
+  return null;
+}
+
+/**
+ * Suy ra URL thumbnail của video nguồn.
+ * Ưu tiên dbThumbnailUrl, nếu không có thì suy ra từ youtubeVideoId hợp lệ.
+ * Tuyệt đối không dùng Unsplash, stock image hoặc URL chứa 'null'/'undefined'.
+ */
+export function deriveProductionThumbnailUrl(
+  dbThumbnailUrl: string | null | undefined,
+  youtubeVideoId: string | null | undefined
+): string | null {
+  if (dbThumbnailUrl && typeof dbThumbnailUrl === 'string' && dbThumbnailUrl.trim().length > 0) {
+    const trimmed = dbThumbnailUrl.trim();
+    if (trimmed !== 'null' && trimmed !== 'undefined') {
+      return trimmed;
+    }
+  }
+  if (youtubeVideoId && typeof youtubeVideoId === 'string' && youtubeVideoId.trim().length > 0) {
+    const cleanId = youtubeVideoId.trim();
+    if (cleanId !== 'null' && cleanId !== 'undefined') {
+      return `https://i.ytimg.com/vi/${cleanId}/mqdefault.jpg`;
+    }
+  }
+  return null;
+}
+
 function mapDbRowToItem(row: any): ProductionItem {
   const video = row.videos;
   const channel = video?.channels;
+
+  const rawYtId = video?.youtube_video_id && typeof video.youtube_video_id === 'string'
+    ? video.youtube_video_id.trim()
+    : null;
+  const validYtId = rawYtId && rawYtId !== 'null' && rawYtId !== 'undefined' ? rawYtId : null;
 
   return {
     id: row.id,
@@ -42,14 +97,10 @@ function mapDbRowToItem(row: any): ProductionItem {
     sourceVideo: video
       ? {
           id: video.id,
-          title: video.title,
-          url: video.url || `https://www.youtube.com/watch?v=${video.youtube_video_id}`,
-          youtubeVideoId: video.youtube_video_id,
-          thumbnailUrl:
-            video.thumbnail_url ||
-            (video.youtube_video_id
-              ? `https://i.ytimg.com/vi/${video.youtube_video_id}/mqdefault.jpg`
-              : null),
+          title: video.title || 'Video đối thủ',
+          url: normalizeSourceVideoUrl(video.url, validYtId),
+          youtubeVideoId: validYtId,
+          thumbnailUrl: deriveProductionThumbnailUrl(video.thumbnail_url, validYtId),
           channelName: channel?.name || 'Kênh đối thủ',
           channelHandle: channel?.handle || null,
           channelAvatarUrl: channel?.avatar_url || null,
@@ -64,21 +115,25 @@ export const productionService = {
    */
   async fetchProductionItems(): Promise<ProductionItem[]> {
     if (!isSupabaseConfigured()) {
-      return [];
+      throw new Error('Chưa kết nối cơ sở dữ liệu Supabase.');
     }
 
     const supabase = getSupabase();
-    if (!supabase) return [];
+    if (!supabase) {
+      throw new Error('Chưa kết nối cơ sở dữ liệu Supabase.');
+    }
 
     const { data, error } = await supabase
       .from('production_items')
       .select('*, videos(id, title, youtube_video_id, url, thumbnail_url, channel_id, channels(name, handle, avatar_url))')
       .order('updated_at', { ascending: false });
 
-    if (error || !data) {
+    if (error) {
       console.error('Lỗi khi tải production_items:', error);
-      throw new Error(error?.message || 'Không thể tải Tiến Độ Sản Xuất.');
+      throw new Error(error.message || 'Không thể tải Tiến Độ Sản Xuất.');
     }
+
+    if (!data) return [];
 
     return data.map(mapDbRowToItem);
   },
@@ -87,15 +142,24 @@ export const productionService = {
    * Kiểm tra xem videoId đã có mục trong production_items chưa
    */
   async checkVideoInProduction(videoId: string): Promise<string | null> {
-    if (!isSupabaseConfigured()) return null;
+    if (!isSupabaseConfigured()) {
+      throw new Error('Chưa kết nối cơ sở dữ liệu Supabase.');
+    }
     const supabase = getSupabase();
-    if (!supabase) return null;
+    if (!supabase) {
+      throw new Error('Chưa kết nối cơ sở dữ liệu Supabase.');
+    }
 
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('production_items')
       .select('id')
       .eq('source_video_id', videoId)
       .maybeSingle();
+
+    if (error) {
+      console.error('Lỗi khi kiểm tra video trong production:', error);
+      throw new Error(error.message || 'Lỗi khi kiểm tra video trong Tiến Độ Sản Xuất.');
+    }
 
     return data?.id || null;
   },

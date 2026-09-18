@@ -35,10 +35,6 @@
       <div class="text-sequence">
         <h1 class="brand-title">BẮT BÀI ĐỐI THỦ</h1>
         <p class="brand-tagline">Theo dõi đối thủ • Phát hiện video tăng nhanh</p>
-        <div class="status-indicator">
-          <span class="status-dot"></span>
-          <span class="status-text">Hệ thống sẵn sàng</span>
-        </div>
       </div>
 
       <!-- Primary Entry CTA -->
@@ -259,33 +255,7 @@ onMounted(() => {
   animation-delay: 0.1s;
 }
 
-.status-indicator {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  margin-top: 10px;
-  padding: 4px 12px;
-  border-radius: 9999px;
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(56, 189, 248, 0.15);
-  animation: fade-slide-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
-  animation-delay: 0.2s;
-}
 
-.status-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background-color: #22C55E;
-  box-shadow: 0 0 8px #22C55E;
-}
-
-.status-text {
-  font-size: 11.5px;
-  color: #CBD5E1;
-  font-weight: 500;
-  letter-spacing: 0.04em;
-}
 
 /* CTA Button */
 .cta-wrap {

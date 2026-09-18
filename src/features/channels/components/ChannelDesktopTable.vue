@@ -73,14 +73,14 @@
 
           <!-- Video kiểm tra -->
           <td class="col-scan">
-            <span class="metric-value">{{ channel.scanLimit }}</span>
-            <span class="metric-unit">video / lần</span>
+            <span class="metric-value">{{ channel.scanLimit !== null && channel.scanLimit !== undefined ? channel.scanLimit : '—' }}</span>
+            <span v-if="channel.scanLimit !== null && channel.scanLimit !== undefined" class="metric-unit">video / lần</span>
           </td>
 
           <!-- Ngưỡng cảnh báo -->
           <td class="col-alert">
-            <span class="metric-value text-threshold">{{ channel.alertVphThreshold.toLocaleString('vi-VN') }}</span>
-            <span class="metric-unit">VPH</span>
+            <span class="metric-value text-threshold">{{ channel.alertVphThreshold !== null && channel.alertVphThreshold !== undefined ? channel.alertVphThreshold.toLocaleString('vi-VN') : '—' }}</span>
+            <span v-if="channel.alertVphThreshold !== null && channel.alertVphThreshold !== undefined" class="metric-unit">VPH</span>
           </td>
 
           <!-- Cập nhật gần nhất -->

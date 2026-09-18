@@ -10,13 +10,16 @@ export interface Channel {
   url: string;
   avatarUrl: string | null;
   status: ChannelStatus;
-  scanLimit: number;
-  alertVphThreshold: number;
+  scanLimit: number | null;
+  alertVphThreshold: number | null;
   source: string;
   notes: string | null;
   createdAt: string;
   updatedAt: string;
   lastScanAt: string | null;
+  totalVideos?: number;
+  risingVideoCount?: number;
+  maxVph?: number | null;
 }
 
 export interface DbChannel {
@@ -27,8 +30,8 @@ export interface DbChannel {
   url: string;
   avatar_url: string | null;
   status: ChannelStatus;
-  scan_limit: number;
-  alert_vph_threshold: number;
+  scan_limit: number | null;
+  alert_vph_threshold: number | null;
   source: string;
   notes: string | null;
   created_at: string;
@@ -48,8 +51,8 @@ export interface CreateChannelInput {
 }
 
 export interface UpdateChannelInput {
-  scanLimit?: number;
-  alertVphThreshold?: number;
+  scanLimit?: number | null;
+  alertVphThreshold?: number | null;
   notes?: string | null;
   status?: ChannelStatus;
 }

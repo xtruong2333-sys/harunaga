@@ -1,5 +1,5 @@
 // Service: report-service.ts
-// Quản lý dữ liệu Báo Cáo 24h / 7 Ngày (Phase 16)
+// Quản lý dữ liệu Báo Cáo 24h / 7 Ngày (Phase 16 - Wave 3.11)
 // 100% READ ONLY: Không gọi collector, không gọi AI, không mutation, không fetch video_snapshots.
 
 import { isSupabaseConfigured, getSupabase } from './supabase';
@@ -26,8 +26,9 @@ import type {
 export const ALERT_STATUS_MAP: Record<ReportAlertStatus, string> = {
   pending: 'Chờ gửi',
   sending: 'Đang gửi',
-  sent: 'Đã gửi',
+  sent: 'Đã cảnh báo',
   failed: 'Gửi lỗi',
+  unknown: 'Không rõ',
 };
 
 export const SCAN_STATUS_MAP: Record<ReportScanStatus, string> = {
@@ -35,12 +36,38 @@ export const SCAN_STATUS_MAP: Record<ReportScanStatus, string> = {
   success: 'Thành công',
   partial: 'Một phần',
   failed: 'Thất bại',
+  unknown: 'Không rõ',
 };
 
 export const SCAN_TRIGGER_MAP: Record<ReportScanTrigger, string> = {
   manual: 'Thủ công',
   schedule: 'Tự động',
+  unknown: 'Không rõ',
 };
+
+export function parseAlertStatus(val: unknown): ReportAlertStatus {
+  if (val === 'pending' || val === 'sending' || val === 'sent' || val === 'failed') return val;
+  return 'unknown';
+}
+
+export function parseScanStatus(val: unknown): ReportScanStatus {
+  if (val === 'running' || val === 'success' || val === 'partial' || val === 'failed') return val;
+  return 'unknown';
+}
+
+export function parseScanTrigger(val: unknown): ReportScanTrigger {
+  if (val === 'manual' || val === 'schedule') return val;
+  return 'unknown';
+}
+
+export function toFiniteNumber(val: unknown, fallback = 0): number {
+  if (typeof val === 'number' && Number.isFinite(val)) return val;
+  if (typeof val === 'string' && val.trim() !== '') {
+    const num = Number(val);
+    if (Number.isFinite(num)) return num;
+  }
+  return fallback;
+}
 
 const vnDateTimeFormatter = new Intl.DateTimeFormat('en-GB', {
   timeZone: 'Asia/Ho_Chi_Minh',
@@ -66,6 +93,11 @@ export function formatVietnamDateTime(isoString: string | null | undefined): str
 
 export function formatNumber(num: number | null | undefined): string {
   if (num === null || num === undefined) return '0';
+  return new Intl.NumberFormat('vi-VN').format(num);
+}
+
+export function formatNullableNumber(num: number | null | undefined): string {
+  if (num === null || num === undefined) return '—';
   return new Intl.NumberFormat('vi-VN').format(num);
 }
 
@@ -157,23 +189,29 @@ export function computeReportSummary(
 }
 
 export function computeScanSummary(scans: ReportScan[]): ReportScanSummary {
+  let runningScans = 0;
   let successScans = 0;
   let partialScans = 0;
   let failedScans = 0;
+  let unknownScans = 0;
   let totalSnapshots = 0;
 
   for (const s of scans) {
     totalSnapshots += s.snapshotsCreated;
-    if (s.status === 'success') successScans++;
+    if (s.status === 'running') runningScans++;
+    else if (s.status === 'success') successScans++;
     else if (s.status === 'partial') partialScans++;
     else if (s.status === 'failed') failedScans++;
+    else unknownScans++;
   }
 
   return {
     totalScans: scans.length,
+    runningScans,
     successScans,
     partialScans,
     failedScans,
+    unknownScans,
     totalSnapshots,
   };
 }
@@ -205,8 +243,12 @@ export function computeChannelActivity(videos: ReportVideo[]): ReportChannelActi
   const result: ReportChannelActivity[] = [];
 
   for (const item of map.values()) {
-    // Sort videos by publishedAt DESC
-    item.videos.sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
+    // Sort videos by publishedAt DESC, tie-breaker: id DESC
+    item.videos.sort((a, b) => {
+      const diff = new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime();
+      if (diff !== 0) return diff;
+      return b.id.localeCompare(a.id);
+    });
     const latest = item.videos[0];
 
     const vphs = item.videos
@@ -222,18 +264,22 @@ export function computeChannelActivity(videos: ReportVideo[]): ReportChannelActi
       channelAvatarUrl: item.channelAvatarUrl,
       newVideosCount: item.videos.length,
       latestPublishedAt: latest.publishedAt,
+      latestVideoId: latest.id,
       latestVideoTitle: latest.title,
+      latestVideoYoutubeId: latest.youtubeVideoId,
       maxCurrentVph,
       risingCount,
     });
   }
 
-  // Sort: newVideosCount DESC, tie: latestPublishedAt DESC
+  // Sort: newVideosCount DESC, tie: latestPublishedAt DESC, tie: channelName ASC
   result.sort((a, b) => {
     if (b.newVideosCount !== a.newVideosCount) {
       return b.newVideosCount - a.newVideosCount;
     }
-    return new Date(b.latestPublishedAt).getTime() - new Date(a.latestPublishedAt).getTime();
+    const diff = new Date(b.latestPublishedAt).getTime() - new Date(a.latestPublishedAt).getTime();
+    if (diff !== 0) return diff;
+    return a.channelName.localeCompare(b.channelName);
   });
 
   return result;
@@ -242,7 +288,13 @@ export function computeChannelActivity(videos: ReportVideo[]): ReportChannelActi
 export function sortRisingNewVideos(videos: ReportVideo[], limit = 10): ReportVideo[] {
   return videos
     .filter(v => v.latestMeasuredVph !== null && v.latestMeasuredVph > 0)
-    .sort((a, b) => (b.latestMeasuredVph ?? 0) - (a.latestMeasuredVph ?? 0))
+    .sort((a, b) => {
+      const vphDiff = (b.latestMeasuredVph ?? 0) - (a.latestMeasuredVph ?? 0);
+      if (vphDiff !== 0) return vphDiff;
+      const pubDiff = new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime();
+      if (pubDiff !== 0) return pubDiff;
+      return b.id.localeCompare(a.id);
+    })
     .slice(0, limit);
 }
 
@@ -270,7 +322,7 @@ Thời điểm tạo: ${formattedCreatedTime} (Múi giờ Việt Nam)`;
 }
 
 // ============================================================
-// Data Fetching Function (>1000 Pagination & Batch Safety)
+// Data Fetching Function (>1000 Pagination, Historical Upper Bound & Secondary Order)
 // ============================================================
 
 interface RawVideoRow {
@@ -336,9 +388,12 @@ export async function fetchReportData(
     throw new DatabaseNotConfiguredError();
   }
   const supabase = getSupabase()!;
+  const nowIso = new Date(nowMs).toISOString();
   const rangeStartIso = getReportRangeStart(range, nowMs);
 
   // 1. Fetch videos published in range with batch pagination (safety > 1000 rows)
+  // Historical upper bound: published_at <= nowIso
+  // Deterministic order: published_at DESC, id DESC
   const BATCH_SIZE = 1000;
   let offset = 0;
   let hasMore = true;
@@ -353,7 +408,9 @@ export async function fetchReportData(
         channels(id, name, handle, avatar_url)
       `)
       .gte('published_at', rangeStartIso)
+      .lte('published_at', nowIso)
       .order('published_at', { ascending: false })
+      .order('id', { ascending: false })
       .range(offset, offset + BATCH_SIZE - 1);
 
     if (error) {
@@ -371,6 +428,8 @@ export async function fetchReportData(
   }
 
   // 2. Fetch all alerts in range with batch pagination (safety > 1000 rows)
+  // Historical upper bound: created_at <= nowIso
+  // Deterministic order: created_at DESC, id DESC
   let alertOffset = 0;
   let alertHasMore = true;
   const rawAlerts: RawAlertRow[] = [];
@@ -384,7 +443,9 @@ export async function fetchReportData(
           channels(id, name, handle, avatar_url))
       `)
       .gte('created_at', rangeStartIso)
+      .lte('created_at', nowIso)
       .order('created_at', { ascending: false })
+      .order('id', { ascending: false })
       .range(alertOffset, alertOffset + BATCH_SIZE - 1);
 
     if (alertErr) {
@@ -402,6 +463,8 @@ export async function fetchReportData(
   }
 
   // 3. Fetch all scans started in range with batch pagination (safety > 1000 rows)
+  // Historical upper bound: started_at <= nowIso
+  // Deterministic order: started_at DESC, id DESC
   let scanOffset = 0;
   let scanHasMore = true;
   const rawScans: RawScanRow[] = [];
@@ -415,7 +478,9 @@ export async function fetchReportData(
         videos_found, snapshots_created, alerts_sent, alerts_failed, error_summary
       `)
       .gte('started_at', rangeStartIso)
+      .lte('started_at', nowIso)
       .order('started_at', { ascending: false })
+      .order('id', { ascending: false })
       .range(scanOffset, scanOffset + BATCH_SIZE - 1);
 
     if (scanErr) {
@@ -436,8 +501,7 @@ export async function fetchReportData(
   const alertVideoIds = new Set<string>();
   const allAlerts: ReportAlert[] = rawAlerts.map(row => {
     alertVideoIds.add(row.video_id);
-    const rawStatus = (row.status || 'pending') as ReportAlertStatus;
-    const status: ReportAlertStatus = (rawStatus in ALERT_STATUS_MAP) ? rawStatus : 'pending';
+    const status = parseAlertStatus(row.status);
     return {
       id: row.id,
       videoId: row.video_id,
@@ -448,11 +512,11 @@ export async function fetchReportData(
       channelName: row.videos?.channels?.name ?? '(Kênh không rõ)',
       channelHandle: row.videos?.channels?.handle ?? null,
       channelAvatarUrl: row.videos?.channels?.avatar_url ?? null,
-      measuredVph: Number(row.measured_vph || 0),
-      thresholdVph: Number(row.threshold_vph || 0),
-      viewCount: Number(row.view_count || 0),
+      measuredVph: toFiniteNumber(row.measured_vph, 0),
+      thresholdVph: toFiniteNumber(row.threshold_vph, 0),
+      viewCount: toFiniteNumber(row.view_count, 0),
       status,
-      statusLabel: ALERT_STATUS_MAP[status] || status,
+      statusLabel: ALERT_STATUS_MAP[status] || 'Không rõ',
       createdAt: row.created_at,
     };
   });
@@ -468,17 +532,15 @@ export async function fetchReportData(
     thumbnailUrl: row.thumbnail_url,
     youtubeVideoId: row.youtube_video_id,
     publishedAt: row.published_at,
-    latestMeasuredVph: row.latest_measured_vph,
-    latestViewCount: row.latest_view_count,
+    latestMeasuredVph: row.latest_measured_vph !== null ? toFiniteNumber(row.latest_measured_vph, 0) : null,
+    latestViewCount: row.latest_view_count !== null ? toFiniteNumber(row.latest_view_count, 0) : null,
     hasAlert: alertVideoIds.has(row.id),
   }));
 
   // 6. Transform scans
   const allScans: ReportScan[] = rawScans.map(row => {
-    const rawStatus = (row.status || 'success') as ReportScanStatus;
-    const status: ReportScanStatus = (rawStatus in SCAN_STATUS_MAP) ? rawStatus : 'success';
-    const rawTrigger = (row.trigger_source || 'schedule') as ReportScanTrigger;
-    const triggerSource: ReportScanTrigger = (rawTrigger in SCAN_TRIGGER_MAP) ? rawTrigger : 'schedule';
+    const status = parseScanStatus(row.status);
+    const triggerSource = parseScanTrigger(row.trigger_source);
     const sanitizedError = sanitizeErrorSummary(row.error_summary);
 
     return {
@@ -486,16 +548,16 @@ export async function fetchReportData(
       startedAt: row.started_at,
       finishedAt: row.finished_at,
       status,
-      statusLabel: SCAN_STATUS_MAP[status] || status,
+      statusLabel: SCAN_STATUS_MAP[status] || 'Không rõ',
       triggerSource,
-      triggerLabel: SCAN_TRIGGER_MAP[triggerSource] || triggerSource,
-      channelsTotal: Number(row.channels_total || 0),
-      channelsSuccess: Number(row.channels_success || 0),
-      channelsFailed: Number(row.channels_failed || 0),
-      videosFound: Number(row.videos_found || 0),
-      snapshotsCreated: Number(row.snapshots_created || 0),
-      alertsSent: Number(row.alerts_sent || 0),
-      alertsFailed: Number(row.alerts_failed || 0),
+      triggerLabel: SCAN_TRIGGER_MAP[triggerSource] || 'Không rõ',
+      channelsTotal: toFiniteNumber(row.channels_total, 0),
+      channelsSuccess: toFiniteNumber(row.channels_success, 0),
+      channelsFailed: toFiniteNumber(row.channels_failed, 0),
+      videosFound: toFiniteNumber(row.videos_found, 0),
+      snapshotsCreated: toFiniteNumber(row.snapshots_created, 0),
+      alertsSent: toFiniteNumber(row.alerts_sent, 0),
+      alertsFailed: toFiniteNumber(row.alerts_failed, 0),
       errorSummary: row.error_summary || null,
       sanitizedError: sanitizedError || null,
     };

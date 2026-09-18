@@ -209,15 +209,23 @@ import { videoService } from '@/services/video-service';
 
 const props = defineProps<{
   snapshots: VideoSnapshotPoint[];
-  threshold?: number;
+  threshold?: number | null;
 }>();
 
 const hoveredViewPoint = ref<any | null>(null);
 const hoveredVphPoint = ref<any | null>(null);
 
+const chronologicalSnapshots = computed(() =>
+  [...props.snapshots].sort(
+    (a, b) =>
+      new Date(a.checkedAt).getTime() -
+      new Date(b.checkedAt).getTime()
+  )
+);
+
 const latestView = computed(() => {
-  if (!props.snapshots.length) return null;
-  return props.snapshots[props.snapshots.length - 1].viewCount;
+  if (!chronologicalSnapshots.value.length) return null;
+  return chronologicalSnapshots.value[chronologicalSnapshots.value.length - 1].viewCount;
 });
 
 function formatShortTime(iso: string): string {
@@ -245,7 +253,7 @@ function formatFullTime(iso: string): string {
 
 // ---------------- CHART 1: VIEWS OVER TIME ----------------
 const viewsCoords = computed(() => {
-  const list = props.snapshots;
+  const list = chronologicalSnapshots.value;
   if (!list.length) return [];
 
   const minView = Math.min(...list.map(s => s.viewCount));
@@ -290,7 +298,7 @@ const viewsAreaPoints = computed(() => {
 });
 
 const viewsGridLines = computed(() => {
-  const list = props.snapshots;
+  const list = chronologicalSnapshots.value;
   if (!list.length) return [];
   const minView = Math.min(...list.map(s => s.viewCount));
   const maxView = Math.max(...list.map(s => s.viewCount));
@@ -314,7 +322,7 @@ const viewsGridLines = computed(() => {
 
 // ---------------- CHART 2: VPH OVER TIME ----------------
 const vphCoords = computed(() => {
-  const list = props.snapshots;
+  const list = chronologicalSnapshots.value;
   if (!list.length) return [];
 
   const validVphs = list.map(s => s.measuredVph).filter((v): v is number => v !== null && v !== undefined);
@@ -347,8 +355,8 @@ const vphCoords = computed(() => {
 });
 
 const thresholdY = computed(() => {
-  if (!props.threshold || props.threshold <= 0 || !props.snapshots.length) return null;
-  const validVphs = props.snapshots.map(s => s.measuredVph).filter((v): v is number => v !== null && v !== undefined);
+  if (!props.threshold || props.threshold <= 0 || !chronologicalSnapshots.value.length) return null;
+  const validVphs = chronologicalSnapshots.value.map(s => s.measuredVph).filter((v): v is number => v !== null && v !== undefined);
   const maxVal = Math.max(...validVphs, props.threshold, 100);
   const effectiveMax = maxVal * 1.25;
   const topY = 30;
@@ -372,7 +380,7 @@ const vphAreaPoints = computed(() => {
 });
 
 const vphGridLines = computed(() => {
-  const validVphs = props.snapshots.map(s => s.measuredVph).filter((v): v is number => v !== null && v !== undefined);
+  const validVphs = chronologicalSnapshots.value.map(s => s.measuredVph).filter((v): v is number => v !== null && v !== undefined);
   const thresholdVal = props.threshold || 0;
   const maxVal = Math.max(...validVphs, thresholdVal, 100);
   const effectiveMax = maxVal * 1.25;

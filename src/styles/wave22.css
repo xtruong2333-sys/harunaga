@@ -1,0 +1,199 @@
+/* Wave 3.0 — Light Intelligence UI / Premium Analytics (White + Blue) */
+
+/* 1. Theme Scoping & Surface Definitions */
+[data-theme="light"] body {
+  background-color: var(--bg-page, #F5F8FC);
+}
+
+[data-theme="light"] .surface-card,
+[data-theme="light"] .interactive-card,
+[data-theme="light"] .stat-card,
+[data-theme="light"] .system-status-card,
+[data-theme="light"] .section-container,
+[data-theme="light"] .panel-card,
+[data-theme="light"] .empty-card,
+[data-theme="light"] .table-card {
+  background: #FFFFFF;
+  border: 1px solid var(--border, #E3EBF3);
+  box-shadow: var(--shadow-sm, 0 4px 14px rgba(30, 60, 90, 0.05));
+  backdrop-filter: blur(16px) saturate(130%);
+  -webkit-backdrop-filter: blur(16px) saturate(130%);
+}
+
+[data-theme="light"] .stat-card:hover,
+[data-theme="light"] .interactive-card:hover,
+[data-theme="light"] .top-video-card:hover,
+[data-theme="light"] .channel-summary-item:hover {
+  transform: translateY(-2px);
+  background: #FFFFFF;
+  border-color: #BFDBFE;
+  box-shadow: var(--shadow-md, 0 10px 30px rgba(30, 60, 90, 0.08));
+}
+
+[data-theme="light"] .top-video-card {
+  background: #FFFFFF;
+  border: 1px solid var(--border, #E3EBF3);
+  box-shadow: 0 2px 10px rgba(30, 60, 90, 0.04);
+  border-radius: 12px;
+}
+
+[data-theme="light"] .channel-summary-item {
+  background: #FFFFFF;
+  border: 1px solid var(--border, #E3EBF3);
+}
+
+[data-theme="light"] .btn-primary {
+  background: var(--primary, #2563EB);
+  color: #FFFFFF;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.22);
+  border: 1px solid transparent;
+}
+
+[data-theme="light"] .btn-primary:hover:not(:disabled) {
+  background: var(--primary-hover, #1D4ED8);
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.3);
+}
+
+[data-theme="light"] .btn-secondary {
+  background: #FFFFFF;
+  color: #334155;
+  border: 1px solid var(--border, #E3EBF3);
+  box-shadow: 0 2px 6px rgba(30, 60, 90, 0.04);
+}
+
+[data-theme="light"] .btn-secondary:hover:not(:disabled) {
+  background: var(--surface-hover, #F3F7FB);
+  border-color: #CBD5E1;
+  color: #0F1F35;
+}
+
+[data-theme="light"] .scan-table th {
+  background: #F8FAFC;
+  color: #475569;
+  border-bottom: 1px solid var(--border, #E3EBF3);
+}
+
+[data-theme="light"] .scan-table td {
+  border-bottom: 1px solid #F1F5F9;
+  color: #0F1F35;
+}
+
+[data-theme="light"] .scan-row:hover td {
+  background: #F8FAFD;
+}
+
+/* 2. Dark Mode Parity (Secondary Theme) */
+[data-theme="dark"] body {
+  background: #05070d;
+}
+
+[data-theme="dark"] .surface-card,
+[data-theme="dark"] .interactive-card,
+[data-theme="dark"] .stat-card,
+[data-theme="dark"] .system-status-card,
+[data-theme="dark"] .section-container,
+[data-theme="dark"] .panel-card,
+[data-theme="dark"] .empty-card,
+[data-theme="dark"] .table-card {
+  background: linear-gradient(145deg, rgba(10, 16, 28, 0.82), rgba(7, 12, 21, 0.64));
+  border-color: rgba(125, 211, 252, 0.10);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.025), 0 18px 54px rgba(0, 0, 0, 0.22);
+  backdrop-filter: blur(18px) saturate(120%);
+  -webkit-backdrop-filter: blur(18px) saturate(120%);
+}
+
+[data-theme="dark"] .stat-card:hover,
+[data-theme="dark"] .interactive-card:hover,
+[data-theme="dark"] .top-video-card:hover,
+[data-theme="dark"] .channel-summary-item:hover {
+  transform: translateY(-2px);
+  border-color: rgba(103, 232, 249, 0.24);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="dark"] .top-video-card {
+  border-radius: 12px;
+  background: rgba(10, 17, 29, 0.58);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(125, 211, 252, 0.10);
+}
+
+[data-theme="dark"] .btn-primary {
+  background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+  color: #03111C;
+  font-weight: 600;
+  box-shadow: 0 8px 30px rgba(56, 189, 248, 0.20);
+}
+
+[data-theme="dark"] .btn-secondary {
+  background: rgba(10, 18, 30, 0.65);
+  backdrop-filter: blur(12px);
+  border-color: rgba(125, 211, 252, 0.12);
+}
+
+[data-theme="dark"] .scan-table th {
+  background: rgba(6, 12, 21, 0.76);
+}
+
+[data-theme="dark"] .scan-row:hover td {
+  background: rgba(20, 35, 56, 0.46);
+}
+
+/* 3. Typography & Global Polish */
+.page-title {
+  font-size: clamp(24px, 2.5vw, 32px);
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  font-weight: 750;
+  color: var(--text-primary);
+}
+
+.page-kicker {
+  letter-spacing: 0.12em;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+[data-theme="light"] .page-kicker {
+  color: var(--primary, #2563EB);
+}
+
+[data-theme="dark"] .page-kicker {
+  color: #38BDF8;
+}
+
+.btn {
+  border-radius: 8px;
+  min-height: 38px;
+  font-weight: 500;
+  transition: all 0.15s ease;
+}
+
+.stat-card {
+  border-radius: 14px;
+  padding: 18px 20px;
+}
+
+.stat-val {
+  font-size: clamp(26px, 2.5vw, 34px);
+  letter-spacing: -0.03em;
+  font-weight: 750;
+}
+
+.section-container,
+.system-status-card,
+.panel-card {
+  border-radius: 14px;
+}
+
+::selection {
+  background: rgba(37, 99, 235, 0.18);
+  color: inherit;
+}
+
+@media (max-width: 1024px) {
+  .page-title {
+    font-size: 24px;
+  }
+}

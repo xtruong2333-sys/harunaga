@@ -1,92 +1,122 @@
 <template>
-  <div class="app-layout">
-    <!-- Desktop Sidebar -->
-    <aside class="sidebar">
-      <div class="brand">
-        <div class="brand-logo-icon">
-          <svg viewBox="0 0 24 24" width="22" height="22" fill="#38BDF8">
-            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/>
-          </svg>
-        </div>
-        <div class="brand-text">
-          <div class="brand-title">BẮT BÀI ĐỐI THỦ</div>
-          <div class="brand-subtitle">Theo dõi đối thủ YouTube</div>
-        </div>
+  <div class="app-layout" :class="{ 'is-sidebar-collapsed': sidebarCollapsed }">
+    <IntelligenceField />
+
+    <!-- Desktop Sidebar (260px -> 72px) -->
+    <aside
+      class="app-sidebar command-rail"
+      :class="{ 'sidebar-collapsed': sidebarCollapsed }"
+      aria-label="Điều hướng chính"
+    >
+      <!-- Sidebar Header -->
+      <div class="sidebar-header">
+        <router-link to="/tong-quan" class="sidebar-brand rail-brand" title="BẮT BÀI ĐỐI THỦ">
+          <div class="brand-logo-mark">
+            <span class="rail-brand__core"></span>
+            <span class="rail-brand__pulse"></span>
+          </div>
+          <div v-if="!sidebarCollapsed" class="brand-info">
+            <div class="brand-name">BẮT BÀI ĐỐI THỦ</div>
+            <div class="brand-tagline">YouTube Intelligence OS</div>
+          </div>
+        </router-link>
+
+        <button
+          type="button"
+          class="sidebar-collapse-btn"
+          :class="{ 'btn-collapsed': sidebarCollapsed }"
+          :title="sidebarCollapsed ? 'Mở rộng thanh bên' : 'Thu gọn thanh bên'"
+          :aria-label="sidebarCollapsed ? 'Mở rộng thanh bên' : 'Thu gọn thanh bên'"
+          @click="toggleSidebar"
+        >
+          <AppIcon
+            :name="sidebarCollapsed ? 'chevron-right' : 'chevron-left'"
+            size="15"
+          />
+        </button>
       </div>
 
-      <nav class="nav-menu">
-        <router-link to="/tong-quan" class="nav-item" active-class="nav-item-active">
-          <AppIcon name="dashboard" size="18" />
-          <span>Tổng Quan</span>
-        </router-link>
-        <router-link to="/bao-cao" class="nav-item" active-class="nav-item-active">
-          <AppIcon name="file-text" size="18" />
-          <span>Báo Cáo</span>
-        </router-link>
-        <router-link to="/video-moi-dang" class="nav-item" active-class="nav-item-active">
-          <AppIcon name="clock" size="18" />
-          <span>Video Mới Đăng</span>
-        </router-link>
-        <router-link to="/video-tiem-nang" class="nav-item" active-class="nav-item-active">
-          <AppIcon name="zap" size="18" />
-          <span>Video Tiềm Năng</span>
-        </router-link>
-        <router-link to="/videos" class="nav-item" active-class="nav-item-active">
-          <AppIcon name="trending-up" size="18" />
-          <span>Video Đang Tăng</span>
-        </router-link>
-        <router-link to="/kenh-theo-doi" class="nav-item" active-class="nav-item-active">
-          <AppIcon name="tv" size="18" />
-          <span>Kênh Theo Dõi</span>
-        </router-link>
-        <router-link to="/so-sanh-kenh" class="nav-item" active-class="nav-item-active">
-          <AppIcon name="bar-chart-2" size="18" />
-          <span>So Sánh Kênh</span>
-        </router-link>
-        <router-link to="/lich-dang-doi-thu" class="nav-item" active-class="nav-item-active">
-          <AppIcon name="calendar" size="18" />
-          <span>Lịch Đăng Của Đối Thủ</span>
-        </router-link>
-        <router-link to="/lich-su-canh-bao" class="nav-item" active-class="nav-item-active">
-          <AppIcon name="bell" size="18" />
-          <span>Lịch Sử Cảnh Báo</span>
-        </router-link>
-        <router-link to="/tro-ly-noi-dung" class="nav-item" active-class="nav-item-active">
-          <AppIcon name="sparkles" size="18" />
-          <span>Trợ Lý Nội Dung AI</span>
-        </router-link>
-        <router-link to="/tien-do-san-xuat" class="nav-item" active-class="nav-item-active">
-          <AppIcon name="clipboard-list" size="18" />
-          <span>Tiến Độ Sản Xuất</span>
-        </router-link>
-        <router-link to="/tinh-trang-du-lieu" class="nav-item" active-class="nav-item-active">
-          <AppIcon name="database" size="18" />
-          <span>Tình Trạng Dữ Liệu</span>
-        </router-link>
+      <!-- Navigation Body -->
+      <nav class="sidebar-nav rail-nav">
+        <div v-for="group in navGroups" :key="group.title" class="nav-group">
+          <div v-if="!sidebarCollapsed" class="nav-group-title">{{ group.title }}</div>
+          <div class="nav-group-items">
+            <router-link
+              v-for="item in group.items"
+              :key="item.to"
+              :to="item.to"
+              class="sidebar-item rail-item"
+              active-class="sidebar-item--active rail-item--active"
+              @mouseenter="showTooltip($event, item)"
+              @mouseleave="hideTooltip"
+              @focus="showTooltip($event, item)"
+              @blur="hideTooltip"
+            >
+              <div class="item-icon-wrap">
+                <AppIcon :name="item.icon" size="18" />
+              </div>
+              <span v-if="!sidebarCollapsed" class="item-label-wrap rail-label">
+                <strong class="item-title">{{ item.label }}</strong>
+                <small v-if="item.hint" class="item-hint">{{ item.hint }}</small>
+              </span>
+            </router-link>
+          </div>
+        </div>
       </nav>
 
-      <div class="sidebar-footer">
-        <div class="sidebar-theme-wrapper">
-          <span class="theme-label">Giao diện</span>
-          <ThemeToggle size="md" />
+      <!-- Sidebar Footer -->
+      <div class="sidebar-footer rail-footer">
+        <div class="sidebar-theme-wrapper rail-theme-wrapper">
+          <ThemeToggle size="sm" />
         </div>
-        <div class="footer-status-pill">
-          <span class="pulse-dot"></span>
-          <span>Hệ thống sẵn sàng</span>
-        </div>
-        <div class="version-tag">Phiên bản 1.0</div>
       </div>
     </aside>
 
-    <!-- Mobile Topbar with Hamburger Menu -->
+    <!-- Floating Portal Tooltip for Collapsed Sidebar -->
+    <teleport to="body">
+      <div
+        v-if="sidebarCollapsed && activeTooltip"
+        class="sidebar-portal-tooltip"
+        :style="{
+          top: `${activeTooltip.top}px`,
+          left: `${activeTooltip.left}px`,
+        }"
+        role="tooltip"
+      >
+        <div class="tooltip-title">{{ activeTooltip.label }}</div>
+        <div v-if="activeTooltip.hint" class="tooltip-hint">{{ activeTooltip.hint }}</div>
+      </div>
+    </teleport>
+
+    <!-- Desktop Topbar -->
+    <header
+      class="workspace-topbar"
+      :class="{ 'topbar-collapsed': sidebarCollapsed }"
+    >
+      <div class="workspace-context">
+        <div class="workspace-eyebrow">
+          <span class="signal-dot"></span>
+          INTELLIGENCE OS
+        </div>
+        <div class="workspace-title">{{ currentTitle }}</div>
+      </div>
+
+      <div class="workspace-actions">
+        <div class="workspace-mode-badge">
+          <span>INTELLIGENCE WORKSPACE</span>
+        </div>
+        <ThemeToggle size="sm" />
+      </div>
+    </header>
+
+    <!-- Mobile Topbar -->
     <header class="mobile-topbar">
       <div class="brand-mobile">
-        <div class="brand-mobile-icon">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="#38BDF8">
-            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/>
-          </svg>
+        <span class="brand-mobile-core"></span>
+        <div>
+          <div class="brand-mobile-title">BẮT BÀI ĐỐI THỦ</div>
+          <div class="brand-mobile-subtitle">YouTube Intelligence</div>
         </div>
-        <span class="brand-mobile-title">BẮT BÀI ĐỐI THỦ</span>
       </div>
 
       <div class="mobile-topbar-actions">
@@ -98,247 +128,803 @@
           @click="mobileDrawerOpen = true"
         >
           <svg viewBox="0 0 24 24" width="22" height="22" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="3" y1="6" x2="21" y2="6"></line>
-            <line x1="3" y1="12" x2="21" y2="12"></line>
-            <line x1="3" y1="18" x2="21" y2="18"></line>
+            <line x1="4" y1="7" x2="20" y2="7"></line>
+            <line x1="4" y1="12" x2="20" y2="12"></line>
+            <line x1="4" y1="17" x2="20" y2="17"></line>
           </svg>
         </button>
       </div>
     </header>
 
-    <!-- Mobile Drawer -->
     <MobileNavDrawer v-model="mobileDrawerOpen" />
 
     <!-- Main Content Area -->
-    <main class="main-content">
-      <slot />
+    <main
+      class="main-content"
+      :class="{ 'content-collapsed': sidebarCollapsed }"
+    >
+      <div class="main-content__inner">
+        <slot />
+      </div>
     </main>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, ref, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
 import AppIcon from '@/components/ui/AppIcon.vue';
 import ThemeToggle from '@/components/ui/ThemeToggle.vue';
 import MobileNavDrawer from '@/components/ui/MobileNavDrawer.vue';
+import IntelligenceField from '@/components/motion/IntelligenceField.vue';
+
+interface NavItem {
+  to: string;
+  icon: string;
+  label: string;
+  hint?: string;
+}
+
+interface NavGroup {
+  title: string;
+  items: NavItem[];
+}
 
 const mobileDrawerOpen = ref(false);
+const sidebarCollapsed = ref(false);
+const route = useRoute();
+
+const activeTooltip = ref<{
+  label: string;
+  hint?: string;
+  top: number;
+  left: number;
+} | null>(null);
+
+function showTooltip(e: Event, item: NavItem) {
+  if (!sidebarCollapsed.value) return;
+  const target = e.currentTarget as HTMLElement | null;
+  if (!target) return;
+  const rect = target.getBoundingClientRect();
+  activeTooltip.value = {
+    label: item.label,
+    hint: item.hint,
+    top: rect.top + rect.height / 2,
+    left: rect.right + 10,
+  };
+}
+
+function hideTooltip() {
+  activeTooltip.value = null;
+}
+
+const navGroups: NavGroup[] = [
+  {
+    title: 'TỔNG QUAN',
+    items: [
+      { to: '/tong-quan', icon: 'dashboard', label: 'Tổng Quan', hint: 'Trung tâm tín hiệu' },
+      { to: '/bao-cao', icon: 'file-text', label: 'Báo Cáo', hint: 'Tổng hợp dữ liệu' },
+    ],
+  },
+  {
+    title: 'THEO DÕI VIDEO',
+    items: [
+      { to: '/video-moi-dang', icon: 'clock', label: 'Video Mới', hint: 'Upload gần nhất' },
+      { to: '/video-tiem-nang', icon: 'zap', label: 'Cơ Hội', hint: 'Video tiềm năng' },
+      { to: '/videos', icon: 'trending-up', label: 'Radar Tăng', hint: 'Video breakout' },
+    ],
+  },
+  {
+    title: 'ĐỐI THỦ & LỊCH',
+    items: [
+      { to: '/kenh-theo-doi', icon: 'tv', label: 'Đối Thủ', hint: 'Mạng lưới kênh' },
+      { to: '/so-sanh-kenh', icon: 'bar-chart-2', label: 'So Sánh', hint: 'Đối chiếu kênh' },
+      { to: '/lich-dang-doi-thu', icon: 'calendar', label: 'Lịch Đăng', hint: 'Pattern xuất bản' },
+    ],
+  },
+  {
+    title: 'HỆ THỐNG & AI',
+    items: [
+      { to: '/lich-su-canh-bao', icon: 'bell', label: 'Cảnh Báo', hint: 'Lịch sử tín hiệu' },
+      { to: '/tro-ly-noi-dung', icon: 'sparkles', label: 'AI Studio', hint: 'Trợ lý nội dung' },
+      { to: '/tien-do-san-xuat', icon: 'clipboard-list', label: 'Sản Xuất', hint: 'Pipeline nội dung' },
+      { to: '/tinh-trang-du-lieu', icon: 'database', label: 'Dữ Liệu', hint: 'Sức khỏe hệ thống' },
+    ],
+  },
+];
+
+function toggleSidebar() {
+  sidebarCollapsed.value = !sidebarCollapsed.value;
+  hideTooltip();
+  if (typeof localStorage !== 'undefined') {
+    try {
+      localStorage.setItem('bbdt_sidebar_collapsed', String(sidebarCollapsed.value));
+    } catch {
+      // Ignore localStorage write error
+    }
+  }
+}
+
+onMounted(() => {
+  if (typeof localStorage !== 'undefined') {
+    try {
+      const saved = localStorage.getItem('bbdt_sidebar_collapsed');
+      if (saved !== null) {
+        sidebarCollapsed.value = saved === 'true';
+      }
+    } catch {
+      // Ignore localStorage read error
+    }
+  }
+});
+
+const currentTitle = computed(() => {
+  const title = typeof route.meta.title === 'string' ? route.meta.title : 'Bắt Bài Đối Thủ';
+  return title.replace(' — Bắt Bài Đối Thủ', '');
+});
 </script>
 
 <style scoped>
 .app-layout {
-  display: flex;
+  position: relative;
   min-height: 100vh;
-  background-color: var(--bg-main);
   max-width: 100vw;
-  overflow-x: hidden;
+  overflow-x: clip;
+  background: transparent;
 }
 
-.sidebar {
-  width: 260px;
-  background-color: var(--bg-surface);
-  border-right: 1px solid var(--border-subtle);
-  display: flex;
-  flex-direction: column;
+/* ==========================================================================
+   Desktop Sidebar (260px -> 72px)
+   ========================================================================== */
+.app-sidebar,
+.command-rail {
   position: fixed;
   top: 0;
   bottom: 0;
   left: 0;
-  z-index: 40;
+  z-index: 50;
+  width: 260px;
+  display: flex;
+  flex-direction: column;
+  transition: width 0.25s var(--ease-out-expo, cubic-bezier(0.16, 1, 0.3, 1));
 }
 
-.brand {
-  padding: 22px 20px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  border-bottom: 1px solid var(--border-subtle);
+.sidebar-collapsed {
+  width: 72px;
 }
 
-.brand-logo-icon {
-  width: 38px;
-  height: 38px;
-  border-radius: 10px;
-  background-color: var(--accent-subtle);
-  border: 1px solid rgba(56, 189, 248, 0.25);
-  box-shadow: 0 0 15px rgba(56, 189, 248, 0.15);
+[data-theme="light"] .app-sidebar,
+[data-theme="light"] .command-rail {
+  background: rgba(255, 255, 255, 0.95);
+  border-right: 1px solid var(--border, #E3EBF3);
+  box-shadow: var(--shadow-sm, 0 4px 14px rgba(30, 60, 90, 0.05));
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+}
+
+[data-theme="dark"] .app-sidebar,
+[data-theme="dark"] .command-rail {
+  background: linear-gradient(180deg, rgba(9, 14, 24, 0.92), rgba(6, 11, 20, 0.84));
+  border-right: 1px solid rgba(125, 211, 252, 0.10);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(20px) saturate(130%);
+  -webkit-backdrop-filter: blur(20px) saturate(130%);
+}
+
+/* Sidebar Header */
+.sidebar-header {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  padding: 16px 14px 14px;
+  border-bottom: 1px solid var(--border-line, rgba(15, 60, 90, 0.06));
+  position: relative;
+  min-height: 64px;
+  box-sizing: border-box;
+}
+
+.sidebar-collapsed .sidebar-header {
+  padding: 14px 8px;
+  flex-direction: column;
+  gap: 8px;
   justify-content: center;
+}
+
+.sidebar-brand,
+.rail-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  min-width: 0;
+}
+
+.brand-logo-mark {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
   flex-shrink: 0;
 }
 
-.brand-text {
+[data-theme="light"] .brand-logo-mark {
+  background: radial-gradient(circle at 35% 28%, rgba(37, 99, 235, 0.15), rgba(14, 165, 233, 0.06) 60%, rgba(255, 255, 255, 0.9) 100%);
+  border: 1px solid rgba(37, 99, 235, 0.20);
+  box-shadow: 0 2px 10px rgba(37, 99, 235, 0.12);
+}
+
+[data-theme="dark"] .brand-logo-mark {
+  background: radial-gradient(circle at 35% 28%, rgba(103, 232, 249, 0.28), rgba(14, 165, 233, 0.06) 60%, rgba(3, 7, 18, 0.2) 100%);
+  border: 1px solid rgba(103, 232, 249, 0.24);
+  box-shadow: 0 0 20px rgba(56, 189, 248, 0.15);
+}
+
+.rail-brand__core {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--primary, #2563EB);
+  box-shadow: 0 0 10px var(--primary, #2563EB);
+}
+
+[data-theme="dark"] .rail-brand__core {
+  background: #38BDF8;
+  box-shadow: 0 0 10px #38BDF8;
+}
+
+.rail-brand__pulse {
+  position: absolute;
+  inset: 5px;
+  border: 1px solid var(--primary, #2563EB);
+  border-radius: 50%;
+  opacity: 0.35;
+  animation: orbit-pulse 2.8s ease-out infinite;
+}
+
+[data-theme="dark"] .rail-brand__pulse {
+  border-color: #38BDF8;
+}
+
+.brand-info {
   display: flex;
   flex-direction: column;
+  gap: 1px;
+  overflow: hidden;
 }
 
-.brand-title {
-  font-size: 14.5px;
-  font-weight: 700;
-  letter-spacing: 0.03em;
+.brand-name {
+  font-size: 13.5px;
+  font-weight: 750;
+  letter-spacing: -0.01em;
   color: var(--text-primary);
+  white-space: nowrap;
 }
 
-.brand-subtitle {
-  font-size: 11px;
+.brand-tagline {
+  font-size: 10.5px;
+  font-weight: 500;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+/* Sidebar Collapse Button */
+.sidebar-collapse-btn {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  border: 1px solid var(--border, #E3EBF3);
+  background: var(--surface-muted, #F7FAFD);
   color: var(--text-secondary);
-  margin-top: 1px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
 }
 
-.nav-menu {
-  padding: 16px 12px;
+.sidebar-collapse-btn:hover {
+  background: var(--primary-soft, #EFF6FF);
+  color: var(--primary, #2563EB);
+  border-color: #BFDBFE;
+}
+
+.sidebar-collapse-btn.btn-collapsed {
+  width: 28px;
+  height: 24px;
+  border-radius: 5px;
+  margin-top: 2px;
+}
+
+/* Sidebar Nav */
+.sidebar-nav,
+.rail-nav {
   flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 14px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  scrollbar-width: thin;
+}
+
+.sidebar-collapsed .sidebar-nav {
+  padding: 14px 6px;
+  gap: 8px;
+  align-items: center;
+}
+
+.sidebar-nav::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb {
+  background: var(--border-subtle);
+  border-radius: 4px;
+}
+
+.nav-group {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  overflow-y: auto;
+  width: 100%;
 }
 
-.nav-item {
+.nav-group-title {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  padding: 0 10px 4px;
+  text-transform: uppercase;
+}
+
+.nav-group-items {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+}
+
+.sidebar-item,
+.rail-item {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 10px 14px;
+  gap: 10px;
+  padding: 8px 12px;
   border-radius: 8px;
-  color: var(--text-secondary);
-  font-weight: 500;
-  font-size: 13.5px;
-  transition: all var(--duration-normal) var(--ease-out-expo);
   text-decoration: none;
-  position: relative;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  border: 1px solid transparent;
+  transition: all 0.15s ease;
 }
 
-.nav-item:hover {
-  color: var(--text-primary);
-  background-color: var(--bg-surface-elevated);
+.sidebar-collapsed .sidebar-item {
+  padding: 8px;
+  justify-content: center;
+  width: 44px;
+  height: 40px;
+  margin: 0 auto;
 }
 
-.nav-item-active {
-  color: var(--accent);
-  background-color: var(--accent-subtle);
+[data-theme="light"] .sidebar-item,
+[data-theme="light"] .rail-item {
+  color: #475569;
+}
+
+[data-theme="light"] .sidebar-item:hover,
+[data-theme="light"] .rail-item:hover {
+  color: var(--primary, #2563EB);
+  background: #F3F7FB;
+  border-color: #E3EBF3;
+}
+
+[data-theme="light"] .sidebar-item--active,
+[data-theme="light"] .rail-item--active {
+  color: #1D4ED8;
+  background: #EFF6FF;
+  border-color: #BFDBFE;
   font-weight: 600;
-  box-shadow: inset 3px 0 0 var(--accent);
+  box-shadow: 0 1px 4px rgba(37, 99, 235, 0.06);
 }
 
-.sidebar-footer {
-  padding: 16px 20px;
-  border-top: 1px solid var(--border-subtle);
+[data-theme="dark"] .sidebar-item,
+[data-theme="dark"] .rail-item {
+  color: #94A3B8;
+}
+
+[data-theme="dark"] .sidebar-item:hover,
+[data-theme="dark"] .rail-item:hover {
+  color: #38BDF8;
+  background: rgba(14, 165, 233, 0.08);
+  border-color: rgba(125, 211, 252, 0.15);
+}
+
+[data-theme="dark"] .sidebar-item--active,
+[data-theme="dark"] .rail-item--active {
+  color: #38BDF8;
+  background: rgba(14, 165, 233, 0.14);
+  border-color: rgba(56, 189, 248, 0.3);
+  font-weight: 600;
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.12);
+}
+
+.item-icon-wrap {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 22px;
+}
+
+.item-label-wrap,
+.rail-label {
   display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.item-title {
+  font-size: 13px;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.item-hint {
+  font-size: 10px;
+  color: var(--text-muted);
+  line-height: 1.2;
+}
+
+/* Sidebar Footer */
+.sidebar-footer,
+.rail-footer {
+  padding: 12px 14px;
+  border-top: 1px solid var(--border-line, rgba(15, 60, 90, 0.06));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.sidebar-collapsed .sidebar-footer {
+  padding: 12px 6px;
   flex-direction: column;
   gap: 10px;
 }
 
-.sidebar-theme-wrapper {
+.sidebar-theme-wrapper,
+.rail-theme-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.system-status-indicator,
+.rail-health {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.compact-health {
+  justify-content: center;
+}
+
+.pulse-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #10B981;
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+  animation: signal-pulse 2s infinite ease-in-out;
+}
+
+/* ==========================================================================
+   Desktop Topbar
+   ========================================================================== */
+.workspace-topbar {
+  margin-left: 260px;
+  height: 60px;
+  position: sticky;
+  top: 0;
+  z-index: 40;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 4px 0;
+  padding: 0 clamp(20px, 2vw, 32px);
+  backdrop-filter: blur(18px) saturate(130%);
+  -webkit-backdrop-filter: blur(18px) saturate(130%);
+  transition: margin-left 0.25s var(--ease-out-expo, cubic-bezier(0.16, 1, 0.3, 1));
 }
 
-.theme-label {
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--text-secondary);
+.topbar-collapsed {
+  margin-left: 72px;
 }
 
-.footer-status-pill {
+[data-theme="light"] .workspace-topbar {
+  background: rgba(245, 248, 252, 0.84);
+  border-bottom: 1px solid var(--border, #E3EBF3);
+}
+
+[data-theme="dark"] .workspace-topbar {
+  background: rgba(5, 7, 13, 0.78);
+  border-bottom: 1px solid rgba(125, 211, 252, 0.08);
+}
+
+.workspace-context {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.workspace-eyebrow {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  font-size: 11.5px;
-  color: var(--text-secondary);
+  gap: 6px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--primary, #2563EB);
+  text-transform: uppercase;
 }
 
-.version-tag {
+[data-theme="dark"] .workspace-eyebrow {
+  color: #38BDF8;
+}
+
+.signal-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.workspace-title {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+
+.workspace-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.workspace-mode-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 6px;
   font-size: 11px;
-  color: var(--text-muted);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.1));
+  background: var(--bg-inset, rgba(255, 255, 255, 0.05));
+  color: var(--text-secondary, #94A3B8);
+}
+
+[data-theme="light"] .workspace-mode-badge {
+  background: #F1F5F9;
+  color: #64748B;
+  border-color: #E2E8F0;
+}
+
+[data-theme="dark"] .workspace-mode-badge {
+  background: rgba(255, 255, 255, 0.05);
+  color: #94A3B8;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* ==========================================================================
+   Main Content Area
+   ========================================================================== */
+.main-content {
+  margin-left: 260px;
+  width: calc(100% - 260px);
+  max-width: none;
+  padding: clamp(20px, 2vw, 32px);
+  min-height: calc(100vh - 60px);
+  box-sizing: border-box;
+  transition: margin-left 0.25s var(--ease-out-expo, cubic-bezier(0.16, 1, 0.3, 1)),
+              width 0.25s var(--ease-out-expo, cubic-bezier(0.16, 1, 0.3, 1));
+}
+
+.content-collapsed {
+  margin-left: 72px;
+  width: calc(100% - 72px);
+}
+
+.main-content__inner {
+  width: 100%;
+  max-width: none;
+  margin: 0 auto;
 }
 
 .mobile-topbar {
   display: none;
 }
 
-.main-content {
-  flex: 1;
-  margin-left: 260px;
-  min-height: 100vh;
-  padding: clamp(20px, 2vw, 32px);
-  width: calc(100% - 260px);
-  max-width: none;
-  min-width: 0;
-  box-sizing: border-box;
+/* Keyframe Animations */
+@keyframes orbit-pulse {
+  0% { transform: scale(0.75); opacity: 0; }
+  35% { opacity: 0.65; }
+  100% { transform: scale(1.45); opacity: 0; }
 }
 
-@media (max-width: 900px) {
-  .app-layout {
-    flex-direction: column;
+@keyframes signal-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.35; transform: scale(0.8); }
+}
+
+/* ==========================================================================
+   Mobile Responsive (< 1024px)
+   ========================================================================== */
+@media (max-width: 1024px) {
+  .app-sidebar,
+  .command-rail,
+  .workspace-topbar {
+    display: none !important;
   }
-  .sidebar {
-    display: none;
-  }
+
   .mobile-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 60;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 12px 18px;
-    background-color: var(--bg-surface);
-    border-bottom: 1px solid var(--border-subtle);
-    position: sticky;
-    top: 0;
-    z-index: 50;
-    max-width: 100vw;
-    box-sizing: border-box;
+    gap: 14px;
+    padding: 12px 16px;
+    backdrop-filter: blur(18px);
+    transition: all 0.2s ease;
   }
+
+  [data-theme="light"] .mobile-topbar {
+    background: rgba(255, 255, 255, 0.92);
+    border-bottom: 1px solid var(--border, #E3EBF3);
+    box-shadow: 0 2px 8px rgba(30, 60, 90, 0.04);
+  }
+
+  [data-theme="dark"] .mobile-topbar {
+    background: rgba(6, 11, 20, 0.88);
+    border-bottom: 1px solid rgba(125, 211, 252, 0.10);
+  }
+
   .brand-mobile {
     display: flex;
     align-items: center;
     gap: 10px;
   }
-  .brand-mobile-icon {
+
+  .brand-mobile-core {
     width: 30px;
     height: 30px;
-    border-radius: 8px;
-    background: var(--accent-subtle);
-    border: 1px solid rgba(56, 189, 248, 0.2);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    border-radius: 9px;
+    border: 1px solid var(--border-strong, #CBD9E6);
+    background: radial-gradient(circle, var(--primary, #2563EB) 0 25%, rgba(37, 99, 235, 0.1) 100%);
+    box-shadow: 0 2px 10px rgba(37, 99, 235, 0.15);
   }
+
+  [data-theme="dark"] .brand-mobile-core {
+    background: radial-gradient(circle, #38BDF8 0 25%, rgba(56, 189, 248, 0.1) 100%);
+    border-color: rgba(103, 232, 249, 0.3);
+  }
+
   .brand-mobile-title {
-    font-size: 13.5px;
-    font-weight: 700;
+    font-size: 13px;
+    font-weight: 750;
+    letter-spacing: -0.01em;
     color: var(--text-primary);
-    letter-spacing: 0.02em;
   }
+
+  .brand-mobile-subtitle {
+    color: var(--text-muted);
+    font-size: 10px;
+  }
+
   .mobile-topbar-actions {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
   }
+
   .mobile-menu-btn {
-    background: transparent;
-    border: 1px solid var(--border-subtle);
-    border-radius: 8px;
+    display: grid;
+    place-items: center;
+    min-width: 38px;
+    height: 38px;
+    padding: 0;
+    border: 1px solid var(--border, #E3EBF3);
+    border-radius: 10px;
     color: var(--text-primary);
-    padding: 6px 10px;
+    background: var(--surface, #FFFFFF);
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.15s ease;
   }
-  .mobile-menu-btn:hover {
-    border-color: var(--border-strong);
-    background-color: var(--bg-surface-elevated);
-  }
+
   .main-content {
-    margin-left: 0;
-    padding: 20px 16px;
-    min-width: 0;
-    width: 100%;
-    box-sizing: border-box;
+    margin-left: 0 !important;
+    width: 100% !important;
+    padding: 16px;
+    min-height: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rail-brand__pulse,
+  .live-pill__dot,
+  .pulse-dot {
+    animation: none;
   }
 }
 </style>
 
+<style>
+/* Global Portal Tooltip Styling */
+.sidebar-portal-tooltip {
+  position: fixed;
+  transform: translateY(-50%);
+  pointer-events: none;
+  background: #0F1F35;
+  color: #FFFFFF;
+  padding: 6px 12px;
+  border-radius: 8px;
+  white-space: nowrap;
+  box-shadow: 0 8px 24px rgba(15, 31, 53, 0.25);
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  animation: tooltip-fade-in 0.15s ease-out;
+}
+
+[data-theme="dark"] .sidebar-portal-tooltip {
+  background: #0B132B;
+  border: 1px solid rgba(125, 211, 252, 0.25);
+  color: #F8FAFC;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.sidebar-portal-tooltip::before {
+  content: "";
+  position: absolute;
+  right: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent #0F1F35 transparent transparent;
+}
+
+[data-theme="dark"] .sidebar-portal-tooltip::before {
+  border-color: transparent #0B132B transparent transparent;
+}
+
+.sidebar-portal-tooltip .tooltip-title {
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.sidebar-portal-tooltip .tooltip-hint {
+  font-size: 10.5px;
+  color: #94A3B8;
+  line-height: 1.2;
+}
+
+@keyframes tooltip-fade-in {
+  from { opacity: 0; transform: translateY(-50%) translateX(-4px); }
+  to { opacity: 1; transform: translateY(-50%) translateX(0); }
+}
+</style>

@@ -1,253 +1,186 @@
-﻿<template>
+<template>
   <div class="alert-history-page">
-    <div class="page-header">
-      <div class="page-title-group">
-        <h1 class="page-title">Lịch Sử Cảnh Báo</h1>
-        <p class="page-subtitle">Toàn bộ cảnh báo VPH mà hệ thống đã ghi nhận</p>
-      </div>
-      <div class="header-actions">
-        <button class="btn-refresh" :disabled="loading" @click="reload">
-          <AppIcon name="refresh" size="15" />
-          {{ loading ? "Đang tải..." : "Làm mới" }}
+    <!-- Page Header -->
+    <PageHeader
+      kicker="ALERT OPERATIONS & SIGNAL HISTORY"
+      title="Lịch Sử Cảnh Báo"
+      description="Theo dõi toàn bộ vòng đời cảnh báo VPH, trạng thái gửi, số lần thử và dữ liệu video tại thời điểm cảnh báo."
+    >
+      <template #actions>
+        <button
+          type="button"
+          class="btn-refresh"
+          :disabled="loading"
+          @click="reload"
+        >
+          <AppIcon name="refresh-cw" :class="{ 'spin-icon': loading }" size="14" />
+          <span>{{ loading ? 'Đang tải...' : 'Làm Mới' }}</span>
         </button>
-      </div>
-    </div>
+      </template>
+    </PageHeader>
 
-    <div v-if="error" class="error-banner">
-      <AppIcon name="alert" size="16" />
-      <span>{{ error }}</span>
-    </div>
+    <!-- Error State -->
+    <ErrorState
+      v-if="error"
+      title="Không thể tải lịch sử cảnh báo"
+      :message="error"
+      retry-text="Thử lại"
+      :show-retry="true"
+      @retry="reload"
+    />
 
-    <div class="summary-grid" v-if="!loading || allItems.length > 0">
-      <div class="summary-card">
-        <div class="summary-label">Tổng cảnh báo</div>
-        <div class="summary-value mono">{{ summary.total }}</div>
-      </div>
-      <div class="summary-card card-sent">
-        <div class="summary-label">Đã gửi</div>
-        <div class="summary-value mono">{{ summary.sent }}</div>
-      </div>
-      <div class="summary-card card-waiting">
-        <div class="summary-label">Đang chờ</div>
-        <div class="summary-value mono">{{ summary.waiting }}</div>
-      </div>
-      <div class="summary-card" :class="summary.failed > 0 ? 'card-failed' : ''">
-        <div class="summary-label">Gửi lỗi</div>
-        <div class="summary-value mono">{{ summary.failed }}</div>
-      </div>
-    </div>
+    <template v-else>
+      <!-- Summary Strip -->
+      <AlertSummaryStrip
+        :summary="summary"
+        :loading="loading && allItems.length === 0"
+        :has-active-filter="hasActiveFilter"
+      />
 
-    <div class="filter-bar">
-      <div class="filter-group">
-        <label class="filter-label">Trạng thái</label>
-        <select v-model="filter.status" class="filter-select" @change="onFilterChange">
-          <option value="all">Tất cả</option>
-          <option value="sent">Đã gửi</option>
-          <option value="pending">Đang chờ</option>
-          <option value="sending">Đang gửi</option>
-          <option value="failed">Gửi lỗi</option>
-        </select>
+      <!-- View Mode Switcher + Results Info -->
+      <div class="view-mode-bar">
+        <ViewModeSwitcher
+          :model-value="currentViewMode"
+          :modes="ALERT_VIEW_MODES"
+          storage-key="bbdt_alert_history_view_mode"
+          @update:model-value="onViewModeChange"
+        />
+
+        <div class="results-count mono" v-if="allItems.length > 0">
+          <span v-if="currentViewMode === 'video'">
+            {{ videoGroups.length }} video có cảnh báo
+          </span>
+          <span v-else-if="currentViewMode === 'failed'">
+            Hiển thị {{ displayed.length }} / {{ viewScopedItems.length }} cảnh báo gửi lỗi
+          </span>
+          <span v-else>
+            Hiển thị {{ displayed.length }} / {{ viewScopedItems.length }} cảnh báo
+          </span>
+        </div>
       </div>
-      <div class="filter-group">
-        <label class="filter-label">Khoảng thời gian</label>
-        <select v-model="filter.range" class="filter-select" @change="onFilterChange">
-          <option value="24h">24 giờ qua</option>
-          <option value="7d">7 ngày qua</option>
-          <option value="30d">30 ngày qua</option>
-          <option value="all">Tất cả thời gian</option>
-        </select>
+
+      <!-- Filter Controls Bar -->
+      <AlertFilterBar
+        :filter="filter"
+        :sort="sort"
+        :channels="channels"
+        :stuck-count="stuckCount"
+        :status-counts="statusCounts"
+        @update:filter="onFilterUpdate"
+        @update:sort="onSortUpdate"
+        @clear-video-filter="clearVideoFilter"
+        @reset-filters="resetFilters"
+      />
+
+      <!-- Loading State (Initial) -->
+      <div v-if="loading && allItems.length === 0" class="loading-state">
+        <div v-for="i in 5" :key="i" class="skeleton-row"></div>
       </div>
-      <div class="filter-group" v-if="channels.length > 0">
-        <label class="filter-label">Kênh</label>
-        <select v-model="filter.channelId" class="filter-select" @change="onFilterChange">
-          <option :value="null">Tất cả kênh</option>
-          <option v-for="ch in channels" :key="ch.id" :value="ch.id">{{ ch.name }}</option>
-        </select>
-      </div>
-      <div class="filter-group">
-        <label class="filter-label">Sắp xếp</label>
-        <select v-model="sort" class="filter-select" @change="onFilterChange">
-          <option value="newest">Mới nhất</option>
-          <option value="vph_desc">VPH cao nhất</option>
-          <option value="views_desc">Lượt xem cao nhất</option>
-          <option value="attempts_desc">Nhiều lần thử nhất</option>
-        </select>
-      </div>
-      <div class="filter-group filter-search">
-        <label class="filter-label">Tìm kiếm</label>
-        <input
-          v-model="filter.search"
-          class="filter-input"
-          placeholder="Tên video, kênh..."
-          type="text"
-          @input="onFilterChange"
+
+      <!-- Empty State: No alerts at all -->
+      <EmptyState
+        v-else-if="!loading && allItems.length === 0"
+        title="Chưa có cảnh báo nào được ghi nhận."
+        description="Hệ thống chưa ghi nhận cảnh báo VPH nào. Cảnh báo được tự động tạo khi video vượt ngưỡng VPH đã thiết lập cho từng kênh."
+      />
+
+      <!-- Empty State: Filter matched nothing -->
+      <EmptyState
+        v-else-if="!loading && displayed.length === 0"
+        :title="currentViewMode === 'failed' ? 'Không có cảnh báo gửi lỗi' : 'Không có cảnh báo phù hợp'"
+        :description="currentViewMode === 'failed' ? 'Không có cảnh báo gửi lỗi trong phạm vi hiện tại.' : 'Không có cảnh báo phù hợp với bộ lọc hiện tại.'"
+      >
+        <template #actions>
+          <button type="button" class="btn-clear-filters" @click="resetFilters">
+            Xóa tất cả bộ lọc
+          </button>
+        </template>
+      </EmptyState>
+
+      <!-- View Modes -->
+      <div v-else class="content-view-area">
+        <!-- MODE 1: TIMELINE (Default) -->
+        <AlertTimeline
+          v-if="currentViewMode === 'timeline'"
+          :items="displayed"
+          @select-item="openModal"
+        />
+
+        <!-- MODE 2: TABLE -->
+        <AlertTable
+          v-else-if="currentViewMode === 'table'"
+          :items="displayed"
+          @select-item="openModal"
+        />
+
+        <!-- MODE 3: VIDEO -->
+        <AlertVideoGroups
+          v-else-if="currentViewMode === 'video'"
+          :groups="videoGroups"
+          @filter-by-video="filterByVideo"
+        />
+
+        <!-- MODE 4: FAILED -->
+        <AlertFailedList
+          v-else-if="currentViewMode === 'failed'"
+          :items="displayed"
+          @select-item="openModal"
         />
       </div>
-    </div>
 
-    <div v-if="filter.videoId" class="deep-link-banner">
-      <AppIcon name="video" size="14" />
-      <span>Đang lọc theo video cụ thể.</span>
-      <button class="btn-clear-video" @click="clearVideoFilter">Xem tất cả</button>
-    </div>
-
-    <div v-if="loading && allItems.length === 0" class="loading-state">
-      <div v-for="i in 5" :key="i" class="skeleton-row"></div>
-    </div>
-
-    <div v-else-if="!loading && displayed.length === 0" class="empty-state">
-      <AppIcon name="bell" size="32" iconClass="empty-icon" />
-      <div class="empty-title">Chưa có cảnh báo nào</div>
-      <div class="empty-desc">
-        <span v-if="allItems.length === 0">
-          Hệ thống chưa ghi nhận cảnh báo VPH nào. Cảnh báo được tạo khi video vượt ngưỡng VPH đã thiết lập cho từng kênh.
-        </span>
-        <span v-else>Không có cảnh báo nào phù hợp với bộ lọc hiện tại.</span>
+      <!-- Load More (Pagination slice) -->
+      <div
+        v-if="hasMore && currentViewMode !== 'video' && !loading"
+        class="load-more-container"
+      >
+        <button type="button" class="btn-load-more" @click="loadMore">
+          Xem thêm (còn {{ remaining.toLocaleString('vi-VN') }} cảnh báo)
+        </button>
       </div>
-    </div>
+    </template>
 
-    <div v-else class="table-container desktop-only">
-      <table class="alert-table">
-        <thead>
-          <tr>
-            <th>Video</th>
-            <th>Kênh</th>
-            <th>Thời điểm cảnh báo</th>
-            <th class="num-col">VPH lúc cảnh báo</th>
-            <th class="num-col">Ngưỡng VPH</th>
-            <th class="num-col">Vượt ngưỡng</th>
-            <th class="num-col">Lượt xem lúc cảnh báo</th>
-            <th class="num-col">View tăng</th>
-            <th>Trạng thái</th>
-            <th class="num-col">Số lần thử</th>
-            <th>Gửi lúc</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="item in displayed" :key="item.id" class="alert-row" @click="openModal(item)">
-            <td class="video-cell">
-              <img v-if="item.videoThumbnailUrl" :src="item.videoThumbnailUrl" :alt="item.videoTitle" class="thumb" loading="lazy" />
-              <div class="video-title">{{ item.videoTitle }}</div>
-            </td>
-            <td class="channel-cell">
-              <img v-if="item.channelAvatarUrl" :src="item.channelAvatarUrl" :alt="item.channelName" class="avatar" loading="lazy" />
-              <span>{{ item.channelName }}</span>
-            </td>
-            <td class="time-cell">{{ formatRelative(item.createdAt) }}</td>
-            <td class="num-col mono">{{ fmtVph(item.measuredVph) }}</td>
-            <td class="num-col mono">{{ fmtVph(item.thresholdVph) }}</td>
-            <td class="num-col">
-              <span v-if="item.thresholdRatio !== null" class="ratio-badge">{{ fmtRatio(item.thresholdRatio) }}</span>
-              <span v-else>—</span>
-            </td>
-            <td class="num-col mono">{{ fmtNum(item.viewCountAtAlert) }}</td>
-            <td class="num-col mono">{{ item.viewDeltaAtAlert !== null ? "+" + fmtNum(item.viewDeltaAtAlert) : "—" }}</td>
-            <td>
-              <span class="status-badge" :class="statusClass(item)">
-                {{ alertHistoryService.mapAlertStatus(item.status) }}
-                <span v-if="item.isSendingStuck" class="stuck-tag">?</span>
-              </span>
-            </td>
-            <td class="num-col mono">{{ item.attempts }}</td>
-            <td class="time-cell">{{ item.sentAt ? formatRelative(item.sentAt) : "—" }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div v-if="!loading && displayed.length > 0" class="mobile-only">
-      <div v-for="item in displayed" :key="item.id" class="mobile-card" @click="openModal(item)">
-        <div class="mobile-card-header">
-          <img v-if="item.videoThumbnailUrl" :src="item.videoThumbnailUrl" :alt="item.videoTitle" class="mobile-thumb" loading="lazy" />
-          <div class="mobile-card-info">
-            <div class="mobile-video-title">{{ item.videoTitle }}</div>
-            <div class="mobile-channel">{{ item.channelName }}</div>
-          </div>
-          <span class="status-badge" :class="statusClass(item)">{{ alertHistoryService.mapAlertStatus(item.status) }}</span>
-        </div>
-        <div class="mobile-card-body">
-          <div class="mobile-stat"><span class="ms-label">VPH cảnh báo</span><span class="ms-val mono">{{ fmtVph(item.measuredVph) }}</span></div>
-          <div class="mobile-stat"><span class="ms-label">Ngưỡng VPH</span><span class="ms-val mono">{{ fmtVph(item.thresholdVph) }}</span></div>
-          <div class="mobile-stat" v-if="item.thresholdRatio !== null"><span class="ms-label">Vượt ngưỡng</span><span class="ms-val">{{ fmtRatio(item.thresholdRatio) }}</span></div>
-          <div class="mobile-stat"><span class="ms-label">Thời điểm</span><span class="ms-val">{{ formatRelative(item.createdAt) }}</span></div>
-          <div class="mobile-stat"><span class="ms-label">Lần thử</span><span class="ms-val mono">{{ item.attempts }}</span></div>
-        </div>
-      </div>
-    </div>
-
-    <div v-if="hasMore && !loading" class="load-more-wrap">
-      <button class="btn-load-more" @click="loadMore">Xem Thêm ({{ remaining }} cảnh báo)</button>
-    </div>
-
-    <div v-if="modalItem" class="modal-overlay" @click.self="closeModal">
-      <div class="modal-box">
-        <div class="modal-header">
-          <div class="modal-title">Chi Tiết Cảnh Báo</div>
-          <button class="modal-close" @click="closeModal"><AppIcon name="x" size="18" /></button>
-        </div>
-        <div class="modal-body">
-          <div class="modal-video-row">
-            <img v-if="modalItem.videoThumbnailUrl" :src="modalItem.videoThumbnailUrl" class="modal-thumb" :alt="modalItem.videoTitle" />
-            <div>
-              <div class="modal-video-title">{{ modalItem.videoTitle }}</div>
-              <div class="modal-channel">{{ modalItem.channelName }}<span v-if="modalItem.channelHandle" class="modal-handle"> ({{ modalItem.channelHandle }})</span></div>
-              <a v-if="modalItem.videoYoutubeId" :href="'https://www.youtube.com/watch?v=' + modalItem.videoYoutubeId" target="_blank" rel="noopener noreferrer" class="yt-link">
-                Xem trên YouTube <AppIcon name="external" size="12" />
-              </a>
-            </div>
-          </div>
-          <div class="modal-group">
-            <div class="modal-group-title">Dữ liệu tại thời điểm cảnh báo</div>
-            <div class="modal-row"><span class="modal-key">Thời điểm</span><span class="modal-val">{{ formatDateTime(modalItem.createdAt) }}</span></div>
-            <div class="modal-row"><span class="modal-key">VPH đo được</span><span class="modal-val mono">{{ fmtVph(modalItem.measuredVph) }}</span></div>
-            <div class="modal-row"><span class="modal-key">Ngưỡng VPH kênh</span><span class="modal-val mono">{{ fmtVph(modalItem.thresholdVph) }}</span></div>
-            <div class="modal-row"><span class="modal-key">Vượt ngưỡng</span><span class="modal-val">{{ modalItem.thresholdRatio !== null ? fmtRatio(modalItem.thresholdRatio) : "—" }}</span></div>
-            <div class="modal-row"><span class="modal-key">Lượt xem lúc cảnh báo</span><span class="modal-val mono">{{ fmtNum(modalItem.viewCountAtAlert) }}</span></div>
-            <div class="modal-row"><span class="modal-key">View tăng (khoảng đo)</span><span class="modal-val mono">{{ modalItem.viewDeltaAtAlert !== null ? "+" + fmtNum(modalItem.viewDeltaAtAlert) : "—" }}</span></div>
-            <div class="modal-row"><span class="modal-key">Thời gian đo</span><span class="modal-val mono">{{ alertHistoryService.formatElapsedSeconds(modalItem.elapsedSeconds) }}</span></div>
-          </div>
-          <div class="modal-group">
-            <div class="modal-group-title">Dữ liệu hiện tại của video</div>
-            <div class="modal-row"><span class="modal-key">VPH hiện tại</span><span class="modal-val mono">{{ modalItem.currentVph !== null ? fmtVph(modalItem.currentVph) : "Chưa có" }}</span></div>
-            <div class="modal-row"><span class="modal-key">Lượt xem hiện tại</span><span class="modal-val mono">{{ modalItem.currentViewCount !== null ? fmtNum(modalItem.currentViewCount) : "Chưa có" }}</span></div>
-          </div>
-          <div class="modal-group">
-            <div class="modal-group-title">Trạng thái gửi Discord</div>
-            <div class="modal-row">
-              <span class="modal-key">Trạng thái</span>
-              <span class="modal-val">
-                <span class="status-badge" :class="statusClass(modalItem)">
-                  {{ alertHistoryService.mapAlertStatus(modalItem.status) }}
-                  <span v-if="modalItem.isSendingStuck" class="stuck-tag">Bị treo?</span>
-                </span>
-              </span>
-            </div>
-            <div class="modal-row"><span class="modal-key">Số lần thử</span><span class="modal-val mono">{{ modalItem.attempts }}</span></div>
-            <div class="modal-row" v-if="modalItem.sentAt"><span class="modal-key">Gửi thành công lúc</span><span class="modal-val">{{ formatDateTime(modalItem.sentAt) }}</span></div>
-            <div class="modal-row" v-if="modalItem.discordMessageId"><span class="modal-key">Discord Message ID</span><span class="modal-val mono">{{ modalItem.discordMessageId }}</span></div>
-            <div v-if="modalItem.sanitizedLastError" class="modal-error-block">
-              <div class="modal-key">Lỗi gần nhất</div>
-              <div class="modal-error-text">{{ modalItem.sanitizedLastError }}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <!-- Detail Modal -->
+    <AlertDetailModal
+      :item="modalItem"
+      @close="closeModal"
+    />
   </div>
 </template>
 
-﻿<script setup lang="ts">
+<script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import PageHeader from '@/components/ui/PageHeader.vue';
+import ViewModeSwitcher from '@/components/ui/ViewModeSwitcher.vue';
+import ErrorState from '@/components/ui/ErrorState.vue';
+import EmptyState from '@/components/ui/EmptyState.vue';
 import AppIcon from '@/components/ui/AppIcon.vue';
+
+import AlertSummaryStrip from '@/components/alert-history/AlertSummaryStrip.vue';
+import AlertFilterBar from '@/components/alert-history/AlertFilterBar.vue';
+import AlertTimeline from '@/components/alert-history/AlertTimeline.vue';
+import AlertTable from '@/components/alert-history/AlertTable.vue';
+import AlertVideoGroups from '@/components/alert-history/AlertVideoGroups.vue';
+import AlertFailedList from '@/components/alert-history/AlertFailedList.vue';
+import AlertDetailModal from '@/components/alert-history/AlertDetailModal.vue';
+
 import { alertHistoryService } from '@/services/alert-history-service';
 import { DatabaseNotConfiguredError } from '@/services/channel-service';
-import type {
-  AlertHistoryItem,
-  AlertHistoryFilter,
-  AlertHistorySort,
-  AlertHistorySummary,
+import {
+  ALERT_VIEW_MODES,
+  type AlertViewMode,
+  type AlertHistoryItem,
+  type AlertHistoryFilter,
+  type AlertHistorySort,
+  type AlertHistorySummary,
+  type AlertVideoGroup,
 } from '@/types/alert-history';
+
+const STORAGE_VIEW_MODE_KEY = 'bbdt_alert_history_view_mode';
+const STORAGE_STATUS_KEY = 'bbdt_alert_status_filter';
+const STORAGE_RANGE_KEY = 'bbdt_alert_range_filter';
+const STORAGE_CHANNEL_KEY = 'bbdt_alert_channel_filter';
+const STORAGE_SORT_KEY = 'bbdt_alert_sort';
 
 const route = useRoute();
 const router = useRouter();
@@ -257,42 +190,143 @@ const displayLimit = ref(50);
 const loading = ref(false);
 const error = ref<string | null>(null);
 const modalItem = ref<AlertHistoryItem | null>(null);
-const sort = ref<AlertHistorySort>('newest');
 
+// View Mode
+const currentViewMode = ref<AlertViewMode>('timeline');
+
+// Sort & Filter
+const sort = ref<AlertHistorySort>('newest');
 const filter = ref<AlertHistoryFilter>({
   status: 'all',
-  range: '7d',
+  range: '30d',
   channelId: null,
   search: '',
   videoId: null,
+  stuckOnly: false,
 });
 
+// Channels list derived from allItems
 const channels = computed(() => {
   const map = new Map<string, { id: string; name: string }>();
   for (const item of allItems.value) {
-    if (!map.has(item.channelId)) {
+    if (item.channelId && item.channelName && !map.has(item.channelId)) {
       map.set(item.channelId, { id: item.channelId, name: item.channelName });
     }
   }
   return [...map.values()].sort((a, b) => a.name.localeCompare(b.name));
 });
 
-const filtered = computed(() =>
-  alertHistoryService.filterAndSortAlerts(allItems.value, filter.value, sort.value)
-);
-const displayed = computed(() => filtered.value.slice(0, displayLimit.value));
-const hasMore = computed(() => filtered.value.length > displayLimit.value);
-const remaining = computed(() => filtered.value.length - displayLimit.value);
-const summary = computed<AlertHistorySummary>(() =>
-  alertHistoryService.computeAlertSummary(allItems.value)
-);
+// Stuck count in all loaded alerts
+const stuckCount = computed(() => {
+  return allItems.value.filter(i => i.isSendingStuck).length;
+});
+
+// Status counts for tabs
+const statusCounts = computed(() => {
+  let sent = 0;
+  let pending = 0;
+  let sending = 0;
+  let failed = 0;
+
+  for (const item of allItems.value) {
+    if (item.status === 'sent') sent++;
+    else if (item.status === 'pending') pending++;
+    else if (item.status === 'sending') sending++;
+    else if (item.status === 'failed') failed++;
+  }
+
+  return {
+    all: allItems.value.length,
+    sent,
+    pending,
+    sending,
+    failed,
+  };
+});
+
+// Filtered items
+const filtered = computed(() => {
+  return alertHistoryService.filterAndSortAlerts(allItems.value, filter.value, sort.value);
+});
+
+// View-scoped items (specifically for failed view pagination semantics)
+const viewScopedItems = computed(() => {
+  if (currentViewMode.value === 'failed') {
+    return filtered.value.filter(i => i.status === 'failed');
+  }
+  return filtered.value;
+});
+
+// Display slice
+const displayed = computed(() => {
+  return viewScopedItems.value.slice(0, displayLimit.value);
+});
+
+const hasMore = computed(() => viewScopedItems.value.length > displayLimit.value);
+const remaining = computed(() => Math.max(0, viewScopedItems.value.length - displayLimit.value));
+
+// Summary: computed from filtered dataset (Section 6 recommendation)
+const summary = computed<AlertHistorySummary>(() => {
+  return alertHistoryService.computeAlertSummary(filtered.value);
+});
+
+// Video groups for video view mode
+const videoGroups = computed<AlertVideoGroup[]>(() => {
+  return alertHistoryService.groupAlertsByVideo(filtered.value);
+});
+
+const hasActiveFilter = computed(() => {
+  return (
+    filter.value.status !== 'all' ||
+    filter.value.range !== '30d' ||
+    filter.value.channelId !== null ||
+    filter.value.videoId !== null ||
+    filter.value.stuckOnly === true ||
+    filter.value.search.trim().length > 0
+  );
+});
 
 onMounted(async () => {
-  readUrlParams();
+  initFromStorageAndUrl();
   await reload();
 });
 
-watch(() => route.query, () => readUrlParams());
+watch(
+  () => route.query,
+  () => {
+    readUrlParams();
+  }
+);
+
+function initFromStorageAndUrl() {
+  if (typeof localStorage !== 'undefined') {
+    try {
+      const savedMode = localStorage.getItem(STORAGE_VIEW_MODE_KEY);
+      if (savedMode && ['timeline', 'table', 'video', 'failed'].includes(savedMode)) {
+        currentViewMode.value = savedMode as AlertViewMode;
+      }
+      const savedStatus = localStorage.getItem(STORAGE_STATUS_KEY);
+      if (savedStatus && ['pending', 'sending', 'sent', 'failed', 'all'].includes(savedStatus)) {
+        filter.value.status = savedStatus as AlertHistoryFilter['status'];
+      }
+      const savedRange = localStorage.getItem(STORAGE_RANGE_KEY);
+      if (savedRange && ['24h', '7d', '30d', 'all'].includes(savedRange)) {
+        filter.value.range = savedRange as AlertHistoryFilter['range'];
+      }
+      const savedSort = localStorage.getItem(STORAGE_SORT_KEY);
+      if (savedSort && ['newest', 'vph_desc', 'views_desc', 'attempts_desc'].includes(savedSort)) {
+        sort.value = savedSort as AlertHistorySort;
+      }
+      const savedCh = localStorage.getItem(STORAGE_CHANNEL_KEY);
+      if (savedCh) {
+        filter.value.channelId = savedCh;
+      }
+    } catch {}
+  }
+
+  // URL overrides storage
+  readUrlParams();
+}
 
 function readUrlParams() {
   const q = route.query;
@@ -302,23 +336,50 @@ function readUrlParams() {
   if (q.range && ['24h', '7d', '30d', 'all'].includes(q.range as string)) {
     filter.value.range = q.range as AlertHistoryFilter['range'];
   }
-  if (q.channel && typeof q.channel === 'string') {
-    filter.value.channelId = q.channel;
+  if (q.channel && typeof q.channel === 'string' && q.channel.trim()) {
+    filter.value.channelId = q.channel.trim();
   }
-  if (q.video && typeof q.video === 'string' && isValidUuid(q.video)) {
-    filter.value.videoId = q.video;
+  if (q.video && typeof q.video === 'string' && q.video.trim()) {
+    filter.value.videoId = q.video.trim();
+  }
+  if (q.view && ['timeline', 'table', 'video', 'failed'].includes(q.view as string)) {
+    currentViewMode.value = q.view as AlertViewMode;
   }
 }
 
-function isValidUuid(val: string): boolean {
-  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(val);
+function persistAndSync() {
+  if (typeof localStorage !== 'undefined') {
+    try {
+      localStorage.setItem(STORAGE_VIEW_MODE_KEY, currentViewMode.value);
+      localStorage.setItem(STORAGE_STATUS_KEY, filter.value.status);
+      localStorage.setItem(STORAGE_RANGE_KEY, filter.value.range);
+      localStorage.setItem(STORAGE_SORT_KEY, sort.value);
+      if (filter.value.channelId) {
+        localStorage.setItem(STORAGE_CHANNEL_KEY, filter.value.channelId);
+      } else {
+        localStorage.removeItem(STORAGE_CHANNEL_KEY);
+      }
+    } catch {}
+  }
+
+  const q: Record<string, string> = {};
+  if (filter.value.status !== 'all') q.status = filter.value.status;
+  if (filter.value.range !== '30d') q.range = filter.value.range;
+  if (filter.value.channelId) q.channel = filter.value.channelId;
+  if (filter.value.videoId) q.video = filter.value.videoId;
+  if (currentViewMode.value !== 'timeline') q.view = currentViewMode.value;
+
+  router.replace({ query: q });
 }
 
 async function reload() {
   loading.value = true;
   error.value = null;
+  displayLimit.value = 50;
+
   try {
-    allItems.value = await alertHistoryService.fetchAlertHistory(500, 0);
+    // Option A: Batch fetch-all loop
+    allItems.value = await alertHistoryService.fetchAllAlertHistory(1000);
   } catch (e: unknown) {
     if (e instanceof DatabaseNotConfiguredError) {
       error.value = 'Chưa cấu hình kết nối Supabase. Vui lòng kiểm tra cài đặt.';
@@ -330,163 +391,181 @@ async function reload() {
   }
 }
 
-function onFilterChange() {
+function onFilterUpdate(newFilter: AlertHistoryFilter) {
+  filter.value = newFilter;
   displayLimit.value = 50;
-  const q: Record<string, string> = {};
-  if (filter.value.status !== 'all') q.status = filter.value.status;
-  if (filter.value.range !== '7d') q.range = filter.value.range;
-  if (filter.value.channelId) q.channel = filter.value.channelId;
-  if (filter.value.videoId) q.video = filter.value.videoId;
-  router.replace({ query: q });
+  persistAndSync();
+}
+
+function onSortUpdate(newSort: AlertHistorySort) {
+  sort.value = newSort;
+  persistAndSync();
+}
+
+function onViewModeChange(newMode: string) {
+  currentViewMode.value = newMode as AlertViewMode;
+  persistAndSync();
 }
 
 function clearVideoFilter() {
   filter.value.videoId = null;
-  onFilterChange();
+  displayLimit.value = 50;
+  persistAndSync();
 }
 
-function loadMore() { displayLimit.value += 50; }
-function openModal(item: AlertHistoryItem) { modalItem.value = item; }
-function closeModal() { modalItem.value = null; }
+function filterByVideo(videoId: string) {
+  filter.value.videoId = videoId;
+  currentViewMode.value = 'timeline';
+  displayLimit.value = 50;
+  persistAndSync();
+}
 
-function fmtVph(v: number | null): string {
-  if (v === null || v === undefined) return '—';
-  return Math.round(v).toLocaleString('vi-VN') + ' VPH';
+function resetFilters() {
+  filter.value = {
+    status: 'all',
+    range: '30d',
+    channelId: null,
+    search: '',
+    videoId: null,
+    stuckOnly: false,
+  };
+  displayLimit.value = 50;
+  persistAndSync();
 }
-function fmtNum(v: number | null): string {
-  if (v === null || v === undefined) return '—';
-  return v.toLocaleString('vi-VN');
+
+function loadMore() {
+  displayLimit.value += 50;
 }
-function fmtRatio(r: number): string { return (r * 100).toFixed(0) + '%'; }
-function formatRelative(iso: string): string {
-  const diff = Date.now() - new Date(iso).getTime();
-  const mins = Math.floor(diff / 60000);
-  if (mins < 1) return 'Vừa xong';
-  if (mins < 60) return mins + ' phút trước';
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return hrs + ' giờ trước';
-  return Math.floor(hrs / 24) + ' ngày trước';
+
+function openModal(item: AlertHistoryItem) {
+  modalItem.value = item;
 }
-function formatDateTime(iso: string): string {
-  return new Date(iso).toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-}
-function statusClass(item: AlertHistoryItem): string {
-  if (item.isSendingStuck) return 'status-stuck';
-  switch (item.status) {
-    case 'sent': return 'status-sent';
-    case 'pending': return 'status-pending';
-    case 'sending': return 'status-sending';
-    case 'failed': return 'status-failed';
-    default: return '';
-  }
+
+function closeModal() {
+  modalItem.value = null;
 }
 </script>
 
-﻿<style scoped>
-.alert-history-page { display: flex; flex-direction: column; gap: 24px; }
-.page-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
-.page-title { font-size: 22px; font-weight: 700; color: var(--text-primary); margin: 0; }
-.page-subtitle { font-size: 13px; color: var(--text-secondary); margin: 4px 0 0; }
-.header-actions { display: flex; gap: 8px; flex-shrink: 0; }
-.btn-refresh { display: flex; align-items: center; gap: 6px; padding: 7px 14px; background: var(--bg-surface-elevated); border: 1px solid var(--border-subtle); border-radius: 6px; color: var(--text-secondary); font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.15s; }
-.btn-refresh:hover:not(:disabled) { background: var(--accent-subtle); color: var(--accent); }
-.btn-refresh:disabled { opacity: 0.5; cursor: not-allowed; }
-.error-banner { display: flex; align-items: center; gap: 8px; padding: 12px 16px; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); border-radius: 8px; color: #f87171; font-size: 13px; }
-.summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
-.summary-card { background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 16px 20px; }
-.summary-label { font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; }
-.summary-value { font-size: 26px; font-weight: 700; color: var(--text-primary); }
-.card-sent { border-color: rgba(34,197,94,0.3); }
-.card-sent .summary-value { color: #4ade80; }
-.card-waiting { border-color: rgba(234,179,8,0.3); }
-.card-waiting .summary-value { color: #fbbf24; }
-.card-failed { border-color: rgba(239,68,68,0.3); }
-.card-failed .summary-value { color: #f87171; }
-.filter-bar { display: flex; flex-wrap: wrap; gap: 12px; padding: 16px; background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 10px; }
-.filter-group { display: flex; flex-direction: column; gap: 4px; min-width: 140px; }
-.filter-search { flex: 1; min-width: 200px; }
-.filter-label { font-size: 11px; color: var(--text-secondary); font-weight: 600; letter-spacing: 0.03em; text-transform: uppercase; }
-.filter-select, .filter-input { padding: 7px 10px; background: var(--bg-main); border: 1px solid var(--border-subtle); border-radius: 6px; color: var(--text-primary); font-size: 13px; outline: none; transition: border-color 0.15s; }
-.filter-select:focus, .filter-input:focus { border-color: var(--accent); }
-.deep-link-banner { display: flex; align-items: center; gap: 8px; padding: 10px 14px; background: var(--accent-subtle); border: 1px solid rgba(56,189,248,0.3); border-radius: 8px; font-size: 13px; color: var(--accent); }
-.btn-clear-video { margin-left: auto; padding: 3px 10px; background: transparent; border: 1px solid var(--accent); border-radius: 5px; color: var(--accent); font-size: 12px; cursor: pointer; transition: all 0.15s; }
-.btn-clear-video:hover { background: var(--accent); color: #000; }
-.loading-state { display: flex; flex-direction: column; gap: 10px; }
-.skeleton-row { height: 52px; background: var(--bg-surface); border-radius: 8px; animation: pulse 1.4s ease-in-out infinite; }
-@keyframes pulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
-.empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 32px; text-align: center; background: var(--bg-surface); border: 1px dashed var(--border-subtle); border-radius: 12px; gap: 12px; }
-:deep(.empty-icon) { color: var(--text-muted); }
-.empty-title { font-size: 16px; font-weight: 600; color: var(--text-secondary); }
-.empty-desc { font-size: 13px; color: var(--text-muted); max-width: 440px; }
-.table-container { overflow-x: auto; background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 10px; }
-.alert-table { width: 100%; border-collapse: collapse; min-width: 960px; }
-.alert-table thead { background: var(--bg-surface-elevated); }
-.alert-table th { padding: 10px 14px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-secondary); text-align: left; white-space: nowrap; }
-.num-col { text-align: right !important; }
-.alert-row { border-top: 1px solid var(--border-subtle); cursor: pointer; transition: background 0.1s; }
-.alert-row:hover { background: var(--bg-surface-elevated); }
-.alert-table td { padding: 10px 14px; font-size: 13px; color: var(--text-primary); vertical-align: middle; }
-.video-cell { display: flex; align-items: center; gap: 8px; max-width: 240px; }
-.thumb { width: 52px; height: 30px; border-radius: 4px; object-fit: cover; flex-shrink: 0; }
-.video-title { font-size: 12px; color: var(--text-primary); line-height: 1.3; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
-.channel-cell { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
-.avatar { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; }
-.time-cell { white-space: nowrap; font-size: 12px; color: var(--text-secondary); }
-.ratio-badge { font-size: 12px; font-weight: 600; color: var(--accent); }
-.mono { font-family: var(--font-mono, monospace); }
-.status-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 600; white-space: nowrap; }
-.status-sent { background: rgba(34,197,94,0.15); color: #4ade80; }
-.status-pending { background: rgba(234,179,8,0.15); color: #fbbf24; }
-.status-sending { background: rgba(56,189,248,0.15); color: #38bdf8; }
-.status-failed { background: rgba(239,68,68,0.15); color: #f87171; }
-.status-stuck { background: rgba(249,115,22,0.15); color: #fb923c; }
-.stuck-tag { font-size: 10px; opacity: 0.8; }
-.load-more-wrap { display: flex; justify-content: center; }
-.btn-load-more { padding: 9px 24px; background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 8px; color: var(--text-secondary); font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.15s; }
-.btn-load-more:hover { background: var(--accent-subtle); color: var(--accent); }
-.mobile-only { display: none; }
-.desktop-only { display: block; }
-.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 200; display: flex; align-items: center; justify-content: center; padding: 20px; }
-.modal-box { background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 14px; width: 100%; max-width: 600px; max-height: 85vh; overflow-y: auto; }
-.modal-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--border-subtle); position: sticky; top: 0; background: var(--bg-surface); z-index: 1; }
-.modal-title { font-size: 15px; font-weight: 700; color: var(--text-primary); }
-.modal-close { background: none; border: none; color: var(--text-secondary); cursor: pointer; padding: 4px; border-radius: 4px; transition: color 0.15s; }
-.modal-close:hover { color: var(--text-primary); }
-.modal-body { padding: 20px; display: flex; flex-direction: column; gap: 20px; }
-.modal-video-row { display: flex; gap: 14px; align-items: flex-start; }
-.modal-thumb { width: 96px; height: 54px; border-radius: 6px; object-fit: cover; flex-shrink: 0; }
-.modal-video-title { font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; line-height: 1.3; }
-.modal-channel { font-size: 12px; color: var(--text-secondary); }
-.modal-handle { color: var(--text-muted); }
-.yt-link { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; color: var(--accent); text-decoration: none; margin-top: 6px; }
-.yt-link:hover { text-decoration: underline; }
-.modal-group { background: var(--bg-surface-elevated); border-radius: 8px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
-.modal-group-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-secondary); margin-bottom: 2px; }
-.modal-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
-.modal-key { font-size: 13px; color: var(--text-secondary); }
-.modal-val { font-size: 13px; color: var(--text-primary); font-weight: 500; text-align: right; }
-.modal-error-block { margin-top: 4px; padding: 10px 12px; background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); border-radius: 6px; }
-.modal-error-text { font-size: 12px; color: #f87171; margin-top: 4px; word-break: break-word; }
-@media (max-width: 900px) {
-  .summary-grid { grid-template-columns: repeat(2, 1fr); }
-  .desktop-only { display: none !important; }
-  .mobile-only { display: flex; flex-direction: column; gap: 12px; }
-  .mobile-card { background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 14px; cursor: pointer; transition: background 0.1s; }
-  .mobile-card:active { background: var(--bg-surface-elevated); }
-  .mobile-card-header { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
-  .mobile-thumb { width: 60px; height: 34px; border-radius: 4px; object-fit: cover; flex-shrink: 0; }
-  .mobile-card-info { flex: 1; min-width: 0; }
-  .mobile-video-title { font-size: 13px; font-weight: 600; color: var(--text-primary); line-height: 1.3; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
-  .mobile-channel { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
-  .mobile-card-body { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  .mobile-stat { display: flex; flex-direction: column; gap: 2px; }
-  .ms-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.03em; }
-  .ms-val { font-size: 13px; font-weight: 600; color: var(--text-primary); }
-  .modal-box { max-height: 90vh; }
+<style scoped>
+.alert-history-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+  max-width: none;
 }
-@media (max-width: 480px) {
-  .summary-grid { grid-template-columns: 1fr 1fr; }
-  .filter-bar { flex-direction: column; }
-  .filter-group { min-width: unset; width: 100%; }
+
+.btn-refresh {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  color: #334155;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-refresh:hover:not(:disabled) {
+  background: #f8fafc;
+  border-color: #94a3b8;
+  color: #0f172a;
+}
+
+.btn-refresh:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.spin-icon {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.view-mode-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.results-count {
+  font-size: 12.5px;
+  color: #64748b;
+}
+
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.skeleton-row {
+  height: 60px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+.content-view-area {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.load-more-container {
+  display: flex;
+  justify-content: center;
+  padding-top: 10px;
+  padding-bottom: 20px;
+}
+
+.btn-load-more {
+  padding: 10px 24px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #0f172a;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+  transition: all 0.15s ease;
+}
+
+.btn-load-more:hover {
+  background: #f8fafc;
+  border-color: #0284c7;
+  color: #0284c7;
+}
+
+.btn-clear-filters {
+  padding: 8px 18px;
+  background: #0284c7;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-clear-filters:hover {
+  background: #0369a1;
 }
 </style>

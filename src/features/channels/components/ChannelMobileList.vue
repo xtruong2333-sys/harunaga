@@ -51,11 +51,11 @@
       <div class="card-metrics">
         <div class="metric-item">
           <div class="metric-label">KIỂM TRA</div>
-          <div class="metric-val mono">{{ channel.scanLimit }} video</div>
+          <div class="metric-val mono">{{ channel.scanLimit !== null && channel.scanLimit !== undefined ? `${channel.scanLimit} video` : '—' }}</div>
         </div>
         <div class="metric-item">
           <div class="metric-label">NGƯỠNG CẢNH BÁO</div>
-          <div class="metric-val mono text-threshold">{{ channel.alertVphThreshold.toLocaleString('vi-VN') }} VPH</div>
+          <div class="metric-val mono text-threshold">{{ channel.alertVphThreshold !== null && channel.alertVphThreshold !== undefined ? `${channel.alertVphThreshold.toLocaleString('vi-VN')} VPH` : '—' }}</div>
         </div>
         <div class="metric-item">
           <div class="metric-label">QUÉT GẦN NHẤT</div>

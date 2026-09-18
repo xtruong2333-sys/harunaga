@@ -5,7 +5,7 @@ export type Theme = 'dark' | 'light';
 export const THEME_STORAGE_KEY = 'bbdt_theme';
 
 function getInitialTheme(): Theme {
-  if (typeof window === 'undefined') return 'dark';
+  if (typeof window === 'undefined') return 'light';
   try {
     const stored = window.localStorage.getItem(THEME_STORAGE_KEY);
     if (stored === 'light' || stored === 'dark') {
@@ -14,7 +14,7 @@ function getInitialTheme(): Theme {
   } catch {
     // localStorage might be unavailable or throw in strict environments
   }
-  return 'dark';
+  return 'light';
 }
 
 // Global reactive state shared across all components

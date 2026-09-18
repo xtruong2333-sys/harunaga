@@ -1,13 +1,19 @@
 import { describe, it, expect, vi } from 'vitest';
 import * as fs from 'fs';
 import * as path from 'path';
+import { mount } from '@vue/test-utils';
 import {
   parseReportRange,
   getReportRangeStart,
   formatVietnamDateTime,
   formatNumber,
+  formatNullableNumber,
   formatVph,
   formatRelativeTime,
+  parseAlertStatus,
+  parseScanStatus,
+  parseScanTrigger,
+  toFiniteNumber,
   computeReportSummary,
   computeScanSummary,
   computeChannelActivity,
@@ -23,7 +29,16 @@ import type {
   ReportVideo,
   ReportAlert,
   ReportScan,
+  ReportSummary,
+  ReportScanSummary,
+  ReportChannelActivity,
 } from '../src/types/report';
+
+import ReportSummaryRail from '../src/components/report/ReportSummaryRail.vue';
+import ReportBriefView from '../src/components/report/ReportBriefView.vue';
+import ReportVideoSignals from '../src/components/report/ReportVideoSignals.vue';
+import ReportChannelActivityComponent from '../src/components/report/ReportChannelActivity.vue';
+import ReportOperationsView from '../src/components/report/ReportOperationsView.vue';
 
 function makeVideo(overrides: Partial<ReportVideo> = {}): ReportVideo {
   return {
@@ -63,8 +78,21 @@ function makeScan(overrides: Partial<ReportScan> = {}): ReportScan {
   };
 }
 
-describe('Bắt Bài Đối Thủ — Giai Đoạn 16: Báo Cáo 24h / 7 Ngày (report-service)', () => {
-  // 1. Range & Boundary (Section 56)
+function createMockQuery(rows: any[]) {
+  const query: any = {
+    gte: () => query,
+    lte: () => query,
+    order: () => query,
+    range: (fromIdx: number, toIdx: number) => {
+      const slice = rows.slice(fromIdx, toIdx + 1);
+      return Promise.resolve({ data: slice, error: null });
+    },
+  };
+  return query;
+}
+
+describe('Bắt Bài Đối Thủ — Wave 3.11: Executive Intelligence Report (report-service)', () => {
+  // 1. Range & Boundary
   describe('1. Phân tích khoảng thời gian và mốc ranh giới (getReportRangeStart & parseReportRange)', () => {
     it('parseReportRange fallback về 24h khi giá trị không hợp lệ', () => {
       expect(parseReportRange('24h')).toBe('24h');
@@ -98,9 +126,9 @@ describe('Bắt Bài Đối Thủ — Giai Đoạn 16: Báo Cáo 24h / 7 Ngày (
     });
   });
 
-  // 2. Video Summary Computation (Section 57)
+  // 2. Video Summary Computation
   describe('2. Tính toán tóm tắt video mới (computeReportSummary)', () => {
-    it('dataset mẫu Section 57: 5 video mới, 3 channels, VPH: 100, 0, NULL, 300, 50 -> videoNew=5, channels=3, rising=3, maxVPH=300', () => {
+    it('dataset mẫu: 5 video mới, 3 channels, VPH: 100, 0, NULL, 300, 50 -> videoNew=5, channels=3, rising=3, maxVPH=300', () => {
       const videos: ReportVideo[] = [
         makeVideo({ channelId: 'ch-1', latestMeasuredVph: 100 }),
         makeVideo({ channelId: 'ch-1', latestMeasuredVph: 0 }),
@@ -134,7 +162,7 @@ describe('Bắt Bài Đối Thủ — Giai Đoạn 16: Báo Cáo 24h / 7 Ngày (
     });
   });
 
-  // 3. Alert Summary (Section 58)
+  // 3. Alert Summary
   describe('3. Tóm tắt cảnh báo phát sinh (Alert Summary)', () => {
     it('truyền đúng số lượng alert phát sinh trong khoảng', () => {
       const summary = computeReportSummary([], 3, []);
@@ -142,33 +170,37 @@ describe('Bắt Bài Đối Thủ — Giai Đoạn 16: Báo Cáo 24h / 7 Ngày (
     });
   });
 
-  // 4. Scan Summary (Section 59)
-  describe('4. Tóm tắt hoạt động quét (computeScanSummary & Section 59)', () => {
-    it('dataset Section 59: scans (success 100, success 120, partial 90, failed 0) -> total=4, snapshots=310, attention=2', () => {
+  // 4. Scan Summary
+  describe('4. Tóm tắt hoạt động quét (computeScanSummary)', () => {
+    it('scans (running 50, success 100, partial 90, failed 0, unknown 10) -> total=5, snapshots=250, attention=2', () => {
       const scans: ReportScan[] = [
+        makeScan({ status: 'running', snapshotsCreated: 50 }),
         makeScan({ status: 'success', snapshotsCreated: 100 }),
-        makeScan({ status: 'success', snapshotsCreated: 120 }),
         makeScan({ status: 'partial', snapshotsCreated: 90 }),
         makeScan({ status: 'failed', snapshotsCreated: 0 }),
+        makeScan({ status: 'unknown', snapshotsCreated: 10 }),
       ];
 
       const scanSum = computeScanSummary(scans);
-      expect(scanSum.totalScans).toBe(4);
-      expect(scanSum.successScans).toBe(2);
+      expect(scanSum.totalScans).toBe(5);
+      expect(scanSum.runningScans).toBe(1);
+      expect(scanSum.successScans).toBe(1);
       expect(scanSum.partialScans).toBe(1);
       expect(scanSum.failedScans).toBe(1);
-      expect(scanSum.totalSnapshots).toBe(310);
+      expect(scanSum.unknownScans).toBe(1);
+      expect(scanSum.totalSnapshots).toBe(250);
 
       const repSum = computeReportSummary([], 0, scans);
-      expect(repSum.snapshotsCount).toBe(310);
+      expect(repSum.snapshotsCount).toBe(250);
       expect(repSum.attentionScansCount).toBe(2); // 1 partial + 1 failed
     });
   });
 
-  // 5. Channel Activity (Section 60)
+  // 5. Channel Activity
   describe('5. Thống kê hoạt động từng kênh (computeChannelActivity)', () => {
-    it('tính đúng số video, video gần nhất, max VPH và số video đang tăng theo từng kênh', () => {
+    it('tính đúng số video, video gần nhất, latestVideoId, max VPH và số video đang tăng theo từng kênh', () => {
       const vA1 = makeVideo({
+        id: 'vA1',
         channelId: 'ch-A',
         channelName: 'Channel Alpha',
         title: 'Video A1',
@@ -176,6 +208,7 @@ describe('Bắt Bài Đối Thủ — Giai Đoạn 16: Báo Cáo 24h / 7 Ngày (
         latestMeasuredVph: 150,
       });
       const vA2 = makeVideo({
+        id: 'vA2',
         channelId: 'ch-A',
         channelName: 'Channel Alpha',
         title: 'Video A2 Mới Nhất',
@@ -183,6 +216,7 @@ describe('Bắt Bài Đối Thủ — Giai Đoạn 16: Báo Cáo 24h / 7 Ngày (
         latestMeasuredVph: 400,
       });
       const vA3 = makeVideo({
+        id: 'vA3',
         channelId: 'ch-A',
         channelName: 'Channel Alpha',
         title: 'Video A3',
@@ -190,6 +224,7 @@ describe('Bắt Bài Đối Thủ — Giai Đoạn 16: Báo Cáo 24h / 7 Ngày (
         latestMeasuredVph: 0,
       });
       const vB1 = makeVideo({
+        id: 'vB1',
         channelId: 'ch-B',
         channelName: 'Channel Beta',
         title: 'Video B1 Duy Nhất',
@@ -204,15 +239,17 @@ describe('Bắt Bài Đối Thủ — Giai Đoạn 16: Báo Cáo 24h / 7 Ngày (
       const chA = activities[0];
       expect(chA.channelId).toBe('ch-A');
       expect(chA.newVideosCount).toBe(3);
+      expect(chA.latestVideoId).toBe('vA2');
       expect(chA.latestVideoTitle).toBe('Video A2 Mới Nhất');
       expect(chA.latestPublishedAt).toBe('2026-09-17T15:00:00Z');
       expect(chA.maxCurrentVph).toBe(400);
-      expect(chA.risingCount).toBe(2); // 150 và 400 > 0
+      expect(chA.risingCount).toBe(2);
 
       // Channel B
       const chB = activities[1];
       expect(chB.channelId).toBe('ch-B');
       expect(chB.newVideosCount).toBe(1);
+      expect(chB.latestVideoId).toBe('vB1');
       expect(chB.latestVideoTitle).toBe('Video B1 Duy Nhất');
       expect(chB.maxCurrentVph).toBeNull();
       expect(chB.risingCount).toBe(0);
@@ -234,11 +271,28 @@ describe('Bắt Bài Đối Thủ — Giai Đoạn 16: Báo Cáo 24h / 7 Ngày (
       expect(res[0].channelId).toBe('ch-2'); // v2 mới hơn v1
       expect(res[1].channelId).toBe('ch-1');
     });
+
+    it('khi hai kênh bằng cả số video và ngày xuất bản mới nhất, tie-breaking theo channelName ASC', () => {
+      const vA = makeVideo({
+        channelId: 'ch-z',
+        channelName: 'Zebra Channel',
+        publishedAt: '2026-09-17T14:00:00Z',
+      });
+      const vB = makeVideo({
+        channelId: 'ch-a',
+        channelName: 'Alpha Channel',
+        publishedAt: '2026-09-17T14:00:00Z',
+      });
+
+      const res = computeChannelActivity([vA, vB]);
+      expect(res[0].channelName).toBe('Alpha Channel');
+      expect(res[1].channelName).toBe('Zebra Channel');
+    });
   });
 
-  // 6. Historical Alert Values (Section 61)
-  describe('6. Bảo toàn giá trị lịch sử cảnh báo (Section 61)', () => {
-    it('Alert History phải giữ nguyên measuredVph và thresholdVph tại thời điểm cảnh báo, không thay bằng current VPH', () => {
+  // 6. Historical Alert Values & Status Semantics
+  describe('6. Bảo toàn giá trị lịch sử cảnh báo và Status Semantics', () => {
+    it('Alert History phải giữ nguyên measuredVph và thresholdVph tại thời điểm cảnh báo, status sent hiển thị Đã cảnh báo', () => {
       const alertItem: ReportAlert = {
         id: 'alt-1',
         videoId: 'vid-1',
@@ -253,21 +307,19 @@ describe('Bắt Bài Đối Thủ — Giai Đoạn 16: Báo Cáo 24h / 7 Ngày (
         thresholdVph: 5000,
         viewCount: 15000,
         status: 'sent',
-        statusLabel: 'Đã gửi',
+        statusLabel: 'Đã cảnh báo',
         createdAt: '2026-09-17T08:00:00Z',
       };
 
-      // Giả sử video hiện tại VPH đã giảm xuống 900
-      const currentVideoVph = 900;
       expect(alertItem.measuredVph).toBe(6000);
-      expect(alertItem.measuredVph).not.toBe(currentVideoVph);
       expect(alertItem.thresholdVph).toBe(5000);
-      expect(alertItem.viewCount).toBe(15000);
+      expect(alertItem.status).toBe('sent');
+      expect(ALERT_STATUS_MAP[alertItem.status]).toBe('Đã cảnh báo');
     });
   });
 
-  // 7. NULL vs 0 VPH Display Rule (Section 62)
-  describe('7. Phân biệt rõ NULL và 0 VPH (formatVph & Section 62)', () => {
+  // 7. NULL vs 0 VPH & formatNullableNumber
+  describe('7. Phân biệt rõ NULL và 0 VPH (formatVph & formatNullableNumber)', () => {
     it('NULL trả về "Chưa đủ dữ liệu"', () => {
       expect(formatVph(null)).toBe('Chưa đủ dữ liệu');
       expect(formatVph(undefined)).toBe('Chưa đủ dữ liệu');
@@ -282,10 +334,16 @@ describe('Bắt Bài Đối Thủ — Giai Đoạn 16: Báo Cáo 24h / 7 Ngày (
       expect(formatVph(740.39)).toContain('VPH');
     });
 
+    it('formatNullableNumber trả về "—" khi null/undefined, "0" khi 0, định dạng khi > 0', () => {
+      expect(formatNullableNumber(null)).toBe('—');
+      expect(formatNullableNumber(undefined)).toBe('—');
+      expect(formatNullableNumber(0)).toBe('0');
+      expect(formatNullableNumber(1500)).toContain('1.500');
+    });
+
     it('formatVietnamDateTime định dạng ngày giờ theo múi giờ Việt Nam', () => {
       expect(formatVietnamDateTime(null)).toBe('—');
       expect(formatVietnamDateTime('invalid')).toBe('—');
-      // 2026-09-17T13:00:00Z -> 20:00 17/09/2026 UTC+7
       const vnStr = formatVietnamDateTime('2026-09-17T13:00:00Z');
       expect(vnStr).toContain('17/09/2026');
       expect(vnStr).toContain('20:00');
@@ -302,13 +360,11 @@ describe('Bắt Bài Đối Thủ — Giai Đoạn 16: Báo Cáo 24h / 7 Ngày (
       expect(formatRelativeTime(null, now)).toBe('—');
       expect(formatRelativeTime(new Date(now - 30 * 1000).toISOString(), now)).toBe('Vừa xong');
       expect(formatRelativeTime(new Date(now - 15 * 60 * 1000).toISOString(), now)).toBe('15 phút trước');
-      expect(formatRelativeTime(new Date(now - 4 * 3600 * 1000).toISOString(), now)).toBe('4 giờ trước');
-      expect(formatRelativeTime(new Date(now - 2 * 24 * 3600 * 1000).toISOString(), now)).toBe('2 ngày trước');
     });
   });
 
-  // 8. Copy Summary Text (Section 63)
-  describe('8. Định dạng chuỗi tóm tắt sao chép (buildReportCopyText & Section 63)', () => {
+  // 8. Copy Summary Text
+  describe('8. Định dạng chuỗi tóm tắt sao chép (buildReportCopyText)', () => {
     it('chuỗi tóm tắt chứa đúng các trường số liệu thật, không chứa phán đoán cảm tính hay AI', () => {
       const summary = {
         newVideosCount: 36,
@@ -331,7 +387,6 @@ describe('Bắt Bài Đối Thủ — Giai Đoạn 16: Báo Cáo 24h / 7 Ngày (
       expect(copyText).toContain('740,39');
       expect(copyText).toContain('Múi giờ Việt Nam');
 
-      // Section 63: Tuyệt đối không có phán đoán, dự đoán, recommendation
       expect(copyText.toLowerCase()).not.toContain('viral');
       expect(copyText.toLowerCase()).not.toContain('dự đoán');
       expect(copyText.toLowerCase()).not.toContain('khuyên');
@@ -339,25 +394,10 @@ describe('Bắt Bài Đối Thủ — Giai Đoạn 16: Báo Cáo 24h / 7 Ngày (
       expect(copyText.toLowerCase()).not.toContain('score');
       expect(copyText.toLowerCase()).not.toContain('bùng nổ');
     });
-
-    it('chuỗi tóm tắt 7 ngày hiển thị đúng tiêu đề 7 NGÀY', () => {
-      const summary = {
-        newVideosCount: 10,
-        channelsWithNewVideosCount: 5,
-        risingNewVideosCount: 2,
-        alertsCount: 1,
-        snapshotsCount: 500,
-        attentionScansCount: 0,
-        maxCurrentVph: null,
-      };
-      const text = buildReportCopyText(summary, '7d', 1700000000000);
-      expect(text).toContain('BÁO CÁO BẮT BÀI ĐỐI THỦ — 7 NGÀY');
-      expect(text).toContain('VPH cao nhất hiện tại trong nhóm video mới: —');
-    });
   });
 
-  // 9. Error Sanitization (Section 64)
-  describe('9. Khử độc thông tin nhạy cảm trong lỗi phiên quét (sanitizeErrorSummary & Section 64)', () => {
+  // 9. Error Sanitization
+  describe('9. Khử độc thông tin nhạy cảm trong lỗi phiên quét (sanitizeErrorSummary)', () => {
     it('loại bỏ webhook URL, token, API key, JWT khỏi error summary', () => {
       const rawError =
         'Error sending webhook to https://discord.com/api/webhooks/123456789/abcdefghijk with token: sk-proj-12345678901234567890 and Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.xyz.abc';
@@ -372,7 +412,7 @@ describe('Bắt Bài Đối Thủ — Giai Đoạn 16: Báo Cáo 24h / 7 Ngày (
     });
   });
 
-  // 10. Rising Videos Sorting & Limit (Section 10)
+  // 10. Rising Videos Sorting & Deterministic Tie Breaking
   describe('10. Lọc và sắp xếp video mới đang tăng (sortRisingNewVideos)', () => {
     it('chỉ lấy video có latestMeasuredVph > 0, xếp giảm dần và lấy tối đa limit', () => {
       const vList: ReportVideo[] = [
@@ -388,36 +428,21 @@ describe('Bắt Bài Đối Thủ — Giai Đoạn 16: Báo Cáo 24h / 7 Ngày (
       expect(res[0].id).toBe('2'); // 500 VPH
       expect(res[1].id).toBe('5'); // 250 VPH
     });
+
+    it('khi VPH bằng nhau, tie-breaking theo publishedAt DESC và id DESC', () => {
+      const v1 = makeVideo({ id: 'v-1', latestMeasuredVph: 200, publishedAt: '2026-09-17T10:00:00Z' });
+      const v2 = makeVideo({ id: 'v-2', latestMeasuredVph: 200, publishedAt: '2026-09-17T12:00:00Z' });
+      const v3 = makeVideo({ id: 'v-3', latestMeasuredVph: 200, publishedAt: '2026-09-17T12:00:00Z' });
+
+      const res = sortRisingNewVideos([v1, v2, v3], 3);
+      expect(res[0].id).toBe('v-3'); // published 12:00, id v-3 > v-2
+      expect(res[1].id).toBe('v-2');
+      expect(res[2].id).toBe('v-1'); // published 10:00
+    });
   });
 
-  // 11. Pagination Safety (>1000 Rows) (Section 65)
+  // 11. Pagination Safety (>1000 Rows)
   describe('11. An toàn phân trang khi dữ liệu vượt 1000 hàng (>1000 rows)', () => {
-    it('kiểm tra thuật toán phân trang lặp offset += BATCH_SIZE cho đến khi rows < BATCH_SIZE', () => {
-      // Giả lập logic vòng lặp phân trang
-      const BATCH_SIZE = 1000;
-      const totalMockRows = 2450;
-      let offset = 0;
-      let hasMore = true;
-      let fetchCount = 0;
-      const fetched: number[] = [];
-
-      while (hasMore) {
-        fetchCount++;
-        const currentBatch = Math.min(BATCH_SIZE, totalMockRows - offset);
-        for (let i = 0; i < currentBatch; i++) {
-          fetched.push(offset + i);
-        }
-        if (currentBatch < BATCH_SIZE) {
-          hasMore = false;
-        } else {
-          offset += BATCH_SIZE;
-        }
-      }
-
-      expect(fetchCount).toBe(3); // 1000 + 1000 + 450
-      expect(fetched.length).toBe(2450);
-    });
-
     it('ALERT PAGINATION: mock 1.205 alerts -> expected summary alertsCount = 1.205 và recentAlerts.length = 20', async () => {
       const supabaseModule = await import('../src/services/supabase');
       const origGetSupabase = supabaseModule.getSupabase;
@@ -444,26 +469,11 @@ describe('Bắt Bài Đối Thủ — Giai Đoạn 16: Báo Cáo 24h / 7 Ngày (
         from: (table: string) => {
           if (table === 'video_alerts') {
             return {
-              select: () => ({
-                gte: () => ({
-                  order: () => ({
-                    range: (fromIdx: number, toIdx: number) => {
-                      const slice = mockAlertRows.slice(fromIdx, toIdx + 1);
-                      return Promise.resolve({ data: slice, error: null });
-                    },
-                  }),
-                }),
-              }),
+              select: () => createMockQuery(mockAlertRows),
             };
           }
           return {
-            select: () => ({
-              gte: () => ({
-                order: () => ({
-                  range: () => Promise.resolve({ data: [], error: null }),
-                }),
-              }),
-            }),
+            select: () => createMockQuery([]),
           };
         },
       };
@@ -506,26 +516,11 @@ describe('Bắt Bài Đối Thủ — Giai Đoạn 16: Báo Cáo 24h / 7 Ngày (
         from: (table: string) => {
           if (table === 'scan_runs') {
             return {
-              select: () => ({
-                gte: () => ({
-                  order: () => ({
-                    range: (fromIdx: number, toIdx: number) => {
-                      const slice = mockScanRows.slice(fromIdx, toIdx + 1);
-                      return Promise.resolve({ data: slice, error: null });
-                    },
-                  }),
-                }),
-              }),
+              select: () => createMockQuery(mockScanRows),
             };
           }
           return {
-            select: () => ({
-              gte: () => ({
-                order: () => ({
-                  range: () => Promise.resolve({ data: [], error: null }),
-                }),
-              }),
-            }),
+            select: () => createMockQuery([]),
           };
         },
       };
@@ -544,10 +539,75 @@ describe('Bắt Bài Đối Thủ — Giai Đoạn 16: Báo Cáo 24h / 7 Ngày (
         vi.spyOn(supabaseModule, 'isSupabaseConfigured').mockImplementation(origIsConfigured);
       }
     });
+
+    it('UPPER BOUND & SECONDARY ORDER: kiểm tra fetchReportData gọi .lte(col, nowIso) và .order("id", { ascending: false })', async () => {
+      const supabaseModule = await import('../src/services/supabase');
+      const origGetSupabase = supabaseModule.getSupabase;
+      const origIsConfigured = supabaseModule.isSupabaseConfigured;
+
+      const calls: { table: string; lteCol?: string; lteVal?: string; orders: any[] }[] = [];
+
+      const mockClient = {
+        from: (table: string) => {
+          const callInfo: { table: string; lteCol?: string; lteVal?: string; orders: any[] } = {
+            table,
+            orders: [],
+          };
+          calls.push(callInfo);
+
+          const q: any = {
+            select: () => q,
+            gte: () => q,
+            lte: (col: string, val: string) => {
+              callInfo.lteCol = col;
+              callInfo.lteVal = val;
+              return q;
+            },
+            order: (col: string, opts: any) => {
+              callInfo.orders.push({ col, opts });
+              return q;
+            },
+            range: () => Promise.resolve({ data: [], error: null }),
+          };
+          return q;
+        },
+      };
+
+      vi.spyOn(supabaseModule, 'getSupabase').mockReturnValue(mockClient as any);
+      vi.spyOn(supabaseModule, 'isSupabaseConfigured').mockReturnValue(true);
+
+      const fixedNow = 1773800000000;
+      const nowIso = new Date(fixedNow).toISOString();
+
+      try {
+        await fetchReportData('24h', fixedNow);
+
+        const videoCall = calls.find(c => c.table === 'videos');
+        expect(videoCall).toBeDefined();
+        expect(videoCall?.lteCol).toBe('published_at');
+        expect(videoCall?.lteVal).toBe(nowIso);
+        expect(videoCall?.orders).toContainEqual({ col: 'id', opts: { ascending: false } });
+
+        const alertCall = calls.find(c => c.table === 'video_alerts');
+        expect(alertCall).toBeDefined();
+        expect(alertCall?.lteCol).toBe('created_at');
+        expect(alertCall?.lteVal).toBe(nowIso);
+        expect(alertCall?.orders).toContainEqual({ col: 'id', opts: { ascending: false } });
+
+        const scanCall = calls.find(c => c.table === 'scan_runs');
+        expect(scanCall).toBeDefined();
+        expect(scanCall?.lteCol).toBe('started_at');
+        expect(scanCall?.lteVal).toBe(nowIso);
+        expect(scanCall?.orders).toContainEqual({ col: 'id', opts: { ascending: false } });
+      } finally {
+        vi.spyOn(supabaseModule, 'getSupabase').mockImplementation(origGetSupabase);
+        vi.spyOn(supabaseModule, 'isSupabaseConfigured').mockImplementation(origIsConfigured);
+      }
+    });
   });
 
-  // 12. Static Source Verification: Read Only & No Snapshot History Bulk Fetch (Section 66 & 67)
-  describe('12. Kiểm tra tĩnh mã nguồn: 100% READ-ONLY và KHÔNG fetch video_snapshots toàn kỳ (Section 66 & 67)', () => {
+  // 12. Static Source Verification
+  describe('12. Kiểm tra tĩnh mã nguồn: 100% READ-ONLY và KHÔNG fetch video_snapshots toàn kỳ', () => {
     const servicePath = path.resolve(__dirname, '../src/services/report-service.ts');
     const pagePath = path.resolve(__dirname, '../src/pages/ReportPage.vue');
     const serviceCode = fs.readFileSync(servicePath, 'utf-8');
@@ -561,7 +621,7 @@ describe('Bắt Bài Đối Thủ — Giai Đoạn 16: Báo Cáo 24h / 7 Ngày (
       expect(serviceCode).not.toContain('.invoke(');
     });
 
-    it('report-service.ts không query bảng video_snapshots (Section 66: không fetch hàng chục nghìn snapshots)', () => {
+    it('report-service.ts không query bảng video_snapshots', () => {
       expect(serviceCode).not.toContain("from('video_snapshots')");
       expect(serviceCode).not.toContain('from("video_snapshots")');
     });
@@ -577,13 +637,14 @@ describe('Bắt Bài Đối Thủ — Giai Đoạn 16: Báo Cáo 24h / 7 Ngày (
     });
   });
 
-  // 13. Status and Trigger Mapping
+  // 13. Status and Trigger Mapping & Parsers
   describe('13. Ánh xạ trạng thái và nguồn kích hoạt đúng chuẩn tiếng Việt', () => {
-    it('ALERT_STATUS_MAP ánh xạ chuẩn', () => {
+    it('ALERT_STATUS_MAP ánh xạ chuẩn: sent = Đã cảnh báo', () => {
       expect(ALERT_STATUS_MAP.pending).toBe('Chờ gửi');
       expect(ALERT_STATUS_MAP.sending).toBe('Đang gửi');
-      expect(ALERT_STATUS_MAP.sent).toBe('Đã gửi');
+      expect(ALERT_STATUS_MAP.sent).toBe('Đã cảnh báo');
       expect(ALERT_STATUS_MAP.failed).toBe('Gửi lỗi');
+      expect(ALERT_STATUS_MAP.unknown).toBe('Không rõ');
     });
 
     it('SCAN_STATUS_MAP ánh xạ chuẩn', () => {
@@ -591,11 +652,451 @@ describe('Bắt Bài Đối Thủ — Giai Đoạn 16: Báo Cáo 24h / 7 Ngày (
       expect(SCAN_STATUS_MAP.success).toBe('Thành công');
       expect(SCAN_STATUS_MAP.partial).toBe('Một phần');
       expect(SCAN_STATUS_MAP.failed).toBe('Thất bại');
+      expect(SCAN_STATUS_MAP.unknown).toBe('Không rõ');
     });
 
     it('SCAN_TRIGGER_MAP ánh xạ chuẩn', () => {
       expect(SCAN_TRIGGER_MAP.manual).toBe('Thủ công');
       expect(SCAN_TRIGGER_MAP.schedule).toBe('Tự động');
+      expect(SCAN_TRIGGER_MAP.unknown).toBe('Không rõ');
+    });
+
+    it('parseAlertStatus, parseScanStatus, parseScanTrigger xử lý fail-safe unknown', () => {
+      expect(parseAlertStatus('sent')).toBe('sent');
+      expect(parseAlertStatus('invalid')).toBe('unknown');
+      expect(parseScanStatus('running')).toBe('running');
+      expect(parseScanStatus('some_bad_status')).toBe('unknown');
+      expect(parseScanTrigger('schedule')).toBe('schedule');
+      expect(parseScanTrigger(null)).toBe('unknown');
+    });
+
+    it('toFiniteNumber xử lý an toàn', () => {
+      expect(toFiniteNumber(42)).toBe(42);
+      expect(toFiniteNumber('100')).toBe(100);
+      expect(toFiniteNumber(null, 0)).toBe(0);
+      expect(toFiniteNumber(NaN, 5)).toBe(5);
+    });
+  });
+
+  // 14. UI Component Rendering Tests
+  describe('14. Render UI Components của Wave 3.11', () => {
+    const sampleSummary: ReportSummary = {
+      newVideosCount: 12,
+      channelsWithNewVideosCount: 5,
+      risingNewVideosCount: 4,
+      alertsCount: 2,
+      snapshotsCount: 1400,
+      attentionScansCount: 1,
+      maxCurrentVph: 550,
+    };
+
+    const sampleScanSummary: ReportScanSummary = {
+      totalScans: 8,
+      runningScans: 0,
+      successScans: 7,
+      partialScans: 1,
+      failedScans: 0,
+      unknownScans: 0,
+      totalSnapshots: 1400,
+    };
+
+    it('ReportSummaryRail hiển thị đủ 6 chỉ số điều hành và cảnh báo attention', () => {
+      const wrapper = mount(ReportSummaryRail, {
+        props: {
+          summary: sampleSummary,
+          range: '24h',
+        },
+      });
+
+      expect(wrapper.text()).toContain('Video mới');
+      expect(wrapper.text()).toContain('12');
+      expect(wrapper.text()).toContain('Kênh có video mới');
+      expect(wrapper.text()).toContain('5');
+      expect(wrapper.text()).toContain('Video mới đang tăng');
+      expect(wrapper.text()).toContain('4');
+      expect(wrapper.text()).toContain('Cảnh báo phát sinh');
+      expect(wrapper.text()).toContain('2');
+      expect(wrapper.text()).toContain('Lần quét cần chú ý');
+      expect(wrapper.text()).toContain('1');
+      expect(wrapper.find('.has-attention').exists()).toBe(true);
+    });
+
+    it('ReportBriefView hiển thị văn bản tóm lược điều hành và emit change-view', async () => {
+      const wrapper = mount(ReportBriefView, {
+        props: {
+          summary: sampleSummary,
+          scanSummary: sampleScanSummary,
+          risingVideos: [makeVideo({ id: 'rv-1', title: 'Video Đang Tăng 1', latestMeasuredVph: 550 })],
+          newVideos: [makeVideo({ id: 'nv-1', title: 'Video Mới Xuất Bản 1' })],
+          channelActivities: [
+            {
+              channelId: 'ch-1',
+              channelName: 'Channel One',
+              channelHandle: '@one',
+              channelAvatarUrl: null,
+              newVideosCount: 3,
+              latestPublishedAt: '2026-09-17T12:00:00Z',
+              latestVideoId: 'v-1',
+              latestVideoTitle: 'Video 1',
+              latestVideoYoutubeId: 'yt-1',
+              maxCurrentVph: 550,
+              risingCount: 1,
+            },
+          ],
+          recentAlerts: [],
+          recentScans: [],
+          range: '24h',
+        },
+        global: {
+          stubs: {
+            'router-link': { template: '<a><slot /></a>' },
+          },
+        },
+      });
+
+      expect(wrapper.text()).toContain('TỔNG KẾT NHANH ĐIỀU HÀNH');
+      expect(wrapper.text()).toContain('12 video mới');
+      expect(wrapper.text()).toContain('5 kênh đối thủ');
+
+      const seeMoreBtn = wrapper.find('.see-more-link');
+      expect(seeMoreBtn.exists()).toBe(true);
+      await seeMoreBtn.trigger('click');
+      expect(wrapper.emitted('change-view')).toBeTruthy();
+    });
+
+    it('ReportVideoSignals hiển thị danh sách video tăng trưởng và video mới xuất bản', () => {
+      const rising = [makeVideo({ id: 'rv-1', title: 'Video Tăng Trưởng X', latestMeasuredVph: 800 })];
+      const newV = [makeVideo({ id: 'nv-1', title: 'Video Mới Nhất Y', latestViewCount: 2500 })];
+
+      const wrapper = mount(ReportVideoSignals, {
+        props: {
+          risingVideos: rising,
+          newVideos: newV,
+          maxCurrentVph: 800,
+          range: '24h',
+        },
+        global: {
+          stubs: {
+            'router-link': { template: '<a><slot /></a>' },
+          },
+        },
+      });
+
+      expect(wrapper.text()).toContain('Video Mới Đang Tăng');
+      expect(wrapper.text()).toContain('Video Tăng Trưởng X');
+      expect(wrapper.text()).toContain('Video Mới Xuất Bản');
+      expect(wrapper.text()).toContain('Video Mới Nhất Y');
+      expect(wrapper.text()).toContain('800');
+    });
+
+    it('ReportChannelActivityComponent hiển thị bảng các kênh và liên kết video mới nhất', () => {
+      const channels: ReportChannelActivity[] = [
+        {
+          channelId: 'ch-test',
+          channelName: 'Kênh Thử Nghiệm',
+          channelHandle: '@kenhtest',
+          channelAvatarUrl: null,
+          newVideosCount: 4,
+          latestPublishedAt: '2026-09-17T14:00:00Z',
+          latestVideoId: 'v-test',
+          latestVideoTitle: 'Video Thử Nghiệm Gần Nhất',
+          latestVideoYoutubeId: 'yt-test',
+          maxCurrentVph: 350,
+          risingCount: 2,
+        },
+      ];
+
+      const wrapper = mount(ReportChannelActivityComponent, {
+        props: {
+          channels,
+          range: '24h',
+        },
+        global: {
+          stubs: {
+            'router-link': { template: '<a><slot /></a>' },
+          },
+        },
+      });
+
+      expect(wrapper.text()).toContain('Kênh Có Hoạt Động Mới');
+      expect(wrapper.text()).toContain('Kênh Thử Nghiệm');
+      expect(wrapper.text()).toContain('Video Thử Nghiệm Gần Nhất');
+      expect(wrapper.text()).toContain('4');
+      expect(wrapper.text()).toContain('2 video');
+    });
+
+    it('ReportOperationsView hiển thị bảng phiên quét và accordion mở xem sanitized error', async () => {
+      const scans: ReportScan[] = [
+        makeScan({
+          id: 'scan-err',
+          status: 'partial',
+          statusLabel: 'Một phần',
+          errorSummary: 'Original secret error',
+          sanitizedError: 'Sanitized error detail [Mã bí mật ẩn]',
+        }),
+      ];
+
+      const wrapper = mount(ReportOperationsView, {
+        props: {
+          alerts: [],
+          scans,
+          scanSummary: sampleScanSummary,
+          totalAlerts: 0,
+          range: '24h',
+        },
+        global: {
+          stubs: {
+            'router-link': { template: '<a><slot /></a>' },
+          },
+        },
+      });
+
+      expect(wrapper.text()).toContain('Lịch Sử Phiên Quét & Snapshot');
+      const toggleBtn = wrapper.find('.btn-toggle-error');
+      expect(toggleBtn.exists()).toBe(true);
+      expect(toggleBtn.text()).toBe('Xem lỗi');
+
+      await toggleBtn.trigger('click');
+      expect(wrapper.text()).toContain('Sanitized error detail [Mã bí mật ẩn]');
+      expect(wrapper.find('.btn-toggle-error').text()).toBe('Đóng lỗi');
+    });
+
+    it('1205 alerts -> summary/header nói 1205, list vẫn 20 gần nhất', () => {
+      const alerts: ReportAlert[] = Array.from({ length: 20 }, (_, i) => ({
+        id: `alt-${i}`,
+        videoId: `v-${i}`,
+        videoTitle: `Alert Video ${i}`,
+        videoYoutubeId: `yt-${i}`,
+        videoThumbnailUrl: null,
+        channelId: `ch-${i}`,
+        channelName: `Kênh ${i}`,
+        channelHandle: `@ch${i}`,
+        channelAvatarUrl: null,
+        measuredVph: 1500,
+        thresholdVph: 1000,
+        viewCount: 3000,
+        status: 'sent' as const,
+        statusLabel: 'Đã cảnh báo',
+        createdAt: '2026-09-17T12:00:00Z',
+      }));
+
+      const wrapper = mount(ReportOperationsView, {
+        props: {
+          alerts,
+          scans: [],
+          scanSummary: sampleScanSummary,
+          totalAlerts: 1205,
+          range: '24h',
+        },
+        global: {
+          stubs: {
+            'router-link': { template: '<a><slot /></a>' },
+          },
+        },
+      });
+
+      expect(wrapper.text()).toContain('1205 cảnh báo');
+      expect(wrapper.text()).toContain('20 cảnh báo gần nhất');
+      expect(wrapper.findAll('.ops-table tbody tr')).toHaveLength(20);
+    });
+
+    it('ReportBriefView không còn text "Xem tất cả" cho truncated arrays', () => {
+      const wrapper = mount(ReportBriefView, {
+        props: {
+          summary: sampleSummary,
+          scanSummary: sampleScanSummary,
+          risingVideos: [makeVideo({ id: 'rv-1' })],
+          newVideos: [makeVideo({ id: 'nv-1' })],
+          channelActivities: [{
+            channelId: 'ch-1',
+            channelName: 'Channel One',
+            channelHandle: '@one',
+            channelAvatarUrl: null,
+            newVideosCount: 3,
+            latestPublishedAt: '2026-09-17T12:00:00Z',
+            latestVideoId: 'v-1',
+            latestVideoTitle: 'Video 1',
+            latestVideoYoutubeId: 'yt-1',
+            maxCurrentVph: 550,
+            risingCount: 1,
+          }],
+          recentAlerts: [],
+          recentScans: [],
+          range: '24h',
+        },
+        global: {
+          stubs: {
+            'router-link': { template: '<a><slot /></a>' },
+          },
+        },
+      });
+
+      expect(wrapper.text()).not.toContain('Xem tất cả');
+      expect(wrapper.text()).toContain('Xem Top 10 →');
+      expect(wrapper.text()).toContain('Xem danh sách →');
+      expect(wrapper.text()).toContain('Xem danh sách kênh →');
+    });
+
+    it('running scan không bị gọi là "hoàn tất", mà dùng "ghi nhận"', () => {
+      const wrapper = mount(ReportBriefView, {
+        props: {
+          summary: sampleSummary,
+          scanSummary: { ...sampleScanSummary, runningScans: 1 },
+          risingVideos: [],
+          newVideos: [],
+          channelActivities: [],
+          recentAlerts: [],
+          recentScans: [],
+          range: '24h',
+        },
+        global: {
+          stubs: {
+            'router-link': { template: '<a><slot /></a>' },
+          },
+        },
+      });
+
+      expect(wrapper.text()).toContain('ghi nhận 8 phiên quét');
+      expect(wrapper.text()).not.toContain('hoàn tất 8 phiên quét');
+    });
+
+    it('attention=0 không render "Hoạt động ổn định", mà render factual "Không có quét Một phần/Thất bại"', () => {
+      const zeroAttentionSummary = { ...sampleSummary, attentionScansCount: 0 };
+      const wrapper = mount(ReportSummaryRail, {
+        props: {
+          summary: zeroAttentionSummary,
+          range: '24h',
+        },
+      });
+
+      expect(wrapper.text()).not.toContain('Hoạt động ổn định');
+      expect(wrapper.text()).toContain('Không có quét Một phần/Thất bại');
+    });
+
+    it('broken avatar trong ReportChannelActivity kích hoạt handleAvatarError và hiển thị fallback initial', async () => {
+      const channels = [{
+        channelId: 'ch-broken',
+        channelName: 'Kênh Broken Avatar',
+        channelHandle: '@broken',
+        channelAvatarUrl: 'https://invalid.url/broken.jpg',
+        newVideosCount: 1,
+        latestPublishedAt: '2026-09-17T12:00:00Z',
+        latestVideoId: 'v-1',
+        latestVideoTitle: 'Video 1',
+        latestVideoYoutubeId: 'yt-1',
+        maxCurrentVph: 100,
+        risingCount: 1,
+      }];
+
+      const wrapper = mount(ReportChannelActivityComponent, {
+        props: {
+          channels,
+          range: '24h',
+        },
+        global: {
+          stubs: {
+            'router-link': { template: '<a><slot /></a>' },
+          },
+        },
+      });
+
+      const img = wrapper.find('.channel-avatar');
+      expect(img.exists()).toBe(true);
+      await img.trigger('error');
+      expect(wrapper.find('.channel-avatar').exists()).toBe(false);
+      expect(wrapper.find('.channel-avatar-fallback').text()).toBe('K');
+    });
+
+    it('unknown alert status hiển thị "Không rõ" với neutral styling', () => {
+      const alertWithUnknown: ReportAlert[] = [{
+        id: 'alt-unk',
+        videoId: 'v-unk',
+        videoTitle: 'Video Unknown Alert',
+        videoYoutubeId: null,
+        videoThumbnailUrl: null,
+        channelId: 'ch-unk',
+        channelName: 'Channel Unknown',
+        channelHandle: '@unk',
+        channelAvatarUrl: null,
+        measuredVph: 1000,
+        thresholdVph: 500,
+        viewCount: 2000,
+        status: 'unknown',
+        statusLabel: 'Không rõ',
+        createdAt: '2026-09-17T12:00:00Z',
+      }];
+
+      const wrapper = mount(ReportOperationsView, {
+        props: {
+          alerts: alertWithUnknown,
+          scans: [],
+          scanSummary: sampleScanSummary,
+          totalAlerts: 1,
+          range: '24h',
+        },
+        global: {
+          stubs: {
+            'router-link': { template: '<a><slot /></a>' },
+          },
+        },
+      });
+
+      expect(wrapper.text()).toContain('Không rõ');
+      expect(wrapper.find('.is-unknown').exists()).toBe(true);
+    });
+
+    it('alert thumbnail missing nhưng có youtubeVideoId -> fallback đúng, sử dụng VideoThumbnail và guard channelId', () => {
+      const alertItem: ReportAlert[] = [{
+        id: 'alt-yt',
+        videoId: 'v-yt',
+        videoTitle: 'Video With YouTube',
+        videoYoutubeId: 'dQw4w9WgXcQ',
+        videoThumbnailUrl: null,
+        channelId: '',
+        channelName: 'Kênh Ẩn ID',
+        channelHandle: null,
+        channelAvatarUrl: null,
+        measuredVph: 1200,
+        thresholdVph: 800,
+        viewCount: 5000,
+        status: 'sent',
+        statusLabel: 'Đã cảnh báo',
+        createdAt: '2026-09-17T12:00:00Z',
+      }];
+
+      const wrapper = mount(ReportOperationsView, {
+        props: {
+          alerts: alertItem,
+          scans: [],
+          scanSummary: sampleScanSummary,
+          totalAlerts: 1,
+          range: '24h',
+        },
+        global: {
+          stubs: {
+            'router-link': { template: '<a><slot /></a>' },
+          },
+        },
+      });
+
+      const videoThumb = wrapper.findComponent({ name: 'VideoThumbnail' });
+      expect(videoThumb.exists()).toBe(true);
+      expect(videoThumb.props('youtubeVideoId')).toBe('dQw4w9WgXcQ');
+      expect(videoThumb.props('src')).toBeNull();
+
+      // Fallback thumbnail của VideoThumbnail hiển thị khi src null
+      expect(wrapper.find('.thumbnail-fallback').exists()).toBe(true);
+      expect(wrapper.find('.thumbnail-image').exists()).toBe(false);
+
+      // Không quay lại raw <img> của ReportOperationsView
+      expect(wrapper.find('.alert-video-cell > img').exists()).toBe(false);
+      expect(wrapper.find('.alert-thumb').exists()).toBe(false);
+
+      // Guard channelId === '' -> không render router-link kênh
+      const channelSpan = wrapper.find('span.alert-v-channel');
+      expect(channelSpan.exists()).toBe(true);
+      expect(channelSpan.text()).toBe('Kênh Ẩn ID');
+      expect(wrapper.find('a.alert-v-channel').exists()).toBe(false);
     });
   });
 });

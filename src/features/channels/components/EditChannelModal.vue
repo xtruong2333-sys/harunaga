@@ -28,7 +28,12 @@
           class="form-input"
         />
         <span class="field-help">
-          Cảnh báo khi video tăng từ {{ alertThreshold.toLocaleString('vi-VN') }} lượt xem/giờ (VPH) trở lên.
+          <template v-if="alertThreshold">
+            Cảnh báo khi video tăng từ {{ alertThreshold.toLocaleString('vi-VN') }} lượt xem/giờ (VPH) trở lên.
+          </template>
+          <template v-else>
+            Chưa thiết lập ngưỡng cảnh báo (để trống).
+          </template>
         </span>
       </div>
 
@@ -71,11 +76,11 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: boolean): void;
-  (e: 'save', payload: { id: string; scanLimit: number; alertThreshold: number; notes: string }): void;
+  (e: 'save', payload: { id: string; scanLimit: number | null; alertThreshold: number | null; notes: string }): void;
 }>();
 
-const scanLimit = ref(15);
-const alertThreshold = ref(5000);
+const scanLimit = ref<number | null>(null);
+const alertThreshold = ref<number | null>(null);
 const notes = ref('');
 const saving = ref(false);
 const errorMessage = ref<string | null>(null);
@@ -84,8 +89,8 @@ watch(
   () => props.channel,
   (c) => {
     if (c) {
-      scanLimit.value = c.scanLimit;
-      alertThreshold.value = c.alertVphThreshold;
+      scanLimit.value = c.scanLimit !== null && c.scanLimit !== undefined ? c.scanLimit : null;
+      alertThreshold.value = c.alertVphThreshold !== null && c.alertVphThreshold !== undefined ? c.alertVphThreshold : null;
       notes.value = c.notes || '';
       errorMessage.value = null;
     }
@@ -99,19 +104,26 @@ function close() {
 
 function handleSave() {
   if (!props.channel) return;
-  if (scanLimit.value < 1 || scanLimit.value > 50) {
+  const sVal = scanLimit.value !== null && scanLimit.value !== undefined && scanLimit.value !== ('' as any)
+    ? Number(scanLimit.value)
+    : null;
+  const aVal = alertThreshold.value !== null && alertThreshold.value !== undefined && alertThreshold.value !== ('' as any)
+    ? Number(alertThreshold.value)
+    : null;
+
+  if (sVal !== null && (sVal < 1 || sVal > 50)) {
     errorMessage.value = 'Số video kiểm tra phải từ 1 đến 50.';
     return;
   }
-  if (alertThreshold.value < 100) {
-    errorMessage.value = 'Ngưỡng cảnh báo VPH tối thiểu là 100.';
+  if (aVal !== null && aVal < 1) {
+    errorMessage.value = 'Ngưỡng cảnh báo VPH tối thiểu là 1.';
     return;
   }
 
   emit('save', {
     id: props.channel.id,
-    scanLimit: scanLimit.value,
-    alertThreshold: alertThreshold.value,
+    scanLimit: sVal,
+    alertThreshold: aVal,
     notes: notes.value,
   });
   close();

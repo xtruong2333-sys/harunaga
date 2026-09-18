@@ -28,8 +28,7 @@ describe('Bắt Bài Đối Thủ — Phase 19: Professional UI / UX / Motion Re
 
       expect(wrapper.find('.brand-title').text()).toBe('BẮT BÀI ĐỐI THỦ');
       expect(wrapper.find('.brand-tagline').text()).toContain('Theo dõi đối thủ • Phát hiện video tăng nhanh');
-      expect(wrapper.find('.status-indicator').text()).toContain('Hệ thống sẵn sàng');
-      expect(wrapper.find('.status-dot').exists()).toBe(true);
+      expect(wrapper.find('.status-indicator').exists()).toBe(false);
       expect(wrapper.find('.logo-shield').exists()).toBe(true);
       expect(wrapper.findAll('.orbital-ring').length).toBe(3);
     });
