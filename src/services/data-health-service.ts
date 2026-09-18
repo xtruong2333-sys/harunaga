@@ -46,21 +46,89 @@ export function sanitizeErrorSummary(err: string | null | undefined): string {
 }
 
 /**
+ * Định dạng số: null/undefined/NaN -> '—', 0 -> '0'
+ */
+export function formatNumber(n: number | null | undefined): string {
+  if (n === null || n === undefined || isNaN(Number(n))) return '—';
+  return Number(n).toLocaleString('vi-VN');
+}
+
+/**
+ * Định dạng ngày giờ chuẩn Việt Nam (HH:mm:ss DD/MM/YYYY)
+ * An toàn trước chuỗi ngày không hợp lệ (NaN)
+ */
+export function formatDateTime(iso: string | null | undefined): string {
+  if (!iso) return '—';
+  try {
+    const d = new Date(iso);
+    const timeMs = d.getTime();
+    if (isNaN(timeMs) || !isFinite(timeMs)) {
+      return '—';
+    }
+    const time = d.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    const date = d.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    return `${time} ${date}`;
+  } catch {
+    return '—';
+  }
+}
+
+/**
+ * Chuẩn hóa YouTube Video ID: loại bỏ khoảng trắng, từ chối null, undefined, chuỗi 'null', 'undefined'
+ */
+export function normalizeYouTubeVideoId(rawId: any): string | null {
+  if (!rawId || typeof rawId !== 'string') return null;
+  const trimmed = rawId.trim();
+  if (!trimmed || trimmed.toLowerCase() === 'null' || trimmed.toLowerCase() === 'undefined') {
+    return null;
+  }
+  return trimmed;
+}
+
+/**
+ * Chuẩn hóa URL Thumbnail video:
+ * 1. URL hợp lệ từ DB -> sử dụng
+ * 2. URL DB rỗng nhưng có YouTube ID hợp lệ -> tạo thumbnail mqdefault từ YouTube
+ * 3. Không có cả hai -> null (KHÔNG tạo URL chứa /null/ hay /undefined/)
+ */
+export function normalizeDataHealthThumbnail(
+  dbThumbnailUrl: string | null | undefined,
+  youtubeVideoId: string | null | undefined
+): string | null {
+  if (dbThumbnailUrl && typeof dbThumbnailUrl === 'string') {
+    const trimmed = dbThumbnailUrl.trim();
+    if (trimmed && trimmed.toLowerCase() !== 'null' && trimmed.toLowerCase() !== 'undefined') {
+      return trimmed;
+    }
+  }
+  const cleanYtId = normalizeYouTubeVideoId(youtubeVideoId);
+  if (cleanYtId) {
+    return `https://i.ytimg.com/vi/${cleanYtId}/mqdefault.jpg`;
+  }
+  return null;
+}
+
+/**
  * Định dạng thời lượng quét (Duration):
  * Ví dụ: '21 giây', '1 phút 04 giây', hoặc 'Đang chạy' nếu status === 'running'
+ * Bảo vệ an toàn tuyệt đối khi thời gian không hợp lệ (NaN)
  */
 export function formatDuration(
-  startedAt: string,
-  finishedAt: string | null,
+  startedAt: string | null | undefined,
+  finishedAt: string | null | undefined,
   status: ScanStatus
 ): string {
   if (status === 'running' || !finishedAt) {
     return 'Đang chạy';
   }
+  if (!startedAt) return '—';
 
   try {
     const startMs = new Date(startedAt).getTime();
     const endMs = new Date(finishedAt).getTime();
+    if (isNaN(startMs) || isNaN(endMs) || !isFinite(startMs) || !isFinite(endMs)) {
+      return '—';
+    }
     const sec = Math.max(0, Math.round((endMs - startMs) / 1000));
 
     if (sec < 60) {
@@ -78,11 +146,15 @@ export function formatDuration(
 
 /**
  * Định dạng thời gian tương đối tiếng Việt (ví dụ: '18 phút trước', '2 giờ trước', 'Vừa xong')
+ * Bảo vệ an toàn trước chuỗi ngày không hợp lệ (NaN)
  */
-export function formatRelativeTime(isoDate: string | null, nowMs: number = Date.now()): string {
+export function formatRelativeTime(isoDate: string | null | undefined, nowMs: number = Date.now()): string {
   if (!isoDate) return 'Chưa có dữ liệu';
   try {
     const timeMs = new Date(isoDate).getTime();
+    if (isNaN(timeMs) || !isFinite(timeMs)) {
+      return '—';
+    }
     const diffMs = nowMs - timeMs;
     if (diffMs < 0) return 'Vừa xong';
 
@@ -98,7 +170,7 @@ export function formatRelativeTime(isoDate: string | null, nowMs: number = Date.
     const diffDays = Math.floor(diffHours / 24);
     return `${diffDays} ngày trước`;
   } catch {
-    return isoDate;
+    return '—';
   }
 }
 
@@ -107,10 +179,10 @@ export function formatRelativeTime(isoDate: string | null, nowMs: number = Date.
  * fresh: <= 90 phút
  * warning: 90 phút < age <= 2 giờ
  * stale: > 2 giờ
- * never: NULL
+ * never: NULL hoặc không hợp lệ
  */
 export function computeChannelFreshness(
-  lastScanAt: string | null,
+  lastScanAt: string | null | undefined,
   nowMs: number = Date.now()
 ): { category: FreshnessCategory; label: string } {
   if (!lastScanAt) {
@@ -118,6 +190,9 @@ export function computeChannelFreshness(
   }
 
   const scanMs = new Date(lastScanAt).getTime();
+  if (isNaN(scanMs) || !isFinite(scanMs)) {
+    return { category: 'never', label: FRESHNESS_LABELS.never };
+  }
   const diffMinutes = (nowMs - scanMs) / (60 * 1000);
 
   if (diffMinutes <= 90) {
@@ -166,7 +241,7 @@ export function sortChannelsByFreshness(channels: ChannelFreshness[]): ChannelFr
  * never: NULL (Chưa có snapshot)
  */
 export function computeVideoFreshness(
-  latestSnapshotAt: string | null,
+  latestSnapshotAt: string | null | undefined,
   nowMs: number = Date.now()
 ): { category: FreshnessCategory; label: string } {
   if (!latestSnapshotAt) {
@@ -174,6 +249,9 @@ export function computeVideoFreshness(
   }
 
   const snapMs = new Date(latestSnapshotAt).getTime();
+  if (isNaN(snapMs) || !isFinite(snapMs)) {
+    return { category: 'never', label: VIDEO_FRESHNESS_LABELS.never };
+  }
   const diffMinutes = (nowMs - snapMs) / (60 * 1000);
 
   if (diffMinutes <= 90) {
@@ -213,7 +291,7 @@ export function computeSystemStatus(
   // A. Running
   if (latestScan.status === 'running') {
     const startedMs = new Date(latestScan.startedAt).getTime();
-    const runningMinutes = (nowMs - startedMs) / (60 * 1000);
+    const runningMinutes = !isNaN(startedMs) && isFinite(startedMs) ? (nowMs - startedMs) / (60 * 1000) : 0;
     const isStuck = runningMinutes > 30;
 
     return {
@@ -252,15 +330,16 @@ export function computeSystemStatus(
   // D. Stale > 2 hours
   const refScan = latestSuccessfulOrPartialScan || latestScan;
   const finishTime = refScan.finishedAt || refScan.startedAt;
-  const finishMs = new Date(finishTime).getTime();
-  const ageHours = (nowMs - finishMs) / (60 * 60 * 1000);
+  const finishMs = finishTime ? new Date(finishTime).getTime() : NaN;
+  const ageHours = !isNaN(finishMs) && isFinite(finishMs) ? (nowMs - finishMs) / (60 * 60 * 1000) : Infinity;
 
   if (ageHours > 2) {
+    const hoursText = isFinite(ageHours) ? `${Math.floor(ageHours)} giờ trước.` : 'hơn 2 giờ trước.';
     return {
       code: 'slow_update',
       label: 'Dữ liệu đang chậm cập nhật',
       tone: 'warning',
-      description: `Lần quét thành công gần nhất đã diễn ra hơn ${Math.floor(ageHours)} giờ trước.`,
+      description: `Lần quét thành công gần nhất đã diễn ra ${hoursText}`,
       isStuckRunning: false,
     };
   }
@@ -295,7 +374,6 @@ function mapScanRow(row: any, nowMs: number): DataHealthScan {
     snapshotsCreated: Number(row.snapshots_created || 0),
     alertsSent: Number(row.alerts_sent || 0),
     alertsFailed: Number(row.alerts_failed || 0),
-    errorSummary: row.error_summary || null,
     sanitizedError: sanitized || null,
     durationText: formatDuration(row.started_at, row.finished_at, status),
     relativeTime: formatRelativeTime(row.started_at, nowMs),
@@ -307,7 +385,7 @@ export const dataHealthService = {
    * Tải toàn bộ dữ liệu Tình Trạng Dữ Liệu từ Supabase
    */
   async fetchDataHealthSummary(): Promise<DataHealthSummary> {
-    if (!isSupabaseConfigured()) {
+    if (!isSupabaseConfigured() || !getSupabase()) {
       throw new DatabaseNotConfiguredError();
     }
 
@@ -349,7 +427,7 @@ export const dataHealthService = {
         .select('id, title, thumbnail_url, youtube_video_id, channel_id, latest_view_count, latest_measured_vph, latest_snapshot_checked_at, channels!inner(id, name, status)')
         .eq('channels.status', 'active'),
 
-      // Cảnh báo Discord gần đây
+      // Cảnh báo Discord gần đây (lấy mẫu tối đa 100 bản ghi gần nhất)
       supabase
         .from('video_alerts')
         .select('id, video_id, status, measured_vph, attempts, last_error, updated_at, videos(id, title, channel_id, channels(name))')
@@ -358,8 +436,10 @@ export const dataHealthService = {
     ]);
 
     if (scansRes.error) throw new Error(`Lỗi tải lịch sử quét: ${scansRes.error.message}`);
+    if (latestScheduleRes.error) throw new Error(`Lỗi tải lần quét tự động gần nhất: ${latestScheduleRes.error.message}`);
     if (channelsRes.error) throw new Error(`Lỗi tải danh sách kênh: ${channelsRes.error.message}`);
     if (videosRes.error) throw new Error(`Lỗi tải danh sách video: ${videosRes.error.message}`);
+    if (alertsRes.error) throw new Error(`Lỗi tải tình trạng cảnh báo: ${alertsRes.error.message}`);
 
     // Map scan runs
     const rawScans = scansRes.data || [];
@@ -407,29 +487,34 @@ export const dataHealthService = {
       const snapAt = v.latest_snapshot_checked_at || null;
       const freshness = computeVideoFreshness(snapAt, nowMs);
       const ch = v.channels;
+      const cleanYtId = normalizeYouTubeVideoId(v.youtube_video_id);
+      const thumbUrl = normalizeDataHealthThumbnail(v.thumbnail_url, v.youtube_video_id);
 
       return {
         id: v.id,
         title: v.title,
-        thumbnailUrl: v.thumbnail_url || (v.youtube_video_id ? `https://i.ytimg.com/vi/${v.youtube_video_id}/mqdefault.jpg` : null),
-        youtubeVideoId: v.youtube_video_id,
+        thumbnailUrl: thumbUrl,
+        youtubeVideoId: cleanYtId,
         channelId: v.channel_id,
         channelName: ch?.name || 'Kênh đối thủ',
         latestSnapshotAt: snapAt,
-        latestViewCount: v.latest_view_count !== null ? Number(v.latest_view_count) : null,
-        latestMeasuredVph: v.latest_measured_vph !== null ? Number(v.latest_measured_vph) : null,
+        latestViewCount: v.latest_view_count !== null && v.latest_view_count !== undefined && !isNaN(Number(v.latest_view_count)) ? Number(v.latest_view_count) : null,
+        latestMeasuredVph: v.latest_measured_vph !== null && v.latest_measured_vph !== undefined && !isNaN(Number(v.latest_measured_vph)) ? Number(v.latest_measured_vph) : null,
         freshnessCategory: freshness.category,
         freshnessLabel: freshness.label,
         relativeSnapshotTime: formatRelativeTime(snapAt, nowMs),
       };
     });
 
-    // Count stale videos (> 2 hours or no snapshot)
-    const staleVideosCount = allVideoFreshness.filter(
-      v => v.freshnessCategory === 'never' || v.freshnessCategory === 'stale'
-    ).length;
+    const activeVideosCount = allVideoFreshness.length;
 
-    // Sort videos: oldest snapshot first (never -> stale -> warning -> fresh)
+    // Filter only candidates needing attention (never or stale)
+    const staleCandidates = allVideoFreshness.filter(
+      v => v.freshnessCategory === 'never' || v.freshnessCategory === 'stale'
+    );
+    const staleVideosCount = staleCandidates.length;
+
+    // Sort stale videos: oldest snapshot first (never -> stale)
     const videoPriorityRank: Record<FreshnessCategory, number> = {
       never: 0,
       stale: 1,
@@ -437,7 +522,7 @@ export const dataHealthService = {
       fresh: 3,
     };
 
-    const sortedStaleVideos = [...allVideoFreshness]
+    const sortedStaleVideos = [...staleCandidates]
       .sort((a, b) => {
         const rankA = videoPriorityRank[a.freshnessCategory];
         const rankB = videoPriorityRank[b.freshnessCategory];
@@ -451,7 +536,7 @@ export const dataHealthService = {
       })
       .slice(0, 20);
 
-    // Map Discord alerts
+    // Map Discord alerts (sample of up to 100 recent alerts)
     const rawAlerts = alertsRes.data || [];
     let alertSent = 0;
     let alertPending = 0;
@@ -466,7 +551,7 @@ export const dataHealthService = {
       else if (a.status === 'sending') {
         alertSending++;
         const updatedMs = new Date(a.updated_at).getTime();
-        if ((nowMs - updatedMs) > 15 * 60 * 1000) {
+        if (!isNaN(updatedMs) && (nowMs - updatedMs) > 15 * 60 * 1000) {
           stuckSendingCount++;
         }
       } else if (a.status === 'failed') {
@@ -479,10 +564,9 @@ export const dataHealthService = {
             videoId: a.video_id,
             videoTitle: v?.title || 'Video đối thủ',
             channelName: ch?.name || 'Kênh đối thủ',
-            measuredVph: a.measured_vph !== null ? Number(a.measured_vph) : null,
+            measuredVph: a.measured_vph !== null && a.measured_vph !== undefined && !isNaN(Number(a.measured_vph)) ? Number(a.measured_vph) : null,
             attempts: Number(a.attempts || 0),
             updatedAt: a.updated_at,
-            lastError: a.last_error || 'Không rõ nguyên nhân',
             sanitizedError: sanitizeErrorSummary(a.last_error) || 'Lỗi không xác định',
           });
         }
@@ -491,6 +575,8 @@ export const dataHealthService = {
 
     const alertSummary: AlertHealthSummary = {
       total: rawAlerts.length,
+      sampleLimit: 100,
+      sampleSize: rawAlerts.length,
       sent: alertSent,
       pending: alertPending,
       sending: alertSending,
@@ -512,6 +598,7 @@ export const dataHealthService = {
       latestScheduledScan,
       channelsNeedAttentionCount,
       staleVideosCount,
+      activeVideosCount,
       failedAlertsCount: alertFailed,
       channels: sortedChannels,
       staleVideos: sortedStaleVideos,

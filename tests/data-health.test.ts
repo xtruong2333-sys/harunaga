@@ -8,10 +8,17 @@ import {
   formatDuration,
   formatRelativeTime,
   sanitizeErrorSummary,
+  formatNumber,
+  formatDateTime,
+  normalizeYouTubeVideoId,
+  normalizeDataHealthThumbnail,
 } from '../src/services/data-health-service';
 import type {
   DataHealthScan,
   ChannelFreshness,
+  VideoFreshness,
+  AlertHealthSummary,
+  DataHealthSummary,
 } from '../src/types/data-health';
 import {
   SCAN_STATUS_LABELS,
@@ -71,7 +78,6 @@ describe('Bắt Bài Đối Thủ — Giai Đoạn 10: Tình Trạng Dữ Liệu
         snapshotsCreated: 30,
         alertsSent: 0,
         alertsFailed: 0,
-        errorSummary: null,
         sanitizedError: null,
         durationText: '30 giây',
         relativeTime: '30 phút trước',
@@ -343,6 +349,165 @@ describe('Bắt Bài Đối Thủ — Giai Đoạn 10: Tình Trạng Dữ Liệu
       expect(sanitizeErrorSummary(null)).toBe('');
       expect(sanitizeErrorSummary(undefined)).toBe('');
       expect(sanitizeErrorSummary('')).toBe('');
+    });
+  });
+
+  // 10. Wave 3.14 — Định Dạng Số Chuẩn (Zero vs Null Semantics)
+  describe('Định dạng số chuẩn (formatNumber)', () => {
+    it('null hoặc undefined -> —', () => {
+      expect(formatNumber(null)).toBe('—');
+      expect(formatNumber(undefined)).toBe('—');
+    });
+
+    it('0 -> 0 (không bị nuốt thành —)', () => {
+      expect(formatNumber(0)).toBe('0');
+    });
+
+    it('Số nguyên và số lớn được format chuẩn vi-VN', () => {
+      expect(formatNumber(1250)).toBe('1.250');
+      expect(formatNumber(1500000)).toBe('1.500.000');
+    });
+  });
+
+  // 11. Wave 3.14 — Định Dạng Ngày Giờ & Bảo Vệ Ngày Không Hợp Lệ
+  describe('Định dạng ngày giờ (formatDateTime)', () => {
+    it('null hoặc undefined -> —', () => {
+      expect(formatDateTime(null)).toBe('—');
+      expect(formatDateTime(undefined)).toBe('—');
+    });
+
+    it('Chuỗi ngày không hợp lệ (NaN) -> —', () => {
+      expect(formatDateTime('invalid-date-string')).toBe('—');
+      expect(formatDateTime('foo_bar_date')).toBe('—');
+    });
+
+    it('Chuỗi ISO hợp lệ -> hiển thị ngày giờ chuẩn', () => {
+      const formatted = formatDateTime('2026-09-18T10:30:00.000Z');
+      expect(formatted).not.toBe('—');
+      expect(formatted).toContain('2026');
+    });
+  });
+
+  // 12. Wave 3.14 — Chuẩn Hóa YouTube Video ID & Thumbnail URL
+  describe('Chuẩn hóa YouTube ID và Thumbnail (normalizeYouTubeVideoId & normalizeDataHealthThumbnail)', () => {
+    it('normalizeYouTubeVideoId loại bỏ khoảng trắng và từ chối các chuỗi null/undefined', () => {
+      expect(normalizeYouTubeVideoId('  dQw4w9WgXcQ  ')).toBe('dQw4w9WgXcQ');
+      expect(normalizeYouTubeVideoId(null)).toBeNull();
+      expect(normalizeYouTubeVideoId(undefined)).toBeNull();
+      expect(normalizeYouTubeVideoId('null')).toBeNull();
+      expect(normalizeYouTubeVideoId('undefined')).toBeNull();
+      expect(normalizeYouTubeVideoId('')).toBeNull();
+    });
+
+    it('normalizeDataHealthThumbnail ưu tiên URL từ DB nếu hợp lệ', () => {
+      const dbUrl = 'https://custom-storage.example.com/thumbnails/video123.jpg';
+      const res = normalizeDataHealthThumbnail(dbUrl, 'abc12345');
+      expect(res).toBe(dbUrl);
+    });
+
+    it('normalizeDataHealthThumbnail fallback sang YouTube mqdefault khi DB thumbnail rỗng nhưng có YouTube ID', () => {
+      const res = normalizeDataHealthThumbnail(null, 'dQw4w9WgXcQ');
+      expect(res).toBe('https://i.ytimg.com/vi/dQw4w9WgXcQ/mqdefault.jpg');
+    });
+
+    it('normalizeDataHealthThumbnail trả về null nếu cả hai đều rỗng, KHÔNG tạo URL /null/ hay /undefined/', () => {
+      expect(normalizeDataHealthThumbnail(null, null)).toBeNull();
+      expect(normalizeDataHealthThumbnail(undefined, undefined)).toBeNull();
+      expect(normalizeDataHealthThumbnail('', 'null')).toBeNull();
+    });
+  });
+
+  // 13. Wave 3.14 — Hardening hàm tính toán độ mới trước dữ liệu ngày lỗi (NaN)
+  describe('Bảo vệ tính toán độ mới trước chuỗi ngày lỗi', () => {
+    it('computeChannelFreshness với ngày không hợp lệ -> never (Chưa quét)', () => {
+      const res = computeChannelFreshness('malformed-date-string', baseTimeMs);
+      expect(res.category).toBe('never');
+      expect(res.label).toBe('Chưa quét');
+    });
+
+    it('computeVideoFreshness với ngày không hợp lệ -> never (Chưa có snapshot)', () => {
+      const res = computeVideoFreshness('malformed-date-string', baseTimeMs);
+      expect(res.category).toBe('never');
+      expect(res.label).toBe('Chưa có snapshot');
+    });
+
+    it('formatDuration với ngày không hợp lệ -> —', () => {
+      expect(formatDuration('bad-start', 'bad-end', 'success')).toBe('—');
+    });
+
+    it('formatRelativeTime với ngày không hợp lệ -> —', () => {
+      expect(formatRelativeTime('bad-iso-date', baseTimeMs)).toBe('—');
+    });
+  });
+
+  // 14. Wave 3.14 — Lọc ứng viên Video Cần Cập Nhật (Stale Candidates Only)
+  describe('Lọc ứng viên Video Cần Cập Nhật', () => {
+    it('Chỉ đưa video stale hoặc never vào danh sách stale candidates, không lẫn fresh/warning', () => {
+      const mockVideos: VideoFreshness[] = [
+        {
+          id: 'v-1',
+          title: 'Video Fresh',
+          thumbnailUrl: null,
+          youtubeVideoId: 'yt1',
+          channelId: 'ch1',
+          channelName: 'Channel 1',
+          latestSnapshotAt: new Date(baseTimeMs - 20 * 60 * 1000).toISOString(),
+          latestViewCount: 100,
+          latestMeasuredVph: 10,
+          freshnessCategory: 'fresh',
+          freshnessLabel: 'Mới cập nhật',
+          relativeSnapshotTime: '20 phút trước',
+        },
+        {
+          id: 'v-2',
+          title: 'Video Warning',
+          thumbnailUrl: null,
+          youtubeVideoId: 'yt2',
+          channelId: 'ch1',
+          channelName: 'Channel 1',
+          latestSnapshotAt: new Date(baseTimeMs - 100 * 60 * 1000).toISOString(),
+          latestViewCount: 200,
+          latestMeasuredVph: 20,
+          freshnessCategory: 'warning',
+          freshnessLabel: 'Chậm cập nhật',
+          relativeSnapshotTime: '100 phút trước',
+        },
+        {
+          id: 'v-3',
+          title: 'Video Never',
+          thumbnailUrl: null,
+          youtubeVideoId: 'yt3',
+          channelId: 'ch1',
+          channelName: 'Channel 1',
+          latestSnapshotAt: null,
+          latestViewCount: null,
+          latestMeasuredVph: null,
+          freshnessCategory: 'never',
+          freshnessLabel: 'Chưa có snapshot',
+          relativeSnapshotTime: 'Chưa có dữ liệu',
+        },
+        {
+          id: 'v-4',
+          title: 'Video Stale',
+          thumbnailUrl: null,
+          youtubeVideoId: 'yt4',
+          channelId: 'ch1',
+          channelName: 'Channel 1',
+          latestSnapshotAt: new Date(baseTimeMs - 180 * 60 * 1000).toISOString(),
+          latestViewCount: 400,
+          latestMeasuredVph: 40,
+          freshnessCategory: 'stale',
+          freshnessLabel: 'Cần chú ý',
+          relativeSnapshotTime: '3 giờ trước',
+        },
+      ];
+
+      const staleCandidates = mockVideos.filter(
+        v => v.freshnessCategory === 'never' || v.freshnessCategory === 'stale'
+      );
+
+      expect(staleCandidates).toHaveLength(2);
+      expect(staleCandidates.map(v => v.id)).toEqual(['v-3', 'v-4']);
     });
   });
 });
