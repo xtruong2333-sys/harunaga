@@ -149,7 +149,7 @@ export interface VideoAlertInfo {
 }
 
 export interface VideoDetailChannelMeta extends VideoChannelMeta {
-  scanLimit: number;
+  scanLimit: number | null;
   status: string;
   url: string;
 }
@@ -163,7 +163,7 @@ export interface VideoDetail {
   thumbnailUrl: string | null;
   publishedAt: string;
   duration: string | null;
-  latestViewCount: number;
+  latestViewCount: number | null;
   latestMeasuredVph: number | null;
   channel: VideoDetailChannelMeta;
   alert: VideoAlertInfo | null;

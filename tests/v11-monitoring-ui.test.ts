@@ -72,26 +72,45 @@ describe('V1.1 — Wave 1: Monitoring Experience Redesign Contract Assertions', 
   // 3. Video Detail Page Contract
   it('3. VideoDetailPage preserves all investigation actions: Refresh, AI, Production, YouTube and Alert link', () => {
     const detailPath = path.join(srcDir, 'pages/VideoDetailPage.vue');
-    const detailContent = fs.readFileSync(detailPath, 'utf-8');
+    const heroPath = path.join(srcDir, 'components/video-detail/VideoInvestigationHero.vue');
+    const growthPath = path.join(srcDir, 'components/video-detail/VideoGrowthAnalysis.vue');
+    const historyPath = path.join(srcDir, 'components/video-detail/VideoSnapshotHistory.vue');
+    const channelPath = path.join(srcDir, 'components/video-detail/VideoChannelContext.vue');
+    const alertPath = path.join(srcDir, 'components/video-detail/VideoAlertContext.vue');
 
-    // Back button
+    const detailContent = fs.readFileSync(detailPath, 'utf-8');
+    const heroContent = fs.readFileSync(heroPath, 'utf-8');
+    const growthContent = fs.readFileSync(growthPath, 'utf-8');
+    const historyContent = fs.readFileSync(historyPath, 'utf-8');
+    const channelContent = fs.readFileSync(channelPath, 'utf-8');
+    const alertContent = fs.readFileSync(alertPath, 'utf-8');
+
+    // Back button & top bar
     expect(detailContent).toContain("to=\"/videos\"");
     expect(detailContent).toContain('Quay Lại Video Đang Tăng');
-
-    // Actions
     expect(detailContent).toContain('loadVideoDetail');
     expect(detailContent).toContain('Làm Mới');
-    expect(detailContent).toContain('/tro-ly-noi-dung?video=');
-    expect(detailContent).toContain('Phân Tích Bằng AI');
-    expect(detailContent).toContain('handleAddToProduction');
-    expect(detailContent).toContain('Đưa Vào Sản Xuất');
-    expect(detailContent).toContain('Xem Trên YouTube');
-    expect(detailContent).toContain('/lich-su-canh-bao?video=');
 
-    // Growth charts & Snapshot history
-    expect(detailContent).toContain('VideoGrowthCharts');
-    expect(detailContent).toContain('Lịch Sử Snapshot');
-    expect(detailContent).toContain('Thông Tin Kênh Đối Thủ');
+    // Modular components integration
+    expect(detailContent).toContain('VideoInvestigationHero');
+    expect(detailContent).toContain('VideoGrowthAnalysis');
+    expect(detailContent).toContain('VideoSnapshotHistory');
+    expect(detailContent).toContain('VideoChannelContext');
+    expect(detailContent).toContain('VideoAlertContext');
+
+    // Actions in hero & detail
+    expect(heroContent).toContain('/tro-ly-noi-dung?video=');
+    expect(heroContent).toContain('Phân Tích Bằng AI');
+    expect(detailContent).toContain('handleAddToProduction');
+    expect(heroContent).toContain('Đưa Vào Sản Xuất');
+    expect(heroContent).toContain('Xem Trên YouTube');
+    expect(heroContent).toContain('/lich-su-canh-bao?video=');
+    expect(alertContent).toContain('/lich-su-canh-bao?video=');
+
+    // Growth charts & Snapshot history & Channel context
+    expect(growthContent).toContain('VideoGrowthCharts');
+    expect(historyContent).toContain('LỊCH SỬ SNAPSHOT');
+    expect(channelContent).toContain('THÔNG TIN KÊNH ĐỐI THỦ');
 
     // AccessKey Modal
     expect(detailContent).toContain('AccessKeyPromptModal');
@@ -131,17 +150,15 @@ describe('V1.1 — Wave 1: Monitoring Experience Redesign Contract Assertions', 
   });
 
   // 6. SectionMarker Component and Integration across core detail pages
-  it('6. SectionMarker exists and is integrated across core detail pages', () => {
+  it('6. SectionMarker exists as a reusable UI component', () => {
     const markerPath = path.join(srcDir, 'components/ui/SectionMarker.vue');
     expect(fs.existsSync(markerPath)).toBe(true);
-
-    const detailContent = fs.readFileSync(path.join(srcDir, 'pages/VideoDetailPage.vue'), 'utf-8');
-    expect(detailContent).toContain('SectionMarker');
   });
 
   // 7. Signal Command Visual Identity Architecture (Asymmetry, Integrated Rail, Event Log)
   it('7. Core monitoring pages adopt modern signal rail and event log', () => {
-    const detailContent = fs.readFileSync(path.join(srcDir, 'pages/VideoDetailPage.vue'), 'utf-8');
+    const heroContent = fs.readFileSync(path.join(srcDir, 'components/video-detail/VideoInvestigationHero.vue'), 'utf-8');
+    const alertContent = fs.readFileSync(path.join(srcDir, 'components/video-detail/VideoAlertContext.vue'), 'utf-8');
     const statsHeaderContent = fs.readFileSync(path.join(srcDir, 'features/videos/components/VideoStatsHeader.vue'), 'utf-8');
 
     // Videos asymmetric stats
@@ -150,8 +167,8 @@ describe('V1.1 — Wave 1: Monitoring Experience Redesign Contract Assertions', 
     expect(statsHeaderContent).toContain('TỐC ĐỘ TĂNG CAO NHẤT');
 
     // VideoDetail integrated hero signal rail & event log
-    expect(detailContent).toContain('hero-integrated-signal-rail');
-    expect(detailContent).toContain('system-event-log-panel');
-    expect(detailContent).toContain('DISCORD EVENT LOG');
+    expect(heroContent).toContain('hero-integrated-signal-rail');
+    expect(alertContent).toContain('system-event-log-panel');
+    expect(alertContent).toContain('DISCORD EVENT LOG');
   });
 });

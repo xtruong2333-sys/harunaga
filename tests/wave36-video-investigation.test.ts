@@ -1,3 +1,5 @@
+import fs from 'fs';
+import path from 'path';
 import { describe, it, expect, vi } from 'vitest';
 import { mount, flushPromises } from '@vue/test-utils';
 import VideoDetailPage from '@/pages/VideoDetailPage.vue';
@@ -7,7 +9,9 @@ import VideoGrowthAnalysis from '@/components/video-detail/VideoGrowthAnalysis.v
 import VideoSnapshotHistory from '@/components/video-detail/VideoSnapshotHistory.vue';
 import VideoChannelContext from '@/components/video-detail/VideoChannelContext.vue';
 import VideoAlertContext from '@/components/video-detail/VideoAlertContext.vue';
+import VideoGrowthCharts from '@/features/videos/components/VideoGrowthCharts.vue';
 import { videoService } from '@/services/video-service';
+import { productionService } from '@/services/production-service';
 import type { VideoDetail } from '@/types/video';
 
 vi.mock('vue-router', async () => {
@@ -86,7 +90,7 @@ const mockDetail: VideoDetail = {
 const mockDetailNulls: VideoDetail = {
   ...mockDetail,
   id: 'detail-vid-nulls',
-  latestViewCount: 0,
+  latestViewCount: null,
   latestMeasuredVph: null,
   isOverThreshold: false,
   channel: {
@@ -298,6 +302,152 @@ describe('Wave 3.6 — Video Investigation Workspace', () => {
 
       expect(wrapper.text()).toContain('Video không tồn tại');
       expect(wrapper.text()).toContain('Quay Lại Danh Sách Video');
+    });
+  });
+
+  // 7. VideoGrowthCharts Chronology & Data Integrity
+  describe('7. VideoGrowthCharts Chronology & Data Integrity', () => {
+    it('7.1 Sorts descending snapshots chronologically: chart renders past -> present from left to right', () => {
+      const descendingSnapshots = [
+        {
+          id: 'snap-new',
+          checkedAt: '2026-09-18T10:00:00Z',
+          viewCount: 50000,
+          viewDelta: 10000,
+          elapsedSeconds: 3600,
+          measuredVph: 10000,
+        },
+        {
+          id: 'snap-old',
+          checkedAt: '2026-09-18T09:00:00Z',
+          viewCount: 40000,
+          viewDelta: null,
+          elapsedSeconds: null,
+          measuredVph: null,
+        },
+      ];
+
+      const wrapper = mount(VideoGrowthCharts, {
+        props: {
+          snapshots: descendingSnapshots,
+          threshold: 5000,
+        },
+      });
+
+      const circles = wrapper.findAll('.views-node');
+      expect(circles.length).toBe(2);
+      const cx0 = Number(circles[0].attributes('cx'));
+      const cx1 = Number(circles[1].attributes('cx'));
+      expect(cx0).toBeLessThan(cx1);
+      expect(wrapper.text()).toContain('50.000');
+    });
+
+    it('7.2 Computes latestView correctly as newest snapshot even when array order is inverted', () => {
+      const invertedSnapshots = [
+        {
+          id: 'snap-future',
+          checkedAt: '2026-09-18T12:00:00Z',
+          viewCount: 99999,
+          viewDelta: 20000,
+          elapsedSeconds: 3600,
+          measuredVph: 20000,
+        },
+        {
+          id: 'snap-mid',
+          checkedAt: '2026-09-18T11:00:00Z',
+          viewCount: 79999,
+          viewDelta: 15000,
+          elapsedSeconds: 3600,
+          measuredVph: 15000,
+        },
+        {
+          id: 'snap-past',
+          checkedAt: '2026-09-18T10:00:00Z',
+          viewCount: 64999,
+          viewDelta: null,
+          elapsedSeconds: null,
+          measuredVph: null,
+        },
+      ];
+
+      const wrapper = mount(VideoGrowthCharts, {
+        props: {
+          snapshots: invertedSnapshots,
+        },
+      });
+
+      expect(wrapper.text()).toContain('99.999 lượt xem');
+    });
+  });
+
+  // 8. Wave 3.6 Data Integrity & Production Notes
+  describe('8. Wave 3.6 Data Integrity & Production Notes', () => {
+    it('8.1 Renders — when latestViewCount is null', () => {
+      const wrapper = mount(VideoInvestigationHero, {
+        props: {
+          video: {
+            ...mockDetail,
+            latestViewCount: null,
+          },
+        },
+        global: { stubs: { 'router-link': routerLinkStub } },
+      });
+
+      const telemetryBox = wrapper.findAll('.telemetry-box')[0];
+      expect(telemetryBox.text()).toContain('LƯỢT XEM HIỆN TẠI');
+      expect(telemetryBox.text()).toContain('—');
+    });
+
+    it('8.2 VideoDetailPage source code has zero contract-markers or v-if="false" dead code', () => {
+      const pagePath = path.resolve(__dirname, '../src/pages/VideoDetailPage.vue');
+      const content = fs.readFileSync(pagePath, 'utf-8');
+
+      expect(content).not.toContain('contract-markers');
+      expect(content).not.toContain('v-if="false"');
+      expect(content).not.toContain('SectionMarker');
+    });
+
+    it('8.3 Writes "Chưa đủ dữ liệu" instead of 0 for null latestMeasuredVph in production notes', async () => {
+      const spyCreate = vi.spyOn(productionService, 'createProductionItem').mockResolvedValueOnce({
+        id: 'prod-new-1',
+        title: 'test',
+      } as any);
+
+      vi.spyOn(videoService, 'fetchVideoDetail').mockResolvedValueOnce({
+        ...mockDetail,
+        latestMeasuredVph: null,
+      });
+
+      const wrapper = mount(VideoDetailPage, {
+        global: { stubs: { 'router-link': routerLinkStub } },
+      });
+
+      await flushPromises();
+
+      const hero = wrapper.findComponent(VideoInvestigationHero);
+      hero.vm.$emit('add-production');
+
+      await flushPromises();
+
+      expect(spyCreate).toHaveBeenCalledTimes(1);
+      const payload = spyCreate.mock.calls[0][0];
+      expect(payload.notes).toContain('VPH đo được: Chưa đủ dữ liệu');
+      expect(payload.notes).not.toContain('VPH đo được: 0');
+    });
+
+    it('8.4 Renders — when channel scanLimit is null', () => {
+      const wrapper = mount(VideoChannelContext, {
+        props: {
+          channel: {
+            ...mockDetail.channel,
+            scanLimit: null,
+          },
+        },
+        global: { stubs: { 'router-link': routerLinkStub } },
+      });
+
+      expect(wrapper.text()).toContain('Giới hạn quét');
+      expect(wrapper.text()).toContain('—');
     });
   });
 });

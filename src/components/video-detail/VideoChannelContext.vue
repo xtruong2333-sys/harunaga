@@ -47,7 +47,7 @@
 
       <div class="config-item">
         <span class="cfg-lbl">Giới hạn quét</span>
-        <span class="cfg-val mono">{{ channel.scanLimit }} video mới nhất</span>
+        <span class="cfg-val mono">{{ channel.scanLimit !== null && channel.scanLimit !== undefined ? `${channel.scanLimit} video mới nhất` : '—' }}</span>
       </div>
 
       <div class="config-item">

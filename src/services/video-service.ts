@@ -294,7 +294,9 @@ export const videoService = {
       handle: ch.handle || null,
       avatarUrl: ch.avatar_url || null,
       alertVphThreshold: channelThreshold,
-      scanLimit: Number(ch.scan_limit) || 10,
+      scanLimit: ch.scan_limit !== null && ch.scan_limit !== undefined && !isNaN(Number(ch.scan_limit))
+        ? Number(ch.scan_limit)
+        : null,
       status: ch.status || 'active',
       url: ch.url || `https://www.youtube.com/channel/${ch.youtube_channel_id || ''}`,
     };
@@ -332,6 +334,10 @@ export const videoService = {
       channelThreshold > 0 &&
       latestVph >= channelThreshold;
 
+    const latestViewCount = videoData.latest_view_count !== null && videoData.latest_view_count !== undefined && !isNaN(Number(videoData.latest_view_count))
+      ? Number(videoData.latest_view_count)
+      : null;
+
     return {
       id: videoData.id,
       youtubeVideoId: videoData.youtube_video_id,
@@ -341,7 +347,7 @@ export const videoService = {
       thumbnailUrl: videoData.thumbnail_url || null,
       publishedAt: videoData.published_at,
       duration: videoData.duration || null,
-      latestViewCount: Number(videoData.latest_view_count) || 0,
+      latestViewCount,
       latestMeasuredVph: latestVph,
       channel: channelMeta,
       alert: alertInfo,

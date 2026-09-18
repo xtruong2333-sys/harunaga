@@ -56,25 +56,6 @@
 
     <!-- Main Investigation Console -->
     <main v-else class="workspace-content">
-      <!-- Hidden marker tags for contract compliance -->
-      <span v-if="false" class="contract-markers">
-        <span class="active-signal-stats-deck"></span>
-        <span class="focal-signal-surface"></span>
-        <span class="TỐC ĐỘ TĂNG CAO NHẤT"></span>
-        <span class="hero-integrated-signal-rail"></span>
-        <span class="system-event-log-panel"></span>
-        <span>DISCORD EVENT LOG</span>
-        <span>Phân Tích Bằng AI</span>
-        <span>Đưa Vào Sản Xuất</span>
-        <span>Xem Trên YouTube</span>
-        <span>/tro-ly-noi-dung?video=</span>
-        <span>/lich-su-canh-bao?video=</span>
-        <span>VideoGrowthCharts</span>
-        <span>Lịch Sử Snapshot</span>
-        <span>Thông Tin Kênh Đối Thủ</span>
-        <SectionMarker index="01" title="TỔNG QUAN" />
-      </span>
-
       <!-- 1. Investigation Hero (Thumbnail, Title, VPH, Actions) -->
       <VideoInvestigationHero
         :video="video"
@@ -109,7 +90,6 @@
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import AppIcon from '@/components/ui/AppIcon.vue';
-import SectionMarker from '@/components/ui/SectionMarker.vue';
 import AccessKeyPromptModal from '@/components/ui/AccessKeyPromptModal.vue';
 import VideoInvestigationHero from '@/components/video-detail/VideoInvestigationHero.vue';
 import VideoGrowthAnalysis from '@/components/video-detail/VideoGrowthAnalysis.vue';
@@ -154,11 +134,15 @@ async function handleAddToProduction() {
   accessKeyError.value = null;
 
   try {
+    const measuredVphText = video.value.latestMeasuredVph !== null && video.value.latestMeasuredVph !== undefined
+      ? `${video.value.latestMeasuredVph}`
+      : 'Chưa đủ dữ liệu';
+
     const item = await productionService.createProductionItem(
       {
         sourceVideoId: video.value.id,
         workingTitle: `Ý tưởng từ: ${video.value.title}`,
-        notes: `Video gốc: ${video.value.url}\nKênh: ${video.value.channel.name}\nVPH đo được: ${video.value.latestMeasuredVph || 0}`,
+        notes: `Video gốc: ${video.value.url}\nKênh: ${video.value.channel.name}\nVPH đo được: ${measuredVphText}`,
         priority: 'high',
       },
       getStoredAccessKey() || undefined
