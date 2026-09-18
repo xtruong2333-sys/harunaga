@@ -190,6 +190,56 @@ textarea {
   line-height: 1.25 !important;
 }
 
+
+/* Cross-page microcopy found during full readability audit */
+.concept-badge,
+.wireframe-tag,
+.field-label,
+.scan-time-sub,
+.metric-hint,
+.table-handle,
+.threshold-sub,
+.missing-text,
+.priority-badge,
+.stage-label,
+.sm-label,
+.alert-v-channel,
+.source-tag,
+.error-header,
+.video-id,
+.metric-unit,
+.badge-threshold,
+.badge-alert-tag,
+.header-eyebrow,
+.header-divider,
+.live-text {
+  font-size: 12px !important;
+  line-height: 1.4 !important;
+}
+
+.wireframe-note,
+.error-pre {
+  font-size: 12px !important;
+  line-height: 1.5 !important;
+}
+
+.max-badge,
+.vph-tag,
+.badge-status {
+  font-size: 11.5px !important;
+  line-height: 1.3 !important;
+}
+
+.btn-toggle-error {
+  font-size: 12.5px !important;
+}
+
+/* Compact avatar initials can stay small, but not below a readable floor */
+.avatar-fallback,
+.row-avatar-fallback {
+  font-size: 11.5px !important;
+}
+
 /* Overview-specific density fixes */
 .hero-subline {
   font-size: 15px !important;
