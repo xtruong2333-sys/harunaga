@@ -162,15 +162,26 @@ const pageError = ref<string | null>(null);
 let selectionRequestId = 0;
 let analysisRequestId = 0;
 
-// Output mode persistence
-const activeOutputMode = ref<AiOutputMode>(
-  (localStorage.getItem(AI_CONTENT_OUTPUT_MODE_STORAGE_KEY) as AiOutputMode) || 'titles'
-);
+// Output mode persistence with safe storage helper
+function getSafeOutputMode(): AiOutputMode {
+  try {
+    const raw = localStorage.getItem(AI_CONTENT_OUTPUT_MODE_STORAGE_KEY);
+    if (raw === 'titles' || raw === 'thumbnails' || raw === 'hooks') {
+      return raw;
+    }
+  } catch (e) {
+    console.warn('Cannot read output mode from localStorage:', e);
+  }
+  return 'titles';
+}
+
+const activeOutputMode = ref<AiOutputMode>(getSafeOutputMode());
 
 function handleOutputModeChange(mode: AiOutputMode) {
-  activeOutputMode.value = mode;
+  const safeMode: AiOutputMode = (mode === 'titles' || mode === 'thumbnails' || mode === 'hooks') ? mode : 'titles';
+  activeOutputMode.value = safeMode;
   try {
-    localStorage.setItem(AI_CONTENT_OUTPUT_MODE_STORAGE_KEY, mode);
+    localStorage.setItem(AI_CONTENT_OUTPUT_MODE_STORAGE_KEY, safeMode);
   } catch (e) {
     console.warn('Cannot persist output mode to localStorage:', e);
   }
@@ -201,15 +212,25 @@ function showToast(message: string, type: ToastType = 'success') {
 onMounted(async () => {
   document.title = 'Trợ Lý Nội Dung AI — Bắt Bài Đối Thủ';
   await loadVideoOptions();
-  checkRouteQueryParam();
+  await checkRouteQueryParam();
 });
 
 watch(
-  () => route.query.video,
-  () => {
-    checkRouteQueryParam();
+  () => route?.query?.video,
+  async () => {
+    await checkRouteQueryParam();
   }
 );
+
+function clearSelection() {
+  ++selectionRequestId;
+  ++analysisRequestId;
+  selectedVideoId.value = '';
+  selectedVideo.value = null;
+  analysisResult.value = null;
+  isAnalyzing.value = false;
+  pageError.value = null;
+}
 
 async function loadVideoOptions() {
   isLoadingOptions.value = true;
@@ -225,9 +246,11 @@ async function loadVideoOptions() {
 }
 
 async function checkRouteQueryParam() {
-  const qVideoId = route.query.video as string | undefined;
+  const qVideoId = route?.query?.video as string | undefined;
   if (qVideoId && typeof qVideoId === 'string' && qVideoId.trim().length > 0) {
     await selectVideoById(qVideoId.trim());
+  } else {
+    clearSelection();
   }
 }
 
@@ -253,7 +276,7 @@ async function selectVideoById(id: string) {
       selectedVideo.value = detail;
       selectedVideoId.value = detail.id;
     } else {
-      // Fallback: look in fetched videoOptions list
+      // Fallback: look in fetched videoOptions list only when service returns null
       const fallback = videoOptions.value.find(v => v.id === id);
       if (fallback) {
         selectedVideo.value = fallback;
@@ -266,16 +289,10 @@ async function selectVideoById(id: string) {
     }
   } catch (err: any) {
     if (currentReqId !== selectionRequestId) return;
-    // Fallback: look in options if network error occurred on context
-    const fallback = videoOptions.value.find(v => v.id === id);
-    if (fallback) {
-      selectedVideo.value = fallback;
-      selectedVideoId.value = fallback.id;
-    } else {
-      selectedVideo.value = null;
-      selectedVideoId.value = '';
-      pageError.value = err.message || 'Không thể tải thông tin video.';
-    }
+    // Do NOT swallow error or fallback silently when service throws!
+    selectedVideo.value = null;
+    selectedVideoId.value = '';
+    pageError.value = err.message || 'Không thể tải thông tin video.';
   }
 }
 

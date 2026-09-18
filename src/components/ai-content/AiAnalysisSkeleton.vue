@@ -196,7 +196,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .skeleton-line, .skeleton-pill {
+  .skeleton-line, .skeleton-pill, .spinner-blue {
     animation: none !important;
   }
 }

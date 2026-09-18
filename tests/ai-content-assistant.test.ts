@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import * as fs from 'fs';
 import * as path from 'path';
 import { aiContentService } from '../src/services/ai-content-service';
@@ -506,6 +506,11 @@ describe('Bắt Bài Đối Thủ — Giai Đoạn 17.1: Chuyển Trợ Lý Nộ
             selectedId: null,
             loading: false,
           },
+          global: {
+            stubs: {
+              'router-link': { template: '<a><slot /></a>' },
+            },
+          },
         });
 
         expect(wrapper.text()).toContain('Chọn nguồn phân tích');
@@ -526,6 +531,11 @@ describe('Bắt Bài Đối Thủ — Giai Đoạn 17.1: Chuyển Trợ Lý Nộ
             selectedId: null,
             loading: false,
           },
+          global: {
+            stubs: {
+              'router-link': { template: '<a><slot /></a>' },
+            },
+          },
         });
 
         const input = wrapper.find('input.search-input');
@@ -543,6 +553,11 @@ describe('Bắt Bài Đối Thủ — Giai Đoạn 17.1: Chuyển Trợ Lý Nộ
             video: null,
             isAnalyzing: false,
             isAddingToProduction: false,
+          },
+          global: {
+            stubs: {
+              'router-link': { template: '<a><slot /></a>' },
+            },
           },
         });
 
@@ -585,6 +600,29 @@ describe('Bắt Bài Đối Thủ — Giai Đoạn 17.1: Chuyển Trợ Lý Nộ
           },
         });
         expect(wrapperNoYt.find('a.yt-link').exists()).toBe(false);
+      });
+
+      it('AiSelectedSource VideoThumbnail có :key="video.id" và :detail-url', async () => {
+        const { default: AiSelectedSource } = await import('../src/components/ai-content/AiSelectedSource.vue');
+        const { default: VideoThumbnail } = await import('../src/components/videos/VideoThumbnail.vue');
+        const { mount } = await import('@vue/test-utils');
+
+        const wrapper = mount(AiSelectedSource, {
+          props: {
+            video: sampleOption,
+            isAnalyzing: false,
+            isAddingToProduction: false,
+          },
+          global: {
+            stubs: {
+              'router-link': { template: '<a><slot /></a>' },
+            },
+          },
+        });
+
+        const thumb = wrapper.findComponent(VideoThumbnail);
+        expect(thumb.exists()).toBe(true);
+        expect(thumb.props('detailUrl')).toBe('/videos/v-101');
       });
 
       it('AiCreativeWorkspace chuyển tab không refetch, lưu mode và render đúng 3 tab', async () => {
@@ -641,51 +679,508 @@ describe('Bắt Bài Đối Thủ — Giai Đoạn 17.1: Chuyển Trợ Lý Nộ
       });
     });
 
-    // 20. Async / Race Condition Protection (Section 2)
-    describe('20. Async / Race Condition Protection Logic (Section 2)', () => {
-      it('chọn video: request cũ giải quyết sau request mới sẽ bị bỏ qua', () => {
-        let selectionRequestId = 0;
-        let selectedId = '';
+    // 20. Actual Integration Tests on AiContentAssistantPage (Section 5 A-J)
+    describe('20. Kiểm thử Tích Hợp Thực Tế trên AiContentAssistantPage (Section 5)', () => {
+      const videoA = {
+        id: 'v-a',
+        youtube_video_id: 'yt-a',
+        title: 'Video A Alpha',
+        channel_id: 'ch-a',
+        channel_name: 'Channel Alpha',
+        published_at: '2026-09-18T10:00:00Z',
+        latest_view_count: 1000,
+        latest_measured_vph: 100,
+        alert_vph_threshold: 80,
+        thumbnail_url: 'https://example.com/a.jpg',
+        view_delta: 50,
+      };
 
-        // Request A bắt đầu
-        const reqA = ++selectionRequestId;
-        // Request B bắt đầu ngay sau
-        const reqB = ++selectionRequestId;
+      const videoB = {
+        id: 'v-b',
+        youtube_video_id: 'yt-b',
+        title: 'Video B Beta',
+        channel_id: 'ch-b',
+        channel_name: 'Channel Beta',
+        published_at: '2026-09-18T11:00:00Z',
+        latest_view_count: 2000,
+        latest_measured_vph: 200,
+        alert_vph_threshold: 150,
+        thumbnail_url: 'https://example.com/b.jpg',
+        view_delta: 100,
+      };
 
-        // Request B phản hồi trước
-        if (reqB === selectionRequestId) {
-          selectedId = 'video-B';
+      it('A. SELECTION RACE: chọn A (chậm), chọn B (nhanh), A trả sau -> selected source vẫn là B', async () => {
+        const { default: AiContentAssistantPage } = await import('../src/pages/AiContentAssistantPage.vue');
+        const { default: AiSourceExplorer } = await import('../src/components/ai-content/AiSourceExplorer.vue');
+        const { default: AiSelectedSource } = await import('../src/components/ai-content/AiSelectedSource.vue');
+        const { mount, flushPromises } = await import('@vue/test-utils');
+
+        let resolveA: (val: any) => void;
+        const slowPromiseA = new Promise(r => { resolveA = r; });
+
+        const optionsSpy = vi.spyOn(aiContentService, 'fetchAiVideoOptions').mockResolvedValue([videoA, videoB]);
+        const contextSpy = vi.spyOn(aiContentService, 'fetchVideoContext').mockImplementation((id: string) => {
+          if (id === 'v-a') return slowPromiseA as any;
+          if (id === 'v-b') return Promise.resolve(videoB);
+          return Promise.resolve(null);
+        });
+
+        try {
+          const wrapper = mount(AiContentAssistantPage, {
+            global: {
+              plugins: [router],
+              stubs: {
+                'router-link': { template: '<a><slot /></a>' },
+              },
+            },
+          });
+
+          await flushPromises();
+
+          const explorer = wrapper.findComponent(AiSourceExplorer);
+          // User selects A
+          explorer.vm.$emit('select', 'v-a');
+          // User immediately selects B
+          explorer.vm.$emit('select', 'v-b');
+
+          // B resolves immediately
+          await flushPromises();
+          expect(wrapper.findComponent(AiSelectedSource).props('video')?.id).toBe('v-b');
+
+          // Now A resolves late
+          resolveA!(videoA);
+          await flushPromises();
+
+          // Selected source MUST still be B!
+          expect(wrapper.findComponent(AiSelectedSource).props('video')?.id).toBe('v-b');
+        } finally {
+          optionsSpy.mockRestore();
+          contextSpy.mockRestore();
         }
-        expect(selectedId).toBe('video-B');
-
-        // Request A phản hồi muộn sau B
-        if (reqA === selectionRequestId) {
-          selectedId = 'video-A'; // Sẽ không lọt vào đây
-        }
-        expect(selectedId).toBe('video-B');
       });
 
-      it('AI analysis race: kết quả của video cũ không gắn vào video mới được chọn', () => {
-        let analysisRequestId = 0;
-        let currentVideoId = 'video-A';
-        let finalAnalysisResult: any = null;
+      it('B. ANALYSIS RACE: phân tích A đang chạy dở, đổi sang B, phân tích A trả về sau -> không gắn kết quả vào B', async () => {
+        const { default: AiContentAssistantPage } = await import('../src/pages/AiContentAssistantPage.vue');
+        const { default: AiSourceExplorer } = await import('../src/components/ai-content/AiSourceExplorer.vue');
+        const { default: AiSelectedSource } = await import('../src/components/ai-content/AiSelectedSource.vue');
+        const { default: AiIntelligenceBrief } = await import('../src/components/ai-content/AiIntelligenceBrief.vue');
+        const { mount, flushPromises } = await import('@vue/test-utils');
 
-        // Bắt đầu phân tích video A
-        const reqAnalysisA = ++analysisRequestId;
-        const targetVideoId = currentVideoId;
+        let resolveAnalysisA: (val: any) => void;
+        const pendingAnalysisA = new Promise(r => { resolveAnalysisA = r; });
 
-        // Người dùng đổi sang video B
-        currentVideoId = 'video-B';
-        ++analysisRequestId; // Invalidate
+        const optionsSpy = vi.spyOn(aiContentService, 'fetchAiVideoOptions').mockResolvedValue([videoA, videoB]);
+        const contextSpy = vi.spyOn(aiContentService, 'fetchVideoContext').mockImplementation((id: string) => {
+          if (id === 'v-a') return Promise.resolve(videoA);
+          if (id === 'v-b') return Promise.resolve(videoB);
+          return Promise.resolve(null);
+        });
+        const analyzeSpy = vi.spyOn(aiContentService, 'analyzeVideoContent').mockReturnValue(pendingAnalysisA as any);
+        setStoredAccessKey('valid-test-key');
 
-        // Phân tích của video A trả về sau
-        const resultFromA = { summary: 'Kết quả của video A' };
-        if (reqAnalysisA === analysisRequestId && currentVideoId === targetVideoId) {
-          finalAnalysisResult = resultFromA;
+        try {
+          const wrapper = mount(AiContentAssistantPage, {
+            global: {
+              plugins: [router],
+              stubs: {
+                'router-link': { template: '<a><slot /></a>' },
+              },
+            },
+          });
+
+          await flushPromises();
+
+          const explorer = wrapper.findComponent(AiSourceExplorer);
+          explorer.vm.$emit('select', 'v-a');
+          await flushPromises();
+
+          // Start analysis on video A
+          const selectedSource = wrapper.findComponent(AiSelectedSource);
+          selectedSource.vm.$emit('analyze');
+          await flushPromises();
+
+          // User switches to video B while analysis for A is still pending
+          explorer.vm.$emit('select', 'v-b');
+          await flushPromises();
+
+          expect(wrapper.findComponent(AiSelectedSource).props('video')?.id).toBe('v-b');
+
+          // Analysis for A resolves late
+          resolveAnalysisA!(mockAnalysis);
+          await flushPromises();
+
+          // Results of A must NOT be attached to video B!
+          expect(wrapper.findComponent(AiIntelligenceBrief).exists()).toBe(false);
+        } finally {
+          optionsSpy.mockRestore();
+          contextSpy.mockRestore();
+          analyzeSpy.mockRestore();
+        }
+      });
+
+      it('C. FETCH CONTEXT ERROR: fetchVideoContext throw lỗi -> không fallback âm thầm, hiển thị lỗi factual', async () => {
+        const { default: AiContentAssistantPage } = await import('../src/pages/AiContentAssistantPage.vue');
+        const { default: AiSourceExplorer } = await import('../src/components/ai-content/AiSourceExplorer.vue');
+        const { default: AiSelectedSource } = await import('../src/components/ai-content/AiSelectedSource.vue');
+        const { mount, flushPromises } = await import('@vue/test-utils');
+
+        const optionsSpy = vi.spyOn(aiContentService, 'fetchAiVideoOptions').mockResolvedValue([videoA]);
+        const contextSpy = vi.spyOn(aiContentService, 'fetchVideoContext').mockRejectedValue(new Error('Lỗi kết nối cơ sở dữ liệu Supabase'));
+
+        try {
+          const wrapper = mount(AiContentAssistantPage, {
+            global: {
+              plugins: [router],
+              stubs: {
+                'router-link': { template: '<a><slot /></a>' },
+              },
+            },
+          });
+
+          await flushPromises();
+
+          const explorer = wrapper.findComponent(AiSourceExplorer);
+          explorer.vm.$emit('select', 'v-a');
+          await flushPromises();
+
+          // Không fallback ngầm sang videoA!
+          expect(wrapper.findComponent(AiSelectedSource).props('video')).toBeNull();
+          expect(wrapper.text()).toContain('Lỗi kết nối cơ sở dữ liệu Supabase');
+        } finally {
+          optionsSpy.mockRestore();
+          contextSpy.mockRestore();
+        }
+      });
+
+      it('D. VIEW DELTA SERVICE SEMANTICS: fetchVideoContext tính view_delta chuẩn qua Supabase mock', async () => {
+        const supabaseModule = await import('../src/services/supabase');
+        const origGetSupabase = supabaseModule.getSupabase;
+        const origIsConfigured = supabaseModule.isSupabaseConfigured;
+
+        function mockClientWithSnapshots(snapshots: any[]) {
+          return {
+            from: (table: string) => {
+              if (table === 'videos') {
+                return {
+                  select: () => ({
+                    eq: () => ({
+                      single: async () => ({
+                        data: {
+                          id: 'v-test',
+                          youtube_video_id: 'yt-test',
+                          title: 'Test Video',
+                          channel_id: 'ch-test',
+                          published_at: null,
+                          latest_view_count: 1500,
+                          latest_measured_vph: 120,
+                          thumbnail_url: null,
+                          channels: { id: 'ch-test', name: 'Ch Test', alert_vph_threshold: 100 },
+                        },
+                        error: null,
+                      }),
+                    }),
+                  }),
+                };
+              }
+              if (table === 'video_snapshots') {
+                return {
+                  select: () => ({
+                    eq: () => ({
+                      order: () => ({
+                        limit: async () => ({
+                          data: snapshots,
+                          error: null,
+                        }),
+                      }),
+                    }),
+                  }),
+                };
+              }
+              return { select: () => ({ eq: () => ({ single: async () => ({ data: null, error: null }) }) }) };
+            },
+          };
         }
 
-        // Kết quả của video A bị bỏ qua, không gắn vào video B
-        expect(finalAnalysisResult).toBeNull();
+        vi.spyOn(supabaseModule, 'isSupabaseConfigured').mockReturnValue(true);
+
+        try {
+          // 1. null + 1000 -> null
+          vi.spyOn(supabaseModule, 'getSupabase').mockReturnValue(
+            mockClientWithSnapshots([{ view_count: null, checked_at: '2026-09-18T10:00:00Z' }, { view_count: 1000, checked_at: '2026-09-18T09:00:00Z' }]) as any
+          );
+          const res1 = await aiContentService.fetchVideoContext('v-test');
+          expect(res1?.view_delta).toBeNull();
+
+          // 2. 1000 + 1000 -> 0
+          vi.spyOn(supabaseModule, 'getSupabase').mockReturnValue(
+            mockClientWithSnapshots([{ view_count: 1000, checked_at: '2026-09-18T10:00:00Z' }, { view_count: 1000, checked_at: '2026-09-18T09:00:00Z' }]) as any
+          );
+          const res2 = await aiContentService.fetchVideoContext('v-test');
+          expect(res2?.view_delta).toBe(0);
+
+          // 3. 1500 + 1000 -> +500
+          vi.spyOn(supabaseModule, 'getSupabase').mockReturnValue(
+            mockClientWithSnapshots([{ view_count: 1500, checked_at: '2026-09-18T10:00:00Z' }, { view_count: 1000, checked_at: '2026-09-18T09:00:00Z' }]) as any
+          );
+          const res3 = await aiContentService.fetchVideoContext('v-test');
+          expect(res3?.view_delta).toBe(500);
+        } finally {
+          vi.spyOn(supabaseModule, 'getSupabase').mockImplementation(origGetSupabase);
+          vi.spyOn(supabaseModule, 'isSupabaseConfigured').mockImplementation(origIsConfigured);
+        }
+      });
+
+      it('E. OUTPUT MODE PERSIST: lưu và đọc an toàn từ localStorage, không gọi lại analyzeVideoContent', async () => {
+        const { default: AiContentAssistantPage } = await import('../src/pages/AiContentAssistantPage.vue');
+        const { default: AiCreativeWorkspace } = await import('../src/components/ai-content/AiCreativeWorkspace.vue');
+        const { mount, flushPromises } = await import('@vue/test-utils');
+
+        // 1. Initial thumbnails from localStorage
+        localStorage.setItem('bbdt_ai_content_output_mode', 'thumbnails');
+
+        const optionsSpy = vi.spyOn(aiContentService, 'fetchAiVideoOptions').mockResolvedValue([videoA]);
+        const contextSpy = vi.spyOn(aiContentService, 'fetchVideoContext').mockResolvedValue(videoA);
+        const analyzeSpy = vi.spyOn(aiContentService, 'analyzeVideoContent').mockResolvedValue(mockAnalysis);
+        setStoredAccessKey('valid-key');
+
+        try {
+          const wrapper = mount(AiContentAssistantPage, {
+            global: {
+              plugins: [router],
+              stubs: {
+                'router-link': { template: '<a><slot /></a>' },
+              },
+            },
+          });
+
+          await flushPromises();
+
+          // Select video and analyze
+          wrapper.findComponent({ name: 'AiSourceExplorer' }).vm.$emit('select', 'v-a');
+          await flushPromises();
+          wrapper.findComponent({ name: 'AiSelectedSource' }).vm.$emit('analyze');
+          await flushPromises();
+
+          const creative = wrapper.findComponent(AiCreativeWorkspace);
+          expect(creative.props('activeMode')).toBe('thumbnails');
+
+          // Switch to hooks
+          analyzeSpy.mockClear();
+          creative.vm.$emit('update:activeMode', 'hooks');
+          await flushPromises();
+
+          expect(localStorage.getItem('bbdt_ai_content_output_mode')).toBe('hooks');
+          expect(analyzeSpy).not.toHaveBeenCalled();
+
+          // 2. Invalid value in localStorage defaults safely to 'titles'
+          localStorage.setItem('bbdt_ai_content_output_mode', 'invalid_hack');
+          const wrapper2 = mount(AiContentAssistantPage, {
+            global: {
+              plugins: [router],
+              stubs: {
+                'router-link': { template: '<a><slot /></a>' },
+              },
+            },
+          });
+          await flushPromises();
+          wrapper2.findComponent({ name: 'AiSourceExplorer' }).vm.$emit('select', 'v-a');
+          await flushPromises();
+          wrapper2.findComponent({ name: 'AiSelectedSource' }).vm.$emit('analyze');
+          await flushPromises();
+
+          expect(wrapper2.findComponent(AiCreativeWorkspace).props('activeMode')).toBe('titles');
+        } finally {
+          optionsSpy.mockRestore();
+          contextSpy.mockRestore();
+          analyzeSpy.mockRestore();
+        }
+      });
+
+      it('F. ROUTE: unknown ?video=missing không crash; xoá query xoá stale selection', async () => {
+        const { default: AiContentAssistantPage } = await import('../src/pages/AiContentAssistantPage.vue');
+        const { default: AiSelectedSource } = await import('../src/components/ai-content/AiSelectedSource.vue');
+        const { mount, flushPromises } = await import('@vue/test-utils');
+
+        const optionsSpy = vi.spyOn(aiContentService, 'fetchAiVideoOptions').mockResolvedValue([videoA]);
+        const contextSpy = vi.spyOn(aiContentService, 'fetchVideoContext').mockResolvedValue(null);
+
+        try {
+          await router.push('/tro-ly-noi-dung?video=missing');
+          const wrapper = mount(AiContentAssistantPage, {
+            global: {
+              plugins: [router],
+              stubs: {
+                'router-link': { template: '<a><slot /></a>' },
+              },
+            },
+          });
+
+          await flushPromises();
+          expect(wrapper.findComponent(AiSelectedSource).props('video')).toBeNull();
+
+          // Bây giờ chuyển sang không query
+          await router.push('/tro-ly-noi-dung');
+          await flushPromises();
+
+          expect(wrapper.findComponent(AiSelectedSource).props('video')).toBeNull();
+        } finally {
+          optionsSpy.mockRestore();
+          contextSpy.mockRestore();
+        }
+      });
+
+      it('G. COPY UX: clipboard resolve mới hiện toast thành công, clipboard reject hiện toast lỗi', async () => {
+        const { default: AiContentAssistantPage } = await import('../src/pages/AiContentAssistantPage.vue');
+        const { default: AiCreativeWorkspace } = await import('../src/components/ai-content/AiCreativeWorkspace.vue');
+        const { mount, flushPromises } = await import('@vue/test-utils');
+
+        const optionsSpy = vi.spyOn(aiContentService, 'fetchAiVideoOptions').mockResolvedValue([videoA]);
+        const contextSpy = vi.spyOn(aiContentService, 'fetchVideoContext').mockResolvedValue(videoA);
+        const analyzeSpy = vi.spyOn(aiContentService, 'analyzeVideoContent').mockResolvedValue(mockAnalysis);
+        setStoredAccessKey('valid-key');
+
+        try {
+          const wrapper = mount(AiContentAssistantPage, {
+            global: {
+              plugins: [router],
+              stubs: {
+                'router-link': { template: '<a><slot /></a>' },
+              },
+            },
+          });
+
+          await flushPromises();
+          wrapper.findComponent({ name: 'AiSourceExplorer' }).vm.$emit('select', 'v-a');
+          await flushPromises();
+          wrapper.findComponent({ name: 'AiSelectedSource' }).vm.$emit('analyze');
+          await flushPromises();
+
+          // 1. Successful copy
+          const writeMock = vi.fn().mockResolvedValue(undefined);
+          Object.defineProperty(navigator, 'clipboard', {
+            value: { writeText: writeMock },
+            configurable: true,
+            writable: true,
+          });
+
+          const creative = wrapper.findComponent(AiCreativeWorkspace);
+          creative.vm.$emit('copy-item', 'Test Title', 'title-0');
+          await flushPromises();
+
+          expect(writeMock).toHaveBeenCalledWith('Test Title');
+          expect(wrapper.text()).toContain('Đã sao chép vào bộ nhớ tạm!');
+
+          // 2. Rejected copy
+          const failMock = vi.fn().mockRejectedValue(new Error('Permission denied'));
+          Object.defineProperty(navigator, 'clipboard', {
+            value: { writeText: failMock },
+            configurable: true,
+            writable: true,
+          });
+
+          creative.vm.$emit('copy-item', 'Test Title 2', 'title-1');
+          await flushPromises();
+
+          expect(wrapper.text()).toContain('Không thể sao chép vào bộ nhớ tạm.');
+        } finally {
+          optionsSpy.mockRestore();
+          contextSpy.mockRestore();
+          analyzeSpy.mockRestore();
+        }
+      });
+
+      it('H. ACCESS KEY RETRY — ANALYZE: nhắc mã khi chưa có, xác nhận xong tự động retry analyze', async () => {
+        const { default: AiContentAssistantPage } = await import('../src/pages/AiContentAssistantPage.vue');
+        const { default: AccessKeyPromptModal } = await import('../src/components/ui/AccessKeyPromptModal.vue');
+        const { mount, flushPromises } = await import('@vue/test-utils');
+
+        clearStoredAccessKey();
+
+        const optionsSpy = vi.spyOn(aiContentService, 'fetchAiVideoOptions').mockResolvedValue([videoA]);
+        const contextSpy = vi.spyOn(aiContentService, 'fetchVideoContext').mockResolvedValue(videoA);
+        const analyzeSpy = vi.spyOn(aiContentService, 'analyzeVideoContent').mockResolvedValue(mockAnalysis);
+
+        try {
+          const wrapper = mount(AiContentAssistantPage, {
+            global: {
+              plugins: [router],
+              stubs: {
+                'router-link': { template: '<a><slot /></a>' },
+              },
+            },
+          });
+
+          await flushPromises();
+          wrapper.findComponent({ name: 'AiSourceExplorer' }).vm.$emit('select', 'v-a');
+          await flushPromises();
+
+          // Click analyze without key
+          wrapper.findComponent({ name: 'AiSelectedSource' }).vm.$emit('analyze');
+          await flushPromises();
+
+          expect(analyzeSpy).not.toHaveBeenCalled();
+          const modal = wrapper.findComponent(AccessKeyPromptModal);
+          expect(modal.props('modelValue')).toBe(true);
+
+          // Confirm key
+          modal.vm.$emit('confirmed', 'user-access-key-123');
+          await flushPromises();
+
+          expect(analyzeSpy).toHaveBeenCalledWith('v-a', 'user-access-key-123');
+        } finally {
+          optionsSpy.mockRestore();
+          contextSpy.mockRestore();
+          analyzeSpy.mockRestore();
+        }
+      });
+
+      it('I. ACCESS KEY RETRY — PRODUCTION: nhắc mã khi chưa có, xác nhận xong gọi createProductionItem', async () => {
+        const { default: AiContentAssistantPage } = await import('../src/pages/AiContentAssistantPage.vue');
+        const { default: AccessKeyPromptModal } = await import('../src/components/ui/AccessKeyPromptModal.vue');
+        const { productionService } = await import('../src/services/production-service');
+        const { mount, flushPromises } = await import('@vue/test-utils');
+
+        clearStoredAccessKey();
+
+        const optionsSpy = vi.spyOn(aiContentService, 'fetchAiVideoOptions').mockResolvedValue([videoA]);
+        const contextSpy = vi.spyOn(aiContentService, 'fetchVideoContext').mockResolvedValue(videoA);
+        const createProdSpy = vi.spyOn(productionService, 'createProductionItem').mockResolvedValue({ id: 'prod-1' } as any);
+
+        try {
+          const wrapper = mount(AiContentAssistantPage, {
+            global: {
+              plugins: [router],
+              stubs: {
+                'router-link': { template: '<a><slot /></a>' },
+              },
+            },
+          });
+
+          await flushPromises();
+          wrapper.findComponent({ name: 'AiSourceExplorer' }).vm.$emit('select', 'v-a');
+          await flushPromises();
+
+          // Click add to production without key
+          wrapper.findComponent({ name: 'AiSelectedSource' }).vm.$emit('add-to-production');
+          await flushPromises();
+
+          expect(createProdSpy).not.toHaveBeenCalled();
+          const modal = wrapper.findComponent(AccessKeyPromptModal);
+          expect(modal.props('modelValue')).toBe(true);
+
+          // Confirm key
+          modal.vm.$emit('confirmed', 'user-prod-key-456');
+          await flushPromises();
+
+          expect(createProdSpy).toHaveBeenCalledWith(
+            { sourceVideoId: 'v-a', workingTitle: 'Video A Alpha' },
+            'user-prod-key-456'
+          );
+        } finally {
+          optionsSpy.mockRestore();
+          contextSpy.mockRestore();
+          createProdSpy.mockRestore();
+        }
       });
     });
 

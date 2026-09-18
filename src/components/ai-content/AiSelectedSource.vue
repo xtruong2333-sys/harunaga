@@ -17,8 +17,10 @@
         <!-- Thumbnail -->
         <div class="source-thumb-col">
           <VideoThumbnail
+            :key="video.id"
             :src="video.thumbnail_url"
             :youtube-video-id="video.youtube_video_id || undefined"
+            :detail-url="`/videos/${video.id}`"
             :alt="video.title"
             ratio="16-9"
             class="hero-thumbnail"
