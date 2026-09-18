@@ -1,6 +1,6 @@
 <template>
   <div class="table-controls">
-    <!-- Top row: Search & Action Buttons -->
+    <!-- Top row: Search Bar -->
     <div class="controls-top">
       <div class="search-box">
         <AppIcon name="search" size="16" class="search-icon" />
@@ -19,17 +19,6 @@
           aria-label="Xóa tìm kiếm"
         >
           <AppIcon name="x" size="14" />
-        </button>
-      </div>
-
-      <div class="action-buttons">
-        <button class="btn btn-secondary" @click="$emit('openBulkAdd')">
-          <AppIcon name="list-plus" size="16" />
-          <span>Thêm Nhiều Kênh</span>
-        </button>
-        <button class="btn btn-primary" @click="$emit('openAddSingle')">
-          <AppIcon name="plus" size="16" />
-          <span>+ Thêm Kênh</span>
         </button>
       </div>
     </div>
@@ -86,8 +75,6 @@ defineEmits<{
   (e: 'update:searchQuery', value: string): void;
   (e: 'update:currentFilter', value: 'all' | ChannelStatus): void;
   (e: 'update:currentSort', value: 'newest' | 'name' | 'last_scan'): void;
-  (e: 'openAddSingle'): void;
-  (e: 'openBulkAdd'): void;
 }>();
 
 const filterTabs = computed(() => [
@@ -116,9 +103,7 @@ const filterTabs = computed(() => [
 
 .search-box {
   position: relative;
-  flex: 1;
-  min-width: 280px;
-  max-width: 520px;
+  width: 100%;
 }
 
 .search-icon {
@@ -168,12 +153,6 @@ const filterTabs = computed(() => [
 .clear-search-btn:hover {
   color: var(--text-primary);
   background-color: var(--bg-surface-elevated);
-}
-
-.action-buttons {
-  display: flex;
-  align-items: center;
-  gap: 10px;
 }
 
 .controls-bottom {
@@ -265,12 +244,6 @@ const filterTabs = computed(() => [
   .controls-top {
     flex-direction: column;
     align-items: stretch;
-  }
-  .search-box {
-    max-width: 100%;
-  }
-  .action-buttons {
-    display: none; /* Mobile header uses floating or separate actions */
   }
   .controls-bottom {
     flex-direction: column;

@@ -203,7 +203,7 @@
             <div class="s-subtitle">Phân loại tổng {{ analysis.totalVideos }} video theo mức độ tăng trưởng VPH đo được thực tế</div>
           </div>
 
-          <!-- Proportional Distribution Rail -->
+          <!-- Proportional Distribution Rail (Mutually Exclusive) -->
           <div class="distribution-rail-wrap">
             <div class="distribution-rail-track">
               <div
@@ -213,10 +213,10 @@
                 :title="`Vượt ngưỡng: ${analysis.distribution.overThresholdCount} video`"
               ></div>
               <div
-                v-if="analysis.distribution.risingCount > 0"
+                v-if="risingBelowThresholdCount > 0"
                 class="rail-segment seg-rising"
-                :style="{ flex: analysis.distribution.risingCount }"
-                :title="`Đang tăng: ${analysis.distribution.risingCount} video`"
+                :style="{ flex: risingBelowThresholdCount }"
+                :title="`Đang tăng dưới ngưỡng: ${risingBelowThresholdCount} video`"
               ></div>
               <div
                 v-if="analysis.distribution.zeroCount > 0"
@@ -241,9 +241,9 @@
               <div class="dist-sub">Video kích hoạt cảnh báo</div>
             </div>
             <div class="dist-box box-rising">
-              <div class="dist-lbl">Đang tăng (&gt; 0 VPH)</div>
-              <div class="dist-val mono text-accent">{{ analysis.distribution.risingCount }}</div>
-              <div class="dist-sub">Có lượt xem tăng mới</div>
+              <div class="dist-lbl">Đang tăng dưới ngưỡng</div>
+              <div class="dist-val mono text-accent">{{ risingBelowThresholdCount }}</div>
+              <div class="dist-sub">Đang có lượt xem mới</div>
             </div>
             <div class="dist-box">
               <div class="dist-lbl">Không tăng (0 VPH)</div>
@@ -271,23 +271,23 @@
             <div class="s-subtitle">Top 5 video có tốc độ tăng trưởng VPH cao nhất của kênh</div>
           </div>
 
-          <div v-if="analysis.topRisingVideos.length === 0" class="panel-empty">
-            Chưa có video nào ghi nhận tốc độ tăng trưởng VPH lớn hơn 0.
+          <div v-if="positiveTopSignals.length === 0" class="panel-empty">
+            Chưa có video nào ghi nhận VPH lớn hơn 0.
           </div>
 
           <div v-else class="top-signals-wrap">
             <!-- #1 Video Featured Highlight -->
-            <div v-if="analysis.topRisingVideos[0]" class="featured-video-card">
+            <div v-if="positiveTopSignals[0]" class="featured-video-card">
               <div class="featured-badge-tag">
                 <AppIcon name="zap" size="14" />
                 <span>#1 TĂNG TRƯỞNG CAO NHẤT</span>
               </div>
               <div class="featured-body">
-                <router-link :to="'/videos/' + analysis.topRisingVideos[0].id" class="featured-thumb-wrap">
+                <router-link :to="'/videos/' + positiveTopSignals[0].id" class="featured-thumb-wrap">
                   <img
-                    v-if="analysis.topRisingVideos[0].thumbnailUrl"
-                    :src="analysis.topRisingVideos[0].thumbnailUrl"
-                    :alt="analysis.topRisingVideos[0].title"
+                    v-if="positiveTopSignals[0].thumbnailUrl"
+                    :src="positiveTopSignals[0].thumbnailUrl"
+                    :alt="positiveTopSignals[0].title"
                     class="featured-thumb"
                     loading="lazy"
                     @error="handleImgError"
@@ -298,36 +298,36 @@
                 </router-link>
 
                 <div class="featured-content">
-                  <router-link :to="'/videos/' + analysis.topRisingVideos[0].id" class="featured-title">
-                    {{ analysis.topRisingVideos[0].title }}
+                  <router-link :to="'/videos/' + positiveTopSignals[0].id" class="featured-title">
+                    {{ positiveTopSignals[0].title }}
                   </router-link>
                   <div class="featured-meta">
-                    <span>{{ videoService.formatRelativeTime(analysis.topRisingVideos[0].publishedAt) }}</span>
-                    <span v-if="analysis.topRisingVideos[0].isOverThreshold" class="badge-threshold-mini">Vượt ngưỡng</span>
+                    <span>{{ videoService.formatRelativeTime(positiveTopSignals[0].publishedAt) }}</span>
+                    <span v-if="positiveTopSignals[0].isOverThreshold" class="badge-threshold-mini">Vượt ngưỡng</span>
                   </div>
 
                   <div class="featured-metrics-strip">
                     <div class="f-metric-box">
                       <span class="f-lbl">LƯỢT XEM HIỆN TẠI</span>
-                      <span class="f-val mono">{{ videoService.formatViews(analysis.topRisingVideos[0].latestViewCount) }}</span>
+                      <span class="f-val mono">{{ videoService.formatViews(positiveTopSignals[0].latestViewCount) }}</span>
                     </div>
                     <div class="f-metric-box focal-metric">
                       <span class="f-lbl">VPH ĐO ĐƯỢC</span>
-                      <span class="f-val mono text-accent">{{ videoService.formatVph(analysis.topRisingVideos[0].latestMeasuredVph) }}</span>
+                      <span class="f-val mono text-accent">{{ videoService.formatVph(positiveTopSignals[0].latestMeasuredVph) }}</span>
                     </div>
                     <div class="f-metric-box">
                       <span class="f-lbl">TĂNG LẦN GẦN NHẤT</span>
-                      <span class="f-val mono text-positive">{{ videoService.formatViewDelta(analysis.topRisingVideos[0].latestDeltaViews) }}</span>
+                      <span class="f-val mono text-positive">{{ videoService.formatViewDelta(positiveTopSignals[0].latestDeltaViews) }}</span>
                     </div>
                   </div>
 
                   <div class="featured-actions">
-                    <router-link :to="'/videos/' + analysis.topRisingVideos[0].id" class="btn btn-secondary btn-sm">
+                    <router-link :to="'/videos/' + positiveTopSignals[0].id" class="btn btn-secondary btn-sm">
                       <AppIcon name="activity" size="14" />
                       <span>Xem Phân Tích Video</span>
                     </router-link>
                     <a
-                      :href="analysis.topRisingVideos[0].url"
+                      :href="positiveTopSignals[0].url"
                       target="_blank"
                       rel="noopener noreferrer"
                       class="btn btn-secondary btn-sm"
@@ -341,9 +341,9 @@
             </div>
 
             <!-- #2 to #5 Compact Rankings -->
-            <div v-if="analysis.topRisingVideos.length > 1" class="secondary-ranking-list">
+            <div v-if="positiveTopSignals.length > 1" class="secondary-ranking-list">
               <div
-                v-for="(v, idx) in analysis.topRisingVideos.slice(1)"
+                v-for="(v, idx) in positiveTopSignals.slice(1)"
                 :key="v.id"
                 class="v-card-item"
               >
@@ -539,7 +539,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import AppIcon from '@/components/ui/AppIcon.vue';
 import ChannelVphChart from '@/features/channels/components/ChannelVphChart.vue';
@@ -553,6 +553,23 @@ const channelId = String(route.params.id || '');
 const analysis = ref<ChannelAnalysis | null>(null);
 const loading = ref(true);
 const error = ref<string | null>(null);
+
+// 1. Exclusive distribution count: videos rising (VPH > 0) but below threshold
+const risingBelowThresholdCount = computed(() => {
+  if (!analysis.value) return 0;
+  return Math.max(
+    0,
+    analysis.value.distribution.risingCount - analysis.value.distribution.overThresholdCount
+  );
+});
+
+// 2. Top signals filtered to strictly positive measured VPH (> 0)
+const positiveTopSignals = computed(() => {
+  if (!analysis.value) return [];
+  return analysis.value.topRisingVideos.filter(
+    video => video.latestMeasuredVph !== null && video.latestMeasuredVph > 0
+  );
+});
 
 function handleAvatarError(e: Event) {
   const target = e.target as HTMLImageElement;

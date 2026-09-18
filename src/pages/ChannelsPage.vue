@@ -94,8 +94,6 @@
             paused: channelStore.pausedCount,
             archived: channelStore.archivedCount,
           }"
-          @open-add-single="showAddModal = true"
-          @open-bulk-add="showBulkAddModal = true"
         />
 
         <!-- Không có kết quả tìm kiếm/lọc -->
