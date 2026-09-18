@@ -24,13 +24,14 @@
         <button
           type="button"
           class="sidebar-collapse-btn"
+          :class="{ 'btn-collapsed': sidebarCollapsed }"
           :title="sidebarCollapsed ? 'Mở rộng thanh bên' : 'Thu gọn thanh bên'"
           :aria-label="sidebarCollapsed ? 'Mở rộng thanh bên' : 'Thu gọn thanh bên'"
           @click="toggleSidebar"
         >
           <AppIcon
             :name="sidebarCollapsed ? 'chevron-right' : 'chevron-left'"
-            size="16"
+            size="15"
           />
         </button>
       </div>
@@ -46,7 +47,10 @@
               :to="item.to"
               class="sidebar-item rail-item"
               active-class="sidebar-item--active rail-item--active"
-              :title="sidebarCollapsed ? item.label : undefined"
+              @mouseenter="showTooltip($event, item)"
+              @mouseleave="hideTooltip"
+              @focus="showTooltip($event, item)"
+              @blur="hideTooltip"
             >
               <div class="item-icon-wrap">
                 <AppIcon :name="item.icon" size="18" />
@@ -55,12 +59,6 @@
                 <strong class="item-title">{{ item.label }}</strong>
                 <small v-if="item.hint" class="item-hint">{{ item.hint }}</small>
               </span>
-
-              <!-- Hover Tooltip when Collapsed -->
-              <div v-if="sidebarCollapsed" class="sidebar-tooltip">
-                <div class="tooltip-title">{{ item.label }}</div>
-                <div v-if="item.hint" class="tooltip-hint">{{ item.hint }}</div>
-              </div>
             </router-link>
           </div>
         </div>
@@ -88,6 +86,22 @@
         </div>
       </div>
     </aside>
+
+    <!-- Floating Portal Tooltip for Collapsed Sidebar -->
+    <teleport to="body">
+      <div
+        v-if="sidebarCollapsed && activeTooltip"
+        class="sidebar-portal-tooltip"
+        :style="{
+          top: `${activeTooltip.top}px`,
+          left: `${activeTooltip.left}px`,
+        }"
+        role="tooltip"
+      >
+        <div class="tooltip-title">{{ activeTooltip.label }}</div>
+        <div v-if="activeTooltip.hint" class="tooltip-hint">{{ activeTooltip.hint }}</div>
+      </div>
+    </teleport>
 
     <!-- Desktop Topbar -->
     <header
@@ -176,6 +190,30 @@ const mobileDrawerOpen = ref(false);
 const sidebarCollapsed = ref(false);
 const route = useRoute();
 
+const activeTooltip = ref<{
+  label: string;
+  hint?: string;
+  top: number;
+  left: number;
+} | null>(null);
+
+function showTooltip(e: Event, item: NavItem) {
+  if (!sidebarCollapsed.value) return;
+  const target = e.currentTarget as HTMLElement | null;
+  if (!target) return;
+  const rect = target.getBoundingClientRect();
+  activeTooltip.value = {
+    label: item.label,
+    hint: item.hint,
+    top: rect.top + rect.height / 2,
+    left: rect.right + 10,
+  };
+}
+
+function hideTooltip() {
+  activeTooltip.value = null;
+}
+
 const navGroups: NavGroup[] = [
   {
     title: 'TỔNG QUAN',
@@ -213,6 +251,7 @@ const navGroups: NavGroup[] = [
 
 function toggleSidebar() {
   sidebarCollapsed.value = !sidebarCollapsed.value;
+  hideTooltip();
   if (typeof localStorage !== 'undefined') {
     try {
       localStorage.setItem('bbdt_sidebar_collapsed', String(sidebarCollapsed.value));
@@ -293,13 +332,17 @@ const currentTitle = computed(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 18px 16px 14px;
+  padding: 16px 14px 14px;
   border-bottom: 1px solid var(--border-line, rgba(15, 60, 90, 0.06));
   position: relative;
+  min-height: 64px;
+  box-sizing: border-box;
 }
 
 .sidebar-collapsed .sidebar-header {
-  padding: 16px 12px;
+  padding: 14px 8px;
+  flex-direction: column;
+  gap: 8px;
   justify-content: center;
 }
 
@@ -403,8 +446,11 @@ const currentTitle = computed(() => {
   border-color: #BFDBFE;
 }
 
-.sidebar-collapsed .sidebar-collapse-btn {
-  display: none;
+.sidebar-collapse-btn.btn-collapsed {
+  width: 28px;
+  height: 24px;
+  border-radius: 5px;
+  margin-top: 2px;
 }
 
 /* Sidebar Nav */
@@ -412,7 +458,7 @@ const currentTitle = computed(() => {
 .rail-nav {
   flex: 1;
   overflow-y: auto;
-  overflow-x: visible;
+  overflow-x: hidden;
   padding: 14px 10px;
   display: flex;
   flex-direction: column;
@@ -421,8 +467,9 @@ const currentTitle = computed(() => {
 }
 
 .sidebar-collapsed .sidebar-nav {
-  padding: 14px 8px;
+  padding: 14px 6px;
   gap: 8px;
+  align-items: center;
 }
 
 .sidebar-nav::-webkit-scrollbar {
@@ -438,6 +485,7 @@ const currentTitle = computed(() => {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  width: 100%;
 }
 
 .nav-group-title {
@@ -453,6 +501,7 @@ const currentTitle = computed(() => {
   display: flex;
   flex-direction: column;
   gap: 2px;
+  width: 100%;
 }
 
 .sidebar-item,
@@ -548,63 +597,6 @@ const currentTitle = computed(() => {
   font-size: 10px;
   color: var(--text-muted);
   line-height: 1.2;
-}
-
-/* Floating Tooltip when Collapsed */
-.sidebar-tooltip {
-  position: absolute;
-  left: calc(100% + 10px);
-  top: 50%;
-  transform: translateY(-50%) translateX(-4px);
-  opacity: 0;
-  pointer-events: none;
-  background: #0F1F35;
-  color: #FFFFFF;
-  padding: 6px 12px;
-  border-radius: 8px;
-  white-space: nowrap;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
-  z-index: 999;
-  transition: opacity 0.15s ease, transform 0.15s ease;
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-}
-
-[data-theme="dark"] .sidebar-tooltip {
-  background: #111827;
-  border: 1px solid rgba(125, 211, 252, 0.2);
-  color: #F8FAFC;
-}
-
-.sidebar-tooltip::before {
-  content: "";
-  position: absolute;
-  right: 100%;
-  top: 50%;
-  transform: translateY(-50%);
-  border-width: 5px;
-  border-style: solid;
-  border-color: transparent #0F1F35 transparent transparent;
-}
-
-[data-theme="dark"] .sidebar-tooltip::before {
-  border-color: transparent #111827 transparent transparent;
-}
-
-.sidebar-item:hover .sidebar-tooltip {
-  opacity: 1;
-  transform: translateY(-50%) translateX(0);
-}
-
-.tooltip-title {
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.tooltip-hint {
-  font-size: 10px;
-  color: #94A3B8;
 }
 
 /* Sidebar Footer */
@@ -896,5 +888,64 @@ const currentTitle = computed(() => {
   .pulse-dot {
     animation: none;
   }
+}
+</style>
+
+<style>
+/* Global Portal Tooltip Styling */
+.sidebar-portal-tooltip {
+  position: fixed;
+  transform: translateY(-50%);
+  pointer-events: none;
+  background: #0F1F35;
+  color: #FFFFFF;
+  padding: 6px 12px;
+  border-radius: 8px;
+  white-space: nowrap;
+  box-shadow: 0 8px 24px rgba(15, 31, 53, 0.25);
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  animation: tooltip-fade-in 0.15s ease-out;
+}
+
+[data-theme="dark"] .sidebar-portal-tooltip {
+  background: #0B132B;
+  border: 1px solid rgba(125, 211, 252, 0.25);
+  color: #F8FAFC;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.sidebar-portal-tooltip::before {
+  content: "";
+  position: absolute;
+  right: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent #0F1F35 transparent transparent;
+}
+
+[data-theme="dark"] .sidebar-portal-tooltip::before {
+  border-color: transparent #0B132B transparent transparent;
+}
+
+.sidebar-portal-tooltip .tooltip-title {
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.sidebar-portal-tooltip .tooltip-hint {
+  font-size: 10.5px;
+  color: #94A3B8;
+  line-height: 1.2;
+}
+
+@keyframes tooltip-fade-in {
+  from { opacity: 0; transform: translateY(-50%) translateX(-4px); }
+  to { opacity: 1; transform: translateY(-50%) translateX(0); }
 }
 </style>

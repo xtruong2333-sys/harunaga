@@ -11,6 +11,7 @@
       type="button"
       role="radio"
       :aria-checked="modelValue === mode.id"
+      :aria-label="mode.label || mode.title || mode.id"
       class="mode-btn"
       :class="{ 'is-active': modelValue === mode.id }"
       :title="mode.title || mode.label"
