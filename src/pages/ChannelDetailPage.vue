@@ -165,6 +165,7 @@ async function executeWithAccessKey(action: () => Promise<void>) {
     await action();
   } catch (err: any) {
     if (err instanceof AccessKeyRequiredError || err.message?.includes('access key') || err.message?.includes('Mã truy cập')) {
+      notificationMsg.value = null;
       pendingAction.value = action;
       accessKeyError.value = err.message || 'Vui lòng nhập Mã truy cập để thực hiện thao tác.';
       showAccessKeyModal.value = true;
@@ -186,9 +187,10 @@ async function onAccessKeyConfirmed(key: string) {
       showAccessKeyModal.value = false;
       accessKeyError.value = null;
     } catch (err: any) {
-      if (err instanceof AccessKeyRequiredError || err.message?.includes('access key') || err.message?.includes('Mã truy cập')) {
+      if (err instanceof AccessKeyRequiredError || err?.name === 'AccessKeyRequiredError' || err.message?.includes('access key') || err.message?.includes('Mã truy cập')) {
+        notificationMsg.value = null;
         pendingAction.value = action;
-        accessKeyError.value = 'Mã truy cập không chính xác. Vui lòng nhập lại.';
+        accessKeyError.value = err?.message || 'Mã truy cập không chính xác. Vui lòng nhập lại.';
         showAccessKeyModal.value = true;
       } else {
         pendingAction.value = null;
@@ -310,7 +312,13 @@ async function handleTriggerCollection() {
       }
       setTimeout(() => { notificationMsg.value = null; }, 6000);
     } catch (err: any) {
-      notificationMsg.value = err.message || 'Không thể quét dữ liệu.';
+      if (
+        err instanceof AccessKeyRequiredError ||
+        err?.name === 'AccessKeyRequiredError'
+      ) {
+        throw err;
+      }
+      notificationMsg.value = err?.message || 'Không thể quét dữ liệu.';
     } finally {
       isCollecting.value = false;
     }

@@ -534,11 +534,7 @@ async function handleConfirmArchive(id: string) {
 
 function handleAccessKeyRequired(action: () => Promise<any>, errorMsg?: string) {
   pendingAction = action;
-  if (errorMsg && (errorMsg.includes('không chính xác') || errorMsg.includes('truy cập') || errorMsg.includes('từ chối'))) {
-    accessKeyError.value = 'Mã truy cập không chính xác. Vui lòng nhập lại.';
-  } else {
-    accessKeyError.value = errorMsg || 'Vui lòng nhập Mã truy cập để thực hiện thao tác.';
-  }
+  accessKeyError.value = errorMsg || 'Vui lòng nhập Mã truy cập để thực hiện thao tác.';
   showAccessKeyModal.value = true;
 }
 
@@ -567,7 +563,7 @@ async function handleAccessKeyConfirmed() {
   } catch (err: any) {
     if (err instanceof AccessKeyRequiredError || err.name === 'AccessKeyRequiredError') {
       pendingAction = action;
-      accessKeyError.value = 'Mã truy cập không chính xác. Vui lòng nhập lại.';
+      accessKeyError.value = err?.message || 'Mã truy cập không chính xác. Vui lòng nhập lại.';
       showAccessKeyModal.value = true;
     } else {
       pendingAction = null;

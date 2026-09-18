@@ -1,9 +1,10 @@
-import { describe, it, expect } from 'vitest';
-import { mount } from '@vue/test-utils';
+import { describe, it, expect, vi } from 'vitest';
+import { mount, flushPromises } from '@vue/test-utils';
 import fs from 'fs';
 import path from 'path';
 
 import AppIcon from '@/components/ui/AppIcon.vue';
+import ChannelDetailPage from '@/pages/ChannelDetailPage.vue';
 import ChannelProfileHero from '@/components/channel-detail/ChannelProfileHero.vue';
 import ChannelActivityFeed from '@/components/channel-detail/ChannelActivityFeed.vue';
 import ChannelPerformanceStrip from '@/components/channel-detail/ChannelPerformanceStrip.vue';
@@ -11,6 +12,20 @@ import ChannelMonitoringConfig from '@/components/channel-detail/ChannelMonitori
 import VideoAlertContext from '@/components/video-detail/VideoAlertContext.vue';
 import VideoSignalSummary from '@/components/video-detail/VideoSignalSummary.vue';
 import VideoChannelContext from '@/components/video-detail/VideoChannelContext.vue';
+import { channelAnalysisService } from '@/services/channel-analysis-service';
+import { collectorService } from '@/services/collector-service';
+import { AccessKeyRequiredError } from '@/services/channel-service';
+import type { ChannelAnalysis } from '@/types/channel-analysis';
+
+vi.mock('vue-router', async () => {
+  const actual = await vi.importActual<any>('vue-router');
+  return {
+    ...actual,
+    useRoute: () => ({
+      params: { id: 'test-ch-1' },
+    }),
+  };
+});
 
 const routerLinkStub = {
   template: '<a><slot /></a>',
@@ -24,7 +39,7 @@ const globalStubs = {
 describe('FINAL REVIEW FIX — App Integrity & Cross-Wave Regressions', () => {
   // 1. AppIcon Audit & Dynamic Icons
   describe('1. AppIcon Global Support & Dynamic Icons', () => {
-    it('1.1 Toan bo dynamic icons duoc ho tro va render ra SVG hop le', () => {
+    it('1.1 Toàn bộ dynamic icons được hỗ trợ và render ra SVG có children', () => {
       const dynamicIcons = [
         'info',
         'send',
@@ -39,6 +54,8 @@ describe('FINAL REVIEW FIX — App Integrity & Cross-Wave Regressions', () => {
         'alert-triangle',
         'chart',
         'refresh-cw',
+        'rotate-ccw',
+        'more-vertical',
         'image',
         'shield',
         'grid',
@@ -53,50 +70,63 @@ describe('FINAL REVIEW FIX — App Integrity & Cross-Wave Regressions', () => {
         });
         const svg = wrapper.find('svg');
         expect(svg.exists()).toBe(true);
-        expect(svg.html().length).toBeGreaterThan(30);
+        expect(svg.element.childElementCount).toBeGreaterThan(0);
       }
- });
+    });
 
- it('1.2 Quet tinh tat ca icon name trong src/**/*.vue de dam bao khong icon nao render rong', () => {
- const srcDir = path.resolve(__dirname, '../src');
- const vueFiles: string[] = [];
+    it('1.2 Quét tĩnh tất cả icon name trong src/**/*.vue để đảm bảo không icon nào render rỗng', () => {
+      const srcDir = path.resolve(__dirname, '../src');
+      const vueFiles: string[] = [];
 
- function walkDir(dir: string) {
- const entries = fs.readdirSync(dir, { withFileTypes: true });
- for (const entry of entries) {
- const fullPath = path.join(dir, entry.name);
- if (entry.isDirectory()) {
- walkDir(fullPath);
- } else if (entry.name.endsWith('.vue')) {
- vueFiles.push(fullPath);
- }
- }
- }
+      function walkDir(dir: string) {
+        const entries = fs.readdirSync(dir, { withFileTypes: true });
+        for (const entry of entries) {
+          const fullPath = path.join(dir, entry.name);
+          if (entry.isDirectory()) {
+            walkDir(fullPath);
+          } else if (entry.name.endsWith('.vue')) {
+            vueFiles.push(fullPath);
+          }
+        }
+      }
 
- walkDir(srcDir);
+      walkDir(srcDir);
 
- const staticIconRegex = /<AppIcon[^>]+name=["']([a-zA-Z0-9_-]+)["']/g;
- const foundIcons = new Set<string>();
+      const staticIconRegex = /<AppIcon\b[^>]*?(?<!:)name=["']([a-zA-Z0-9_-]+)["']/g;
+      const foundIcons = new Set<string>();
 
- for (const filePath of vueFiles) {
- const content = fs.readFileSync(filePath, 'utf-8');
- let match: RegExpExecArray | null;
- while ((match = staticIconRegex.exec(content)) !== null) {
- foundIcons.add(match[1]);
- }
- }
+      for (const filePath of vueFiles) {
+        const content = fs.readFileSync(filePath, 'utf-8');
+        let match: RegExpExecArray | null;
+        while ((match = staticIconRegex.exec(content)) !== null) {
+          foundIcons.add(match[1]);
+        }
+      }
 
- expect(foundIcons.size).toBeGreaterThan(15);
+      expect(foundIcons.size).toBeGreaterThan(15);
 
- for (const icon of foundIcons) {
- const wrapper = mount(AppIcon, {
- props: { name: icon },
- });
- const svg = wrapper.find('svg');
- expect(svg.exists()).toBe(true);
- }
- });
- });
+      for (const icon of foundIcons) {
+        const wrapper = mount(AppIcon, {
+          props: { name: icon },
+        });
+        const svg = wrapper.find('svg');
+        expect(svg.exists()).toBe(true);
+        expect(
+          svg.element.childElementCount,
+          `Icon "${icon}" phải render ra child elements trong svg`
+        ).toBeGreaterThan(0);
+      }
+    });
+
+    it('1.3 Icon không tồn tại phải render svg rỗng (childElementCount === 0)', () => {
+      const wrapper = mount(AppIcon, {
+        props: { name: 'non-existent-icon-12345' },
+      });
+      const svg = wrapper.find('svg');
+      expect(svg.exists()).toBe(true);
+      expect(svg.element.childElementCount).toBe(0);
+    });
+  });
 
  // 2. App Shell Fake Status Removal
  describe('2. App Shell Clean-up — Xoa fake status va live indicator gia', () => {
@@ -440,8 +470,191 @@ describe('FINAL REVIEW FIX — App Integrity & Cross-Wave Regressions', () => {
  global: { stubs: globalStubs },
  });
 
- expect(wrapper.text()).toContain('0 VPH');
- expect(wrapper.text()).not.toContain('— VPH');
- });
- });
+    expect(wrapper.text()).toContain('0 VPH');
+    expect(wrapper.text()).not.toContain('— VPH');
+  });
+  });
+
+  // 6. Real Access Flow Integration — Collector Auth, Lock & Error Preservation
+  describe('6. Real Access Flow Integration — Collector Auth, Lock & Error Preservation', () => {
+    const mockDetailAnalysis: ChannelAnalysis = {
+      channel: {
+        id: 'test-ch-1',
+        name: 'Kênh Test Đối Thủ',
+        handle: '@kenhtest',
+        avatarUrl: '',
+        status: 'active',
+        scanLimit: 15,
+        alertVphThreshold: 5000,
+        lastScanAt: new Date().toISOString(),
+        createdAt: '2026-01-01T00:00:00Z',
+        url: 'https://youtube.com/@kenhtest',
+      },
+      totalVideos: 10,
+      risingVideos: 3,
+      maxVph: 1500,
+      avgVph: 500,
+      distribution: { overThresholdCount: 1, risingCount: 3, zeroCount: 6, nullCount: 0 },
+      topRisingVideos: [],
+      latestVideos: [],
+      topVphChartVideos: [],
+      publishingVideos: [],
+      alertSummary: { total: 0, sent: 0, pending: 0, failed: 0, recentAlerts: [] },
+    };
+
+    it('6.1 Scenario A: Khi trigger collector thieu / sai key thi mo modal, luu pendingAction va giu nguyen error', async () => {
+      vi.spyOn(channelAnalysisService, 'fetchChannelAnalysis').mockResolvedValue(mockDetailAnalysis);
+      vi.spyOn(collectorService, 'triggerCollection').mockRejectedValueOnce(
+        new AccessKeyRequiredError('Vui lòng nhập Mã truy cập để thực hiện kiểm tra dữ liệu.')
+      );
+
+      const wrapper = mount(ChannelDetailPage, {
+        global: {
+          stubs: {
+            ...globalStubs,
+            ChannelVphChart: true,
+          },
+        },
+      });
+      await flushPromises();
+
+      const collectorBtn = wrapper.find('.btn-collector');
+      expect(collectorBtn.exists()).toBe(true);
+      await collectorBtn.trigger('click');
+      await flushPromises();
+
+      const vm = wrapper.vm as any;
+      expect(vm.showAccessKeyModal).toBe(true);
+      expect(vm.pendingAction).not.toBeNull();
+      expect(vm.notificationMsg).toBeNull();
+      expect(vm.accessKeyError).toBe('Vui lòng nhập Mã truy cập để thực hiện kiểm tra dữ liệu.');
+    });
+
+    it('6.2 Scenario B: Trong luc collector dang chay thi lock UI, chong double click va giai phong sau khi resolve', async () => {
+      vi.spyOn(channelAnalysisService, 'fetchChannelAnalysis').mockResolvedValue(mockDetailAnalysis);
+      // Step 1: trigger and fail to get modal
+      vi.spyOn(collectorService, 'triggerCollection').mockRejectedValueOnce(
+        new AccessKeyRequiredError('Vui lòng nhập Mã truy cập để thực hiện kiểm tra dữ liệu.')
+      );
+
+      const wrapper = mount(ChannelDetailPage, {
+        global: {
+          stubs: {
+            ...globalStubs,
+            ChannelVphChart: true,
+          },
+        },
+      });
+      await flushPromises();
+
+      await wrapper.find('.btn-collector').trigger('click');
+      await flushPromises();
+
+      const vm = wrapper.vm as any;
+      expect(vm.showAccessKeyModal).toBe(true);
+      expect(vm.pendingAction).not.toBeNull();
+
+      // Step 2: User confirms access key with a pending collector promise
+      let resolveCollector!: (val: any) => void;
+      const collectorPromise = new Promise(res => {
+        resolveCollector = res;
+      });
+      const collectorSpy = vi.spyOn(collectorService, 'triggerCollection').mockReturnValue(collectorPromise as any);
+
+      const confirmPromise = vm.onAccessKeyConfirmed('valid_key');
+      await wrapper.vm.$nextTick();
+
+      // While pending:
+      expect(vm.isCollecting).toBe(true);
+      expect(vm.interactionLocked).toBe(true);
+      expect(wrapper.find('.btn-collector').attributes('disabled')).toBeDefined();
+
+      // Double-click suppression: second click must not trigger collection again
+      await wrapper.find('.btn-collector').trigger('click');
+      expect(collectorSpy).toHaveBeenCalledTimes(1);
+
+      // Resolve collector
+      resolveCollector({
+        success: true,
+        run: { channelsSuccess: 1, videosFound: 5 },
+      });
+      await confirmPromise;
+      await flushPromises();
+
+      // After resolve:
+      expect(vm.isCollecting).toBe(false);
+      expect(vm.pendingAction).toBeNull();
+      expect(vm.showAccessKeyModal).toBe(false);
+      expect(vm.notificationMsg).toContain('Đã quét thành công: 1 kênh, 5 video.');
+    });
+
+    it('6.3 Scenario C: Khi user nhap access key sai trong modal thi giu modal mo, giu pendingAction va giu nguyen error', async () => {
+      vi.spyOn(channelAnalysisService, 'fetchChannelAnalysis').mockResolvedValue(mockDetailAnalysis);
+      vi.spyOn(collectorService, 'triggerCollection').mockRejectedValueOnce(
+        new AccessKeyRequiredError('Vui lòng nhập Mã truy cập để thực hiện kiểm tra dữ liệu.')
+      );
+
+      const wrapper = mount(ChannelDetailPage, {
+        global: {
+          stubs: {
+            ...globalStubs,
+            ChannelVphChart: true,
+          },
+        },
+      });
+      await flushPromises();
+
+      await wrapper.find('.btn-collector').trigger('click');
+      await flushPromises();
+
+      const vm = wrapper.vm as any;
+      expect(vm.showAccessKeyModal).toBe(true);
+
+      // User enters wrong key
+      vi.spyOn(collectorService, 'triggerCollection').mockRejectedValueOnce(
+        new AccessKeyRequiredError('Mã truy cập không chính xác. Vui lòng kiểm tra lại.')
+      );
+      await vm.onAccessKeyConfirmed('wrong_key');
+      await flushPromises();
+
+      expect(vm.showAccessKeyModal).toBe(true);
+      expect(vm.pendingAction).not.toBeNull();
+      expect(vm.accessKeyError).toBe('Mã truy cập không chính xác. Vui lòng kiểm tra lại.');
+      expect(vm.notificationMsg).toBeNull();
+    });
+
+    it('6.4 Scenario D: Khi user cancel / dong modal thi reset pendingAction va accessKeyError an toan', async () => {
+      vi.spyOn(channelAnalysisService, 'fetchChannelAnalysis').mockResolvedValue(mockDetailAnalysis);
+      vi.spyOn(collectorService, 'triggerCollection').mockRejectedValueOnce(
+        new AccessKeyRequiredError('Vui lòng nhập Mã truy cập để thực hiện kiểm tra dữ liệu.')
+      );
+
+      const wrapper = mount(ChannelDetailPage, {
+        global: {
+          stubs: {
+            ...globalStubs,
+            ChannelVphChart: true,
+          },
+        },
+      });
+      await flushPromises();
+
+      await wrapper.find('.btn-collector').trigger('click');
+      await flushPromises();
+
+      const vm = wrapper.vm as any;
+      expect(vm.showAccessKeyModal).toBe(true);
+      expect(vm.pendingAction).not.toBeNull();
+      expect(vm.accessKeyError).not.toBeNull();
+
+      // User closes modal
+      vm.handleAccessModalChange(false);
+      await wrapper.vm.$nextTick();
+
+      expect(vm.showAccessKeyModal).toBe(false);
+      expect(vm.pendingAction).toBeNull();
+      expect(vm.accessKeyError).toBeNull();
+      expect(vm.interactionLocked).toBe(false);
+    });
+  });
 });

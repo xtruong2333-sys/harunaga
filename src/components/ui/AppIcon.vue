@@ -42,7 +42,7 @@
     </template>
 
     <!-- Restore -->
-    <template v-else-if="name === 'restore'">
+    <template v-else-if="name === 'restore' || name === 'rotate-ccw'">
       <polyline points="1 4 1 10 7 10" />
       <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
     </template>
@@ -60,7 +60,7 @@
     </template>
 
     <!-- More / Dots -->
-    <template v-else-if="name === 'more'">
+    <template v-else-if="name === 'more' || name === 'more-vertical'">
       <circle cx="12" cy="12" r="1" />
       <circle cx="12" cy="5" r="1" />
       <circle cx="12" cy="19" r="1" />
@@ -85,14 +85,14 @@
     </template>
 
     <!-- Alert / Warning -->
-    <template v-else-if="name === 'alert'">
+    <template v-else-if="name === 'alert' || name === 'alert-circle'">
       <circle cx="12" cy="12" r="10" />
       <line x1="12" y1="8" x2="12" y2="12" />
       <line x1="12" y1="16" x2="12.01" y2="16" />
     </template>
 
     <!-- Refresh -->
-    <template v-else-if="name === 'refresh'">
+    <template v-else-if="name === 'refresh' || name === 'refresh-cw'">
       <polyline points="23 4 23 10 17 10" />
       <polyline points="1 20 1 14 7 14" />
       <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
@@ -189,7 +189,7 @@
     </template>
 
     <!-- Bar Chart 2 (Comparison) -->
-    <template v-else-if="name === 'bar-chart-2' || name === 'compare'">
+    <template v-else-if="name === 'bar-chart-2' || name === 'compare' || name === 'chart'">
       <line x1="18" y1="20" x2="18" y2="10" />
       <line x1="12" y1="20" x2="12" y2="4" />
       <line x1="6" y1="20" x2="6" y2="14" />
