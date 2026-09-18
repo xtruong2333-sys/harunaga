@@ -35,6 +35,7 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted, onBeforeUnmount } from 'vue';
 import { Channel } from '@/types/channel';
 import AppIcon from '@/components/ui/AppIcon.vue';
 
@@ -58,6 +59,24 @@ function confirmArchive() {
   }
   closeModal();
 }
+
+function handleKeyDown(e: KeyboardEvent) {
+  if (e.key === 'Escape' && props.modelValue) {
+    closeModal();
+  }
+}
+
+onMounted(() => {
+  if (typeof document !== 'undefined') {
+    document.addEventListener('keydown', handleKeyDown);
+  }
+});
+
+onBeforeUnmount(() => {
+  if (typeof document !== 'undefined') {
+    document.removeEventListener('keydown', handleKeyDown);
+  }
+});
 </script>
 
 <style scoped>

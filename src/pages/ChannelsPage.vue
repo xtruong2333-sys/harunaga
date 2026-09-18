@@ -91,11 +91,12 @@
       <template v-else>
         <!-- 4. Filter Bar & View Mode Switcher -->
         <FilterBar
-          v-model:search="searchQuery"
+          :search="rawSearchQuery"
           search-placeholder="Tìm theo tên kênh, handle..."
           :total-count="channelStore.totalCount"
           :filtered-count="filteredChannels.length"
           :has-active-filters="hasActiveFilters"
+          @update:search="handleSearchInput"
           @clear="resetFilters"
         >
           <template #filters>
@@ -185,7 +186,7 @@
             </div>
             <div class="no-results-title">Không tìm thấy kênh phù hợp</div>
             <div class="no-results-desc">
-              Không có kênh nào khớp với từ khóa "{{ searchQuery }}" hoặc điều kiện lọc hiện tại.
+              Không có kênh nào khớp với từ khóa "{{ debouncedSearchQuery }}" hoặc điều kiện lọc hiện tại.
             </div>
             <button type="button" class="btn btn-secondary btn-sm" @click="resetFilters">
               Xóa bộ lọc
@@ -326,8 +327,20 @@ const viewModes: ViewModeItem[] = [
 
 const viewMode = ref<string>('large-grid');
 
+// Search & Debounce (180ms)
+const rawSearchQuery = ref('');
+const debouncedSearchQuery = ref('');
+let searchDebounceTimer: any = null;
+
+function handleSearchInput(val: string) {
+  rawSearchQuery.value = val;
+  if (searchDebounceTimer) clearTimeout(searchDebounceTimer);
+  searchDebounceTimer = setTimeout(() => {
+    debouncedSearchQuery.value = val;
+  }, 180);
+}
+
 // Filters & Sort
-const searchQuery = ref('');
 const currentFilter = ref<'all' | ChannelStatus | 'rising'>('all');
 const currentSort = ref<'newest' | 'name' | 'last_scan' | 'max_vph' | 'rising_count'>('newest');
 
@@ -380,7 +393,6 @@ async function loadData() {
 }
 
 onMounted(() => {
-  // Restore viewMode from localStorage if present
   if (typeof localStorage !== 'undefined') {
     const saved = localStorage.getItem('bbdt_channels_view_mode');
     if (saved && ['large-grid', 'grid', 'list', 'table'].includes(saved)) {
@@ -424,11 +436,12 @@ const maxNetworkVph = computed(() => {
 });
 
 const hasActiveFilters = computed(() => {
-  return searchQuery.value.trim() !== '' || currentFilter.value !== 'all' || currentSort.value !== 'newest';
+  return rawSearchQuery.value.trim() !== '' || currentFilter.value !== 'all' || currentSort.value !== 'newest';
 });
 
 function resetFilters() {
-  searchQuery.value = '';
+  rawSearchQuery.value = '';
+  debouncedSearchQuery.value = '';
   currentFilter.value = 'all';
   currentSort.value = 'newest';
 }
@@ -444,8 +457,8 @@ const filteredChannels = computed(() => {
     result = result.filter(c => c.status === currentFilter.value);
   }
 
-  // 2. Search query (name or handle)
-  const query = searchQuery.value.trim().toLowerCase();
+  // 2. Search query (name or handle) with debounced search
+  const query = debouncedSearchQuery.value.trim().toLowerCase();
   if (query) {
     result = result.filter(c => {
       const matchName = c.name.toLowerCase().includes(query);

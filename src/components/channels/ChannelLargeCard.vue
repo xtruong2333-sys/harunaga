@@ -4,12 +4,12 @@
     <div class="card-header">
       <router-link :to="'/kenh-theo-doi/' + channel.id" class="avatar-link" title="Xem chi tiết kênh">
         <img
-          v-if="channel.avatarUrl"
+          v-if="channel.avatarUrl && !imgError"
           :src="channel.avatarUrl"
           :alt="channel.name"
           class="channel-avatar"
           loading="lazy"
-          @error="handleImgError"
+          @error="imgError = true"
         />
         <div v-else class="avatar-fallback">
           {{ (channel.name || 'C').charAt(0).toUpperCase() }}
@@ -60,8 +60,10 @@
     <!-- Body: Inline Micro-Metrics -->
     <div class="card-metrics-box">
       <div class="metric-col">
-        <div class="m-val mono">{{ channel.totalVideos !== undefined ? channel.totalVideos : channel.scanLimit }}</div>
-        <div class="m-lbl">VIDEO</div>
+        <div class="m-val mono">
+          {{ channel.totalVideos !== undefined && channel.totalVideos !== null ? formatNumber(channel.totalVideos) : '—' }}
+        </div>
+        <div class="m-lbl">TỔNG VIDEO</div>
       </div>
 
       <div class="metric-sep"></div>
@@ -81,18 +83,18 @@
       </div>
     </div>
 
-    <!-- Mini Signal Bar if rising videos exist -->
+    <!-- Real Ratio Signal Bar based on risingVideoCount / totalVideos -->
     <div class="signal-bar-wrap">
       <div class="signal-bar-meta">
-        <span class="sig-label">Tín hiệu bứt phá</span>
+        <span class="sig-label">Tỷ lệ video đang tăng</span>
         <span class="sig-val mono">
-          {{ channel.risingVideoCount ? `${channel.risingVideoCount} video` : 'Chưa có' }}
+          {{ risingRatioDisplay }}
         </span>
       </div>
       <div class="sig-track">
         <div
           class="sig-fill"
-          :style="{ width: `${Math.min(100, (channel.risingVideoCount || 0) * 20)}%` }"
+          :style="{ width: `${risingRatioPercent}%` }"
         ></div>
       </div>
     </div>
@@ -113,12 +115,13 @@
 </template>
 
 <script setup lang="ts">
+import { ref, computed } from 'vue';
 import { Channel } from '@/types/channel';
 import AppIcon from '@/components/ui/AppIcon.vue';
 import ChannelStatusBadge from '@/components/channels/ChannelStatusBadge.vue';
 import ChannelActionsMenu from '@/components/channels/ChannelActionsMenu.vue';
 
-defineProps<{
+const props = defineProps<{
   channel: Channel;
 }>();
 
@@ -130,10 +133,24 @@ defineEmits<{
   (e: 'restore', id: string): void;
 }>();
 
-function handleImgError(e: Event) {
-  const target = e.target as HTMLImageElement;
-  target.style.display = 'none';
-}
+const imgError = ref(false);
+
+const risingRatioPercent = computed(() => {
+  const total = props.channel.totalVideos || 0;
+  const rising = props.channel.risingVideoCount || 0;
+  if (total <= 0) return 0;
+  return Math.min(100, Math.round((rising / total) * 100));
+});
+
+const risingRatioDisplay = computed(() => {
+  const total = props.channel.totalVideos;
+  const rising = props.channel.risingVideoCount || 0;
+  if (total === undefined || total === null || total <= 0) {
+    return rising > 0 ? `${rising} video` : '—';
+  }
+  const pct = Math.round((rising / total) * 100);
+  return `${pct}% (${rising} / ${total})`;
+});
 
 function formatNumber(num: number): string {
   if (num === null || num === undefined) return '0';

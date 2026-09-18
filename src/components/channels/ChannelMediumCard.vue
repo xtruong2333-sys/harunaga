@@ -3,12 +3,12 @@
     <div class="med-top">
       <router-link :to="'/kenh-theo-doi/' + channel.id" class="avatar-link">
         <img
-          v-if="channel.avatarUrl"
+          v-if="channel.avatarUrl && !imgError"
           :src="channel.avatarUrl"
           :alt="channel.name"
           class="med-avatar"
           loading="lazy"
-          @error="handleImgError"
+          @error="imgError = true"
         />
         <div v-else class="med-avatar-fallback">
           {{ (channel.name || 'C').charAt(0).toUpperCase() }}
@@ -51,6 +51,7 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue';
 import { Channel } from '@/types/channel';
 import ChannelStatusBadge from '@/components/channels/ChannelStatusBadge.vue';
 import ChannelActionsMenu from '@/components/channels/ChannelActionsMenu.vue';
@@ -67,10 +68,7 @@ defineEmits<{
   (e: 'restore', id: string): void;
 }>();
 
-function handleImgError(e: Event) {
-  const target = e.target as HTMLImageElement;
-  target.style.display = 'none';
-}
+const imgError = ref(false);
 
 function formatNumber(num: number): string {
   if (num === null || num === undefined) return '0';

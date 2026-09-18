@@ -25,12 +25,12 @@
               <div class="table-chan-cell">
                 <router-link :to="'/kenh-theo-doi/' + ch.id" class="table-avatar-link">
                   <img
-                    v-if="ch.avatarUrl"
+                    v-if="ch.avatarUrl && !tableImgErrors[ch.id]"
                     :src="ch.avatarUrl"
                     :alt="ch.name"
                     class="table-avatar"
                     loading="lazy"
-                    @error="handleImgError"
+                    @error="tableImgErrors[ch.id] = true"
                   />
                   <div v-else class="table-avatar-fallback">
                     {{ (ch.name || 'C').charAt(0).toUpperCase() }}
@@ -65,7 +65,7 @@
 
             <!-- Videos -->
             <td class="col-videos mono">
-              {{ ch.totalVideos !== undefined ? ch.totalVideos : ch.scanLimit }}
+              {{ ch.totalVideos !== undefined && ch.totalVideos !== null ? formatNumber(ch.totalVideos) : '—' }}
             </td>
 
             <!-- Rising Videos -->
@@ -108,6 +108,7 @@
 </template>
 
 <script setup lang="ts">
+import { reactive } from 'vue';
 import { Channel } from '@/types/channel';
 import AppIcon from '@/components/ui/AppIcon.vue';
 import ChannelStatusBadge from '@/components/channels/ChannelStatusBadge.vue';
@@ -125,10 +126,7 @@ defineEmits<{
   (e: 'restore', id: string): void;
 }>();
 
-function handleImgError(e: Event) {
-  const target = e.target as HTMLImageElement;
-  target.style.display = 'none';
-}
+const tableImgErrors = reactive<Record<string, boolean>>({});
 
 function formatNumber(num: number): string {
   if (num === null || num === undefined) return '0';

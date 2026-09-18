@@ -3,12 +3,12 @@
     <div class="row-channel-info">
       <router-link :to="'/kenh-theo-doi/' + channel.id" class="row-avatar-link">
         <img
-          v-if="channel.avatarUrl"
+          v-if="channel.avatarUrl && !imgError"
           :src="channel.avatarUrl"
           :alt="channel.name"
           class="row-avatar"
           loading="lazy"
-          @error="handleImgError"
+          @error="imgError = true"
         />
         <div v-else class="row-avatar-fallback">
           {{ (channel.name || 'C').charAt(0).toUpperCase() }}
@@ -42,7 +42,7 @@
     <div class="row-metrics-col">
       <div class="metric-item">
         <span class="m-title">Video:</span>
-        <span class="mono">{{ channel.totalVideos !== undefined ? channel.totalVideos : channel.scanLimit }}</span>
+        <span class="mono">{{ channel.totalVideos !== undefined && channel.totalVideos !== null ? formatNumber(channel.totalVideos) : '—' }}</span>
       </div>
       <div class="metric-item">
         <span class="m-title">Đang tăng:</span>
@@ -74,6 +74,7 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue';
 import { Channel } from '@/types/channel';
 import AppIcon from '@/components/ui/AppIcon.vue';
 import ChannelStatusBadge from '@/components/channels/ChannelStatusBadge.vue';
@@ -91,10 +92,7 @@ defineEmits<{
   (e: 'restore', id: string): void;
 }>();
 
-function handleImgError(e: Event) {
-  const target = e.target as HTMLImageElement;
-  target.style.display = 'none';
-}
+const imgError = ref(false);
 
 function formatNumber(num: number): string {
   if (num === null || num === undefined) return '0';

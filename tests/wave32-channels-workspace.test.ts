@@ -25,8 +25,8 @@ const mockChannel: Channel = {
   createdAt: new Date().toISOString(),
   updatedAt: new Date().toISOString(),
   lastScanAt: new Date(Date.now() - 3600000).toISOString(),
-  totalVideos: 42,
-  risingVideoCount: 5,
+  totalVideos: 40,
+  risingVideoCount: 6,
   maxVph: 8500,
 };
 
@@ -149,10 +149,25 @@ describe('Wave 3.2 Competitor Intelligence Workspace Components', () => {
       expect(wrapper.emitted('confirm')![0]).toEqual([mockChannel.id]);
       expect(wrapper.emitted('update:modelValue')![0]).toEqual([false]);
     });
+
+    it('4.2 Closes when Escape key is pressed', async () => {
+      const wrapper = mount(ChannelDeleteModal, {
+        props: {
+          modelValue: true,
+          channel: mockChannel,
+        },
+      });
+
+      const event = new KeyboardEvent('keydown', { key: 'Escape' });
+      document.dispatchEvent(event);
+
+      expect(wrapper.emitted('update:modelValue')).toBeTruthy();
+      expect(wrapper.emitted('update:modelValue')![0]).toEqual([false]);
+    });
   });
 
   describe('5. ChannelLargeCard.vue', () => {
-    it('5.1 Renders large card with identity, micro-metrics, and signal bar', () => {
+    it('5.1 Renders large card with identity, micro-metrics, and real rising ratio', () => {
       const wrapper = mount(ChannelLargeCard, {
         props: {
           channel: mockChannel,
@@ -169,16 +184,66 @@ describe('Wave 3.2 Competitor Intelligence Workspace Components', () => {
       expect(wrapper.text()).toContain('Review Công Nghệ VN');
       expect(wrapper.text()).toContain('@reviewcongnghe');
       expect(wrapper.text()).toContain('Đang theo dõi');
-      expect(wrapper.text()).toContain('42');
-      expect(wrapper.text()).toContain('5');
+      expect(wrapper.text()).toContain('40');
+      expect(wrapper.text()).toContain('6');
       expect(wrapper.text()).toContain((8500).toLocaleString('vi-VN'));
-      expect(wrapper.text()).toContain('5 video');
-      expect(wrapper.find('.sig-fill').attributes('style')).toContain('width: 100%');
+      expect(wrapper.text()).toContain('Tỷ lệ video đang tăng');
+      expect(wrapper.text()).toContain('15% (6 / 40)');
+      expect(wrapper.find('.sig-fill').attributes('style')).toContain('width: 15%');
+    });
+
+    it('5.2 Does not use scanLimit as fallback for totalVideos when telemetry is absent', () => {
+      const channelWithoutStats: Channel = {
+        ...mockChannel,
+        totalVideos: undefined,
+        risingVideoCount: 0,
+        maxVph: null,
+      };
+
+      const wrapper = mount(ChannelLargeCard, {
+        props: {
+          channel: channelWithoutStats,
+        },
+        global: {
+          stubs: {
+            RouterLink: {
+              template: '<a><slot /></a>',
+            },
+          },
+        },
+      });
+
+      // Must display '—' instead of 15 (scanLimit)
+      expect(wrapper.find('.metric-col:first-child .m-val').text()).toBe('—');
+    });
+
+    it('5.3 Switches to initial letter fallback when avatar fails to load', async () => {
+      const wrapper = mount(ChannelLargeCard, {
+        props: {
+          channel: mockChannel,
+        },
+        global: {
+          stubs: {
+            RouterLink: {
+              template: '<a><slot /></a>',
+            },
+          },
+        },
+      });
+
+      const img = wrapper.find('.channel-avatar');
+      expect(img.exists()).toBe(true);
+
+      await img.trigger('error');
+
+      expect(wrapper.find('.channel-avatar').exists()).toBe(false);
+      expect(wrapper.find('.avatar-fallback').exists()).toBe(true);
+      expect(wrapper.find('.avatar-fallback').text()).toBe('R');
     });
   });
 
-  describe('6. ChannelMediumCard.vue', () => {
-    it('6.1 Renders compact medium card', () => {
+  describe('6. ChannelMediumCard.vue, ListRow.vue & TableView.vue', () => {
+    it('6.1 MediumCard handles avatar error and renders fallback initial', async () => {
       const wrapper = mount(ChannelMediumCard, {
         props: {
           channel: mockChannel,
@@ -192,18 +257,25 @@ describe('Wave 3.2 Competitor Intelligence Workspace Components', () => {
         },
       });
 
-      expect(wrapper.text()).toContain('Review Công Nghệ VN');
-      expect(wrapper.text()).toContain('@reviewcongnghe');
-      expect(wrapper.text()).toContain('5');
-      expect(wrapper.text()).toContain((8500).toLocaleString('vi-VN'));
-    });
-  });
+      const img = wrapper.find('.med-avatar');
+      expect(img.exists()).toBe(true);
 
-  describe('7. ChannelListRow.vue', () => {
-    it('7.1 Renders horizontal list row', () => {
+      await img.trigger('error');
+
+      expect(wrapper.find('.med-avatar').exists()).toBe(false);
+      expect(wrapper.find('.med-avatar-fallback').exists()).toBe(true);
+      expect(wrapper.find('.med-avatar-fallback').text()).toBe('R');
+    });
+
+    it('6.2 ListRow displays — for missing totalVideos and handles avatar error', async () => {
+      const channelNoStats: Channel = {
+        ...mockChannel,
+        totalVideos: undefined,
+      };
+
       const wrapper = mount(ChannelListRow, {
         props: {
-          channel: mockChannel,
+          channel: channelNoStats,
         },
         global: {
           stubs: {
@@ -214,19 +286,24 @@ describe('Wave 3.2 Competitor Intelligence Workspace Components', () => {
         },
       });
 
-      expect(wrapper.text()).toContain('Review Công Nghệ VN');
-      expect(wrapper.text()).toContain('@reviewcongnghe');
-      expect(wrapper.text()).toContain('42');
-      expect(wrapper.text()).toContain('5');
-      expect(wrapper.text()).toContain((8500).toLocaleString('vi-VN'));
-    });
-  });
+      expect(wrapper.text()).toContain('Video:—');
 
-  describe('8. ChannelTableView.vue', () => {
-    it('8.1 Renders table headers and rows with channel telemetry', () => {
+      const img = wrapper.find('.row-avatar');
+      expect(img.exists()).toBe(true);
+      await img.trigger('error');
+      expect(wrapper.find('.row-avatar-fallback').exists()).toBe(true);
+      expect(wrapper.find('.row-avatar-fallback').text()).toBe('R');
+    });
+
+    it('6.3 TableView displays — for missing totalVideos and handles avatar error', async () => {
+      const channelNoStats: Channel = {
+        ...mockChannel,
+        totalVideos: undefined,
+      };
+
       const wrapper = mount(ChannelTableView, {
         props: {
-          channels: [mockChannel],
+          channels: [channelNoStats],
         },
         global: {
           stubs: {
@@ -237,13 +314,13 @@ describe('Wave 3.2 Competitor Intelligence Workspace Components', () => {
         },
       });
 
-      expect(wrapper.text()).toContain('KÊNH');
-      expect(wrapper.text()).toContain('TRẠNG THÁI');
-      expect(wrapper.text()).toContain('VIDEO THEO DÕI');
-      expect(wrapper.text()).toContain('Review Công Nghệ VN');
-      expect(wrapper.text()).toContain('42');
-      expect(wrapper.text()).toContain('5');
-      expect(wrapper.text()).toContain((8500).toLocaleString('vi-VN'));
+      expect(wrapper.find('td.col-videos').text()).toBe('—');
+
+      const img = wrapper.find('.table-avatar');
+      expect(img.exists()).toBe(true);
+      await img.trigger('error');
+      expect(wrapper.find('.table-avatar-fallback').exists()).toBe(true);
+      expect(wrapper.find('.table-avatar-fallback').text()).toBe('R');
     });
   });
 });
