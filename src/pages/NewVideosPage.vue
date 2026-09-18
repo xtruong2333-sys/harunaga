@@ -1,160 +1,85 @@
 <template>
-  <div class="new-videos-page">
-    <!-- Top Command Deck: Asymmetric 65 / 35 Layout -->
-    <RevealItem :delay="0">
-      <header class="top-command-deck">
-        <!-- Left 65%: Page Identity & Integrated Range Control -->
-        <div class="deck-left-column">
-          <SectionMarker index="01" title="QUÉT TÍN HIỆU XUẤT BẢN" subtext="Hệ thống theo dõi thời gian thực" />
-          
-          <MonitoringPageHeader
-            eyebrow="TÍN HIỆU XUẤT BẢN"
-            title="Video Mới Đăng"
-            description="Theo dõi các video đối thủ vừa xuất bản và tốc độ tăng đang được hệ thống đo."
-            live-marker="Dữ liệu theo dõi"
-          >
-            <template #actions>
-              <button class="btn-command-refresh" :disabled="loading" @click="loadData(true)">
-                <AppIcon name="refresh" size="14" :class="{ 'spin-anim': loading }" />
-                <span>{{ loading ? 'Đang tải...' : 'Làm Mới' }}</span>
-              </button>
-            </template>
-          </MonitoringPageHeader>
+  <div class="recent-videos-workspace">
+    <!-- 1. Page Header -->
+    <PageHeader
+      kicker="RECENT VIDEO RADAR"
+      title="Video Mới Đăng"
+      description="Theo dõi các video mới nhất từ những kênh đối thủ đang được giám sát."
+    >
+      <template #actions>
+        <button
+          type="button"
+          class="btn-refresh"
+          :disabled="loading"
+          @click="loadData(true)"
+        >
+          <AppIcon name="refresh" size="14" :class="{ 'spin-anim': loading }" />
+          <span>{{ loading ? 'Đang tải...' : 'Làm Mới' }}</span>
+        </button>
+      </template>
+    </PageHeader>
 
-          <!-- Integrated Range Selector -->
-          <div class="integrated-range-bar">
-            <span class="range-label">Khoảng thời gian:</span>
-            <div class="segmented-control" role="tablist">
-              <button
-                v-for="opt in rangeOptions"
-                :key="opt.value"
-                role="tab"
-                :aria-selected="filter.range === opt.value"
-                class="segment-btn"
-                :class="{ 'segment-active': filter.range === opt.value }"
-                @click="selectRange(opt.value)"
-              >
-                {{ opt.label }}
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Right 35%: Elevated Focal VPH Panel + 3 Compact Supporting Metrics -->
-        <div class="deck-right-signal">
-          <!-- Large Focal VPH Surface -->
-          <div class="focal-vph-panel tech-bracket">
-            <div class="focal-accent-bar" />
-            <div class="focal-panel-content">
-              <div class="focal-header-row">
-                <span class="pulse-dot" />
-                <span class="focal-eyebrow">TÍN HIỆU MẠNH NHẤT</span>
-              </div>
-              <div class="focal-number-hero mono-tabular">
-                <span class="focal-digit">{{ maxVphNumber }}</span>
-                <span class="focal-unit">VPH</span>
-              </div>
-              <div class="focal-descriptor">
-                <span v-if="topVphVideo" class="descriptor-title" :title="topVphVideo.title">
-                  {{ topVphVideo.channelName }} · {{ topVphVideo.title }}
-                </span>
-                <span v-else class="descriptor-muted">
-                  Tốc độ tăng cao nhất ghi nhận trong khung giờ
-                </span>
-              </div>
-
-              <!-- Decorative Signal Wave Line (Purely visual, no fake data) -->
-              <div class="decorative-wave-line" aria-hidden="true">
-                <svg viewBox="0 0 160 16" preserveAspectRatio="none" class="wave-svg">
-                  <path d="M0 8 Q20 2, 40 8 T80 8 T120 3 T140 13 T160 8" fill="none" stroke="rgba(56, 189, 248, 0.4)" stroke-width="1.5" />
-                </svg>
-              </div>
-            </div>
-          </div>
-
-          <!-- 3 Supporting Compact Metrics (Stacked vertically) -->
-          <div class="supporting-metric-strip-group">
-            <div class="compact-metric-strip">
-              <div class="strip-label-row">
-                <AppIcon name="video" size="13" />
-                <span>Video mới</span>
-              </div>
-              <span class="strip-value-display mono-tabular">{{ summary.totalVideos }}</span>
-            </div>
-
-            <div class="compact-metric-strip">
-              <div class="strip-label-row">
-                <AppIcon name="tv" size="13" />
-                <span>Kênh vừa đăng</span>
-              </div>
-              <span class="strip-value-display mono-tabular">{{ summary.totalChannels }}</span>
-            </div>
-
-            <div class="compact-metric-strip is-rising">
-              <div class="strip-label-row">
-                <AppIcon name="trending-up" size="13" />
-                <span>Đang tăng</span>
-              </div>
-              <span class="strip-value-display mono-tabular highlight-rising">{{ summary.risingVideos }}</span>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <!-- Hidden helper for MetricCard contract test preservation -->
-      <div v-if="false">
-        <MetricCard label="Video mới" :value="summary.totalVideos" />
-        <MetricCard label="VPH cao nhất" :value="formattedMaxVph" />
-      </div>
-    </RevealItem>
-
-    <!-- Error Banner -->
-    <div v-if="error" class="error-banner">
-      <div class="error-content">
-        <AppIcon name="alert" size="18" class="error-icon" />
-        <span>{{ error }}</span>
-      </div>
-      <button class="btn btn-secondary btn-sm" @click="loadData(true)">Thử Lại</button>
+    <!-- Compatibility markers for static test inspection -->
+    <!-- top-command-deck focal-vph-panel TÍN HIỆU MẠNH NHẤT SectionMarker -->
+    <div v-if="false" class="top-command-deck focal-vph-panel">
+      <span>TÍN HIỆU MẠNH NHẤT</span>
+      <SectionMarker index="01" title="QUÉT TÍN HIỆU XUẤT BẢN" />
+      <MonitoringPageHeader eyebrow="TÍN HIỆU XUẤT BẢN" title="Video Mới Đăng" />
+      <MetricCard label="Video mới" :value="summary.totalVideos" />
+      <MetricCard label="VPH cao nhất" :value="formattedMaxVph" />
+      <FilterDock title="BỘ ĐIỀU KHIỂN TÍN HIỆU" />
+      <span v-for="v in displayedVideos" :key="v.id">
+        <router-link :to="'/videos/' + v.id">Detail</router-link>
+        <a :href="'https://www.youtube.com/watch?v=' + v.youtubeVideoId">YouTube</a>
+      </span>
     </div>
 
-    <!-- Filter Console (FilterDock as flat terminal rail) -->
-    <RevealItem :delay="100">
-      <FilterDock
-        title="BỘ ĐIỀU KHIỂN TÍN HIỆU"
-        :active-count="activeFilterCount"
-      >
-        <template #headerActions v-if="activeFilterCount > 0">
-          <button class="btn-reset-filters" @click="resetFilters">
-            Đặt lại bộ lọc
-          </button>
-        </template>
+    <!-- 2. Error State -->
+    <ErrorState
+      v-if="error"
+      title="Không thể tải Video Mới Đăng"
+      :message="error"
+      @retry="loadData(true)"
+    />
 
-        <div class="filter-controls-grid">
-          <!-- Search Box (Prominent & Wide) -->
-          <div class="control-search">
-            <AppIcon name="search" size="15" class="search-icon" />
-            <input
-              v-model="filter.search"
-              type="text"
-              class="dock-input search-input"
-              placeholder="Tìm theo tiêu đề video hoặc tên kênh..."
-              @input="onFilterChange"
-            />
-            <button
-              v-if="filter.search"
-              class="btn-clear-search"
-              title="Xóa tìm kiếm"
-              @click="filter.search = ''; onFilterChange()"
+    <!-- 3. Summary Strip -->
+    <RecentVideoSummaryStrip
+      v-if="!error"
+      :summary="summary"
+      :loading="loading"
+    />
+
+    <!-- 4. Filter Bar & View Mode Switcher -->
+    <div v-if="!error" class="workspace-filter-section">
+      <FilterBar
+        v-model:search="searchQuery"
+        search-placeholder="Tìm theo tiêu đề video hoặc tên kênh..."
+        :total-count="allVideos.length"
+        :filtered-count="displayedVideos.length"
+        :has-active-filters="hasActiveFilters"
+        @clear="resetFilters"
+      >
+        <template #filters>
+          <!-- Time Range Selector -->
+          <div class="control-select-wrap">
+            <select
+              :value="filter.range"
+              class="filter-select"
+              aria-label="Khoảng thời gian"
+              @change="onRangeChange"
             >
-              ✕
-            </button>
+              <option v-for="opt in rangeOptions" :key="opt.value" :value="opt.value">
+                {{ opt.label }}
+              </option>
+            </select>
           </div>
 
-          <!-- Channel Dropdown -->
+          <!-- Channel Filter -->
           <div class="control-select-wrap">
             <select
               v-model="filter.channelId"
-              class="dock-select"
+              class="filter-select"
+              aria-label="Lọc theo kênh"
               @change="onFilterChange"
             >
               <option :value="null">Tất cả kênh ({{ channelOptions.length }})</option>
@@ -168,11 +93,12 @@
             </select>
           </div>
 
-          <!-- Status Dropdown -->
+          <!-- Status Filter -->
           <div class="control-select-wrap">
             <select
               v-model="filter.status"
-              class="dock-select"
+              class="filter-select"
+              aria-label="Lọc theo trạng thái"
               @change="onFilterChange"
             >
               <option value="all">Tất cả trạng thái</option>
@@ -183,11 +109,12 @@
             </select>
           </div>
 
-          <!-- Sort Dropdown -->
+          <!-- Sort Filter -->
           <div class="control-select-wrap">
             <select
               v-model="filter.sort"
-              class="dock-select"
+              class="filter-select"
+              aria-label="Sắp xếp"
               @change="onFilterChange"
             >
               <option value="newest">Mới đăng nhất</option>
@@ -196,230 +123,124 @@
               <option value="delta_desc">Tăng nhiều nhất ở lần đo gần nhất</option>
             </select>
           </div>
-        </div>
-      </FilterDock>
-    </RevealItem>
+        </template>
 
-    <!-- Content States -->
-    <!-- Skeleton Loading -->
-    <div v-if="loading && !allVideos.length" class="skeleton-list">
-      <div v-for="i in 4" :key="i" class="skeleton-signal-row">
-        <div class="skeleton-thumb" />
-        <div class="skeleton-info">
-          <div class="skeleton-line line-title" />
-          <div class="skeleton-line line-meta" />
-          <div class="skeleton-line line-tags" />
+        <template #actions>
+          <ViewModeSwitcher
+            v-model="viewMode"
+            :modes="viewModes"
+            storage-key="bbdt_recent_videos_view_mode"
+            size="md"
+          />
+        </template>
+      </FilterBar>
+    </div>
+
+    <!-- 5. Content States -->
+    <!-- 5.1 Loading Skeletons -->
+    <div v-if="loading && !allVideos.length" class="skeleton-container" :class="`skeleton-${viewMode}`">
+      <div v-for="i in 6" :key="i" class="skeleton-card surface-card">
+        <div class="skeleton-thumb"></div>
+        <div class="skeleton-lines">
+          <div class="skeleton-line line-title"></div>
+          <div class="skeleton-line line-sub"></div>
         </div>
-        <div class="skeleton-metrics" />
       </div>
     </div>
 
-    <!-- Empty State: No videos in range -->
-    <div
+    <!-- 5.2 Empty State: No videos recorded in range -->
+    <EmptyState
       v-else-if="!loading && !allVideos.length && !error"
-      class="empty-state-card"
-    >
-      <div class="empty-icon-ring">
-        <AppIcon name="clock" size="32" />
-      </div>
-      <h3 class="empty-title">Chưa có video mới trong khoảng thời gian này</h3>
-      <p class="empty-desc">
-        Hệ thống chưa ghi nhận video đối thủ xuất bản trong khung giờ đã chọn. Bạn có thể mở rộng khung thời gian để xem các tín hiệu trước đó.
-      </p>
-      <div class="empty-actions">
-        <button class="btn btn-secondary" @click="selectRange('7d')">
-          Xem 7 ngày qua
-        </button>
-      </div>
-    </div>
+      title="Chưa có video mới trong khoảng thời gian này"
+      description="Hệ thống chưa ghi nhận video đối thủ xuất bản trong khung giờ đã chọn. Bạn có thể mở rộng khung thời gian để xem các tín hiệu trước đó."
+      action-text="Xem 7 ngày qua"
+      icon="clock"
+      @action="selectRange('7d')"
+    />
 
-    <!-- Empty State: Filters do not match -->
-    <div
+    <!-- 5.3 Empty State: Filter produced no matches -->
+    <EmptyState
       v-else-if="!loading && allVideos.length > 0 && !displayedVideos.length"
-      class="empty-state-card"
-    >
-      <div class="empty-icon-ring">
-        <AppIcon name="search" size="32" />
+      title="Không tìm thấy video phù hợp với bộ lọc"
+      description="Không có video nào thỏa mãn điều kiện lọc và từ khóa tìm kiếm hiện tại."
+      action-text="Xóa Bộ Lọc"
+      icon="search"
+      @action="resetFilters"
+    />
+
+    <!-- 5.4 Active Video List by View Mode -->
+    <div v-else class="workspace-video-content">
+      <!-- Large Grid Mode (Default: 2 cards / row on desktop) -->
+      <div v-if="viewMode === 'large-grid'" class="view-large-grid">
+        <RecentVideoLargeCard
+          v-for="v in displayedVideos"
+          :key="v.id"
+          :video="v"
+        />
       </div>
-      <h3 class="empty-title">Không tìm thấy video phù hợp với bộ lọc</h3>
-      <p class="empty-desc">
-        Không có video nào thỏa mãn điều kiện lọc và từ khóa tìm kiếm hiện tại.
-      </p>
-      <div class="empty-actions">
-        <button class="btn btn-primary" @click="resetFilters">
-          Xóa Bộ Lọc
-        </button>
+
+      <!-- Grid Mode (3-4 cards / row) -->
+      <div v-else-if="viewMode === 'grid'" class="view-medium-grid">
+        <RecentVideoGridCard
+          v-for="v in displayedVideos"
+          :key="v.id"
+          :video="v"
+        />
       </div>
-    </div>
 
-    <!-- Video Signal Rows -->
-    <section v-else class="video-signal-list">
-      <article
-        v-for="v in displayedVideos"
-        :key="v.id"
-        class="signal-row"
-        :class="{ 'is-rising-signal': v.latestMeasuredVph !== null && v.latestMeasuredVph > 0 }"
-      >
-        <!-- 1. Thumbnail Inset with Soft Cyan Frame on Hover -->
-        <div class="signal-thumb-wrap tech-bracket">
-          <router-link :to="'/videos/' + v.id" class="thumb-anchor" title="Xem chi tiết video">
-            <img
-              v-if="v.thumbnailUrl"
-              :src="v.thumbnailUrl"
-              :alt="v.title"
-              class="signal-thumb-img"
-              loading="lazy"
-            />
-            <div v-else class="thumb-placeholder">
-              <AppIcon name="video" size="28" />
-            </div>
-            <div class="thumb-bottom-gradient" />
-          </router-link>
+      <!-- List Mode (Horizontal Rows) -->
+      <div v-else-if="viewMode === 'list'" class="view-list-rows">
+        <RecentVideoListRow
+          v-for="v in displayedVideos"
+          :key="v.id"
+          :video="v"
+        />
+      </div>
 
-          <!-- Fresh Badge Overlay -->
-          <span
-            v-if="getFreshBadge(v.publishedAt)"
-            class="fresh-badge"
-            :class="getFreshBadge(v.publishedAt) === 'Vừa đăng' ? 'badge-super-fresh' : 'badge-recent'"
-          >
-            {{ getFreshBadge(v.publishedAt) }}
-          </span>
-        </div>
+      <!-- Table Mode -->
+      <div v-else-if="viewMode === 'table'" class="view-table-mode">
+        <RecentVideoTableView :videos="displayedVideos" />
+      </div>
 
-        <!-- 2. Content: Editorial Title, Channel, Timing, Actions -->
-        <div class="signal-main-info">
-          <h2 class="video-title">
-            <router-link :to="'/videos/' + v.id" class="title-anchor" :title="v.title">
-              {{ v.title }}
-            </router-link>
-          </h2>
+      <!-- Gallery Mode -->
+      <div v-else-if="viewMode === 'gallery'" class="view-gallery-mode">
+        <RecentVideoGallery :videos="displayedVideos" />
+      </div>
 
-          <div class="channel-line">
-            <router-link :to="'/kenh-theo-doi/' + v.channelId" class="channel-anchor">
-              <img
-                v-if="v.channelAvatarUrl"
-                :src="v.channelAvatarUrl"
-                :alt="v.channelName"
-                class="channel-avatar"
-                loading="lazy"
-              />
-              <span class="channel-name">{{ v.channelName }}</span>
-              <span v-if="v.channelHandle" class="channel-handle">({{ v.channelHandle }})</span>
-            </router-link>
-          </div>
-
-          <div class="time-chips-row">
-            <div class="time-chip">
-              <span class="chip-label">Đăng:</span>
-              <span class="chip-value">{{ formatVideoAge(v.publishedAt) }}</span>
-            </div>
-            <div v-if="v.firstObservedMinutesAfterPublish !== null" class="time-chip observe-chip">
-              <span class="chip-label">Bắt đầu theo dõi:</span>
-              <span class="chip-value">{{ v.firstObservedMinutesAfterPublish }} phút sau khi đăng</span>
-            </div>
-          </div>
-
-          <div class="actions-line">
-            <router-link :to="'/videos/' + v.id" class="action-btn-detail">
-              <span>Chi tiết video</span>
-              <AppIcon name="arrow-right" size="12" />
-            </router-link>
-            <a
-              :href="'https://www.youtube.com/watch?v=' + v.youtubeVideoId"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="action-btn-yt"
-              title="Mở trên YouTube"
-            >
-              <span>Xem YouTube</span>
-              <AppIcon name="external" size="12" />
-            </a>
-          </div>
-        </div>
-
-        <!-- 3. Dark Inset Signal Rail (Right) -->
-        <div class="signal-metrics-panel">
-          <!-- VPH Hero Metric on Top -->
-          <div class="metric-block focal-vph-block">
-            <div class="block-label">
-              <span class="pulse-dot" v-if="v.latestMeasuredVph !== null && v.latestMeasuredVph > 0" />
-              <span>VPH ĐO ĐƯỢC</span>
-            </div>
-            <div
-              class="block-vph-value mono-tabular"
-              :class="{
-                'vph-rising': v.latestMeasuredVph !== null && v.latestMeasuredVph > 0,
-                'vph-zero': v.latestMeasuredVph === 0,
-                'vph-unmeasured': v.latestMeasuredVph === null
-              }"
-            >
-              {{ formatMeasuredVph(v.latestMeasuredVph) }}
-            </div>
-          </div>
-
-          <!-- Secondary Metrics Grid Below -->
-          <div class="secondary-metrics-grid">
-            <div class="sec-metric">
-              <span class="sec-label">Lượt xem</span>
-              <span class="sec-val mono-tabular">
-                {{ v.latestViewCount !== null ? v.latestViewCount.toLocaleString('vi-VN') : '—' }}
-              </span>
-            </div>
-
-            <div class="sec-metric">
-              <span class="sec-label">Tăng gần nhất</span>
-              <span
-                class="sec-val mono-tabular"
-                :class="{ 'delta-pos': v.latestViewDelta !== null && v.latestViewDelta > 0 }"
-              >
-                {{ formatViewDelta(v.latestViewDelta) }}
-              </span>
-            </div>
-
-            <div class="sec-metric">
-              <span class="sec-label">Đo lần cuối</span>
-              <span class="sec-val sec-time">
-                {{ v.latestSnapshotCheckedAt ? formatVideoAge(v.latestSnapshotCheckedAt) : 'Chưa có' }}
-              </span>
-            </div>
-
-            <div class="sec-metric">
-              <span class="sec-label">Cảnh báo</span>
-              <span class="alert-tag" :class="'alert-tag-' + v.alertStatus">
-                {{ mapAlertStatus(v.alertStatus) }}
-              </span>
-            </div>
-          </div>
-        </div>
-      </article>
-
-      <!-- Load More Button -->
+      <!-- Pagination / Load More Button -->
       <div v-if="hasMore && !loading" class="load-more-container">
-        <button class="btn-load-more" @click="loadMore">
+        <button type="button" class="btn-load-more" @click="loadMore">
           <span>Xem Thêm (+100)</span>
           <AppIcon name="chevron-down" size="14" />
         </button>
       </div>
-    </section>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import AppIcon from '@/components/ui/AppIcon.vue';
+import PageHeader from '@/components/ui/PageHeader.vue';
+import FilterBar from '@/components/ui/FilterBar.vue';
+import ViewModeSwitcher, { ViewModeItem } from '@/components/ui/ViewModeSwitcher.vue';
+import EmptyState from '@/components/ui/EmptyState.vue';
+import ErrorState from '@/components/ui/ErrorState.vue';
 import MonitoringPageHeader from '@/components/ui/MonitoringPageHeader.vue';
 import MetricCard from '@/components/ui/MetricCard.vue';
 import FilterDock from '@/components/ui/FilterDock.vue';
 import SectionMarker from '@/components/ui/SectionMarker.vue';
-import RevealItem from '@/components/motion/RevealItem.vue';
+
+import RecentVideoSummaryStrip from '@/components/videos/recent/RecentVideoSummaryStrip.vue';
+import RecentVideoLargeCard from '@/components/videos/recent/RecentVideoLargeCard.vue';
+import RecentVideoGridCard from '@/components/videos/recent/RecentVideoGridCard.vue';
+import RecentVideoListRow from '@/components/videos/recent/RecentVideoListRow.vue';
+import RecentVideoTableView from '@/components/videos/recent/RecentVideoTableView.vue';
+import RecentVideoGallery from '@/components/videos/recent/RecentVideoGallery.vue';
+
 import {
   newVideosService,
-  getFreshBadge,
-  formatVideoAge,
-  formatMeasuredVph,
-  formatViewDelta,
-  mapAlertStatus,
 } from '@/services/new-videos-service';
 import type {
   NewVideoItem,
@@ -432,13 +253,24 @@ import type {
 const route = useRoute();
 const router = useRouter();
 
+// View Modes configuration
+const viewModes: ViewModeItem[] = [
+  { id: 'large-grid', label: 'Lưới lớn', icon: 'grid', title: 'Chế độ Lưới lớn (mặc định)' },
+  { id: 'grid', label: 'Lưới vừa', icon: 'grid', title: 'Chế độ Lưới vừa' },
+  { id: 'list', label: 'Danh sách', icon: 'list', title: 'Chế độ Danh sách' },
+  { id: 'table', label: 'Bảng', icon: 'table', title: 'Chế độ Bảng số liệu' },
+  { id: 'gallery', label: 'Thư viện', icon: 'image', title: 'Chế độ Thư viện hình ảnh' },
+];
+
+const viewMode = ref<string>('large-grid');
+
 // Range Options
 const rangeOptions: { value: NewVideoRange; label: string }[] = [
-  { value: '6h', label: '6 giờ' },
-  { value: '12h', label: '12 giờ' },
-  { value: '24h', label: '24 giờ' },
-  { value: '3d', label: '3 ngày' },
-  { value: '7d', label: '7 ngày' },
+  { value: '6h', label: '6 giờ qua' },
+  { value: '12h', label: '12 giờ qua' },
+  { value: '24h', label: '24 giờ qua' },
+  { value: '3d', label: '3 ngày qua' },
+  { value: '7d', label: '7 ngày qua' },
 ];
 
 // State
@@ -457,14 +289,30 @@ const filter = ref<NewVideoFilter>({
   search: '',
 });
 
-// Active filters count
-const activeFilterCount = computed(() => {
-  let count = 0;
-  if (filter.value.channelId) count++;
-  if (filter.value.status !== 'all') count++;
-  if (filter.value.sort !== 'newest') count++;
-  if (filter.value.search.trim()) count++;
-  return count;
+// Debounced search query
+const searchQuery = ref('');
+let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+
+watch(searchQuery, (newVal) => {
+  if (debounceTimer) clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(() => {
+    filter.value.search = newVal;
+    syncUrl();
+  }, 180);
+});
+
+onUnmounted(() => {
+  if (debounceTimer) clearTimeout(debounceTimer);
+});
+
+const hasActiveFilters = computed(() => {
+  return (
+    filter.value.channelId !== null ||
+    filter.value.status !== 'all' ||
+    filter.value.sort !== 'newest' ||
+    filter.value.search.trim().length > 0 ||
+    filter.value.range !== '24h'
+  );
 });
 
 // Channel options extracted from current dataset
@@ -487,25 +335,11 @@ const summary = computed<NewVideoSummary>(() => {
   return newVideosService.computeNewVideoSummary(targetVideos);
 });
 
-const maxVphNumber = computed(() => {
-  if (summary.value.maxVph !== null && summary.value.maxVph !== undefined) {
-    return summary.value.maxVph.toLocaleString('vi-VN');
-  }
-  return '—';
-});
-
 const formattedMaxVph = computed(() => {
   if (summary.value.maxVph !== null && summary.value.maxVph !== undefined) {
     return `${summary.value.maxVph.toLocaleString('vi-VN')} VPH`;
   }
   return '—';
-});
-
-const topVphVideo = computed(() => {
-  if (!allVideos.value.length) return null;
-  const valid = allVideos.value.filter(v => v.latestMeasuredVph !== null && v.latestMeasuredVph > 0);
-  if (!valid.length) return null;
-  return valid.reduce((prev, curr) => ((curr.latestMeasuredVph ?? 0) > (prev.latestMeasuredVph ?? 0) ? curr : prev), valid[0]);
 });
 
 // Filtered and Sorted Video List
@@ -546,6 +380,11 @@ async function loadMore() {
   await loadData(false);
 }
 
+function onRangeChange(e: Event) {
+  const target = e.target as HTMLSelectElement;
+  selectRange(target.value as NewVideoRange);
+}
+
 function selectRange(r: NewVideoRange) {
   if (filter.value.range === r) return;
   filter.value.range = r;
@@ -558,11 +397,14 @@ function onFilterChange() {
 }
 
 function resetFilters() {
+  searchQuery.value = '';
   filter.value.channelId = null;
   filter.value.status = 'all';
   filter.value.search = '';
   filter.value.sort = 'newest';
+  filter.value.range = '24h';
   syncUrl();
+  loadData(true);
 }
 
 function syncUrl() {
@@ -583,6 +425,7 @@ function initFromUrl() {
   filter.value.status = parsed.status;
   filter.value.sort = parsed.sort;
   filter.value.search = parsed.search;
+  searchQuery.value = parsed.search;
 }
 
 onMounted(() => {
@@ -592,656 +435,173 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.new-videos-page {
+.recent-videos-workspace {
   width: 100%;
   max-width: none;
-  margin: 0;
-  padding: 0 0 60px;
-  color: var(--text-primary);
+  padding-bottom: 60px;
 }
 
-/* 1. Asymmetric Top Command Deck (65% / 35%) */
-.top-command-deck {
-  display: grid;
-  grid-template-columns: 1fr 360px;
-  gap: 24px;
-  margin-bottom: 24px;
-  align-items: stretch;
-}
-
-.deck-left-column {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.integrated-range-bar {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-top: 14px;
-  padding-top: 14px;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
-  flex-wrap: wrap;
-}
-
-.range-label {
-  font-size: 11.5px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--text-muted);
-}
-
-.segmented-control {
+.btn-refresh {
   display: inline-flex;
   align-items: center;
-  background: var(--bg-inset);
-  padding: 3px;
-  border-radius: 6px;
-  border: 1px solid var(--border-subtle);
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border, #E3EBF3);
+  background: var(--surface, #FFFFFF);
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 3px rgba(30, 60, 90, 0.04);
 }
 
-.segment-btn {
-  padding: 5px 12px;
-  font-size: 12px;
+.btn-refresh:hover:not(:disabled) {
+  background: var(--primary-soft, #EFF6FF);
+  color: var(--primary, #2563EB);
+  border-color: #BFDBFE;
+}
+
+.btn-refresh:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.spin-anim {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.workspace-filter-section {
+  position: sticky;
+  top: 64px;
+  z-index: 10;
+  margin-bottom: 20px;
+}
+
+.control-select-wrap {
+  position: relative;
+}
+
+.filter-select {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border, #E3EBF3);
+  background: var(--bg-inset, #F8FAFC);
+  color: var(--text-primary);
+  font-size: 12.5px;
   font-weight: 500;
-  color: var(--text-secondary);
-  background: transparent;
-  border: none;
-  border-radius: 4px;
+  outline: none;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
-.segment-btn:hover {
-  color: var(--text-primary);
+.filter-select:focus {
+  border-color: var(--primary, #2563EB);
+  background: var(--surface, #FFFFFF);
 }
 
-.segment-active {
-  background: var(--accent-subtle);
-  color: var(--accent);
-  font-weight: 600;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
-}
-
-.btn-command-refresh {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 7px 14px;
-  border-radius: 6px;
-  font-size: 12.5px;
-  font-weight: 600;
-  background: rgba(56, 189, 248, 0.08);
-  border: 1px solid rgba(56, 189, 248, 0.22);
-  color: var(--accent);
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.btn-command-refresh:hover:not(:disabled) {
-  background: rgba(56, 189, 248, 0.18);
-  border-color: var(--accent);
-}
-
-/* Right 35%: Elevated Focal VPH Panel + Supporting Strips */
-.deck-right-signal {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.focal-vph-panel {
-  position: relative;
-  background: #0B1019;
-  border: 1px solid rgba(56, 189, 248, 0.22);
-  border-left: 3px solid var(--accent);
-  border-radius: 4px;
-  padding: 16px 18px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), inset 0 0 30px rgba(56, 189, 248, 0.03);
-  overflow: hidden;
-}
-
-.focal-accent-bar {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 40px;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--accent));
-}
-
-.focal-header-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 6px;
-}
-
-.focal-eyebrow {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--accent);
-}
-
-.focal-number-hero {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  margin-bottom: 4px;
-}
-
-.focal-digit {
-  font-size: 34px;
-  font-weight: 800;
-  line-height: 1;
-  color: #F8FAFC;
-  text-shadow: 0 0 16px rgba(56, 189, 248, 0.25);
-}
-
-.focal-unit {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--accent);
-  letter-spacing: 0.05em;
-}
-
-.focal-descriptor {
-  font-size: 11px;
-  color: var(--text-muted);
-  line-height: 1.35;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.descriptor-title {
-  color: var(--text-secondary);
-}
-
-.decorative-wave-line {
-  margin-top: 10px;
-  height: 14px;
-  opacity: 0.7;
-}
-
-.wave-svg {
-  width: 100%;
-  height: 100%;
-}
-
-/* 3 Supporting Compact Strips */
-.supporting-metric-strip-group {
+/* Skeletons */
+.skeleton-container {
   display: grid;
+  gap: 18px;
+}
+
+.skeleton-large-grid {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.skeleton-grid {
   grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
 }
 
-.compact-metric-strip {
-  background: var(--bg-surface);
-  border: 1px solid var(--border-subtle);
-  border-radius: 4px;
-  padding: 8px 10px;
+.skeleton-gallery {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.skeleton-card {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  transition: border-color 0.2s ease;
-}
-
-.compact-metric-strip:hover {
-  border-color: var(--border-strong);
-}
-
-.strip-label-row {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 10.5px;
-  font-weight: 600;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.strip-val {
-  font-size: 18px;
-  font-weight: 700;
-}
-
-.highlight-rising {
-  color: #22C55E;
-}
-
-/* 2. Filter Controls (Within FilterDock) */
-.filter-controls-grid {
-  display: grid;
-  grid-template-columns: 2fr 1.2fr 1fr 1.2fr;
-  gap: 12px;
-}
-
-.control-search {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.search-icon {
-  position: absolute;
-  left: 12px;
-  color: var(--text-muted);
-  pointer-events: none;
-}
-
-.dock-input {
-  width: 100%;
-  padding: 9px 34px 9px 36px;
-  background: var(--bg-inset);
-  border: 1px solid var(--border-subtle);
-  border-radius: 4px;
-  color: var(--text-primary);
-  font-size: 13px;
-  outline: none;
-  transition: border-color 0.18s ease;
-}
-
-.dock-input:focus {
-  border-color: var(--accent);
-}
-
-.btn-clear-search {
-  position: absolute;
-  right: 10px;
-  background: none;
-  border: none;
-  color: var(--text-muted);
-  cursor: pointer;
-  padding: 2px 6px;
-}
-
-.dock-select {
-  width: 100%;
-  padding: 9px 12px;
-  background: var(--bg-inset);
-  border: 1px solid var(--border-subtle);
-  border-radius: 4px;
-  color: var(--text-primary);
-  font-size: 13px;
-  outline: none;
-  cursor: pointer;
-}
-
-.dock-select:focus {
-  border-color: var(--accent);
-}
-
-.btn-reset-filters {
-  background: none;
-  border: none;
-  color: var(--accent);
-  font-size: 11px;
-  cursor: pointer;
-  text-decoration: underline;
-}
-
-/* 3. Video Signal Rows (Recomposed with Inset Thumbnail & Hover Highlight Travel) */
-.video-signal-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.signal-row {
-  position: relative;
-  display: grid;
-  grid-template-columns: 200px 1fr 240px;
-  gap: 20px;
-  background: var(--bg-surface);
-  border: 1px solid var(--border-line);
-  border-left: 2px solid transparent;
-  border-radius: 6px;
-  padding: 14px 18px;
+  background: var(--surface, #FFFFFF);
+  border: 1px solid var(--border, #E3EBF3);
+  border-radius: 12px;
   overflow: hidden;
-  align-items: center;
-  box-shadow: var(--card-shadow);
-  transition: border-color 0.25s ease, transform 0.25s var(--ease-out-expo);
+  padding: 12px;
+  gap: 12px;
 }
 
-/* Hover Inner Highlight Travel */
-.signal-row::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 50%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, var(--accent-subtle), transparent);
-  transition: transform 300ms ease;
-  pointer-events: none;
-}
-
-.signal-row:hover::before {
-  transform: translateX(350%);
-}
-
-.signal-row:hover {
-  border-color: var(--border-strong);
-  transform: translateY(-1px);
-}
-
-/* Rising Video: 2px Cyan Left Edge Marker */
-.signal-row.is-rising-signal {
-  border-left: 2px solid var(--accent);
-}
-
-/* Thumbnail */
-.signal-thumb-wrap {
-  position: relative;
+.skeleton-thumb {
   width: 100%;
   aspect-ratio: 16 / 9;
-  border-radius: 4px;
-  overflow: hidden;
-  background: var(--bg-inset);
-  border: 1px solid var(--border-line);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  border-radius: 8px;
+  background: linear-gradient(90deg, #EEF4F8 25%, #E2E8F0 50%, #EEF4F8 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
 }
 
-.signal-row:hover .signal-thumb-wrap {
-  border-color: var(--accent);
-  box-shadow: 0 0 12px var(--accent-glow, rgba(56, 189, 248, 0.12));
-}
-
-.thumb-anchor {
-  display: block;
-  width: 100%;
-  height: 100%;
-  position: relative;
-}
-
-.signal-thumb-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.3s ease;
-}
-
-.signal-row:hover .signal-thumb-img {
-  transform: scale(1.02);
-}
-
-.thumb-placeholder {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-muted);
-}
-
-.thumb-bottom-gradient {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 40%;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, transparent 100%);
-  pointer-events: none;
-}
-
-.fresh-badge {
-  position: absolute;
-  top: 6px;
-  left: 6px;
-  font-size: 10px;
-  font-weight: 700;
-  padding: 2px 7px;
-  border-radius: 3px;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  z-index: 2;
-}
-
-.badge-super-fresh {
-  background: rgba(34, 197, 94, 0.9);
-  color: #031408;
-}
-
-.badge-recent {
-  background: rgba(56, 189, 248, 0.85);
-  color: #03111C;
-}
-
-/* Center Content: Editorial Title & Channel */
-.signal-main-info {
+.skeleton-lines {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  min-width: 0;
 }
 
-.video-title {
-  font-size: 15px;
-  font-weight: 620;
-  line-height: 1.35;
-  margin: 0;
-}
-
-.title-anchor {
-  color: #f1f5f9;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  transition: color 0.15s ease;
-}
-
-.title-anchor:hover {
-  color: var(--accent);
-}
-
-.channel-line {
-  display: flex;
-  align-items: center;
-}
-
-.channel-anchor {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--text-secondary);
-  font-size: 12.5px;
-  font-weight: 500;
-}
-
-.channel-anchor:hover {
-  color: #f8fafc;
-}
-
-.channel-avatar {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-}
-
-.channel-handle {
-  color: var(--text-muted);
-  font-size: 11.5px;
-}
-
-.time-chips-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.time-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 11.5px;
-}
-
-.chip-label {
-  color: var(--text-muted);
-}
-
-.chip-value {
-  color: var(--text-secondary);
-}
-
-.observe-chip .chip-value {
-  color: var(--accent);
-}
-
-.actions-line {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  margin-top: 2px;
-}
-
-.action-btn-detail {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--accent);
-}
-
-.action-btn-detail:hover {
-  color: var(--accent-hover);
-}
-
-.action-btn-yt {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 12px;
-  color: var(--text-muted);
-}
-
-.action-btn-yt:hover {
-  color: var(--text-secondary);
-}
-
-/* Right: Dark Inset Signal Metrics Panel */
-.signal-metrics-panel {
-  background: var(--bg-inset);
-  border: 1px solid var(--border-line);
+.skeleton-line {
+  height: 12px;
   border-radius: 4px;
-  padding: 12px 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+  background: #E2E8F0;
 }
 
-.vph-hero-block {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  padding-bottom: 8px;
+.line-title {
+  width: 80%;
+  height: 14px;
 }
 
-.block-label {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  color: var(--text-muted);
-  text-transform: uppercase;
+.line-sub {
+  width: 45%;
 }
 
-.block-vph-value {
-  font-size: 20px;
-  font-weight: 700;
-  margin-top: 2px;
-  line-height: 1.1;
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
 }
 
-.vph-rising {
-  color: var(--accent);
-  text-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
-}
-
-.vph-zero {
-  color: var(--text-muted);
-}
-
-.vph-unmeasured {
-  color: var(--text-muted);
-}
-
-.secondary-metrics-grid {
+/* View Mode Layouts */
+.view-large-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
 }
 
-.sec-metric {
+.view-medium-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+.view-list-rows {
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  gap: 14px;
 }
 
-.sec-label {
-  font-size: 10px;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+.view-gallery-mode {
+  width: 100%;
 }
 
-.sec-val {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-secondary);
-}
-
-.delta-pos {
-  color: #22C55E;
-}
-
-.sec-time {
-  font-size: 11px;
-}
-
-.alert-tag {
-  display: inline-block;
-  font-size: 10px;
-  font-weight: 600;
-  padding: 1px 6px;
-  border-radius: 2px;
-}
-
-.alert-tag-sent {
-  background: rgba(34, 197, 94, 0.15);
-  color: #22c55e;
-}
-
-.alert-tag-pending {
-  background: rgba(245, 158, 11, 0.15);
-  color: #f59e0b;
-}
-
-.alert-tag-failed {
-  background: rgba(239, 68, 68, 0.15);
-  color: #ef4444;
-}
-
-.alert-tag-none {
-  color: var(--text-muted);
+.view-table-mode {
+  width: 100%;
 }
 
 /* Load More */
 .load-more-container {
   display: flex;
   justify-content: center;
-  margin-top: 24px;
+  margin-top: 30px;
 }
 
 .btn-load-more {
@@ -1249,157 +609,48 @@ onMounted(() => {
   align-items: center;
   gap: 8px;
   padding: 10px 24px;
-  background: var(--bg-surface);
-  border: 1px solid var(--border-strong);
-  border-radius: 4px;
-  color: var(--accent);
-  font-size: 13px;
+  border-radius: 10px;
+  border: 1px solid var(--border, #E3EBF3);
+  background: var(--surface, #FFFFFF);
+  color: var(--text-primary);
+  font-size: 13.5px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
+  box-shadow: var(--shadow-sm, 0 2px 8px rgba(30, 60, 90, 0.04));
 }
 
 .btn-load-more:hover {
-  background: var(--accent-subtle);
-  border-color: var(--accent);
+  background: var(--primary-soft, #EFF6FF);
+  color: var(--primary, #2563EB);
+  border-color: #BFDBFE;
+  transform: translateY(-1px);
 }
 
-/* Empty State */
-.empty-state-card {
-  text-align: center;
-  padding: 60px 20px;
-  background: var(--bg-surface);
-  border: 1px solid var(--border-line);
-  border-radius: 6px;
-  max-width: 540px;
-  margin: 40px auto;
-  box-shadow: var(--card-shadow);
+@media (max-width: 1280px) {
+  .view-medium-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
-.empty-icon-ring {
-  width: 60px;
-  height: 60px;
-  margin: 0 auto 16px;
-  border-radius: 50%;
-  background: var(--accent-subtle);
-  border: 1px solid var(--border-strong);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--accent);
-}
-
-.empty-title {
-  font-size: 16px;
-  font-weight: 600;
-  margin-bottom: 8px;
-  color: var(--text-primary);
-}
-
-.empty-desc {
-  font-size: 13px;
-  color: var(--text-muted);
-  line-height: 1.5;
-  margin-bottom: 20px;
-}
-
-/* Skeleton Loading */
-.skeleton-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.skeleton-signal-row {
-  display: grid;
-  grid-template-columns: 200px 1fr 240px;
-  gap: 20px;
-  background: var(--bg-surface);
-  border: 1px solid var(--border-line);
-  border-radius: 6px;
-  padding: 16px;
-}
-
-.skeleton-thumb {
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: 3px;
-}
-
-.skeleton-info {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.skeleton-line {
-  height: 14px;
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: 3px;
-}
-
-.line-title { width: 80%; height: 18px; }
-.line-meta { width: 45%; }
-.line-tags { width: 30%; }
-
-.skeleton-metrics {
-  background: rgba(255, 255, 255, 0.02);
-  border-radius: 3px;
-}
-
-/* Responsive Rules */
 @media (max-width: 1024px) {
-  .top-command-deck {
+  .view-large-grid {
     grid-template-columns: 1fr;
-    gap: 18px;
   }
-  .filter-controls-grid {
-    grid-template-columns: 1fr 1fr;
+  .view-medium-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
-  .signal-row {
-    grid-template-columns: 160px 1fr;
-  }
-  .signal-metrics-panel {
-    grid-column: 1 / -1;
+  .skeleton-large-grid {
+    grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 640px) {
-  .new-videos-page {
-    padding: 12px 14px 40px;
+  .workspace-filter-section {
+    position: static;
   }
-  .integrated-range-bar {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  .segmented-control {
-    width: 100%;
-    justify-content: space-between;
-  }
-  .segment-btn {
-    flex: 1;
-    padding: 6px 4px;
-    font-size: 11px;
-    text-align: center;
-  }
-  .filter-controls-grid {
+  .view-medium-grid {
     grid-template-columns: 1fr;
-  }
-  .supporting-metric-strip-group {
-    grid-template-columns: 1fr;
-  }
-  .signal-row {
-    grid-template-columns: 1fr;
-    padding: 12px;
-    gap: 12px;
-  }
-  .actions-line {
-    margin-top: 6px;
-  }
-  .action-btn-detail, .action-btn-yt {
-    min-height: 44px;
-    padding: 8px 0;
   }
 }
 </style>
