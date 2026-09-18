@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import { mount, flushPromises } from '@vue/test-utils';
 import fs from 'fs';
 import path from 'path';
@@ -35,6 +35,10 @@ const globalStubs = {
   RouterLink: routerLinkStub,
   'router-link': routerLinkStub,
 };
+
+afterEach(() => {
+  vi.restoreAllMocks();
+});
 
 describe('FINAL REVIEW FIX — App Integrity & Cross-Wave Regressions', () => {
   // 1. AppIcon Audit & Dynamic Icons
@@ -528,14 +532,17 @@ describe('FINAL REVIEW FIX — App Integrity & Cross-Wave Regressions', () => {
       expect(vm.pendingAction).not.toBeNull();
       expect(vm.notificationMsg).toBeNull();
       expect(vm.accessKeyError).toBe('Vui lòng nhập Mã truy cập để thực hiện kiểm tra dữ liệu.');
+
+      wrapper.unmount();
     });
 
     it('6.2 Scenario B: Trong luc collector dang chay thi lock UI, chong double click va giai phong sau khi resolve', async () => {
       vi.spyOn(channelAnalysisService, 'fetchChannelAnalysis').mockResolvedValue(mockDetailAnalysis);
-      // Step 1: trigger and fail to get modal
-      vi.spyOn(collectorService, 'triggerCollection').mockRejectedValueOnce(
-        new AccessKeyRequiredError('Vui lòng nhập Mã truy cập để thực hiện kiểm tra dữ liệu.')
-      );
+      const collectorSpy = vi
+        .spyOn(collectorService, 'triggerCollection')
+        .mockRejectedValueOnce(
+          new AccessKeyRequiredError('Vui lòng nhập Mã truy cập để thực hiện kiểm tra dữ liệu.')
+        );
 
       const wrapper = mount(ChannelDetailPage, {
         global: {
@@ -553,18 +560,22 @@ describe('FINAL REVIEW FIX — App Integrity & Cross-Wave Regressions', () => {
       const vm = wrapper.vm as any;
       expect(vm.showAccessKeyModal).toBe(true);
       expect(vm.pendingAction).not.toBeNull();
+      expect(collectorSpy).toHaveBeenCalledTimes(1);
 
-      // Step 2: User confirms access key with a pending collector promise
-      let resolveCollector!: (val: any) => void;
-      const collectorPromise = new Promise(res => {
-        resolveCollector = res;
+      collectorSpy.mockClear();
+
+      let resolveCollector!: (value: any) => void;
+      const collectorPromise = new Promise((resolve) => {
+        resolveCollector = resolve;
       });
-      const collectorSpy = vi.spyOn(collectorService, 'triggerCollection').mockReturnValue(collectorPromise as any);
+
+      collectorSpy.mockReturnValueOnce(collectorPromise as any);
 
       const confirmPromise = vm.onAccessKeyConfirmed('valid_key');
       await wrapper.vm.$nextTick();
 
-      // While pending:
+      // Trong lúc retry pending:
+      expect(collectorSpy).toHaveBeenCalledTimes(1);
       expect(vm.isCollecting).toBe(true);
       expect(vm.interactionLocked).toBe(true);
       expect(wrapper.find('.btn-collector').attributes('disabled')).toBeDefined();
@@ -583,9 +594,12 @@ describe('FINAL REVIEW FIX — App Integrity & Cross-Wave Regressions', () => {
 
       // After resolve:
       expect(vm.isCollecting).toBe(false);
+      expect(vm.interactionLocked).toBe(false);
       expect(vm.pendingAction).toBeNull();
       expect(vm.showAccessKeyModal).toBe(false);
       expect(vm.notificationMsg).toContain('Đã quét thành công: 1 kênh, 5 video.');
+
+      wrapper.unmount();
     });
 
     it('6.3 Scenario C: Khi user nhap access key sai trong modal thi giu modal mo, giu pendingAction va giu nguyen error', async () => {
@@ -621,6 +635,8 @@ describe('FINAL REVIEW FIX — App Integrity & Cross-Wave Regressions', () => {
       expect(vm.pendingAction).not.toBeNull();
       expect(vm.accessKeyError).toBe('Mã truy cập không chính xác. Vui lòng kiểm tra lại.');
       expect(vm.notificationMsg).toBeNull();
+
+      wrapper.unmount();
     });
 
     it('6.4 Scenario D: Khi user cancel / dong modal thi reset pendingAction va accessKeyError an toan', async () => {
@@ -655,6 +671,8 @@ describe('FINAL REVIEW FIX — App Integrity & Cross-Wave Regressions', () => {
       expect(vm.pendingAction).toBeNull();
       expect(vm.accessKeyError).toBeNull();
       expect(vm.interactionLocked).toBe(false);
+
+      wrapper.unmount();
     });
   });
 });
