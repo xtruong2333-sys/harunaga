@@ -20,6 +20,7 @@ import {
   dataHealthService,
 } from '../src/services/data-health-service';
 import * as supabaseModule from '../src/services/supabase';
+import { DatabaseNotConfiguredError } from '../src/services/channel-service';
 import DataHealthPage from '../src/pages/DataHealthPage.vue';
 import DataHealthAlertMonitoring from '../src/components/data-health/DataHealthAlertMonitoring.vue';
 import type {
@@ -278,9 +279,14 @@ describe('Bắt Bài Đối Thủ — Giai Đoạn 10: Tình Trạng Dữ Liệu
       expect(formatDuration(started, null, 'running')).toBe('Đang chạy');
     });
 
-    it('finishedAt là null -> Đang chạy', () => {
+    it('finishedAt là null khi status running -> Đang chạy', () => {
       const started = new Date(baseTimeMs - 10000).toISOString();
-      expect(formatDuration(started, null, 'success')).toBe('Đang chạy');
+      expect(formatDuration(started, null, 'running')).toBe('Đang chạy');
+    });
+
+    it('finishedAt là null khi status success -> —', () => {
+      const started = new Date(baseTimeMs - 10000).toISOString();
+      expect(formatDuration(started, null, 'success')).toBe('—');
     });
 
     it('Thời lượng dưới 60 giây', () => {
@@ -458,7 +464,7 @@ describe('Bắt Bài Đối Thủ — Giai Đoạn 10: Tình Trạng Dữ Liệu
     });
   });
 
-  // 14. Wave 3.14 — Validation mapScanRow
+  // 14. Wave 3.14 — Status-Aware Validation mapScanRow
   describe('Kiểm tra hợp lệ dữ liệu phiên quét (mapScanRow)', () => {
     it('started_at thiếu hoặc null -> ném lỗi', () => {
       expect(() => mapScanRow(null, baseTimeMs)).toThrow('Thời gian bắt đầu quét không hợp lệ');
@@ -470,14 +476,8 @@ describe('Bắt Bài Đối Thủ — Giai Đoạn 10: Tình Trạng Dữ Liệu
       expect(() => mapScanRow({ started_at: 'invalid-date' }, baseTimeMs)).toThrow('Thời gian bắt đầu quét không hợp lệ');
     });
 
-    it('finished_at không hợp lệ (NaN) -> ném lỗi', () => {
-      expect(() => mapScanRow({
-        started_at: '2026-09-18T10:00:00Z',
-        finished_at: 'invalid-finish',
-      }, baseTimeMs)).toThrow('Thời gian kết thúc quét không hợp lệ');
-    });
-
-    it('started_at hợp lệ và finished_at null -> map thành công ở trạng thái đang chạy', () => {
+    // A. running + finished_at null -> valid.
+    it('A. running + finished_at null -> hợp lệ', () => {
       const row = {
         id: 'scan-run-1',
         started_at: '2026-09-18T10:00:00Z',
@@ -498,6 +498,72 @@ describe('Bắt Bài Đối Thủ — Giai Đoạn 10: Tình Trạng Dữ Liệu
       expect(res.status).toBe('running');
       expect(res.durationText).toBe('Đang chạy');
       expect(res.channelsTotal).toBe(5);
+    });
+
+    // B. success + finished_at null -> throw
+    it('B. success + finished_at null -> ném lỗi thiếu thời gian hoàn tất', () => {
+      const row = {
+        id: 'scan-run-2',
+        started_at: '2026-09-18T10:00:00Z',
+        finished_at: null,
+        status: 'success',
+      };
+      expect(() => mapScanRow(row, baseTimeMs)).toThrow('Lần quét đã kết thúc nhưng thiếu thời gian hoàn tất.');
+    });
+
+    // C. partial + finished_at null -> throw
+    it('C. partial + finished_at null -> ném lỗi thiếu thời gian hoàn tất', () => {
+      const row = {
+        id: 'scan-run-3',
+        started_at: '2026-09-18T10:00:00Z',
+        finished_at: null,
+        status: 'partial',
+      };
+      expect(() => mapScanRow(row, baseTimeMs)).toThrow('Lần quét đã kết thúc nhưng thiếu thời gian hoàn tất.');
+    });
+
+    // D. failed + finished_at null -> throw
+    it('D. failed + finished_at null -> ném lỗi thiếu thời gian hoàn tất', () => {
+      const row = {
+        id: 'scan-run-4',
+        started_at: '2026-09-18T10:00:00Z',
+        finished_at: null,
+        status: 'failed',
+      };
+      expect(() => mapScanRow(row, baseTimeMs)).toThrow('Lần quét đã kết thúc nhưng thiếu thời gian hoàn tất.');
+    });
+
+    // E. success + valid finished_at -> valid
+    it('E. success + valid finished_at -> hợp lệ và tính đúng thời lượng', () => {
+      const row = {
+        id: 'scan-run-5',
+        started_at: '2026-09-18T10:00:00Z',
+        finished_at: '2026-09-18T10:01:30Z',
+        status: 'success',
+        trigger_source: 'manual',
+      };
+      const res = mapScanRow(row, baseTimeMs);
+      expect(res.id).toBe('scan-run-5');
+      expect(res.status).toBe('success');
+      expect(res.durationText).toBe('1 phút 30 giây');
+    });
+
+    // F. non-null malformed finished_at -> throw
+    it('F. non-null malformed finished_at -> ném lỗi thời gian kết thúc không hợp lệ', () => {
+      expect(() => mapScanRow({
+        started_at: '2026-09-18T10:00:00Z',
+        finished_at: 'invalid-finish',
+        status: 'success',
+      }, baseTimeMs)).toThrow('Thời gian kết thúc quét không hợp lệ');
+    });
+
+    // G. running + non-null finished_at -> throw
+    it('G. running + non-null finished_at -> ném lỗi dữ liệu mâu thuẫn', () => {
+      expect(() => mapScanRow({
+        started_at: '2026-09-18T10:00:00Z',
+        finished_at: '2026-09-18T10:01:00Z',
+        status: 'running',
+      }, baseTimeMs)).toThrow('Dữ liệu lần quét không hợp lệ: trạng thái đang chạy nhưng có thời gian hoàn tất.');
     });
   });
 
@@ -853,6 +919,82 @@ describe('Bắt Bài Đối Thủ — Giai Đoạn 10: Tình Trạng Dữ Liệu
       expect(summary.alertSummary.stuckSendingCount).toBe(1);
       expect(summary.alertSummary.failedAlerts[0].sanitizedError).not.toContain('secret_token_123');
       expect(summary.alertSummary.failedAlerts[0].sanitizedError).toContain('[URL Webhook ẩn]');
+    });
+
+    // 13. Supabase not configured tests
+    it('isSupabaseConfigured() = false -> ném DatabaseNotConfiguredError', async () => {
+      vi.spyOn(supabaseModule, 'isSupabaseConfigured').mockReturnValue(false);
+      vi.spyOn(supabaseModule, 'getSupabase').mockReturnValue({} as any);
+      await expect(dataHealthService.fetchDataHealthSummary()).rejects.toThrow(DatabaseNotConfiguredError);
+    });
+
+    it('isSupabaseConfigured() = true nhưng getSupabase() = null -> ném DatabaseNotConfiguredError', async () => {
+      vi.spyOn(supabaseModule, 'isSupabaseConfigured').mockReturnValue(true);
+      vi.spyOn(supabaseModule, 'getSupabase').mockReturnValue(null);
+      await expect(dataHealthService.fetchDataHealthSummary()).rejects.toThrow(DatabaseNotConfiguredError);
+    });
+
+    // 14. latestScheduleRes.error test
+    it('Lỗi query latestSchedule -> ném lỗi factual rõ ràng', async () => {
+      vi.spyOn(supabaseModule, 'getSupabase').mockReturnValue(
+        buildMockSupabase({ latestSchedule: { error: { message: 'Schedule query failed' } } }) as any
+      );
+      await expect(dataHealthService.fetchDataHealthSummary()).rejects.toThrow('Lỗi tải lần quét tự động gần nhất: Schedule query failed');
+    });
+
+    // 15. Alert empty service result
+    it('Alert query trả về rỗng -> alertSummary phản ánh đúng 0 bản ghi', async () => {
+      vi.spyOn(supabaseModule, 'getSupabase').mockReturnValue(
+        buildMockSupabase({ alerts: { data: [], error: null } }) as any
+      );
+      const summary = await dataHealthService.fetchDataHealthSummary();
+      expect(summary.alertSummary.total).toBe(0);
+      expect(summary.alertSummary.sampleSize).toBe(0);
+      expect(summary.alertSummary.sampleLimit).toBe(100);
+      expect(summary.alertSummary.failedAlerts).toHaveLength(0);
+    });
+
+    // 16. Alert sample limit semantics (100 rows)
+    it('Mock đúng 100 alert rows -> phản ánh đúng sample 100 bản ghi', async () => {
+      const mock100Alerts = Array.from({ length: 100 }, (_, i) => ({
+        id: `alert-${i}`,
+        video_id: `v-${i}`,
+        status: 'sent',
+        measured_vph: 1000,
+        attempts: 1,
+        last_error: null,
+        updated_at: new Date(Date.now() - 60 * 1000).toISOString(),
+      }));
+
+      vi.spyOn(supabaseModule, 'getSupabase').mockReturnValue(
+        buildMockSupabase({ alerts: { data: mock100Alerts, error: null } }) as any
+      );
+      const summary = await dataHealthService.fetchDataHealthSummary();
+      expect(summary.alertSummary.total).toBe(100);
+      expect(summary.alertSummary.sampleSize).toBe(100);
+      expect(summary.alertSummary.sampleLimit).toBe(100);
+    });
+
+    // 17. failedAlerts max 10
+    it('Mock >10 rows failed -> failed đếm toàn bộ nhưng failedAlerts cắt đúng tối đa 10 phần tử', async () => {
+      const mock15FailedAlerts = Array.from({ length: 15 }, (_, i) => ({
+        id: `alert-failed-${i}`,
+        video_id: `v-${i}`,
+        status: 'failed',
+        measured_vph: 1200,
+        attempts: 3,
+        last_error: `Error ${i}`,
+        updated_at: new Date(Date.now() - 60 * 1000).toISOString(),
+        videos: { title: `Video ${i}`, channel_id: 'ch1', channels: { name: 'Ch 1' } },
+      }));
+
+      vi.spyOn(supabaseModule, 'getSupabase').mockReturnValue(
+        buildMockSupabase({ alerts: { data: mock15FailedAlerts, error: null } }) as any
+      );
+      const summary = await dataHealthService.fetchDataHealthSummary();
+      expect(summary.alertSummary.failed).toBe(15);
+      expect(summary.alertSummary.failedAlerts).toHaveLength(10);
+      expect(summary.failedAlertsCount).toBe(15);
     });
   });
 

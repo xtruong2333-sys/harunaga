@@ -116,12 +116,12 @@ export function normalizeDataHealthThumbnail(
 export function formatDuration(
   startedAt: string | null | undefined,
   finishedAt: string | null | undefined,
-  status: ScanStatus
+  status: ScanStatus = 'success'
 ): string {
-  if (status === 'running' || !finishedAt) {
+  if (status === 'running') {
     return 'Đang chạy';
   }
-  if (!startedAt) return '—';
+  if (!startedAt || !finishedAt) return '—';
 
   try {
     const startMs = new Date(startedAt).getTime();
@@ -358,11 +358,23 @@ export function mapScanRow(row: any, nowMs: number): DataHealthScan {
   if (!row || !row.started_at || isNaN(new Date(row.started_at).getTime())) {
     throw new Error(`Thời gian bắt đầu quét không hợp lệ: ${row?.started_at}`);
   }
-  if (row.finished_at && isNaN(new Date(row.finished_at).getTime())) {
-    throw new Error(`Thời gian kết thúc quét không hợp lệ: ${row?.finished_at}`);
-  }
 
   const status = (row.status || 'success') as ScanStatus;
+
+  if (status === 'running') {
+    if (row.finished_at !== null && row.finished_at !== undefined) {
+      throw new Error('Dữ liệu lần quét không hợp lệ: trạng thái đang chạy nhưng có thời gian hoàn tất.');
+    }
+  } else {
+    // status !== 'running' (success, partial, failed)
+    if (!row.finished_at) {
+      throw new Error('Lần quét đã kết thúc nhưng thiếu thời gian hoàn tất.');
+    }
+    if (isNaN(new Date(row.finished_at).getTime())) {
+      throw new Error(`Thời gian kết thúc quét không hợp lệ: ${row.finished_at}`);
+    }
+  }
+
   const triggerSource = (row.trigger_source || 'schedule') as TriggerSource;
   const sanitized = sanitizeErrorSummary(row.error_summary);
 
@@ -432,11 +444,12 @@ export const dataHealthService = {
    * Tải toàn bộ dữ liệu Tình Trạng Dữ Liệu từ Supabase
    */
   async fetchDataHealthSummary(): Promise<DataHealthSummary> {
-    if (!isSupabaseConfigured() || !getSupabase()) {
+    const supabase = getSupabase();
+
+    if (!isSupabaseConfigured() || !supabase) {
       throw new DatabaseNotConfiguredError();
     }
 
-    const supabase = getSupabase()!;
     const nowMs = Date.now();
 
     // 1. Chạy song song các truy vấn cốt lõi
