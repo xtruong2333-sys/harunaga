@@ -1,43 +1,49 @@
 <template>
   <div class="channels-page">
-    <!-- Page Header -->
-    <div class="page-header">
-      <div class="page-header-text">
-        <div class="page-eyebrow">GIÁM SÁT ĐỐI THỦ</div>
-        <h1 class="page-title">Kênh Theo Dõi</h1>
-        <p class="page-description">
-          Danh bạ trung tâm quản lý các kênh YouTube đối thủ và thiết lập cấu hình quét dữ liệu định kỳ.
-        </p>
-      </div>
-
-      <div class="page-header-actions">
+    <!-- 1. Page Header -->
+    <PageHeader
+      kicker="COMPETITOR NETWORK"
+      title="Kênh Theo Dõi"
+      description="Quản lý mạng lưới đối thủ và theo dõi tín hiệu tăng trưởng theo từng kênh."
+    >
+      <template #actions>
         <button
+          type="button"
           class="btn btn-secondary"
           :disabled="isCollecting || channelStore.loading"
-          @click="handleTriggerCollection"
           title="Kiểm tra dữ liệu video mới nhất của các kênh đang theo dõi"
+          @click="handleTriggerCollection"
         >
-          <AppIcon name="refresh" size="16" :class="{ 'spin-anim': isCollecting }" />
+          <AppIcon name="refresh" size="15" :class="{ 'spin-anim': isCollecting }" />
           <span>{{ isCollecting ? 'Đang kiểm tra...' : 'Kiểm Tra Dữ Liệu' }}</span>
         </button>
-        <button class="btn btn-secondary" @click="showBulkAddModal = true">
-          <AppIcon name="list-plus" size="16" />
+
+        <button
+          type="button"
+          class="btn btn-secondary"
+          @click="showBulkAddModal = true"
+        >
+          <AppIcon name="list-plus" size="15" />
           <span>Thêm Nhiều Kênh</span>
         </button>
-        <button class="btn btn-primary" @click="showAddModal = true">
-          <AppIcon name="plus" size="16" />
+
+        <button
+          type="button"
+          class="btn btn-primary"
+          @click="showAddModal = true"
+        >
+          <AppIcon name="plus" size="15" />
           <span>+ Thêm Kênh</span>
         </button>
-      </div>
-    </div>
+      </template>
+    </PageHeader>
 
-    <!-- Thông báo kết quả kiểm tra dữ liệu -->
+    <!-- 2. Notice Banners -->
     <div v-if="collectNotification" class="collect-banner">
       <AppIcon name="check-circle" size="18" />
       <span>{{ collectNotification }}</span>
     </div>
 
-    <!-- Thông báo chưa cấu hình cơ sở dữ liệu -->
     <div v-if="channelStore.notConfigured" class="config-alert">
       <div class="config-alert-icon">
         <AppIcon name="alert" size="20" />
@@ -45,95 +51,204 @@
       <div class="config-alert-text">
         <div class="config-alert-title">Chưa kết nối cơ sở dữ liệu</div>
         <div class="config-alert-desc">
-          Ứng dụng đang hoạt động ở chế độ chờ cấu hình Supabase. Vui lòng thiết lập <code>VITE_SUPABASE_URL</code> và <code>VITE_SUPABASE_PUBLISHABLE_KEY</code> trong cài đặt môi trường.
+          Ứng dụng đang hoạt động ở chế độ chờ cấu hình Supabase. Vui lòng thiết lập <code>VITE_SUPABASE_URL</code> và <code>VITE_SUPABASE_PUBLISHABLE_KEY</code>.
         </div>
       </div>
     </div>
 
-    <!-- Thông báo lỗi kết nối -->
-    <div v-else-if="channelStore.error" class="error-alert">
-      <div class="error-alert-content">
-        <AppIcon name="alert" size="18" />
-        <span>{{ channelStore.error }}</span>
-      </div>
-      <button class="btn btn-secondary btn-sm" @click="channelStore.fetchChannels">
-        <AppIcon name="refresh" size="14" />
-        <span>Thử Lại</span>
-      </button>
-    </div>
-
-    <!-- Thống kê đầu trang -->
-    <ChannelStatsHeader
-      :total-count="channelStore.totalCount"
-      :active-count="channelStore.activeCount"
-      :paused-count="channelStore.pausedCount"
+    <!-- Error State component if error -->
+    <ErrorState
+      v-else-if="channelStore.error"
+      title="Không thể tải danh sách kênh"
+      :message="channelStore.error"
+      action-text="Thử lại"
+      @retry="loadData"
     />
 
-    <!-- Skeleton Loading -->
-    <div v-if="channelStore.loading" class="skeleton-container">
-      <div class="skeleton-row" v-for="n in 3" :key="n"></div>
-    </div>
-
-    <!-- Nội dung chính khi đã tải xong -->
+    <!-- Main Workspace Content -->
     <template v-else>
-      <!-- Khi chưa có bất kỳ kênh nào trong DB -->
+      <!-- 3. Summary Strip -->
+      <ChannelSummaryStrip
+        :total-count="channelStore.totalCount"
+        :active-count="channelStore.activeCount"
+        :rising-videos-count="totalRisingVideos"
+        :max-vph="maxNetworkVph"
+        :loading="channelStore.loading"
+      />
+
+      <!-- When zero channels in database -->
       <EmptyState
-        v-if="channelStore.totalCount === 0"
+        v-if="!channelStore.loading && channelStore.totalCount === 0"
+        title="Chưa có đối thủ nào"
+        description="Thêm kênh YouTube đầu tiên để bắt đầu theo dõi tín hiệu và tốc độ tăng trưởng."
+        action-text="Thêm Kênh Đầu Tiên"
+        action-icon="plus"
+        @action="showAddModal = true"
         @add-channel="showAddModal = true"
       />
 
-      <!-- Khi đã có kênh: Bảng điều khiển & Danh sách -->
+      <!-- When channels exist: FilterBar & Dynamic View -->
       <template v-else>
-        <ChannelTableHeader
-          v-model:search-query="searchQuery"
-          v-model:current-filter="currentFilter"
-          v-model:current-sort="currentSort"
-          :counts="{
-            all: channelStore.totalCount,
-            active: channelStore.activeCount,
-            paused: channelStore.pausedCount,
-            archived: channelStore.archivedCount,
-          }"
-        />
+        <!-- 4. Filter Bar & View Mode Switcher -->
+        <FilterBar
+          v-model:search="searchQuery"
+          search-placeholder="Tìm theo tên kênh, handle..."
+          :total-count="channelStore.totalCount"
+          :filtered-count="filteredChannels.length"
+          :has-active-filters="hasActiveFilters"
+          @clear="resetFilters"
+        >
+          <template #filters>
+            <div class="status-filter-pills" role="tablist">
+              <button
+                type="button"
+                class="pill-btn"
+                :class="{ 'is-active': currentFilter === 'all' }"
+                @click="currentFilter = 'all'"
+              >
+                Tất cả ({{ channelStore.totalCount }})
+              </button>
+              <button
+                type="button"
+                class="pill-btn"
+                :class="{ 'is-active': currentFilter === 'active' }"
+                @click="currentFilter = 'active'"
+              >
+                Đang theo dõi ({{ channelStore.activeCount }})
+              </button>
+              <button
+                type="button"
+                class="pill-btn"
+                :class="{ 'is-active': currentFilter === 'paused' }"
+                @click="currentFilter = 'paused'"
+              >
+                Tạm dừng ({{ channelStore.pausedCount }})
+              </button>
+              <button
+                type="button"
+                class="pill-btn"
+                :class="{ 'is-active': currentFilter === 'rising' }"
+                @click="currentFilter = 'rising'"
+              >
+                Đang tăng
+              </button>
+              <button
+                type="button"
+                class="pill-btn"
+                :class="{ 'is-active': currentFilter === 'archived' }"
+                @click="currentFilter = 'archived'"
+              >
+                Đã lưu trữ ({{ channelStore.archivedCount }})
+              </button>
+            </div>
 
-        <!-- Không có kết quả tìm kiếm/lọc -->
-        <div v-if="filteredChannels.length === 0" class="no-results-card">
-          <div class="no-results-text">
-            Không tìm thấy kênh nào phù hợp với điều kiện lọc hiện tại.
+            <div class="sort-select-wrap">
+              <select v-model="currentSort" class="sort-select" aria-label="Sắp xếp danh sách">
+                <option value="newest">Mới thêm nhất</option>
+                <option value="name">Tên kênh (A - Z)</option>
+                <option value="last_scan">Quét gần nhất</option>
+                <option value="max_vph">Max VPH cao nhất</option>
+                <option value="rising_count">Nhiều video tăng nhất</option>
+              </select>
+            </div>
+          </template>
+
+          <template #actions>
+            <ViewModeSwitcher
+              v-model="viewMode"
+              :modes="viewModes"
+              storage-key="bbdt_channels_view_mode"
+              size="sm"
+            />
+          </template>
+        </FilterBar>
+
+        <!-- 5. Loading Skeleton -->
+        <div v-if="channelStore.loading" class="channels-skeleton-wrap">
+          <div v-if="viewMode === 'large-grid'" class="large-grid-layout">
+            <div v-for="n in 6" :key="n" class="skeleton-large-card"></div>
           </div>
-          <button
-            class="btn btn-secondary btn-sm"
-            @click="searchQuery = ''; currentFilter = 'all'"
-          >
-            Đặt lại bộ lọc
-          </button>
+          <div v-else-if="viewMode === 'grid'" class="medium-grid-layout">
+            <div v-for="n in 8" :key="n" class="skeleton-med-card"></div>
+          </div>
+          <div v-else class="list-layout">
+            <div v-for="n in 5" :key="n" class="skeleton-row-item"></div>
+          </div>
         </div>
 
-        <!-- Bảng Desktop -->
-        <ChannelDesktopTable
-          v-else
-          :channels="filteredChannels"
-          @edit="handleOpenEdit"
-          @pause="handlePause"
-          @resume="handleResume"
-          @archive="handleArchive"
-          @restore="handleRestore"
-        />
+        <!-- 6. View Renderers -->
+        <template v-else>
+          <!-- No search results -->
+          <div v-if="filteredChannels.length === 0" class="no-results-card surface-card">
+            <div class="no-results-icon">
+              <AppIcon name="search" size="24" />
+            </div>
+            <div class="no-results-title">Không tìm thấy kênh phù hợp</div>
+            <div class="no-results-desc">
+              Không có kênh nào khớp với từ khóa "{{ searchQuery }}" hoặc điều kiện lọc hiện tại.
+            </div>
+            <button type="button" class="btn btn-secondary btn-sm" @click="resetFilters">
+              Xóa bộ lọc
+            </button>
+          </div>
 
-        <!-- Danh sách Card Mobile -->
-        <ChannelMobileList
-          v-if="filteredChannels.length > 0"
-          :channels="filteredChannels"
-          @edit="handleOpenEdit"
-          @pause="handlePause"
-          @resume="handleResume"
-          @archive="handleArchive"
-          @restore="handleRestore"
-        />
+          <!-- Mode 1: Large Grid (Default) -->
+          <div v-else-if="viewMode === 'large-grid'" class="large-grid-layout">
+            <ChannelLargeCard
+              v-for="ch in filteredChannels"
+              :key="ch.id"
+              :channel="ch"
+              @edit="handleOpenEdit"
+              @pause="handlePause"
+              @resume="handleResume"
+              @archive="handleRequestArchive"
+              @restore="handleRestore"
+            />
+          </div>
+
+          <!-- Mode 2: Medium Grid -->
+          <div v-else-if="viewMode === 'grid'" class="medium-grid-layout">
+            <ChannelMediumCard
+              v-for="ch in filteredChannels"
+              :key="ch.id"
+              :channel="ch"
+              @edit="handleOpenEdit"
+              @pause="handlePause"
+              @resume="handleResume"
+              @archive="handleRequestArchive"
+              @restore="handleRestore"
+            />
+          </div>
+
+          <!-- Mode 3: List View -->
+          <div v-else-if="viewMode === 'list'" class="list-layout">
+            <ChannelListRow
+              v-for="ch in filteredChannels"
+              :key="ch.id"
+              :channel="ch"
+              @edit="handleOpenEdit"
+              @pause="handlePause"
+              @resume="handleResume"
+              @archive="handleRequestArchive"
+              @restore="handleRestore"
+            />
+          </div>
+
+          <!-- Mode 4: Table View -->
+          <ChannelTableView
+            v-else-if="viewMode === 'table'"
+            :channels="filteredChannels"
+            @edit="handleOpenEdit"
+            @pause="handlePause"
+            @resume="handleResume"
+            @archive="handleRequestArchive"
+            @restore="handleRestore"
+          />
+        </template>
       </template>
     </template>
 
-    <!-- Modal: Thêm Kênh Đơn -->
+    <!-- Modals -->
     <AddChannelModal
       v-model="showAddModal"
       :existing-channels="channelStore.channels"
@@ -143,7 +258,6 @@
       @access-key-required="handleAccessKeyRequired"
     />
 
-    <!-- Modal: Thêm Nhiều Kênh -->
     <BulkAddChannelsModal
       v-model="showBulkAddModal"
       :existing-channels="channelStore.channels"
@@ -151,18 +265,22 @@
       @access-key-required="handleAccessKeyRequired"
     />
 
-    <!-- Modal: Chỉnh Thiết Lập -->
     <EditChannelModal
       v-model="showEditModal"
       :channel="editingChannel"
       @save="handleSaveEdit"
     />
 
-    <!-- Modal: Nhập Mã Truy Cập -->
     <AccessKeyPromptModal
       v-model="showAccessKeyModal"
       :initial-error="accessKeyError"
       @confirmed="handleAccessKeyConfirmed"
+    />
+
+    <ChannelDeleteModal
+      v-model="showDeleteModal"
+      :channel="channelToDelete"
+      @confirm="handleConfirmArchive"
     />
   </div>
 </template>
@@ -170,50 +288,163 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import AppIcon from '@/components/ui/AppIcon.vue';
-import ChannelStatsHeader from '@/features/channels/components/ChannelStatsHeader.vue';
-import ChannelTableHeader from '@/features/channels/components/ChannelTableHeader.vue';
-import ChannelDesktopTable from '@/features/channels/components/ChannelDesktopTable.vue';
-import ChannelMobileList from '@/features/channels/components/ChannelMobileList.vue';
+import PageHeader from '@/components/ui/PageHeader.vue';
+import FilterBar from '@/components/ui/FilterBar.vue';
+import ViewModeSwitcher, { ViewModeItem } from '@/components/ui/ViewModeSwitcher.vue';
+import EmptyState from '@/components/ui/EmptyState.vue';
+import ErrorState from '@/components/ui/ErrorState.vue';
+
+// Channels components
+import ChannelSummaryStrip from '@/components/channels/ChannelSummaryStrip.vue';
+import ChannelLargeCard from '@/components/channels/ChannelLargeCard.vue';
+import ChannelMediumCard from '@/components/channels/ChannelMediumCard.vue';
+import ChannelListRow from '@/components/channels/ChannelListRow.vue';
+import ChannelTableView from '@/components/channels/ChannelTableView.vue';
+import ChannelDeleteModal from '@/components/channels/ChannelDeleteModal.vue';
+
+// Modals
 import AddChannelModal from '@/features/channels/components/AddChannelModal.vue';
 import BulkAddChannelsModal from '@/features/channels/components/BulkAddChannelsModal.vue';
 import EditChannelModal from '@/features/channels/components/EditChannelModal.vue';
 import AccessKeyPromptModal from '@/components/ui/AccessKeyPromptModal.vue';
+
 import { AccessKeyRequiredError } from '@/services/channel-service';
 import { collectorService } from '@/services/collector-service';
-import EmptyState from '@/features/channels/components/EmptyState.vue';
 import { useChannelStore } from '@/stores/channel-store';
 import { Channel, ChannelStatus } from '@/types/channel';
+import { getSupabase, isSupabaseConfigured } from '@/services/supabase';
 
 const channelStore = useChannelStore();
 
-const searchQuery = ref('');
-const currentFilter = ref<'all' | ChannelStatus>('all');
-const currentSort = ref<'newest' | 'name' | 'last_scan'>('newest');
+// View Modes definition
+const viewModes: ViewModeItem[] = [
+  { id: 'large-grid', label: 'Lưới lớn', icon: 'grid', title: 'Chế độ lưới lớn' },
+  { id: 'grid', label: 'Lưới vừa', icon: 'layout-grid', title: 'Chế độ lưới vừa' },
+  { id: 'list', label: 'Danh sách', icon: 'list', title: 'Chế độ danh sách' },
+  { id: 'table', label: 'Bảng', icon: 'table', title: 'Chế độ bảng' },
+];
 
+const viewMode = ref<string>('large-grid');
+
+// Filters & Sort
+const searchQuery = ref('');
+const currentFilter = ref<'all' | ChannelStatus | 'rising'>('all');
+const currentSort = ref<'newest' | 'name' | 'last_scan' | 'max_vph' | 'rising_count'>('newest');
+
+// Modals & State
 const showAddModal = ref(false);
 const showBulkAddModal = ref(false);
 const showEditModal = ref(false);
+const showDeleteModal = ref(false);
 const editingChannel = ref<Channel | null>(null);
+const channelToDelete = ref<Channel | null>(null);
+
 const showAccessKeyModal = ref(false);
 const accessKeyError = ref<string | null>(null);
 const isCollecting = ref(false);
 const collectNotification = ref<string | null>(null);
 let pendingAction: (() => Promise<any>) | null = null;
 
+// Telemetry Stats Map
+const channelStatsMap = ref<Record<string, { totalVideos: number; risingCount: number; maxVph: number | null }>>({});
+
+async function loadChannelTelemetry() {
+  if (!isSupabaseConfigured()) return;
+  const supabase = getSupabase();
+  if (!supabase) return;
+
+  try {
+    const { data, error } = await supabase
+      .from('channel_video_current_stats')
+      .select('channel_id, total_videos, rising_video_count, max_vph');
+
+    if (!error && data) {
+      const statsObj: Record<string, { totalVideos: number; risingCount: number; maxVph: number | null }> = {};
+      for (const row of data) {
+        statsObj[row.channel_id] = {
+          totalVideos: Number(row.total_videos) || 0,
+          risingCount: Number(row.rising_video_count) || 0,
+          maxVph: row.max_vph !== null && row.max_vph !== undefined ? Number(row.max_vph) : null,
+        };
+      }
+      channelStatsMap.value = statsObj;
+    }
+  } catch {
+    // Fail-open for telemetry stats
+  }
+}
+
+async function loadData() {
+  await channelStore.fetchChannels();
+  await loadChannelTelemetry();
+}
+
 onMounted(() => {
-  channelStore.fetchChannels();
+  // Restore viewMode from localStorage if present
+  if (typeof localStorage !== 'undefined') {
+    const saved = localStorage.getItem('bbdt_channels_view_mode');
+    if (saved && ['large-grid', 'grid', 'list', 'table'].includes(saved)) {
+      viewMode.value = saved;
+    }
+  }
+  loadData();
 });
 
-// Lọc và sắp xếp danh sách kênh
-const filteredChannels = computed(() => {
-  let result = [...channelStore.channels];
+// Enriched Channels with stats
+const enrichedChannels = computed<Channel[]>(() => {
+  return channelStore.channels.map(ch => {
+    const stats = channelStatsMap.value[ch.id];
+    if (stats) {
+      return {
+        ...ch,
+        totalVideos: stats.totalVideos,
+        risingVideoCount: stats.risingCount,
+        maxVph: stats.maxVph,
+      };
+    }
+    return ch;
+  });
+});
 
-  // 1. Lọc theo trạng thái tab
-  if (currentFilter.value !== 'all') {
+// Network summary totals
+const totalRisingVideos = computed(() => {
+  return enrichedChannels.value.reduce((acc, ch) => acc + (ch.risingVideoCount || 0), 0);
+});
+
+const maxNetworkVph = computed(() => {
+  let max: number | null = null;
+  for (const ch of enrichedChannels.value) {
+    if (ch.maxVph !== null && ch.maxVph !== undefined) {
+      if (max === null || ch.maxVph > max) {
+        max = ch.maxVph;
+      }
+    }
+  }
+  return max;
+});
+
+const hasActiveFilters = computed(() => {
+  return searchQuery.value.trim() !== '' || currentFilter.value !== 'all' || currentSort.value !== 'newest';
+});
+
+function resetFilters() {
+  searchQuery.value = '';
+  currentFilter.value = 'all';
+  currentSort.value = 'newest';
+}
+
+// Filtered and sorted channels
+const filteredChannels = computed(() => {
+  let result = [...enrichedChannels.value];
+
+  // 1. Filter by status or rising
+  if (currentFilter.value === 'rising') {
+    result = result.filter(c => (c.risingVideoCount || 0) > 0);
+  } else if (currentFilter.value !== 'all') {
     result = result.filter(c => c.status === currentFilter.value);
   }
 
-  // 2. Tìm kiếm theo tên hoặc handle
+  // 2. Search query (name or handle)
   const query = searchQuery.value.trim().toLowerCase();
   if (query) {
     result = result.filter(c => {
@@ -223,7 +454,7 @@ const filteredChannels = computed(() => {
     });
   }
 
-  // 3. Sắp xếp
+  // 3. Sort
   if (currentSort.value === 'newest') {
     result.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   } else if (currentSort.value === 'name') {
@@ -234,6 +465,14 @@ const filteredChannels = computed(() => {
       const timeB = b.lastScanAt ? new Date(b.lastScanAt).getTime() : 0;
       return timeB - timeA;
     });
+  } else if (currentSort.value === 'max_vph') {
+    result.sort((a, b) => {
+      const vphA = a.maxVph || 0;
+      const vphB = b.maxVph || 0;
+      return vphB - vphA;
+    });
+  } else if (currentSort.value === 'rising_count') {
+    result.sort((a, b) => (b.risingVideoCount || 0) - (a.risingVideoCount || 0));
   }
 
   return result;
@@ -244,6 +483,15 @@ function handleOpenEdit(channel: Channel) {
   showEditModal.value = true;
 }
 
+function handleRequestArchive(id: string) {
+  const ch = channelStore.channels.find(c => c.id === id);
+  channelToDelete.value = ch || null;
+  showDeleteModal.value = true;
+}
+
+async function handleConfirmArchive(id: string) {
+  await handleArchive(id);
+}
 
 function handleAccessKeyRequired(action: () => Promise<any>, errorMsg?: string) {
   pendingAction = action;
@@ -279,7 +527,6 @@ async function handleAccessKeyConfirmed() {
     } catch (err: any) {
       if (err instanceof AccessKeyRequiredError || err.name === 'AccessKeyRequiredError') {
         accessKeyError.value = 'Mã truy cập không chính xác. Vui lòng nhập lại.';
-        // Giữ pendingAction để cho phép người dùng nhập lại mã
         showAccessKeyModal.value = true;
       } else {
         pendingAction = null;
@@ -315,11 +562,11 @@ async function handleSaveEdit(payload: { id: string; scanLimit: number; alertThr
 }
 
 function handleChannelAdded() {
-  channelStore.fetchChannels();
+  loadData();
 }
 
 function handleBulkAdded() {
-  channelStore.fetchChannels();
+  loadData();
 }
 
 async function handleTriggerCollection() {
@@ -333,7 +580,7 @@ async function handleTriggerCollection() {
         collectNotification.value = res.reason || 'Đang có phiên kiểm tra khác hoạt động.';
       } else if (res.success && res.run) {
         collectNotification.value = `Đã kiểm tra ${res.run.channelsSuccess} kênh và ${res.run.videosFound} video.`;
-        await channelStore.fetchChannels();
+        await loadData();
       }
       setTimeout(() => {
         collectNotification.value = null;
@@ -346,172 +593,228 @@ async function handleTriggerCollection() {
 </script>
 
 <style scoped>
-.collect-banner {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background-color: var(--accent-subtle);
-  border: 1px solid var(--accent);
-  color: var(--accent);
-  padding: 12px 16px;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 500;
-  margin-bottom: 20px;
-}
 .channels-page {
   display: flex;
   flex-direction: column;
+  gap: 1.25rem;
+  max-width: 1440px;
+  margin: 0 auto;
 }
 
-.page-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 20px;
-  margin-bottom: 24px;
-  flex-wrap: wrap;
-}
-
-.page-eyebrow {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: var(--accent);
-  text-transform: uppercase;
-  margin-bottom: 4px;
-}
-
-.page-title {
-  font-size: 26px;
-  font-weight: 700;
-  color: var(--text-primary);
-  letter-spacing: -0.01em;
-}
-
-.spin-anim {
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-.page-description {
-  font-size: 14px;
-  color: var(--text-secondary);
-  margin-top: 4px;
-  max-width: 600px;
-}
-
-.page-header-actions {
+.collect-banner {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 0.75rem;
+  padding: 0.875rem 1.25rem;
+  background: var(--color-success-bg, #ECFDF5);
+  color: var(--color-success-text, #059669);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  border-radius: var(--radius-md, 8px);
+  font-size: 0.875rem;
+  font-weight: 500;
+  animation: banner-enter 0.2s ease-out;
+}
+
+@keyframes banner-enter {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .config-alert {
   display: flex;
-  gap: 14px;
-  background-color: var(--bg-surface);
-  border: 1px solid var(--border-subtle);
-  border-left: 4px solid var(--status-paused);
-  border-radius: 8px;
-  padding: 16px 20px;
-  margin-bottom: 24px;
+  align-items: flex-start;
+  gap: 0.875rem;
+  padding: 1rem 1.25rem;
+  background: var(--color-warning-bg, #FFFBEB);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  border-radius: var(--radius-md, 8px);
 }
 
 .config-alert-icon {
-  color: var(--status-paused);
+  color: var(--color-warning-text, #D97706);
   flex-shrink: 0;
-  margin-top: 2px;
+  margin-top: 0.125rem;
 }
 
 .config-alert-title {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text-primary);
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--color-warning-text, #D97706);
+  margin-bottom: 0.25rem;
 }
 
 .config-alert-desc {
-  font-size: 13px;
-  color: var(--text-secondary);
-  margin-top: 4px;
+  font-size: 0.8125rem;
+  color: var(--text-secondary, #475569);
   line-height: 1.5;
 }
 
-.config-alert-desc code {
-  background-color: var(--bg-surface-elevated);
-  padding: 2px 6px;
-  border-radius: 4px;
-  color: var(--text-primary);
-  font-size: 12px;
-}
-
-.error-alert {
+/* Status Pills */
+.status-filter-pills {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  background-color: var(--danger-bg);
-  border: 1px solid rgba(239, 68, 68, 0.25);
-  border-radius: 8px;
-  padding: 12px 18px;
-  color: var(--danger);
-  margin-bottom: 24px;
+  gap: 0.375rem;
+  flex-wrap: wrap;
 }
 
-.error-alert-content {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 13px;
+.pill-btn {
+  padding: 0.3125rem 0.625rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary, #475569);
+  background: var(--bg-surface-secondary, #F1F5F9);
+  border: 1px solid transparent;
+  border-radius: var(--radius-full, 9999px);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
 }
 
-.skeleton-container {
+.pill-btn:hover {
+  background: var(--border, #E2E8F0);
+  color: var(--text-primary, #0F172A);
+}
+
+.pill-btn.is-active {
+  background: var(--brand-primary, #2563EB);
+  color: #FFFFFF;
+}
+
+.sort-select-wrap {
+  margin-left: 0.25rem;
+}
+
+.sort-select {
+  padding: 0.3125rem 0.625rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-secondary, #334155);
+  background: var(--surface, #FFFFFF);
+  border: 1px solid var(--border, #E2E8F0);
+  border-radius: var(--radius-md, 6px);
+  cursor: pointer;
+  outline: none;
+}
+
+.sort-select:focus {
+  border-color: var(--brand-primary, #2563EB);
+}
+
+/* Layouts */
+.large-grid-layout {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+}
+
+.medium-grid-layout {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+.list-layout {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  margin-top: 16px;
+  gap: 0.625rem;
 }
 
-.skeleton-row {
-  height: 60px;
-  background-color: var(--bg-surface);
-  border-radius: 8px;
-  animation: pulse 1.5s infinite ease-in-out;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 0.6; }
-  50% { opacity: 0.3; }
-}
-
+/* No results card */
 .no-results-card {
-  background-color: var(--bg-surface);
-  border: 1px solid var(--border-subtle);
-  border-radius: 10px;
-  padding: 40px 24px;
-  text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 14px;
+  justify-content: center;
+  text-align: center;
+  padding: 3rem 1.5rem;
+  background: var(--surface, #FFFFFF);
+  border: 1px solid var(--border, #E2E8F0);
+  border-radius: var(--radius-lg, 12px);
 }
 
-.no-results-text {
-  color: var(--text-secondary);
-  font-size: 14px;
+.no-results-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--bg-surface-secondary, #F1F5F9);
+  color: var(--text-tertiary, #64748B);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.no-results-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary, #0F172A);
+  margin-bottom: 0.375rem;
+}
+
+.no-results-desc {
+  font-size: 0.8125rem;
+  color: var(--text-secondary, #475569);
+  max-width: 360px;
+  margin-bottom: 1.25rem;
+}
+
+/* Skeletons */
+.channels-skeleton-wrap {
+  width: 100%;
+}
+
+.skeleton-large-card {
+  height: 240px;
+  background: var(--surface, #FFFFFF);
+  border: 1px solid var(--border, #E2E8F0);
+  border-radius: var(--radius-lg, 14px);
+  animation: pulse-skeleton 1.5s ease-in-out infinite alternate;
+}
+
+.skeleton-med-card {
+  height: 140px;
+  background: var(--surface, #FFFFFF);
+  border: 1px solid var(--border, #E2E8F0);
+  border-radius: var(--radius-lg, 12px);
+  animation: pulse-skeleton 1.5s ease-in-out infinite alternate;
+}
+
+.skeleton-row-item {
+  height: 60px;
+  background: var(--surface, #FFFFFF);
+  border: 1px solid var(--border, #E2E8F0);
+  border-radius: var(--radius-md, 8px);
+  animation: pulse-skeleton 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes pulse-skeleton {
+  0% { opacity: 0.4; }
+  100% { opacity: 0.85; }
+}
+
+@media (max-width: 1280px) {
+  .medium-grid-layout {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 1024px) {
+  .large-grid-layout {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .medium-grid-layout {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 @media (max-width: 640px) {
-  .page-header {
-    flex-direction: column;
-    align-items: stretch;
+  .large-grid-layout {
+    grid-template-columns: 1fr;
   }
-  .page-header-actions {
-    display: none;
+
+  .medium-grid-layout {
+    grid-template-columns: 1fr;
   }
 }
 </style>

@@ -17,6 +17,9 @@ export interface Channel {
   createdAt: string;
   updatedAt: string;
   lastScanAt: string | null;
+  totalVideos?: number;
+  risingVideoCount?: number;
+  maxVph?: number | null;
 }
 
 export interface DbChannel {
