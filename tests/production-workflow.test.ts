@@ -17,6 +17,7 @@ import {
 import type {
   ProductionItem,
   ProductionFilterState,
+  ProductionUpdateInput,
 } from '../src/types/production';
 import {
   STATUS_LABELS,
@@ -1289,6 +1290,159 @@ describe('Bắt Bài Đối Thủ — Giai Đoạn 9: Tiến Độ Sản Xuất 
         priority: 'high',
         publishedUrl: '',
       });
+    });
+
+    // 13. EDIT RETRY TEST: isSaving retained, save disabled, no double submission
+    it('edit retry: khi nhập access key và updateProductionItem pending thì modal vẫn hiện isSaving, save disabled và không cho double submit', async () => {
+      const { default: ProductionPage } = await import('../src/pages/ProductionPage.vue');
+      const { default: ProductionEditModal } = await import('../src/components/production/ProductionEditModal.vue');
+      const { default: AccessKeyPromptModal } = await import('../src/components/ui/AccessKeyPromptModal.vue');
+
+      clearStoredAccessKey();
+      let resolveUpdate: (val: any) => void;
+      const updatePromise = new Promise(r => { resolveUpdate = r; });
+
+      const fetchSpy = vi.spyOn(productionService, 'fetchProductionItems').mockResolvedValue([sampleItems[0]]);
+      const updateSpy = vi.spyOn(productionService, 'updateProductionItem').mockReturnValue(updatePromise as any);
+
+      try {
+        const wrapper = mount(ProductionPage, {
+          global: {
+            plugins: [router],
+            stubs: {
+              'router-link': { template: '<a><slot /></a>' },
+              Teleport: true,
+            },
+          },
+        });
+        await flushPromises();
+
+        // Open edit modal
+        (wrapper.vm as any).openEditModal(sampleItems[0]);
+        await flushPromises();
+
+        const editModal = wrapper.findComponent(ProductionEditModal);
+        expect(editModal.props('modelValue')).toBe(true);
+
+        // Submit edit without key
+        const savePayload: ProductionUpdateInput = {
+          id: 'prod-1',
+          workingTitle: 'Retry Title',
+          priority: 'high',
+          notes: 'Retry Notes',
+          publishedUrl: '',
+        };
+        await (wrapper.vm as any).handleSaveEdit(savePayload);
+        await flushPromises();
+
+        // Access modal opened
+        const accessModal = wrapper.findComponent(AccessKeyPromptModal);
+        expect(accessModal.props('modelValue')).toBe(true);
+
+        // Confirm access key
+        accessModal.vm.$emit('confirmed', 'new-valid-key');
+        await flushPromises();
+
+        // Now updateProductionItem is called and pending
+        expect(updateSpy).toHaveBeenCalledTimes(1);
+        expect(editModal.props('isSaving')).toBe(true);
+
+        // In modal DOM, save button should be disabled
+        const saveBtn = editModal.findAll('button').find(b => b.text().includes('Đang lưu...'));
+        expect(saveBtn).toBeDefined();
+        expect(saveBtn!.attributes('disabled')).toBeDefined();
+
+        // Attempt second submit while pending
+        await (wrapper.vm as any).handleSaveEdit(savePayload);
+        expect(updateSpy).toHaveBeenCalledTimes(1); // STILL only 1 call!
+
+        // Resolve
+        resolveUpdate!({ ...sampleItems[0], workingTitle: 'Retry Title' });
+        await flushPromises();
+
+        expect(editModal.props('modelValue')).toBe(false);
+        expect((wrapper.vm as any).isAnyMutationBusy).toBe(false);
+      } finally {
+        fetchSpy.mockRestore();
+        updateSpy.mockRestore();
+      }
+    });
+
+    // 14. DELETE RETRY TEST: isDeleting retained, confirm disabled, no double delete
+    it('delete retry: khi nhập access key và deleteProductionItem pending thì modal vẫn hiện isDeleting, confirm disabled và không cho double delete', async () => {
+      const { default: ProductionPage } = await import('../src/pages/ProductionPage.vue');
+      const { default: ProductionDeleteModal } = await import('../src/components/production/ProductionDeleteModal.vue');
+      const { default: AccessKeyPromptModal } = await import('../src/components/ui/AccessKeyPromptModal.vue');
+
+      clearStoredAccessKey();
+      let resolveDelete: (val: any) => void;
+      const deletePromise = new Promise(r => { resolveDelete = r; });
+
+      const fetchSpy = vi.spyOn(productionService, 'fetchProductionItems').mockResolvedValue([sampleItems[0]]);
+      const deleteSpy = vi.spyOn(productionService, 'deleteProductionItem').mockReturnValue(deletePromise as any);
+
+      try {
+        const wrapper = mount(ProductionPage, {
+          global: {
+            plugins: [router],
+            stubs: {
+              'router-link': { template: '<a><slot /></a>' },
+              Teleport: true,
+            },
+          },
+        });
+        await flushPromises();
+
+        // Open delete modal
+        (wrapper.vm as any).openDeleteModal(sampleItems[0]);
+        await flushPromises();
+
+        const deleteModal = wrapper.findComponent(ProductionDeleteModal);
+        expect(deleteModal.props('modelValue')).toBe(true);
+
+        // Confirm delete without key
+        await (wrapper.vm as any).handleConfirmDelete();
+        await flushPromises();
+
+        // Access modal opened
+        const accessModal = wrapper.findComponent(AccessKeyPromptModal);
+        expect(accessModal.props('modelValue')).toBe(true);
+
+        // Confirm access key
+        accessModal.vm.$emit('confirmed', 'new-valid-key');
+        await flushPromises();
+
+        // Now deleteProductionItem is called and pending
+        expect(deleteSpy).toHaveBeenCalledTimes(1);
+        expect(deleteModal.props('isDeleting')).toBe(true);
+
+        // Confirm and cancel buttons should be disabled
+        const confirmBtn = deleteModal.findAll('button').find(b => b.text().includes('Đang xóa...'));
+        expect(confirmBtn).toBeDefined();
+        expect(confirmBtn!.attributes('disabled')).toBeDefined();
+
+        const cancelBtn = deleteModal.findAll('button').find(b => b.text() === 'Hủy');
+        expect(cancelBtn).toBeDefined();
+        expect(cancelBtn!.attributes('disabled')).toBeDefined();
+
+        // Attempt second confirm while pending
+        await (wrapper.vm as any).handleConfirmDelete();
+        expect(deleteSpy).toHaveBeenCalledTimes(1); // STILL only 1 call!
+
+        // Item still exists while pending
+        expect((wrapper.vm as any).items.length).toBe(1);
+
+        // Resolve
+        resolveDelete!('prod-1');
+        await flushPromises();
+
+        expect(deleteModal.props('modelValue')).toBe(false);
+        expect((wrapper.vm as any).items.length).toBe(0);
+        expect((wrapper.vm as any).isAnyMutationBusy).toBe(false);
+      } finally {
+        fetchSpy.mockRestore();
+        deleteSpy.mockRestore();
+      }
     });
   });
 });

@@ -113,7 +113,7 @@
     <ProductionEditModal
       v-model="showEditModal"
       :item="editingItem"
-      :is-saving="isSavingEdit"
+      :is-saving="isSavingEdit || editingItemBusy"
       :modal-error="editModalError"
       @save="handleSaveEdit"
     />
@@ -122,7 +122,7 @@
     <ProductionDeleteModal
       v-model="showDeleteModal"
       :item="deletingItem"
-      :is-deleting="isDeleting"
+      :is-deleting="isDeleting || deletingItemBusy"
       @confirm="handleConfirmDelete"
     />
 
@@ -307,8 +307,12 @@ async function executeWithAccessKey(
   itemIdsToBusy?: string[],
   onNonAuthError?: (err: Error) => void
 ) {
-  // Prevent duplicate execution if loading or modal already has pending action
-  if (loading.value || (showAccessKeyModal.value && pendingAction !== null)) return;
+  // Prevent duplicate execution if loading, mutation busy, or modal already has pending action
+  if (
+    loading.value ||
+    isAnyMutationBusy.value ||
+    (showAccessKeyModal.value && pendingAction !== null)
+  ) return;
 
   // Invalidate any pending load requests so a late refresh response does NOT overwrite mutation result
   ++loadRequestId;
@@ -436,6 +440,11 @@ const editingItem = ref<ProductionItem | null>(null);
 const isSavingEdit = ref(false);
 const editModalError = ref<string | null>(null);
 
+const editingItemBusy = computed(() =>
+  !!editingItem.value &&
+  busyItemIds.value.has(editingItem.value.id)
+);
+
 function openEditModal(item: ProductionItem) {
   if (interactionsLocked.value) return;
   editingItem.value = item;
@@ -444,7 +453,11 @@ function openEditModal(item: ProductionItem) {
 }
 
 async function handleSaveEdit(updateInput: ProductionUpdateInput) {
-  if (loading.value || (showAccessKeyModal.value && pendingAction !== null)) return;
+  if (
+    loading.value ||
+    isAnyMutationBusy.value ||
+    (showAccessKeyModal.value && pendingAction !== null)
+  ) return;
   editModalError.value = null;
   isSavingEdit.value = true;
 
@@ -474,6 +487,11 @@ const showDeleteModal = ref(false);
 const deletingItem = ref<ProductionItem | null>(null);
 const isDeleting = ref(false);
 
+const deletingItemBusy = computed(() =>
+  !!deletingItem.value &&
+  busyItemIds.value.has(deletingItem.value.id)
+);
+
 function openDeleteModal(item: ProductionItem) {
   if (interactionsLocked.value) return;
   deletingItem.value = item;
@@ -481,7 +499,12 @@ function openDeleteModal(item: ProductionItem) {
 }
 
 async function handleConfirmDelete() {
-  if (!deletingItem.value || loading.value || (showAccessKeyModal.value && pendingAction !== null)) return;
+  if (
+    !deletingItem.value ||
+    loading.value ||
+    isAnyMutationBusy.value ||
+    (showAccessKeyModal.value && pendingAction !== null)
+  ) return;
   const id = deletingItem.value.id;
   isDeleting.value = true;
 
