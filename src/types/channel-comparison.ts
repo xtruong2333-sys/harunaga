@@ -17,9 +17,18 @@ export interface ChannelComparisonMetrics {
   risingVideoRatio: number | null; // Tỷ lệ %, null nếu không có video nào có VPH
   maxVph: number | null;
   avgMeasuredVph: number | null; // Trung bình đo được (bao gồm 0, loại trừ NULL)
-  trackedViews: number;
+  trackedViews: number | null; // Lượt xem đang theo dõi, null nếu toàn bộ video không có lượt xem
   latestViewDelta: number | null; // Tổng view_delta ở snapshot mới nhất của mỗi video
   videosWithVphCount: number;
+}
+
+export interface ChannelPublishingMetrics {
+  publishedLast7d: number;
+  publishedLast30d: number;
+  avgDaysBetweenPosts: number | null;
+  mostCommonWeekday: string | null;
+  commonHourWindow: string | null;
+  sampleCount: number;
 }
 
 export interface ChannelComparisonVideo {
@@ -29,7 +38,7 @@ export interface ChannelComparisonVideo {
   thumbnailUrl: string | null;
   publishedAt: string | null;
   relativePublishedAt: string;
-  latestViewCount: number;
+  latestViewCount: number | null;
   latestMeasuredVph: number | null;
   latestViewDelta: number | null;
   alertStatus: 'no_alert' | 'pending' | 'sending' | 'sent' | 'failed';
@@ -55,6 +64,7 @@ export interface ChannelComparisonItem {
   relativeScanTime: string;
   color: string;
   metrics: ChannelComparisonMetrics;
+  publishing: ChannelPublishingMetrics;
   topVideos: ChannelComparisonVideo[];
   trendPoints: ChannelComparisonTrendPoint[];
 }
@@ -78,4 +88,13 @@ export const COMPARISON_PALETTE = [
   '#10b981', // Xanh ngọc (Emerald green)
   '#f59e0b', // Hổ phách (Amber)
   '#c084fc', // Tím nhạt (Purple)
+];
+
+export type ComparisonViewMode = 'overview' | 'table' | 'signals' | 'trend';
+
+export const COMPARISON_VIEW_MODES = [
+  { id: 'overview', label: 'Tổng quan', icon: 'grid', title: 'Tổng quan đối chiếu' },
+  { id: 'table', label: 'Bảng', icon: 'list', title: 'Bảng số liệu chi tiết' },
+  { id: 'signals', label: 'Tín hiệu', icon: 'zap', title: 'Tín hiệu video nổi bật' },
+  { id: 'trend', label: 'Xu hướng', icon: 'trending-up', title: 'Biểu đồ xu hướng VPH 24h' },
 ];
