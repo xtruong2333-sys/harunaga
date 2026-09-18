@@ -27,7 +27,7 @@
     <div class="telemetry-card">
       <div class="card-header">
         <span class="card-title">Kênh Cần Chú Ý</span>
-        <AppIcon name="users" size="16" class="card-icon" />
+        <AppIcon name="tv" size="16" class="card-icon" />
       </div>
       <div class="card-body">
         <div class="stat-number" :class="channelsNeedAttentionCount > 0 ? 'text-warning' : 'text-normal'">

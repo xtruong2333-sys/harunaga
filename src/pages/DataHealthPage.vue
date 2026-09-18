@@ -2,7 +2,7 @@
   <div class="data-health-observatory">
     <!-- Page Header -->
     <PageHeader
-      kicker="GIÁM SÁT HỆ THỐNG"
+      kicker="DATA OPERATIONS OBSERVATORY"
       title="Tình Trạng Dữ Liệu"
       description="Trung tâm quan sát sức khỏe dữ liệu, chu kỳ thu thập tự động và hạ tầng cảnh báo đối thủ."
     >
@@ -24,15 +24,35 @@
       </template>
     </PageHeader>
 
-    <!-- Error State -->
+    <!-- Error State (Chỉ khi chưa có dữ liệu ban đầu) -->
     <ErrorState
-      v-if="error"
+      v-if="initialLoadError && !summary"
       title="Không thể kết nối dữ liệu quan sát"
-      :message="error"
+      :message="initialLoadError"
       retry-text="Thử lại"
       :show-retry="true"
       @retry="loadData"
     />
+
+    <!-- Refresh Warning Band (Khi đã có dữ liệu nhưng refresh bị lỗi) -->
+    <div v-if="summary && refreshError" class="refresh-warning-band" role="alert">
+      <div class="warning-content">
+        <AppIcon name="alert" size="16" class="text-warning" />
+        <div class="warning-text">
+          <strong>Không thể làm mới dữ liệu.</strong> Đang hiển thị lần tải thành công gần nhất.
+          <span class="refresh-error-detail">({{ refreshError }})</span>
+        </div>
+      </div>
+      <button
+        type="button"
+        class="btn btn-secondary btn-sm"
+        :disabled="loading"
+        @click="loadData"
+      >
+        <AppIcon name="refresh" size="13" :class="{ 'spin-anim': loading }" />
+        <span>Thử lại</span>
+      </button>
+    </div>
 
     <!-- Skeleton Loading -->
     <div v-if="loading && !summary" class="observatory-skeleton">
@@ -87,78 +107,70 @@
     </div>
 
     <!-- Modal Chi Tiết Lỗi Scan -->
-    <div v-if="selectedErrorScan" class="modal-backdrop" @click="closeScanError">
-      <div class="modal-dialog" @click.stop>
-        <div class="modal-header">
-          <div class="modal-title-wrap">
-            <AppIcon name="alert" size="20" class="text-danger" />
-            <h3 class="modal-title">Chi Tiết Lỗi Lần Quét</h3>
+    <AppModal
+      :model-value="!!selectedErrorScan"
+      title="Chi Tiết Lỗi Lần Quét"
+      max-width="560px"
+      @update:model-value="(val: boolean) => { if (!val) closeScanError(); }"
+    >
+      <div v-if="selectedErrorScan" class="modal-body-stack">
+        <div class="modal-meta-row">
+          <div>
+            <span class="meta-label">Bắt đầu:</span>
+            <span class="meta-val mono">{{ formatDateTime(selectedErrorScan.startedAt) }}</span>
           </div>
-          <button class="btn-close" @click="closeScanError" aria-label="Đóng">✕</button>
+          <div>
+            <span class="meta-label">Kiểu chạy:</span>
+            <span class="meta-val">{{ selectedErrorScan.triggerLabel }}</span>
+          </div>
+          <div>
+            <span class="meta-label">Trạng thái:</span>
+            <span class="meta-val">{{ selectedErrorScan.statusLabel }}</span>
+          </div>
         </div>
-        <div class="modal-body">
-          <div class="modal-meta-row">
-            <div>
-              <span class="meta-label">Bắt đầu:</span>
-              <span class="meta-val mono">{{ formatDateTime(selectedErrorScan.startedAt) }}</span>
-            </div>
-            <div>
-              <span class="meta-label">Kiểu chạy:</span>
-              <span class="meta-val">{{ selectedErrorScan.triggerLabel }}</span>
-            </div>
-            <div>
-              <span class="meta-label">Trạng thái:</span>
-              <span class="meta-val">{{ selectedErrorScan.statusLabel }}</span>
-            </div>
-          </div>
 
-          <div class="error-box-wrap">
-            <label class="error-box-label">Thông báo lỗi (đã ẩn thông tin bảo mật):</label>
-            <pre class="error-pre">{{ selectedErrorScan.sanitizedError || 'Không có chi tiết lỗi ghi nhận.' }}</pre>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button class="btn btn-secondary" @click="closeScanError">Đóng</button>
+        <div class="error-box-wrap">
+          <label class="error-box-label">Thông báo lỗi (đã ẩn thông tin bảo mật):</label>
+          <pre class="error-pre">{{ selectedErrorScan.sanitizedError || 'Không có chi tiết lỗi ghi nhận.' }}</pre>
         </div>
       </div>
-    </div>
+      <template #footer>
+        <button type="button" class="btn btn-secondary" @click="closeScanError">Đóng</button>
+      </template>
+    </AppModal>
 
     <!-- Modal Chi Tiết Lỗi Discord Alert -->
-    <div v-if="selectedFailedAlert" class="modal-backdrop" @click="closeAlertError">
-      <div class="modal-dialog" @click.stop>
-        <div class="modal-header">
-          <div class="modal-title-wrap">
-            <AppIcon name="alert" size="20" class="text-danger" />
-            <h3 class="modal-title">Chi Tiết Lỗi Gửi Cảnh Báo Discord</h3>
+    <AppModal
+      :model-value="!!selectedFailedAlert"
+      title="Chi Tiết Lỗi Gửi Cảnh Báo Discord"
+      max-width="560px"
+      @update:model-value="(val: boolean) => { if (!val) closeAlertError(); }"
+    >
+      <div v-if="selectedFailedAlert" class="modal-body-stack">
+        <div class="modal-meta-row">
+          <div>
+            <span class="meta-label">Video:</span>
+            <span class="meta-val font-medium">{{ selectedFailedAlert.videoTitle }}</span>
           </div>
-          <button class="btn-close" @click="closeAlertError" aria-label="Đóng">✕</button>
+          <div>
+            <span class="meta-label">Kênh:</span>
+            <span class="meta-val">{{ selectedFailedAlert.channelName }}</span>
+          </div>
+          <div>
+            <span class="meta-label">Số lần thử:</span>
+            <span class="meta-val mono">{{ selectedFailedAlert.attempts }}</span>
+          </div>
         </div>
-        <div class="modal-body">
-          <div class="modal-meta-row">
-            <div>
-              <span class="meta-label">Video:</span>
-              <span class="meta-val font-medium">{{ selectedFailedAlert.videoTitle }}</span>
-            </div>
-            <div>
-              <span class="meta-label">Kênh:</span>
-              <span class="meta-val">{{ selectedFailedAlert.channelName }}</span>
-            </div>
-            <div>
-              <span class="meta-label">Số lần thử:</span>
-              <span class="meta-val mono">{{ selectedFailedAlert.attempts }}</span>
-            </div>
-          </div>
 
-          <div class="error-box-wrap">
-            <label class="error-box-label">Thông báo lỗi (đã ẩn thông tin bảo mật):</label>
-            <pre class="error-pre">{{ selectedFailedAlert.sanitizedError || 'Không có chi tiết lỗi ghi nhận.' }}</pre>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button class="btn btn-secondary" @click="closeAlertError">Đóng</button>
+        <div class="error-box-wrap">
+          <label class="error-box-label">Thông báo lỗi (đã ẩn thông tin bảo mật):</label>
+          <pre class="error-pre">{{ selectedFailedAlert.sanitizedError || 'Không có chi tiết lỗi ghi nhận.' }}</pre>
         </div>
       </div>
-    </div>
+      <template #footer>
+        <button type="button" class="btn btn-secondary" @click="closeAlertError">Đóng</button>
+      </template>
+    </AppModal>
   </div>
 </template>
 
@@ -166,6 +178,7 @@
 import { ref, onMounted, onUnmounted } from 'vue';
 import PageHeader from '@/components/ui/PageHeader.vue';
 import AppIcon from '@/components/ui/AppIcon.vue';
+import AppModal from '@/components/ui/AppModal.vue';
 import ErrorState from '@/components/ui/ErrorState.vue';
 import DataHealthStatusBanner from '@/components/data-health/DataHealthStatusBanner.vue';
 import DataHealthTelemetryRail from '@/components/data-health/DataHealthTelemetryRail.vue';
@@ -181,23 +194,38 @@ import type {
 } from '@/types/data-health';
 
 const loading = ref(true);
-const error = ref<string | null>(null);
+const initialLoadError = ref<string | null>(null);
+const refreshError = ref<string | null>(null);
 const summary = ref<DataHealthSummary | null>(null);
 
 const selectedErrorScan = ref<DataHealthScan | null>(null);
 const selectedFailedAlert = ref<FailedAlertItem | null>(null);
 
+let loadRequestId = 0;
 let refreshInterval: number | undefined;
 
 async function loadData() {
+  const requestId = ++loadRequestId;
   loading.value = true;
-  error.value = null;
+
   try {
-    summary.value = await dataHealthService.fetchDataHealthSummary();
+    const data = await dataHealthService.fetchDataHealthSummary();
+    if (requestId !== loadRequestId) return;
+    summary.value = data;
+    initialLoadError.value = null;
+    refreshError.value = null;
   } catch (err: any) {
-    error.value = err?.message || 'Không thể tải dữ liệu tình trạng hệ thống. Vui lòng thử lại.';
+    if (requestId !== loadRequestId) return;
+    const msg = err?.message || 'Không thể tải dữ liệu tình trạng hệ thống. Vui lòng thử lại.';
+    if (!summary.value) {
+      initialLoadError.value = msg;
+    } else {
+      refreshError.value = msg;
+    }
   } finally {
-    loading.value = false;
+    if (requestId === loadRequestId) {
+      loading.value = false;
+    }
   }
 }
 
@@ -218,7 +246,7 @@ function closeAlertError() {
 }
 
 function handleVisibilityChange() {
-  if (document.visibilityState === 'visible') {
+  if (document.visibilityState === 'visible' && !loading.value) {
     loadData();
   }
 }
@@ -361,91 +389,63 @@ onUnmounted(() => {
   50% { opacity: 0.8; }
 }
 
-/* Error Modal */
-.modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(15, 23, 42, 0.6);
-  backdrop-filter: blur(4px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 999;
-  padding: 16px;
-}
-
-.modal-dialog {
-  background: var(--bg-card, #FFFFFF);
-  border: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.1));
-  border-radius: var(--radius-lg, 12px);
-  width: 100%;
-  max-width: 580px;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
-  overflow: hidden;
-  animation: modalIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-[data-theme="dark"] .modal-dialog {
-  background: #1E293B;
-  border-color: rgba(255, 255, 255, 0.1);
-}
-
-@keyframes modalIn {
-  from { opacity: 0; transform: scale(0.97) translateY(8px); }
-  to { opacity: 1; transform: scale(1) translateY(0); }
-}
-
-.modal-header {
+/* Refresh Warning Band */
+.refresh-warning-band {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 20px;
-  border-bottom: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.08));
+  gap: 12px;
+  padding: 10px 16px;
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  border-radius: 8px;
+  color: var(--text-primary, #0F172A);
+  font-size: 0.85rem;
 }
 
-[data-theme="dark"] .modal-header {
-  border-bottom-color: rgba(255, 255, 255, 0.08);
+[data-theme="dark"] .refresh-warning-band {
+  background: rgba(245, 158, 11, 0.12);
+  border-color: rgba(245, 158, 11, 0.35);
+  color: #FDE68A;
 }
 
-.modal-title-wrap {
+.warning-content {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
-.modal-title {
-  margin: 0;
-  font-size: 1.05rem;
-  font-weight: 700;
-  color: var(--text-primary, #0F172A);
+.warning-text {
+  line-height: 1.4;
 }
 
-[data-theme="dark"] .modal-title {
-  color: #F1F5F9;
-}
-
-.btn-close {
-  background: none;
-  border: none;
-  font-size: 1.1rem;
-  cursor: pointer;
+.refresh-error-detail {
   color: var(--text-muted, #64748B);
-  padding: 4px;
-  border-radius: 4px;
+  margin-left: 4px;
 }
 
-.btn-close:hover {
-  background: rgba(0, 0, 0, 0.05);
-  color: var(--text-primary, #0F172A);
+[data-theme="dark"] .refresh-error-detail {
+  color: #94A3B8;
 }
 
-[data-theme="dark"] .btn-close:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: #F1F5F9;
+.text-warning {
+  color: #D97706;
 }
 
-.modal-body {
-  padding: 20px;
+[data-theme="dark"] .text-warning {
+  color: #FBBF24;
+}
+
+.btn-sm {
+  padding: 5px 12px;
+  font-size: 0.78rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Modal Internal Stack & Content */
+.modal-body-stack {
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -510,6 +510,7 @@ onUnmounted(() => {
   font-size: 0.82rem;
   font-family: var(--font-mono, monospace);
   white-space: pre-wrap;
+  overflow-wrap: anywhere;
   word-break: break-word;
   max-height: 240px;
   overflow-y: auto;
@@ -519,17 +520,6 @@ onUnmounted(() => {
   background: rgba(239, 68, 68, 0.12);
   border-color: rgba(239, 68, 68, 0.3);
   color: #FCA5A5;
-}
-
-.modal-footer {
-  padding: 12px 20px;
-  border-top: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.08));
-  display: flex;
-  justify-content: flex-end;
-}
-
-[data-theme="dark"] .modal-footer {
-  border-top-color: rgba(255, 255, 255, 0.08);
 }
 
 .btn-secondary {

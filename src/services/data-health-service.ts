@@ -191,7 +191,7 @@ export function computeChannelFreshness(
 
   const scanMs = new Date(lastScanAt).getTime();
   if (isNaN(scanMs) || !isFinite(scanMs)) {
-    return { category: 'never', label: FRESHNESS_LABELS.never };
+    throw new Error('Thời gian quét kênh không hợp lệ.');
   }
   const diffMinutes = (nowMs - scanMs) / (60 * 1000);
 
@@ -250,7 +250,7 @@ export function computeVideoFreshness(
 
   const snapMs = new Date(latestSnapshotAt).getTime();
   if (isNaN(snapMs) || !isFinite(snapMs)) {
-    return { category: 'never', label: VIDEO_FRESHNESS_LABELS.never };
+    throw new Error('Thời gian snapshot video không hợp lệ.');
   }
   const diffMinutes = (nowMs - snapMs) / (60 * 1000);
 
@@ -354,7 +354,14 @@ export function computeSystemStatus(
   };
 }
 
-function mapScanRow(row: any, nowMs: number): DataHealthScan {
+export function mapScanRow(row: any, nowMs: number): DataHealthScan {
+  if (!row || !row.started_at || isNaN(new Date(row.started_at).getTime())) {
+    throw new Error(`Thời gian bắt đầu quét không hợp lệ: ${row?.started_at}`);
+  }
+  if (row.finished_at && isNaN(new Date(row.finished_at).getTime())) {
+    throw new Error(`Thời gian kết thúc quét không hợp lệ: ${row?.finished_at}`);
+  }
+
   const status = (row.status || 'success') as ScanStatus;
   const triggerSource = (row.trigger_source || 'schedule') as TriggerSource;
   const sanitized = sanitizeErrorSummary(row.error_summary);
@@ -377,6 +384,46 @@ function mapScanRow(row: any, nowMs: number): DataHealthScan {
     sanitizedError: sanitized || null,
     durationText: formatDuration(row.started_at, row.finished_at, status),
     relativeTime: formatRelativeTime(row.started_at, nowMs),
+  };
+}
+
+/**
+ * Lọc và sắp xếp danh sách video cần cập nhật (never và stale, loại trừ warning và fresh).
+ * Thứ tự ưu tiên: never -> stale, trong cùng nhóm ưu tiên snapshot cũ nhất trước.
+ */
+export function selectStaleVideos(
+  videos: VideoFreshness[],
+  limit: number = 20
+): {
+  total: number;
+  items: VideoFreshness[];
+} {
+  const videoPriorityRank: Record<FreshnessCategory, number> = {
+    never: 0,
+    stale: 1,
+    warning: 2,
+    fresh: 3,
+  };
+
+  const staleCandidates = videos.filter(
+    v => v.freshnessCategory === 'never' || v.freshnessCategory === 'stale'
+  );
+
+  const sortedStaleVideos = [...staleCandidates].sort((a, b) => {
+    const rankA = videoPriorityRank[a.freshnessCategory];
+    const rankB = videoPriorityRank[b.freshnessCategory];
+    if (rankA !== rankB) return rankA - rankB;
+
+    if (!a.latestSnapshotAt && !b.latestSnapshotAt) return 0;
+    if (!a.latestSnapshotAt) return -1;
+    if (!b.latestSnapshotAt) return 1;
+
+    return new Date(a.latestSnapshotAt).getTime() - new Date(b.latestSnapshotAt).getTime();
+  });
+
+  return {
+    total: staleCandidates.length,
+    items: sortedStaleVideos.slice(0, limit),
   };
 }
 
@@ -507,34 +554,7 @@ export const dataHealthService = {
     });
 
     const activeVideosCount = allVideoFreshness.length;
-
-    // Filter only candidates needing attention (never or stale)
-    const staleCandidates = allVideoFreshness.filter(
-      v => v.freshnessCategory === 'never' || v.freshnessCategory === 'stale'
-    );
-    const staleVideosCount = staleCandidates.length;
-
-    // Sort stale videos: oldest snapshot first (never -> stale)
-    const videoPriorityRank: Record<FreshnessCategory, number> = {
-      never: 0,
-      stale: 1,
-      warning: 2,
-      fresh: 3,
-    };
-
-    const sortedStaleVideos = [...staleCandidates]
-      .sort((a, b) => {
-        const rankA = videoPriorityRank[a.freshnessCategory];
-        const rankB = videoPriorityRank[b.freshnessCategory];
-        if (rankA !== rankB) return rankA - rankB;
-
-        if (!a.latestSnapshotAt && !b.latestSnapshotAt) return 0;
-        if (!a.latestSnapshotAt) return -1;
-        if (!b.latestSnapshotAt) return 1;
-
-        return new Date(a.latestSnapshotAt).getTime() - new Date(b.latestSnapshotAt).getTime();
-      })
-      .slice(0, 20);
+    const { total: staleVideosCount, items: sortedStaleVideos } = selectStaleVideos(allVideoFreshness, 20);
 
     // Map Discord alerts (sample of up to 100 recent alerts)
     const rawAlerts = alertsRes.data || [];

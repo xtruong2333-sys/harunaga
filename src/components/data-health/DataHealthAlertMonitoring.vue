@@ -52,7 +52,7 @@
     <div v-if="summary.stuckSendingCount > 0" class="stuck-sending-alert">
       <AppIcon name="alert" size="18" class="text-warning" />
       <span>
-        Có <strong>{{ summary.stuckSendingCount }}</strong> cảnh báo đang ở trạng thái gửi lâu hơn 15 phút. Hệ thống sẽ tự động thử lại ở phiên tiếp theo.
+        Có <strong>{{ summary.stuckSendingCount }}</strong> cảnh báo ở trạng thái gửi lâu hơn 15 phút. Các bản ghi đủ điều kiện sẽ được xử lý lại ở phiên thu thập tiếp theo.
       </span>
     </div>
 
@@ -125,10 +125,16 @@
       </div>
     </div>
 
-    <!-- Clean Success State -->
+    <!-- Empty State A: total === 0 -->
+    <div v-else-if="summary.total === 0" class="alert-empty-note">
+      <AppIcon name="shield-check" size="18" class="text-muted" />
+      <span>Chưa có bản ghi cảnh báo nào trong phạm vi dữ liệu đã tải.</span>
+    </div>
+
+    <!-- Empty State B: total > 0 && failed === 0 -->
     <div v-else class="alert-success-note">
       <AppIcon name="shield-check" size="18" class="text-success" />
-      <span>Tất cả cảnh báo Discord trong mẫu đều gửi thành công hoặc đang chờ xử lý. Không có cảnh báo nào gặp lỗi.</span>
+      <span>Không có cảnh báo thất bại trong các bản ghi đã tải.</span>
     </div>
   </div>
 </template>
@@ -419,6 +425,25 @@ defineEmits<{
   background: rgba(16, 185, 129, 0.12);
   border-color: rgba(16, 185, 129, 0.25);
   color: #A7F3D0;
+}
+
+.alert-empty-note {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px;
+  background: var(--bg-inset, #F8FAFC);
+  border: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.08));
+  border-radius: var(--radius-md, 8px);
+  font-size: 0.88rem;
+  color: var(--text-secondary, #64748B);
+  font-weight: 500;
+}
+
+[data-theme="dark"] .alert-empty-note {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.08);
+  color: #94A3B8;
 }
 
 /* Mobile */

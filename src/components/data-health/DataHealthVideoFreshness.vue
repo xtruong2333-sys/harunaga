@@ -73,7 +73,7 @@
             <td>
               <router-link :to="`/videos/${video.id}`" class="table-action-link">
                 Chi tiết
-                <AppIcon name="chevron-right" size="13" />
+                <AppIcon name="external" size="13" />
               </router-link>
             </td>
           </tr>
@@ -129,7 +129,7 @@
         <div class="card-action-row">
           <router-link :to="`/videos/${video.id}`" class="table-action-link">
             Xem phân tích video
-            <AppIcon name="chevron-right" size="13" />
+            <AppIcon name="external" size="13" />
           </router-link>
         </div>
       </div>
