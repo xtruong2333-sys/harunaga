@@ -209,7 +209,7 @@ import { videoService } from '@/services/video-service';
 
 const props = defineProps<{
   snapshots: VideoSnapshotPoint[];
-  threshold?: number;
+  threshold?: number | null;
 }>();
 
 const hoveredViewPoint = ref<any | null>(null);

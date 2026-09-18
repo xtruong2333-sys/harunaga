@@ -35,41 +35,38 @@ describe('V1.1 — Wave 1: Monitoring Experience Redesign Contract Assertions', 
     expect(content).toContain('RECENT VIDEO RADAR');
   });
 
-  // 2. Videos Page & Components Contract
-  it('2. VideosPage and components preserve stats, filter tabs, sort, desktop table and mobile list', () => {
+  // 2. Videos Page & Components Contract (Updated to Wave 3.5 Growth Signal Radar)
+  it('2. VideosPage and components preserve stats, filter tabs, sort, and 5 view modes', () => {
     const pagePath = path.join(srcDir, 'pages/VideosPage.vue');
     const pageContent = fs.readFileSync(pagePath, 'utf-8');
 
-    expect(pageContent).toContain('VideoStatsHeader');
-    expect(pageContent).toContain('VideoTableHeader');
-    expect(pageContent).toContain('VideoDesktopTable');
-    expect(pageContent).toContain('VideoMobileList');
-    expect(pageContent).toContain('TỐC ĐỘ TĂNG');
+    expect(pageContent).toContain('PageHeader');
+    expect(pageContent).toContain('GrowthSummaryStrip');
+    expect(pageContent).toContain('FilterBar');
+    expect(pageContent).toContain('ViewModeSwitcher');
+    expect(pageContent).toContain('GROWTH SIGNAL RADAR');
     expect(pageContent).toContain('Video Đang Tăng');
 
-    // VideoTableHeader tabs preserved
-    const headerPath = path.join(srcDir, 'features/videos/components/VideoTableHeader.vue');
-    const headerContent = fs.readFileSync(headerPath, 'utf-8');
-    expect(headerContent).toContain("value: 'all'");
-    expect(headerContent).toContain("value: 'rising'");
-    expect(headerContent).toContain("value: 'alerted'");
-    expect(headerContent).toContain("value: 'unalerted'");
-    expect(headerContent).toContain('vph_desc');
-    expect(headerContent).toContain('views_desc');
-    expect(headerContent).toContain('published_desc');
-    expect(headerContent).toContain('delta_desc');
+    // Filter status values preserved
+    expect(pageContent).toContain('value="all"');
+    expect(pageContent).toContain('value="rising"');
+    expect(pageContent).toContain('value="alerted"');
+    expect(pageContent).toContain('value="unalerted"');
 
-    // Desktop Table columns preserved
-    const tablePath = path.join(srcDir, 'features/videos/components/VideoDesktopTable.vue');
-    const tableContent = fs.readFileSync(tablePath, 'utf-8');
-    expect(tableContent).toContain('col-video');
-    expect(tableContent).toContain('col-channel');
-    expect(tableContent).toContain('col-vph');
-    expect(tableContent).toContain('col-views');
-    expect(tableContent).toContain('col-delta');
-    expect(tableContent).toContain('col-published');
-    expect(tableContent).toContain('col-alert');
-    expect(tableContent).toContain('col-actions');
+    // Sort options preserved
+    expect(pageContent).toContain('vph_desc');
+    expect(pageContent).toContain('delta_desc');
+    expect(pageContent).toContain('views_desc');
+    expect(pageContent).toContain('published_desc');
+
+    // 5 View modes integrated
+    expect(pageContent).toContain('GrowthRadarHero');
+    expect(pageContent).toContain('GrowthRadarLanes');
+    expect(pageContent).toContain('GrowthRadarCandidateStream');
+    expect(pageContent).toContain('GrowthLargeCard');
+    expect(pageContent).toContain('GrowthListRow');
+    expect(pageContent).toContain('GrowthTableView');
+    expect(pageContent).toContain('GrowthCompactGrid');
   });
 
   // 3. Video Detail Page Contract
@@ -133,15 +130,12 @@ describe('V1.1 — Wave 1: Monitoring Experience Redesign Contract Assertions', 
     expect(fs.existsSync(filterDockPath)).toBe(true);
   });
 
-  // 6. SectionMarker Component and Integration across other monitoring pages
-  it('6. SectionMarker exists and is integrated across core monitoring pages', () => {
+  // 6. SectionMarker Component and Integration across core detail pages
+  it('6. SectionMarker exists and is integrated across core detail pages', () => {
     const markerPath = path.join(srcDir, 'components/ui/SectionMarker.vue');
     expect(fs.existsSync(markerPath)).toBe(true);
 
-    const videosContent = fs.readFileSync(path.join(srcDir, 'pages/VideosPage.vue'), 'utf-8');
     const detailContent = fs.readFileSync(path.join(srcDir, 'pages/VideoDetailPage.vue'), 'utf-8');
-
-    expect(videosContent).toContain('SectionMarker');
     expect(detailContent).toContain('SectionMarker');
   });
 

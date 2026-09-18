@@ -198,11 +198,14 @@
                   <span class="vph-unit">VPH</span>
                 </div>
                 <div class="rail-threshold-note">
-                  <span v-if="video.isOverThreshold" class="note-over">
+                  <span v-if="video.isOverThreshold && video.channel.alertVphThreshold" class="note-over">
                     Vượt ngưỡng {{ video.channel.alertVphThreshold.toLocaleString('vi-VN') }} VPH
                   </span>
-                  <span v-else-if="video.latestMeasuredVph !== null" class="note-normal">
+                  <span v-else-if="video.latestMeasuredVph !== null && video.channel.alertVphThreshold" class="note-normal">
                     Dưới ngưỡng {{ video.channel.alertVphThreshold.toLocaleString('vi-VN') }} VPH
+                  </span>
+                  <span v-else-if="video.latestMeasuredVph !== null" class="note-muted">
+                    Chưa thiết lập ngưỡng
                   </span>
                   <span v-else class="note-muted">
                     Cần tối thiểu 2 lần quét
@@ -230,7 +233,7 @@
                 </div>
                 <div class="telemetry-item">
                   <span class="telem-label">NGƯỠNG KÊNH</span>
-                  <span class="telem-val mono-tabular">{{ video.channel.alertVphThreshold.toLocaleString('vi-VN') }} VPH</span>
+                  <span class="telem-val mono-tabular">{{ video.channel.alertVphThreshold ? `${video.channel.alertVphThreshold.toLocaleString('vi-VN')} VPH` : '—' }}</span>
                 </div>
               </div>
             </div>
@@ -443,7 +446,7 @@
               </div>
               <div class="config-card">
                 <span class="config-label">Ngưỡng cảnh báo</span>
-                <span class="config-value mono-tabular">{{ video.channel.alertVphThreshold.toLocaleString('vi-VN') }} VPH</span>
+                <span class="config-value mono-tabular">{{ video.channel.alertVphThreshold ? `${video.channel.alertVphThreshold.toLocaleString('vi-VN')} VPH` : '—' }}</span>
               </div>
             </div>
           </div>

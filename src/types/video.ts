@@ -12,7 +12,7 @@ export interface Video {
   isShort: boolean | null;
   firstSeenAt: string;
   lastSeenAt: string;
-  latestViewCount: number;
+  latestViewCount: number | null;
   latestMeasuredVph: number | null;
   latestViewDelta?: number | null;
   latestSnapshotCheckedAt?: string | null;
@@ -33,7 +33,7 @@ export interface DbVideo {
   is_short: boolean | null;
   first_seen_at: string;
   last_seen_at: string;
-  latest_view_count: number;
+  latest_view_count: number | null;
   latest_measured_vph: number | null;
   latest_view_delta?: number | null;
   latest_snapshot_checked_at?: string | null;
@@ -75,7 +75,7 @@ export function mapDbVideoToVideo(db: DbVideo): Video {
     isShort: db.is_short,
     firstSeenAt: db.first_seen_at,
     lastSeenAt: db.last_seen_at,
-    latestViewCount: Number(db.latest_view_count) || 0,
+    latestViewCount: db.latest_view_count !== null && db.latest_view_count !== undefined ? Number(db.latest_view_count) : null,
     latestMeasuredVph: db.latest_measured_vph !== null ? Number(db.latest_measured_vph) : null,
     latestViewDelta: db.latest_view_delta !== null && db.latest_view_delta !== undefined ? Number(db.latest_view_delta) : null,
     latestSnapshotCheckedAt: db.latest_snapshot_checked_at || null,
@@ -90,7 +90,7 @@ export interface VideoChannelMeta {
   name: string;
   handle: string | null;
   avatarUrl: string | null;
-  alertVphThreshold: number;
+  alertVphThreshold: number | null;
 }
 
 export interface VideoAlertMeta {
@@ -108,7 +108,7 @@ export interface VideoListItem {
   url: string;
   thumbnailUrl: string | null;
   publishedAt: string;
-  latestViewCount: number;
+  latestViewCount: number | null;
   latestMeasuredVph: number | null;
   channel: VideoChannelMeta;
   alert: VideoAlertMeta | null;
@@ -127,6 +127,7 @@ export interface VideoStatsSummary {
   totalVideos: number;
   risingVideos: number;
   maxVph: number | null;
+  totalDelta: number | null;
   alertedVideos: number;
 }
 
@@ -172,4 +173,3 @@ export interface VideoDetail {
   createdAt: string;
   updatedAt: string;
 }
-
