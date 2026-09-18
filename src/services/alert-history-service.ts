@@ -178,6 +178,7 @@ export async function fetchAlertHistory(limit = 50, offset = 0): Promise<AlertHi
          channels(id, name, handle, avatar_url))`
     )
     .order('created_at', { ascending: false })
+    .order('id', { ascending: false })
     .range(offset, offset + limit - 1);
 
   if (error) throw new Error(error.message);
@@ -201,6 +202,7 @@ export async function fetchAllAlertHistory(batchSize = 1000): Promise<AlertHisto
            channels(id, name, handle, avatar_url))`
       )
       .order('created_at', { ascending: false })
+      .order('id', { ascending: false })
       .range(offset, offset + batchSize - 1);
 
     if (error) throw new Error(error.message);
@@ -299,7 +301,8 @@ export function groupAlertsByVideo(items: AlertHistoryItem[]): AlertVideoGroup[]
 export function filterAndSortAlerts(
   items: AlertHistoryItem[],
   filter: AlertHistoryFilter,
-  sort: AlertHistorySort
+  sort: AlertHistorySort,
+  nowMs = Date.now()
 ): AlertHistoryItem[] {
   let result = [...items];
 
@@ -318,11 +321,15 @@ export function filterAndSortAlerts(
     result = result.filter(i => i.isSendingStuck);
   }
 
-  // Filter by time range (on createdAt)
+  // Filter by time range (on createdAt via epoch ms)
   if (filter.range !== 'all') {
-    const threshold = getTimeFilterThreshold(filter.range);
+    const threshold = getTimeFilterThreshold(filter.range, nowMs);
     if (threshold) {
-      result = result.filter(i => i.createdAt >= threshold);
+      const thresholdMs = new Date(threshold).getTime();
+      result = result.filter(i => {
+        if (!isValidTimestamp(i.createdAt)) return false;
+        return new Date(i.createdAt).getTime() >= thresholdMs;
+      });
     }
   }
 

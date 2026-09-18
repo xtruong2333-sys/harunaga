@@ -35,6 +35,7 @@
                   <VideoThumbnail
                     :src="item.videoThumbnailUrl"
                     :alt="item.videoTitle"
+                    :youtube-video-id="item.videoYoutubeId || undefined"
                     :detail-url="`/videos/${item.videoId}`"
                     ratio="16-9"
                   />
@@ -57,7 +58,7 @@
                 :to="`/kenh-theo-doi/${item.channelId}`"
                 class="tbl-channel-link"
               >
-                <span class="avatar-fallback" v-if="!item.channelAvatarUrl">
+                <span class="avatar-fallback" v-if="!item.channelAvatarUrl || (item.channelId && avatarErrors[item.channelId])">
                   {{ item.channelName.charAt(0).toUpperCase() }}
                 </span>
                 <img
@@ -66,6 +67,7 @@
                   :alt="item.channelName"
                   class="tbl-avatar"
                   loading="lazy"
+                  @error="item.channelId && (avatarErrors[item.channelId] = true)"
                 />
                 <span class="tbl-channel-name">{{ item.channelName }}</span>
               </router-link>
@@ -118,10 +120,13 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue';
 import VideoThumbnail from '@/components/videos/VideoThumbnail.vue';
 import AlertStatusBadge from './AlertStatusBadge.vue';
 import { alertHistoryService, isValidTimestamp } from '@/services/alert-history-service';
 import type { AlertHistoryItem } from '@/types/alert-history';
+
+const avatarErrors = ref<Record<string, boolean>>({});
 
 defineProps<{
   items: AlertHistoryItem[];

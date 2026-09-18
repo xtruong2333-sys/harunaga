@@ -59,7 +59,7 @@
                 :to="`/kenh-theo-doi/${item.channelId}`"
                 class="channel-link"
               >
-                <span class="avatar-fallback" v-if="!item.channelAvatarUrl">
+                <span class="avatar-fallback" v-if="!item.channelAvatarUrl || (item.channelId && avatarErrors[item.channelId])">
                   {{ item.channelName.charAt(0).toUpperCase() }}
                 </span>
                 <img
@@ -68,6 +68,7 @@
                   :alt="item.channelName"
                   class="channel-avatar"
                   loading="lazy"
+                  @error="item.channelId && (avatarErrors[item.channelId] = true)"
                 />
                 <span class="channel-name">{{ item.channelName }}</span>
               </router-link>
@@ -110,12 +111,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { ref, computed } from 'vue';
 import AppIcon from '@/components/ui/AppIcon.vue';
 import VideoThumbnail from '@/components/videos/VideoThumbnail.vue';
 import AlertStatusBadge from './AlertStatusBadge.vue';
 import { alertHistoryService, isValidTimestamp } from '@/services/alert-history-service';
 import type { AlertHistoryItem } from '@/types/alert-history';
+
+const avatarErrors = ref<Record<string, boolean>>({});
 
 const props = defineProps<{
   items: AlertHistoryItem[];

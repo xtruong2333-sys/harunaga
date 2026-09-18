@@ -24,8 +24,9 @@
       v-if="error"
       title="Không thể tải lịch sử cảnh báo"
       :message="error"
-      action-text="Thử lại"
-      @action="reload"
+      retry-text="Thử lại"
+      :show-retry="true"
+      @retry="reload"
     />
 
     <template v-else>
@@ -49,8 +50,11 @@
           <span v-if="currentViewMode === 'video'">
             {{ videoGroups.length }} video có cảnh báo
           </span>
+          <span v-else-if="currentViewMode === 'failed'">
+            Hiển thị {{ displayed.length }} / {{ viewScopedItems.length }} cảnh báo gửi lỗi
+          </span>
           <span v-else>
-            Hiển thị {{ displayed.length }} / {{ filtered.length }} cảnh báo
+            Hiển thị {{ displayed.length }} / {{ viewScopedItems.length }} cảnh báo
           </span>
         </div>
       </div>
@@ -245,13 +249,21 @@ const filtered = computed(() => {
   return alertHistoryService.filterAndSortAlerts(allItems.value, filter.value, sort.value);
 });
 
-// Display slice
-const displayed = computed(() => {
-  return filtered.value.slice(0, displayLimit.value);
+// View-scoped items (specifically for failed view pagination semantics)
+const viewScopedItems = computed(() => {
+  if (currentViewMode.value === 'failed') {
+    return filtered.value.filter(i => i.status === 'failed');
+  }
+  return filtered.value;
 });
 
-const hasMore = computed(() => filtered.value.length > displayLimit.value);
-const remaining = computed(() => Math.max(0, filtered.value.length - displayLimit.value));
+// Display slice
+const displayed = computed(() => {
+  return viewScopedItems.value.slice(0, displayLimit.value);
+});
+
+const hasMore = computed(() => viewScopedItems.value.length > displayLimit.value);
+const remaining = computed(() => Math.max(0, viewScopedItems.value.length - displayLimit.value));
 
 // Summary: computed from filtered dataset (Section 6 recommendation)
 const summary = computed<AlertHistorySummary>(() => {

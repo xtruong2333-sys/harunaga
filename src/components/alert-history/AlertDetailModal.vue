@@ -12,6 +12,7 @@
           <VideoThumbnail
             :src="item.videoThumbnailUrl"
             :alt="item.videoTitle"
+            :youtube-video-id="item.videoYoutubeId || undefined"
             :detail-url="`/videos/${item.videoId}`"
             ratio="16-9"
           />
@@ -32,7 +33,7 @@
               :to="`/kenh-theo-doi/${item.channelId}`"
               class="ch-detail-link"
             >
-              <span class="avatar-fallback" v-if="!item.channelAvatarUrl">
+              <span class="avatar-fallback" v-if="!item.channelAvatarUrl || avatarError">
                 {{ item.channelName.charAt(0).toUpperCase() }}
               </span>
               <img
@@ -41,6 +42,7 @@
                 :alt="item.channelName"
                 class="ch-avatar"
                 loading="lazy"
+                @error="avatarError = true"
               />
               <span class="ch-name">{{ item.channelName }}</span>
             </router-link>
@@ -191,6 +193,7 @@
 </template>
 
 <script setup lang="ts">
+import { ref, watch } from 'vue';
 import AppIcon from '@/components/ui/AppIcon.vue';
 import AppModal from '@/components/ui/AppModal.vue';
 import VideoThumbnail from '@/components/videos/VideoThumbnail.vue';
@@ -198,9 +201,17 @@ import AlertStatusBadge from './AlertStatusBadge.vue';
 import { alertHistoryService, isValidTimestamp } from '@/services/alert-history-service';
 import type { AlertHistoryItem } from '@/types/alert-history';
 
-defineProps<{
+const props = defineProps<{
   item: AlertHistoryItem | null;
 }>();
+
+const avatarError = ref(false);
+watch(
+  () => props.item,
+  () => {
+    avatarError.value = false;
+  }
+);
 
 const emit = defineEmits<{
   (e: 'close'): void;

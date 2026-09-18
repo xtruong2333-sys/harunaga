@@ -20,9 +20,11 @@ import AlertStatusBadge from '../src/components/alert-history/AlertStatusBadge.v
 import AlertSummaryStrip from '../src/components/alert-history/AlertSummaryStrip.vue';
 import AlertTimeline from '../src/components/alert-history/AlertTimeline.vue';
 import AlertTable from '../src/components/alert-history/AlertTable.vue';
+import AlertVideoGroups from '../src/components/alert-history/AlertVideoGroups.vue';
 import AlertFailedList from '../src/components/alert-history/AlertFailedList.vue';
 import AlertDetailModal from '../src/components/alert-history/AlertDetailModal.vue';
 import AlertHistoryPage from '../src/pages/AlertHistoryPage.vue';
+import * as supabaseModule from '../src/services/supabase';
 
 vi.mock('vue-router', async () => {
   const actual = await vi.importActual<any>('vue-router');
@@ -750,6 +752,304 @@ describe('Wave 3.10 — ALERT OPERATIONS & SIGNAL HISTORY CENTER', () => {
       expect(wrapper.find('.view-mode-switcher').exists()).toBe(true);
       expect(wrapper.find('.alert-filter-bar').exists()).toBe(true);
       expect(wrapper.text()).toContain('Page Test Video');
+    });
+  });
+
+  describe('13. Final fix Wave 3.10 Verification Tests', () => {
+    it('13.1 ErrorState retry contract: nút Thử lại phát emit retry và gọi reload', async () => {
+      let callCount = 0;
+      vi.spyOn(alertHistoryService, 'fetchAllAlertHistory').mockImplementation(async () => {
+        callCount++;
+        if (callCount === 1) {
+          throw new Error('Supabase network error');
+        }
+        return [makeItem({ id: 'recovered-1', videoTitle: 'Recovered Video' })];
+      });
+
+      const wrapper = mount(AlertHistoryPage, {
+        global: {
+          stubs: {
+            'router-link': routerLinkStub,
+            VideoThumbnail: { template: '<div class="vt-stub"></div>' },
+          },
+        },
+      });
+
+      await flushPromises();
+
+      expect(wrapper.text()).toContain('Không thể tải lịch sử cảnh báo');
+      expect(wrapper.text()).toContain('Supabase network error');
+      const retryBtn = wrapper.find('.retry-btn');
+      expect(retryBtn.exists()).toBe(true);
+
+      await retryBtn.trigger('click');
+      await flushPromises();
+
+      expect(callCount).toBe(2);
+      expect(wrapper.text()).not.toContain('Không thể tải lịch sử cảnh báo');
+      expect(wrapper.text()).toContain('Recovered Video');
+    });
+
+    it('13.2 failed alert ở vị trí >50 vẫn xuất hiện trong Failed View sau khi view filtering', async () => {
+      // 55 sent alerts followed by 5 failed alerts
+      const items: AlertHistoryItem[] = [];
+      for (let i = 0; i < 55; i++) {
+        items.push(makeItem({ id: `sent-${i}`, videoId: `v-${i}`, status: 'sent', videoTitle: `Sent Video ${i}` }));
+      }
+      for (let i = 0; i < 5; i++) {
+        items.push(makeItem({ id: `failed-${i}`, videoId: `vf-${i}`, status: 'failed', videoTitle: `Failed Video ${i}` }));
+      }
+
+      vi.spyOn(alertHistoryService, 'fetchAllAlertHistory').mockResolvedValue(items);
+
+      const wrapper = mount(AlertHistoryPage, {
+        global: {
+          stubs: {
+            'router-link': routerLinkStub,
+            VideoThumbnail: { template: '<div class="vt-stub"></div>' },
+          },
+        },
+      });
+
+      await flushPromises();
+
+      // Switch to failed view
+      (wrapper.vm as any).onViewModeChange('failed');
+      await flushPromises();
+
+      expect(wrapper.text()).toContain('Failed Video 0');
+      expect(wrapper.text()).toContain('Failed Video 4');
+      expect(wrapper.text()).not.toContain('Sent Video 0');
+    });
+
+    it('13.3 range filtering dùng actual timestamp milliseconds với timezone offset khác nhau', () => {
+      // Threshold: 24h before 2026-09-18T12:00:00Z => 2026-09-17T12:00:00Z
+      const testNowMs = new Date('2026-09-18T12:00:00Z').getTime();
+
+      // Item A: 2026-09-17T08:00:00-05:00 => 2026-09-17T13:00:00Z (after threshold, valid)
+      const itemA = makeItem({ id: 'a', createdAt: '2026-09-17T08:00:00-05:00' });
+
+      // Item B: 2026-09-18T00:30:00+14:00 => 2026-09-17T10:30:00Z (before threshold, excluded)
+      // Note: lexically "2026-09-18T00:30:00+14:00" > "2026-09-17T12:00:00.000Z", but in ms it is earlier!
+      const itemB = makeItem({ id: 'b', createdAt: '2026-09-18T00:30:00+14:00' });
+
+      // Item C: invalid timestamp => excluded
+      const itemC = makeItem({ id: 'c', createdAt: 'invalid-date' });
+
+      const filtered = filterAndSortAlerts(
+        [itemA, itemB, itemC],
+        { status: 'all', range: '24h', channelId: null, search: '', videoId: null },
+        'newest',
+        testNowMs
+      );
+
+      expect(filtered.map(i => i.id)).toEqual(['a']);
+    });
+
+    it('13.4 schema anti-spam semantics: hiển thị Cảnh báo ghi nhận, VPH đo được, Thời điểm cảnh báo', () => {
+      const group = {
+        videoId: 'vid-antispam',
+        videoTitle: 'Single Alert Video',
+        videoYoutubeId: 'yt-123',
+        videoThumbnailUrl: 'https://example.com/thumb.jpg',
+        channelId: 'ch-1',
+        channelName: 'Antispam Channel',
+        channelHandle: '@anti',
+        alertCount: 1,
+        latestAlertAt: '2026-09-18T10:00:00Z',
+        latestStatus: 'sent' as const,
+        maxMeasuredVph: 1500,
+      };
+
+      const wrapper = mount(AlertVideoGroups, {
+        props: { groups: [group] },
+        global: {
+          stubs: {
+            'router-link': routerLinkStub,
+            VideoThumbnail: { template: '<div class="vt-stub"></div>' },
+          },
+        },
+      });
+
+      expect(wrapper.text()).toContain('Cảnh báo ghi nhận');
+      expect(wrapper.text()).not.toContain('1 lần cảnh báo');
+      expect(wrapper.text()).toContain('VPH đo được');
+      expect(wrapper.text()).toContain('Thời điểm cảnh báo');
+    });
+
+    it('13.5 deterministic pagination gọi fetchAllAlertHistory qua Supabase mock với order created_at DESC và id DESC', async () => {
+      vi.restoreAllMocks();
+
+      const orderCalls: { col: string; opts: any }[] = [];
+      const rangeCalls: { from: number; to: number }[] = [];
+
+      const sampleRow = (id: string, createdAt: string) => ({
+        id,
+        video_id: `v-${id}`,
+        threshold_vph: 1000,
+        measured_vph: 1500,
+        view_count: 20000,
+        view_delta: 500,
+        elapsed_seconds: 120,
+        status: 'sent',
+        attempts: 1,
+        discord_message_id: 'd-1',
+        last_error: null,
+        created_at: createdAt,
+        sent_at: createdAt,
+        updated_at: createdAt,
+        videos: {
+          id: `v-${id}`,
+          title: `Video ${id}`,
+          youtube_video_id: 'yt-id',
+          thumbnail_url: null,
+          latest_measured_vph: 1500,
+          latest_view_count: 20000,
+          channels: {
+            id: 'ch-1',
+            name: 'Channel 1',
+            handle: '@ch1',
+            avatar_url: null,
+          },
+        },
+      });
+
+      const queryBuilder = {
+        select: vi.fn().mockReturnThis(),
+        order: vi.fn().mockImplementation((col, opts) => {
+          orderCalls.push({ col, opts });
+          return queryBuilder;
+        }),
+        range: vi.fn().mockImplementation((from, to) => {
+          rangeCalls.push({ from, to });
+          if (from === 0) {
+            return Promise.resolve({
+              data: [
+                sampleRow('alert-2', '2026-09-18T10:00:00Z'),
+                sampleRow('alert-1', '2026-09-18T10:00:00Z'),
+              ],
+              error: null,
+            });
+          }
+          return Promise.resolve({
+            data: [sampleRow('alert-0', '2026-09-18T09:00:00Z')],
+            error: null,
+          });
+        }),
+      };
+
+      const mockSupabase = {
+        from: vi.fn().mockReturnValue(queryBuilder),
+      };
+
+      vi.spyOn(supabaseModule, 'getSupabase').mockReturnValue(mockSupabase as any);
+      vi.spyOn(supabaseModule, 'isSupabaseConfigured').mockReturnValue(true);
+
+      const items = await alertHistoryService.fetchAllAlertHistory(2);
+
+      expect(items.length).toBe(3);
+      expect(orderCalls).toEqual(
+        expect.arrayContaining([
+          { col: 'created_at', opts: { ascending: false } },
+          { col: 'id', opts: { ascending: false } },
+        ])
+      );
+      expect(rangeCalls).toEqual([
+        { from: 0, to: 1 },
+        { from: 2, to: 3 },
+      ]);
+    });
+
+    it('13.6 broken avatar fallback khi xảy ra @error trong AlertTimeline, AlertTable và AlertDetailModal', async () => {
+      const itemWithBrokenAvatar = makeItem({
+        id: 'broken-av-1',
+        channelId: 'ch-broken',
+        channelName: 'Broken Avatar Channel',
+        channelAvatarUrl: 'https://broken-domain.invalid/avatar.jpg',
+      });
+
+      // 1. AlertTimeline
+      const timelineWrapper = mount(AlertTimeline, {
+        props: { items: [itemWithBrokenAvatar] },
+        global: {
+          stubs: {
+            'router-link': routerLinkStub,
+            VideoThumbnail: { template: '<div class="vt-stub"></div>' },
+          },
+        },
+      });
+      expect(timelineWrapper.find('.channel-avatar').exists()).toBe(true);
+      await timelineWrapper.find('.channel-avatar').trigger('error');
+      expect(timelineWrapper.find('.channel-avatar').exists()).toBe(false);
+      expect(timelineWrapper.find('.avatar-fallback').text()).toBe('B');
+
+      // 2. AlertTable
+      const tableWrapper = mount(AlertTable, {
+        props: { items: [itemWithBrokenAvatar] },
+        global: {
+          stubs: {
+            'router-link': routerLinkStub,
+            VideoThumbnail: { template: '<div class="vt-stub"></div>' },
+          },
+        },
+      });
+      expect(tableWrapper.find('.tbl-avatar').exists()).toBe(true);
+      await tableWrapper.find('.tbl-avatar').trigger('error');
+      expect(tableWrapper.find('.tbl-avatar').exists()).toBe(false);
+      expect(tableWrapper.find('.avatar-fallback').text()).toBe('B');
+
+      // 3. AlertDetailModal
+      const modalWrapper = mount(AlertDetailModal, {
+        props: { item: itemWithBrokenAvatar },
+        global: {
+          stubs: {
+            'router-link': routerLinkStub,
+            VideoThumbnail: { template: '<div class="vt-stub"></div>' },
+            AppModal: { template: '<div class="modal-stub"><slot /></div>' },
+          },
+        },
+      });
+      expect(modalWrapper.find('.ch-avatar').exists()).toBe(true);
+      await modalWrapper.find('.ch-avatar').trigger('error');
+      expect(modalWrapper.find('.ch-avatar').exists()).toBe(false);
+      expect(modalWrapper.find('.avatar-fallback').text()).toBe('B');
+    });
+
+    it('13.7 missing thumbnail + youtubeVideoId fallback truyền đúng vào VideoThumbnail trong AlertTable và AlertDetailModal', () => {
+      const item = makeItem({
+        id: 'tb-1',
+        videoThumbnailUrl: null,
+        videoYoutubeId: 'yt-spec-fallback-999',
+      });
+
+      const tableWrapper = mount(AlertTable, {
+        props: { items: [item] },
+        global: {
+          stubs: {
+            'router-link': routerLinkStub,
+            VideoThumbnail: {
+              template: '<div class="vt-stub" :data-yt="youtubeVideoId"></div>',
+              props: ['youtubeVideoId'],
+            },
+          },
+        },
+      });
+      expect(tableWrapper.find('.vt-stub').attributes('data-yt')).toBe('yt-spec-fallback-999');
+
+      const modalWrapper = mount(AlertDetailModal, {
+        props: { item },
+        global: {
+          stubs: {
+            'router-link': routerLinkStub,
+            VideoThumbnail: {
+              template: '<div class="vt-stub" :data-yt="youtubeVideoId"></div>',
+              props: ['youtubeVideoId'],
+            },
+            AppModal: { template: '<div class="modal-stub"><slot /></div>' },
+          },
+        },
+      });
+      expect(modalWrapper.find('.vt-stub').attributes('data-yt')).toBe('yt-spec-fallback-999');
     });
   });
 });

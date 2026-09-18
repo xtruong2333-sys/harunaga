@@ -31,7 +31,8 @@
           <div class="body-top">
             <AlertStatusBadge :status="group.latestStatus" />
             <span class="count-badge mono">
-              <strong>{{ group.alertCount }}</strong> lần cảnh báo
+              <span v-if="group.alertCount > 1"><strong>{{ group.alertCount }}</strong> cảnh báo</span>
+              <span v-else>Cảnh báo ghi nhận</span>
             </span>
           </div>
 
@@ -58,11 +59,11 @@
 
           <div class="group-metrics-row">
             <div class="gm-item">
-              <span class="gm-lbl">VPH cao nhất</span>
+              <span class="gm-lbl">VPH đo được</span>
               <span class="gm-val mono">{{ fmtVph(group.maxMeasuredVph) }}</span>
             </div>
             <div class="gm-item">
-              <span class="gm-lbl">Cảnh báo gần nhất</span>
+              <span class="gm-lbl">Thời điểm cảnh báo</span>
               <span class="gm-val mono">{{ formatDateTime(group.latestAlertAt) }}</span>
             </div>
           </div>
