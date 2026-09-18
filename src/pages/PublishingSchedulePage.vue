@@ -274,6 +274,10 @@ const channelStats = computed<ChannelPublishingStats[]>(() => {
     rangeChVideos = rangeChVideos.filter(v => v.channelId === filter.value.channelId);
   }
 
+  if (filter.value.weekday !== null && filter.value.weekday !== undefined) {
+    rangeChVideos = rangeChVideos.filter(v => v.vnWeekday === filter.value.weekday);
+  }
+
   return publishingScheduleService.computeChannelPublishingStats(allChVideos, rangeChVideos);
 });
 

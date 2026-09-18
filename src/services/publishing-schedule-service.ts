@@ -47,6 +47,15 @@ export function isValidTimestamp(value: string | null | undefined): boolean {
   return !isNaN(dt.getTime());
 }
 
+export function isHistoricalTimestamp(
+  value: string | null | undefined,
+  nowMs = Date.now()
+): boolean {
+  if (!value) return false;
+  const ms = new Date(value).getTime();
+  return Number.isFinite(ms) && ms <= nowMs;
+}
+
 const vnFormatter = new Intl.DateTimeFormat('en-US', {
   timeZone: 'Asia/Ho_Chi_Minh',
   weekday: 'short',
@@ -204,7 +213,10 @@ export function findPeakBuckets(items: { label: string; count: number }[]): stri
 // Aggregations: Heatmap, Weekday, Hour, Summary
 // ============================================================
 
-export function buildPublishingHeatmap(videos: PublishingVideo[]): {
+export function buildPublishingHeatmap(
+  videos: PublishingVideo[],
+  now = Date.now()
+): {
   cells: PublishingHeatmapCell[][];
   maxCount: number;
 } {
@@ -225,6 +237,7 @@ export function buildPublishingHeatmap(videos: PublishingVideo[]): {
 
   let maxCount = 0;
   for (const v of videos) {
+    if (!isHistoricalTimestamp(v.publishedAt, now)) continue;
     if (v.vnWeekday >= 0 && v.vnWeekday < 7 && v.vnHour >= 0 && v.vnHour < 24) {
       cells[v.vnWeekday][v.vnHour].count++;
       if (cells[v.vnWeekday][v.vnHour].count > maxCount) {
@@ -276,12 +289,13 @@ export function computeScheduleSummary(
   range: PublishingRange,
   now = Date.now()
 ): PublishingScheduleSummary {
-  const totalVideos = videos.length;
+  const historicalVideos = videos.filter(v => isHistoricalTimestamp(v.publishedAt, now));
+  const totalVideos = historicalVideos.length;
   const channelSet = new Set<string>();
   let latestPublishedAt: string | null = null;
   let earliestMs: number | null = null;
 
-  for (const v of videos) {
+  for (const v of historicalVideos) {
     if (v.channelId) channelSet.add(v.channelId);
     if (!latestPublishedAt || v.publishedAt > latestPublishedAt) {
       latestPublishedAt = v.publishedAt;
@@ -326,9 +340,17 @@ export function computeChannelPublishingStats(
   const threshold7d = now - 7 * 24 * 3600 * 1000;
   const threshold30d = now - 30 * 24 * 3600 * 1000;
 
-  // 1. Group all videos by channel to compute full interval & rolling counts
+  // Filter out any invalid or future timestamps upfront (historical analytics only)
+  const historicalAll = allVideos.filter(
+    v => isValidTimestamp(v.publishedAt) && isHistoricalTimestamp(v.publishedAt, now)
+  );
+  const historicalRange = rangeVideos.filter(
+    v => isValidTimestamp(v.publishedAt) && isHistoricalTimestamp(v.publishedAt, now)
+  );
+
+  // 1. Group all historical videos by channel to compute full interval & rolling counts
   const allByChannel = new Map<string, PublishingVideo[]>();
-  for (const v of allVideos) {
+  for (const v of historicalAll) {
     let list = allByChannel.get(v.channelId);
     if (!list) {
       list = [];
@@ -339,7 +361,7 @@ export function computeChannelPublishingStats(
 
   // 2. Group range videos by channel
   const rangeByChannel = new Map<string, PublishingVideo[]>();
-  for (const v of rangeVideos) {
+  for (const v of historicalRange) {
     let list = rangeByChannel.get(v.channelId);
     if (!list) {
       list = [];
@@ -370,7 +392,6 @@ export function computeChannelPublishingStats(
     let latestPublishedAt: string | null = null;
 
     for (const v of chAllVideos) {
-      if (!isValidTimestamp(v.publishedAt)) continue;
       const ms = new Date(v.publishedAt).getTime();
       if (ms >= threshold7d) count7d++;
       if (ms >= threshold30d) count30d++;
@@ -382,9 +403,7 @@ export function computeChannelPublishingStats(
     // Interval timestamps computed from chRangeVideos (Section 23)
     const rangeTimestampsMs: number[] = [];
     for (const v of chRangeVideos) {
-      if (isValidTimestamp(v.publishedAt)) {
-        rangeTimestampsMs.push(new Date(v.publishedAt).getTime());
-      }
+      rangeTimestampsMs.push(new Date(v.publishedAt).getTime());
     }
     rangeTimestampsMs.sort((a, b) => a - b);
     const avgInterval = calculateAverageInterval(rangeTimestampsMs);
@@ -467,10 +486,14 @@ export function computeChannelPublishingStats(
   return statsList;
 }
 
-export function computeWeekPatternStrip(videos: PublishingVideo[]): PublishingWeekPatternDay[] {
-  const total = videos.length;
+export function computeWeekPatternStrip(
+  videos: PublishingVideo[],
+  now = Date.now()
+): PublishingWeekPatternDay[] {
+  const historicalVideos = videos.filter(v => isHistoricalTimestamp(v.publishedAt, now));
+  const total = historicalVideos.length;
   const byWeekday: PublishingVideo[][] = [[], [], [], [], [], [], []];
-  for (const v of videos) {
+  for (const v of historicalVideos) {
     if (v.vnWeekday >= 0 && v.vnWeekday < 7) {
       byWeekday[v.vnWeekday].push(v);
     }
@@ -483,7 +506,7 @@ export function computeWeekPatternStrip(videos: PublishingVideo[]): PublishingWe
     const percentage = total > 0 ? Math.round((count / total) * 1000) / 10 : 0;
 
     let peakHour = '—';
-    if (count > 0) {
+    if (count >= 3) {
       const hourCounts = new Array(24).fill(0);
       for (const v of list) {
         if (v.vnHour >= 0 && v.vnHour < 24) hourCounts[v.vnHour]++;
@@ -495,6 +518,9 @@ export function computeWeekPatternStrip(videos: PublishingVideo[]): PublishingWe
           .filter(Boolean) as string[];
         peakHour = hMatches.join(', ');
       }
+    } else if (count > 0) {
+      // Sample guard: < 3 videos cannot form a reliable habit/pattern
+      peakHour = 'Chưa đủ dữ liệu';
     }
 
     return {
@@ -561,14 +587,15 @@ interface RawVideoRow {
 
 export async function fetchPublishingSchedule(
   range: PublishingRange = '30d',
-  channelId: string | null = null
+  channelId: string | null = null,
+  now = Date.now()
 ): Promise<{ rangeVideos: PublishingVideo[]; allVideos: PublishingVideo[] }> {
   if (!isSupabaseConfigured()) {
     throw new DatabaseNotConfiguredError();
   }
 
   const supabase = getSupabase()!;
-  const thresholdIso = getRangeThreshold(range);
+  const thresholdIso = getRangeThreshold(range, now);
 
   // Pagination loop to fetch all videos without hitting the 1000-row cap
   const BATCH_SIZE = 1000;
@@ -605,9 +632,9 @@ export async function fetchPublishingSchedule(
     }
   }
 
-  // Map to PublishingVideo objects with Vietnam date parts precomputed, filtering invalid timestamps
+  // Map to PublishingVideo objects with Vietnam date parts precomputed, filtering invalid timestamps and future dates
   const allVideos: PublishingVideo[] = rawAllRows
-    .filter(row => isValidTimestamp(row.published_at))
+    .filter(row => isValidTimestamp(row.published_at) && isHistoricalTimestamp(row.published_at, now))
     .map(row => {
       const vn = toVietnamDateParts(row.published_at);
       return {
@@ -629,9 +656,9 @@ export async function fetchPublishingSchedule(
       };
     });
 
-  // Filter for selected range
+  // Filter for selected range (thresholdIso <= publishedAt <= now)
   const rangeVideos = thresholdIso
-    ? allVideos.filter(v => v.publishedAt >= thresholdIso)
+    ? allVideos.filter(v => v.publishedAt >= thresholdIso && isHistoricalTimestamp(v.publishedAt, now))
     : allVideos;
 
   return { rangeVideos, allVideos };
@@ -644,6 +671,7 @@ export async function fetchPublishingSchedule(
 export const publishingScheduleService = {
   WEEKDAY_NAMES,
   isValidTimestamp,
+  isHistoricalTimestamp,
   toVietnamDateParts,
   getRangeThreshold,
   formatRelativeTime,

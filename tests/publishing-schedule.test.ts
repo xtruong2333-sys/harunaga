@@ -17,6 +17,7 @@ import {
   parseUrlParams,
   formatRelativeTime,
   isValidTimestamp,
+  isHistoricalTimestamp,
   computeWeekPatternStrip,
   publishingScheduleService,
 } from '../src/services/publishing-schedule-service';
@@ -352,7 +353,7 @@ describe('Bắt Bài Đối Thủ — Giai Đoạn 15: Lịch Đăng Của Đố
     });
 
     it('channel có video trong selected range -> sample < 3 trả về "Chưa đủ dữ liệu", sample >= 3 tính peak weekday/hour', () => {
-      const now = 1700000000000;
+      const now = new Date('2026-09-18T15:00:00Z').getTime();
       const v1 = makeVideo({
         channelId: 'ch-active',
         channelName: 'Active Channel',
@@ -381,6 +382,76 @@ describe('Bắt Bài Đối Thủ — Giai Đoạn 15: Lịch Đăng Của Đố
       expect(stats3[0].videoCountInRange).toBe(3);
       expect(stats3[0].peakWeekday).toBe('Thứ 5');
       expect(stats3[0].peakHour).toBe('19:00–19:59');
+    });
+
+    it('future video không làm tăng rolling 7d/30d', () => {
+      const now = new Date('2026-09-18T10:00:00Z').getTime();
+      const pastVideo = makeVideo({
+        channelId: 'ch-future-test',
+        channelName: 'Future Test Channel',
+        publishedAt: '2026-09-17T10:00:00Z', // 1 ngày trước
+      });
+      const futureVideo = makeVideo({
+        channelId: 'ch-future-test',
+        channelName: 'Future Test Channel',
+        publishedAt: '2026-09-22T10:00:00Z', // trong tương lai
+      });
+
+      const stats = computeChannelPublishingStats([pastVideo, futureVideo], [pastVideo, futureVideo], now);
+      expect(stats.length).toBe(1);
+      expect(stats[0].videoCount7d).toBe(1); // không tăng lên 2
+      expect(stats[0].videoCount30d).toBe(1); // không tăng lên 2
+      expect(stats[0].videoCountInRange).toBe(1); // không lọt vào range
+    });
+
+    it('future video không trở thành latestPublishedAt', () => {
+      const now = new Date('2026-09-18T10:00:00Z').getTime();
+      const pastVideo = makeVideo({
+        channelId: 'ch-latest-test',
+        channelName: 'Latest Test Channel',
+        publishedAt: '2026-09-15T10:00:00Z',
+      });
+      const futureVideo = makeVideo({
+        channelId: 'ch-latest-test',
+        channelName: 'Latest Test Channel',
+        publishedAt: '2026-09-28T10:00:00Z', // tương lai
+      });
+
+      // Trong computeChannelPublishingStats
+      const stats = computeChannelPublishingStats([pastVideo, futureVideo], [pastVideo, futureVideo], now);
+      expect(stats[0].latestPublishedAt).toBe('2026-09-15T10:00:00Z');
+
+      // Trong computeScheduleSummary
+      const summary = computeScheduleSummary([pastVideo, futureVideo], '30d', now);
+      expect(summary.latestPublishedAt).toBe('2026-09-15T10:00:00Z');
+    });
+
+    it('weekday filter làm thay đổi channelStats.videoCountInRange nhưng giữ nguyên rolling 7d/30d', () => {
+      const now = new Date('2026-09-18T10:00:00Z').getTime();
+      // Channel 1 có:
+      // 2 video vào Thứ 5 (vnWeekday = 3)
+      // 1 video vào Thứ 6 (vnWeekday = 4)
+      const v1 = makeVideo({ channelId: 'ch-wf', channelName: 'C1', publishedAt: '2026-09-17T03:00:00Z' }); // Thu 10:00
+      const v2 = makeVideo({ channelId: 'ch-wf', channelName: 'C1', publishedAt: '2026-09-17T05:00:00Z' }); // Thu 12:00
+      const v3 = makeVideo({ channelId: 'ch-wf', channelName: 'C1', publishedAt: '2026-09-18T03:00:00Z' }); // Fri 10:00
+      const allVideos = [v1, v2, v3];
+
+      // Khi không lọc theo thứ: range có đủ 3 video
+      const unfilteredStats = computeChannelPublishingStats(allVideos, allVideos, now);
+      expect(unfilteredStats[0].videoCountInRange).toBe(3);
+      expect(unfilteredStats[0].videoCount7d).toBe(3);
+
+      // Khi lọc theo Thứ 5 (vnWeekday === 3): rangeChVideos chỉ còn 2 video
+      const thuVideos = allVideos.filter(v => v.vnWeekday === 3);
+      const filteredStats = computeChannelPublishingStats(allVideos, thuVideos, now);
+      expect(filteredStats[0].videoCountInRange).toBe(2);
+      expect(filteredStats[0].videoCount7d).toBe(3); // rolling 7d vẫn giữ từ allVideos
+
+      // Khi lọc theo Thứ 2 (vnWeekday === 0, không có video): rangeChVideos rỗng
+      const monVideos = allVideos.filter(v => v.vnWeekday === 0);
+      const monStats = computeChannelPublishingStats(allVideos, monVideos, now);
+      expect(monStats[0].videoCountInRange).toBe(0);
+      expect(monStats[0].videoCount7d).toBe(3); // rolling 7d vẫn giữ nguyên từ allVideos
     });
   });
 
@@ -514,12 +585,13 @@ describe('Bắt Bài Đối Thủ — Giai Đoạn 15: Lịch Đăng Của Đố
   // 12. Tính toán chu kỳ tuần (computeWeekPatternStrip)
   describe('12. Tính toán chu kỳ xuất bản theo tuần (computeWeekPatternStrip)', () => {
     it('tổng hợp đúng 7 ngày trong tuần và đánh dấu isMax chính xác', () => {
+      const now = new Date('2026-09-18T15:00:00Z').getTime();
       // 2 video vào Thứ 5, 1 video vào Thứ 6
       const v1 = makeVideo({ publishedAt: '2026-09-17T12:00:00Z' }); // Thứ 5 19:00 UTC+7
       const v2 = makeVideo({ publishedAt: '2026-09-17T13:00:00Z' }); // Thứ 5 20:00 UTC+7
-      const v3 = makeVideo({ publishedAt: '2026-09-18T12:00:00Z' }); // Thứ 6 19:00 UTC+7
+      const v3 = makeVideo({ publishedAt: '2026-09-18T04:00:00Z' }); // Thứ 6 11:00 UTC+7
 
-      const days = computeWeekPatternStrip([v1, v2, v3]);
+      const days = computeWeekPatternStrip([v1, v2, v3], now);
       expect(days.length).toBe(7);
 
       // Thứ 5 (index 3)
@@ -528,6 +600,7 @@ describe('Bắt Bài Đối Thủ — Giai Đoạn 15: Lịch Đăng Của Đố
       expect(thu5.count).toBe(2);
       expect(thu5.percentage).toBe(66.7);
       expect(thu5.isMax).toBe(true);
+      expect(thu5.peakHour).toBe('Chưa đủ dữ liệu'); // Sample guard: 2 < 3
 
       // Thứ 6 (index 4)
       const thu6 = days[4];
@@ -535,20 +608,82 @@ describe('Bắt Bài Đối Thủ — Giai Đoạn 15: Lịch Đăng Của Đố
       expect(thu6.count).toBe(1);
       expect(thu6.percentage).toBe(33.3);
       expect(thu6.isMax).toBe(false);
+      expect(thu6.peakHour).toBe('Chưa đủ dữ liệu'); // Sample guard: 1 < 3
 
       // Các ngày khác có count = 0
       expect(days[0].count).toBe(0);
       expect(days[0].isMax).toBe(false);
+      expect(days[0].peakHour).toBe('—');
     });
 
     it('hỗ trợ trường hợp đồng hạng (tie) khi có nhiều ngày cùng đạt count cao nhất', () => {
+      const now = new Date('2026-09-18T15:00:00Z').getTime();
       const v1 = makeVideo({ publishedAt: '2026-09-14T10:00:00Z' }); // Thứ 2
-      const v2 = makeVideo({ publishedAt: '2026-09-18T10:00:00Z' }); // Thứ 6
+      const v2 = makeVideo({ publishedAt: '2026-09-18T04:00:00Z' }); // Thứ 6
 
-      const days = computeWeekPatternStrip([v1, v2]);
+      const days = computeWeekPatternStrip([v1, v2], now);
       expect(days[0].isMax).toBe(true); // Thứ 2
       expect(days[4].isMax).toBe(true); // Thứ 6
       expect(days[1].isMax).toBe(false); // Thứ 3
+    });
+
+    it('week pattern ngày có 1–2 video → Chưa đủ dữ liệu, =3 video → peakHour tính bình thường', () => {
+      const now = new Date('2026-09-18T15:00:00Z').getTime();
+      // 1 video vào Thứ 2
+      const vMon = makeVideo({ publishedAt: '2026-09-14T03:00:00Z' }); // Mon 10:00 UTC+7
+      // 2 video vào Thứ 3
+      const vTue1 = makeVideo({ publishedAt: '2026-09-15T04:00:00Z' }); // Tue 11:00 UTC+7
+      const vTue2 = makeVideo({ publishedAt: '2026-09-15T04:30:00Z' }); // Tue 11:30 UTC+7
+      // 3 video vào Thứ 4 - tất cả ở khung 14:00 UTC+7
+      const vWed1 = makeVideo({ publishedAt: '2026-09-16T07:00:00Z' }); // Wed 14:00 UTC+7
+      const vWed2 = makeVideo({ publishedAt: '2026-09-09T07:00:00Z' }); // Wed 14:00 UTC+7
+      const vWed3 = makeVideo({ publishedAt: '2026-09-02T07:00:00Z' }); // Wed 14:00 UTC+7
+
+      const days = computeWeekPatternStrip([vMon, vTue1, vTue2, vWed1, vWed2, vWed3], now);
+
+      // Thứ 2: count = 1 -> peakHour = 'Chưa đủ dữ liệu'
+      expect(days[0].count).toBe(1);
+      expect(days[0].peakHour).toBe('Chưa đủ dữ liệu');
+
+      // Thứ 3: count = 2 -> peakHour = 'Chưa đủ dữ liệu'
+      expect(days[1].count).toBe(2);
+      expect(days[1].peakHour).toBe('Chưa đủ dữ liệu');
+
+      // Thứ 4: count = 3 -> peakHour tính bình thường ('14:00')
+      expect(days[2].count).toBe(3);
+      expect(days[2].peakHour).toBe('14:00');
+
+      // Thứ 5: count = 0 -> peakHour = '—'
+      expect(days[3].count).toBe(0);
+      expect(days[3].peakHour).toBe('—');
+    });
+
+    it('future video không xuất hiện trong range analytics', () => {
+      const now = new Date('2026-09-18T10:00:00Z').getTime();
+      const pastVideo = makeVideo({ publishedAt: '2026-09-17T10:00:00Z' });
+      const futureVideo = makeVideo({ publishedAt: '2026-09-25T10:00:00Z' }); // tương lai
+
+      expect(isHistoricalTimestamp(pastVideo.publishedAt, now)).toBe(true);
+      expect(isHistoricalTimestamp(futureVideo.publishedAt, now)).toBe(false);
+
+      // 1. Summary: không tính future video
+      const summary = computeScheduleSummary([pastVideo, futureVideo], '30d', now);
+      expect(summary.totalVideos).toBe(1);
+
+      // 2. Heatmap: không tính future video
+      const heatmap = buildPublishingHeatmap([pastVideo, futureVideo], now);
+      let totalHeatmapCount = 0;
+      for (const row of heatmap.cells) {
+        for (const cell of row) {
+          totalHeatmapCount += cell.count;
+        }
+      }
+      expect(totalHeatmapCount).toBe(1);
+
+      // 3. Week Pattern: không tính future video
+      const days = computeWeekPatternStrip([pastVideo, futureVideo], now);
+      const totalPatternCount = days.reduce((sum, d) => sum + d.count, 0);
+      expect(totalPatternCount).toBe(1);
     });
   });
 
