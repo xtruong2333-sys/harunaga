@@ -1045,13 +1045,13 @@ describe('Bắt Bài Đối Thủ — Wave 3.11: Executive Intelligence Report (
       expect(wrapper.find('.is-unknown').exists()).toBe(true);
     });
 
-    it('alert table sử dụng VideoThumbnail component thay raw img và guard channelId', () => {
+    it('alert thumbnail missing nhưng có youtubeVideoId -> fallback đúng, sử dụng VideoThumbnail và guard channelId', () => {
       const alertItem: ReportAlert[] = [{
         id: 'alt-yt',
         videoId: 'v-yt',
         videoTitle: 'Video With YouTube',
         videoYoutubeId: 'dQw4w9WgXcQ',
-        videoThumbnailUrl: 'https://img.youtube.com/vi/dQw4w9WgXcQ/hqdefault.jpg',
+        videoThumbnailUrl: null,
         channelId: '',
         channelName: 'Kênh Ẩn ID',
         channelHandle: null,
@@ -1079,10 +1079,24 @@ describe('Bắt Bài Đối Thủ — Wave 3.11: Executive Intelligence Report (
         },
       });
 
-      expect(wrapper.findComponent({ name: 'VideoThumbnail' }).exists()).toBe(true);
+      const videoThumb = wrapper.findComponent({ name: 'VideoThumbnail' });
+      expect(videoThumb.exists()).toBe(true);
+      expect(videoThumb.props('youtubeVideoId')).toBe('dQw4w9WgXcQ');
+      expect(videoThumb.props('src')).toBeNull();
+
+      // Fallback thumbnail của VideoThumbnail hiển thị khi src null
+      expect(wrapper.find('.thumbnail-fallback').exists()).toBe(true);
+      expect(wrapper.find('.thumbnail-image').exists()).toBe(false);
+
+      // Không quay lại raw <img> của ReportOperationsView
+      expect(wrapper.find('.alert-video-cell > img').exists()).toBe(false);
+      expect(wrapper.find('.alert-thumb').exists()).toBe(false);
+
+      // Guard channelId === '' -> không render router-link kênh
       const channelSpan = wrapper.find('span.alert-v-channel');
       expect(channelSpan.exists()).toBe(true);
       expect(channelSpan.text()).toBe('Kênh Ẩn ID');
+      expect(wrapper.find('a.alert-v-channel').exists()).toBe(false);
     });
   });
 });
