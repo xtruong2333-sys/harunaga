@@ -46,7 +46,7 @@
         </div>
         <div class="metric-content">
           <div class="metric-val mono text-accent">{{ formatNumber(summary.risingVideos) }}</div>
-          <div class="metric-lbl">ĐANG TĂNG (VPH > 0)</div>
+          <div class="metric-lbl">{{ hasMore ? 'VIDEO ĐANG TĂNG (ĐÃ TẢI)' : 'ĐANG TĂNG (VPH > 0)' }}</div>
         </div>
       </div>
 

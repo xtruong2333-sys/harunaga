@@ -143,6 +143,7 @@ describe('Wave 3.3 — Recent Video Intelligence Library Components', () => {
 
       expect(wrapper.text()).toContain('VIDEO (ĐÃ TẢI)');
       expect(wrapper.text()).toContain('KÊNH (ĐÃ TẢI)');
+      expect(wrapper.text()).toContain('VIDEO ĐANG TĂNG (ĐÃ TẢI)');
       expect(wrapper.text()).toContain('MAX VPH (ĐÃ TẢI)');
     });
   });
