@@ -261,7 +261,7 @@ describe('Wave 3.10 — ALERT OPERATIONS & SIGNAL HISTORY CENTER', () => {
 
   // 9. Group Alerts by Video (Section 20 & 58 & 63)
   describe('9. Nhóm cảnh báo theo Video (groupAlertsByVideo)', () => {
-    it('gom 2 cảnh báo của cùng một video thành một nhóm duy nhất', () => {
+    it('tuân thủ schema anti-spam: nhóm mỗi video thành một card cảnh báo với alertCount = 1', () => {
       const a1 = makeItem({
         id: 'a-1',
         videoId: 'v-100',
@@ -272,30 +272,30 @@ describe('Wave 3.10 — ALERT OPERATIONS & SIGNAL HISTORY CENTER', () => {
       });
       const a2 = makeItem({
         id: 'a-2',
-        videoId: 'v-100',
-        videoTitle: 'Video A',
-        measuredVph: 2500,
-        status: 'sent',
-        createdAt: '2026-09-17T11:00:00Z', // Mới hơn
-      });
-      const a3 = makeItem({
-        id: 'a-3',
         videoId: 'v-200',
         videoTitle: 'Video B',
-        measuredVph: 1800,
-        status: 'failed',
-        createdAt: '2026-09-16T10:00:00Z',
+        measuredVph: 2500,
+        status: 'sent',
+        createdAt: '2026-09-17T11:00:00Z',
       });
 
-      const groups = groupAlertsByVideo([a1, a2, a3]);
-      expect(groups.length).toBe(2);
+      const groups = groupAlertsByVideo([a1, a2]);
+      expect(groups).toHaveLength(2);
+      expect(groups.every(g => g.alertCount === 1)).toBe(true);
 
       const groupA = groups.find(g => g.videoId === 'v-100')!;
       expect(groupA).toBeDefined();
-      expect(groupA.alertCount).toBe(2);
-      expect(groupA.latestAlertAt).toBe('2026-09-17T11:00:00Z');
-      expect(groupA.latestStatus).toBe('sent'); // Lấy theo alert mới nhất
-      expect(groupA.maxMeasuredVph).toBe(2500); // Max factual
+      expect(groupA.alertCount).toBe(1);
+      expect(groupA.latestAlertAt).toBe('2026-09-17T10:00:00Z');
+      expect(groupA.latestStatus).toBe('pending');
+      expect(groupA.maxMeasuredVph).toBe(1500);
+
+      const groupB = groups.find(g => g.videoId === 'v-200')!;
+      expect(groupB).toBeDefined();
+      expect(groupB.alertCount).toBe(1);
+      expect(groupB.latestAlertAt).toBe('2026-09-17T11:00:00Z');
+      expect(groupB.latestStatus).toBe('sent');
+      expect(groupB.maxMeasuredVph).toBe(2500);
     });
 
     it('xử lý an toàn khi VPH là null (maxMeasuredVph null-safe)', () => {

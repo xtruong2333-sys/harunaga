@@ -30,10 +30,7 @@
         <div class="group-card-body">
           <div class="body-top">
             <AlertStatusBadge :status="group.latestStatus" />
-            <span class="count-badge mono">
-              <span v-if="group.alertCount > 1"><strong>{{ group.alertCount }}</strong> cảnh báo</span>
-              <span v-else>Cảnh báo ghi nhận</span>
-            </span>
+            <span class="count-badge mono">Cảnh báo ghi nhận</span>
           </div>
 
           <router-link
