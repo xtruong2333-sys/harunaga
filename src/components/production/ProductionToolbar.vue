@@ -95,7 +95,7 @@
             title="Xem danh sách"
             @click="$emit('update:viewMode', 'list')"
           >
-            <AppIcon name="list" :size="15" />
+            <AppIcon name="clipboard-list" :size="15" />
             <span class="toggle-text">Danh sách</span>
           </button>
         </div>
@@ -108,7 +108,7 @@
           title="Đặt lại các bộ lọc về mặc định"
           @click="$emit('reset')"
         >
-          <AppIcon name="rotate-ccw" :size="13" />
+          <AppIcon name="restore" :size="13" />
           <span>Đặt lại bộ lọc</span>
         </button>
       </div>

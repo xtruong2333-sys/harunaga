@@ -12,7 +12,7 @@
     <!-- Column Scrollable Body -->
     <div class="column-body">
       <div v-if="items.length === 0" class="column-empty-state">
-        <AppIcon name="inbox" :size="24" class="empty-icon" />
+        <AppIcon name="clipboard-list" :size="24" class="empty-icon" />
         <span class="empty-text">Chưa có nội dung</span>
       </div>
 
@@ -22,7 +22,8 @@
           :key="item.id"
           :item="item"
           :is-busy="busyItemIds.has(item.id)"
-          :any-mutation-busy="anyMutationBusy"
+          :any-mutation-busy="isLocked"
+          :interactions-locked="isLocked"
           @change-status="$emit('change-status', $event)"
           @edit="$emit('edit', $event)"
           @archive="$emit('archive', $event)"
@@ -35,17 +36,21 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
 import type { ProductionItem, ProductionStatus } from '@/types/production';
 import ProductionCard from './ProductionCard.vue';
 import AppIcon from '@/components/ui/AppIcon.vue';
 
-defineProps<{
+const props = defineProps<{
   status: ProductionStatus;
   title: string;
   items: ProductionItem[];
   busyItemIds: Set<string>;
-  anyMutationBusy: boolean;
+  anyMutationBusy?: boolean;
+  interactionsLocked?: boolean;
 }>();
+
+const isLocked = computed(() => !!(props.interactionsLocked || props.anyMutationBusy));
 
 defineEmits<{
   (e: 'change-status', payload: { id: string; status: ProductionStatus }): void;

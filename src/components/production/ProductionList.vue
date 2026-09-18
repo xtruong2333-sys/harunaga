@@ -29,7 +29,7 @@
             class="list-thumb"
           />
           <div v-else class="source-missing-cell">
-            <AppIcon name="alert-triangle" :size="18" class="missing-icon" />
+            <AppIcon name="alert" :size="18" class="missing-icon" />
             <span class="missing-text">Video nguồn không còn trong hệ thống.</span>
           </div>
         </div>
@@ -67,7 +67,7 @@
               :title="item.sourceVideo.title"
             >
               <span>{{ item.sourceVideo.title }}</span>
-              <AppIcon name="external-link" :size="11" />
+              <AppIcon name="external" :size="11" />
             </a>
             <span v-else class="source-static" :title="item.sourceVideo.title">
               {{ item.sourceVideo.title }}
@@ -96,7 +96,7 @@
               class="pub-link"
             >
               <span>Xem video</span>
-              <AppIcon name="external-link" :size="11" />
+              <AppIcon name="external" :size="11" />
             </a>
           </div>
         </div>
@@ -108,7 +108,7 @@
             :id="`list-stage-${item.id}`"
             :value="item.status"
             class="list-stage-select"
-            :disabled="busyItemIds.has(item.id) || anyMutationBusy"
+            :disabled="isItemDisabled(item.id)"
             @change="onStageChange($event, item)"
           >
             <option v-for="(label, key) in STATUS_LABELS" :key="key" :value="key">
@@ -123,10 +123,10 @@
             type="button"
             class="btn-action edit"
             title="Chỉnh sửa chi tiết"
-            :disabled="busyItemIds.has(item.id) || anyMutationBusy"
+            :disabled="isItemDisabled(item.id)"
             @click="$emit('edit', item)"
           >
-            <AppIcon name="edit-3" :size="15" />
+            <AppIcon name="settings" :size="15" />
           </button>
 
           <button
@@ -134,17 +134,17 @@
             type="button"
             class="btn-action restore"
             title="Khôi phục về Ý tưởng"
-            :disabled="busyItemIds.has(item.id) || anyMutationBusy"
+            :disabled="isItemDisabled(item.id)"
             @click="$emit('restore', item.id)"
           >
-            <AppIcon name="rotate-ccw" :size="15" />
+            <AppIcon name="restore" :size="15" />
           </button>
           <button
             v-else
             type="button"
             class="btn-action archive"
             title="Lưu trữ mục này"
-            :disabled="busyItemIds.has(item.id) || anyMutationBusy"
+            :disabled="isItemDisabled(item.id)"
             @click="$emit('archive', item.id)"
           >
             <AppIcon name="archive" :size="15" />
@@ -154,10 +154,10 @@
             type="button"
             class="btn-action delete"
             title="Xóa khỏi Tiến Độ Sản Xuất"
-            :disabled="busyItemIds.has(item.id) || anyMutationBusy"
+            :disabled="isItemDisabled(item.id)"
             @click="$emit('delete', item)"
           >
-            <AppIcon name="trash-2" :size="15" />
+            <AppIcon name="x" :size="15" />
           </button>
         </div>
       </div>
@@ -172,11 +172,16 @@ import { productionService } from '@/services/production-service';
 import VideoThumbnail from '@/components/videos/VideoThumbnail.vue';
 import AppIcon from '@/components/ui/AppIcon.vue';
 
-defineProps<{
+const props = defineProps<{
   items: ProductionItem[];
   busyItemIds: Set<string>;
-  anyMutationBusy: boolean;
+  anyMutationBusy?: boolean;
+  interactionsLocked?: boolean;
 }>();
+
+function isItemDisabled(id: string): boolean {
+  return props.busyItemIds.has(id) || !!props.interactionsLocked || !!props.anyMutationBusy;
+}
 
 const emit = defineEmits<{
   (e: 'change-status', payload: { id: string; status: ProductionStatus }): void;
@@ -265,6 +270,11 @@ function onStageChange(event: Event, item: ProductionItem) {
   color: #2563eb;
   z-index: 10;
   border-radius: 12px;
+}
+
+:global([data-theme='dark']) .row-busy-overlay {
+  background: rgba(15, 23, 42, 0.88);
+  color: #60a5fa;
 }
 
 .row-thumb-cell {
@@ -537,6 +547,12 @@ function onStageChange(event: Event, item: ProductionItem) {
 
   .row-actions-cell {
     justify-content: flex-end;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spin-anim {
+    animation: none !important;
   }
 }
 </style>

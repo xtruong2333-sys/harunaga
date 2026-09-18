@@ -12,7 +12,7 @@
         <button
           type="button"
           class="btn btn-secondary btn-sm"
-          :disabled="loading || isAnyMutationBusy"
+          :disabled="interactionsLocked"
           title="Tải lại danh sách tiến độ"
           @click="loadItems"
         >
@@ -85,7 +85,8 @@
         :items="filteredItems"
         :selected-status="filterState.status"
         :busy-item-ids="busyItemIds"
-        :any-mutation-busy="isAnyMutationBusy"
+        :any-mutation-busy="interactionsLocked"
+        :interactions-locked="interactionsLocked"
         @change-status="handleChangeStatus"
         @edit="openEditModal"
         @archive="handleArchive"
@@ -98,7 +99,8 @@
         v-else
         :items="filteredItems"
         :busy-item-ids="busyItemIds"
-        :any-mutation-busy="isAnyMutationBusy"
+        :any-mutation-busy="interactionsLocked"
+        :interactions-locked="interactionsLocked"
         @change-status="handleChangeStatus"
         @edit="openEditModal"
         @archive="handleArchive"
@@ -140,7 +142,7 @@
       role="status"
       aria-live="polite"
     >
-      <AppIcon :name="toast.type === 'success' ? 'check' : 'alert-circle'" :size="16" />
+      <AppIcon :name="toast.type === 'success' ? 'check' : 'alert'" :size="16" />
       <span>{{ toast.message }}</span>
     </div>
   </div>
@@ -186,6 +188,16 @@ const error = ref<string | null>(null);
 // Per-item busy tracking & mutation guard
 const busyItemIds = ref<Set<string>>(new Set());
 const isAnyMutationBusy = computed(() => busyItemIds.value.size > 0);
+
+// Unified interactions locking state
+const interactionsLocked = computed(() => {
+  return (
+    loading.value ||
+    isAnyMutationBusy.value ||
+    showAccessKeyModal.value ||
+    pendingAction !== null
+  );
+});
 
 // Load request ID to protect against async race conditions
 let loadRequestId = 0;
@@ -295,8 +307,11 @@ async function executeWithAccessKey(
   itemIdsToBusy?: string[],
   onNonAuthError?: (err: Error) => void
 ) {
-  // Prevent duplicate execution if modal is already open
-  if (showAccessKeyModal.value && pendingAction !== null) return;
+  // Prevent duplicate execution if loading or modal already has pending action
+  if (loading.value || (showAccessKeyModal.value && pendingAction !== null)) return;
+
+  // Invalidate any pending load requests so a late refresh response does NOT overwrite mutation result
+  ++loadRequestId;
 
   // Mark items as busy
   itemIdsToBusy?.forEach(id => busyItemIds.value.add(id));
@@ -347,7 +362,7 @@ async function onAccessKeyConfirmed(key: string) {
 
 // Fetch items with async race protection
 async function loadItems() {
-  if (isAnyMutationBusy.value) return;
+  if (isAnyMutationBusy.value || showAccessKeyModal.value || pendingAction !== null) return;
   const currentReqId = ++loadRequestId;
   loading.value = true;
   error.value = null;
@@ -368,6 +383,7 @@ async function loadItems() {
 
 // Action Handlers
 async function handleChangeStatus({ id, status }: { id: string; status: ProductionStatus }) {
+  if (interactionsLocked.value) return;
   const target = items.value.find(i => i.id === id);
   if (!target || target.status === status) return;
 
@@ -385,6 +401,7 @@ async function handleChangeStatus({ id, status }: { id: string; status: Producti
 }
 
 async function handleArchive(id: string) {
+  if (interactionsLocked.value) return;
   await executeWithAccessKey(
     async (key) => {
       const updated = await productionService.archiveProductionItem(id, key);
@@ -399,6 +416,7 @@ async function handleArchive(id: string) {
 }
 
 async function handleRestore(id: string) {
+  if (interactionsLocked.value) return;
   await executeWithAccessKey(
     async (key) => {
       const updated = await productionService.restoreProductionItem(id, key);
@@ -419,12 +437,14 @@ const isSavingEdit = ref(false);
 const editModalError = ref<string | null>(null);
 
 function openEditModal(item: ProductionItem) {
+  if (interactionsLocked.value) return;
   editingItem.value = item;
   editModalError.value = null;
   showEditModal.value = true;
 }
 
 async function handleSaveEdit(updateInput: ProductionUpdateInput) {
+  if (loading.value || (showAccessKeyModal.value && pendingAction !== null)) return;
   editModalError.value = null;
   isSavingEdit.value = true;
 
@@ -455,12 +475,13 @@ const deletingItem = ref<ProductionItem | null>(null);
 const isDeleting = ref(false);
 
 function openDeleteModal(item: ProductionItem) {
+  if (interactionsLocked.value) return;
   deletingItem.value = item;
   showDeleteModal.value = true;
 }
 
 async function handleConfirmDelete() {
-  if (!deletingItem.value) return;
+  if (!deletingItem.value || loading.value || (showAccessKeyModal.value && pendingAction !== null)) return;
   const id = deletingItem.value.id;
   isDeleting.value = true;
 
@@ -585,6 +606,9 @@ onMounted(() => {
     animation: none !important;
   }
   .production-toast-banner {
+    animation: none !important;
+  }
+  .spin-anim {
     animation: none !important;
   }
 }

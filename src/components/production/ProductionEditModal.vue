@@ -8,7 +8,7 @@
   >
     <!-- Modal Error Banner (Non-auth validation errors) -->
     <div v-if="modalError" class="modal-error-banner" role="alert">
-      <AppIcon name="alert-circle" :size="16" />
+      <AppIcon name="alert" :size="16" />
       <span>{{ modalError }}</span>
     </div>
 
@@ -28,6 +28,7 @@
           v-model="formWorkingTitle"
           type="text"
           class="form-input"
+          maxlength="200"
           placeholder="Nhập tiêu đề triển khai cho video của bạn..."
           :disabled="isSaving"
         />
@@ -72,6 +73,7 @@
           v-model="formNotes"
           class="form-textarea"
           rows="4"
+          maxlength="5000"
           placeholder="Ghi lại góc nhìn khác biệt, dàn ý nội dung, các điểm nhấn cần chú ý..."
           :disabled="isSaving"
         ></textarea>
@@ -144,10 +146,10 @@ function handleSubmit() {
   // Snapshot payload BEFORE sending to parent / pending action
   const updateInput: ProductionUpdateInput = {
     id: props.item.id,
-    workingTitle: formWorkingTitle.value.trim() || undefined,
+    workingTitle: formWorkingTitle.value.trim(),
     priority: formPriority.value,
-    notes: formNotes.value.trim() || undefined,
-    publishedUrl: formPublishedUrl.value.trim() || undefined,
+    notes: formNotes.value.trim(),
+    publishedUrl: formPublishedUrl.value.trim(),
   };
 
   emit('save', updateInput);

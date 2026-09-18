@@ -10,7 +10,8 @@
           :title="STATUS_LABELS[st]"
           :items="itemsByStatus[st] || []"
           :busy-item-ids="busyItemIds"
-          :any-mutation-busy="anyMutationBusy"
+          :any-mutation-busy="isLocked"
+          :interactions-locked="isLocked"
           @change-status="$emit('change-status', $event)"
           @edit="$emit('edit', $event)"
           @archive="$emit('archive', $event)"
@@ -27,7 +28,8 @@
             :title="STATUS_LABELS[selectedStatus]"
             :items="itemsByStatus[selectedStatus] || []"
             :busy-item-ids="busyItemIds"
-            :any-mutation-busy="anyMutationBusy"
+            :any-mutation-busy="isLocked"
+            :interactions-locked="isLocked"
             class="focused-column"
             @change-status="$emit('change-status', $event)"
             @edit="$emit('edit', $event)"
@@ -51,8 +53,11 @@ const props = defineProps<{
   items: ProductionItem[];
   selectedStatus: 'all' | ProductionStatus;
   busyItemIds: Set<string>;
-  anyMutationBusy: boolean;
+  anyMutationBusy?: boolean;
+  interactionsLocked?: boolean;
 }>();
+
+const isLocked = computed(() => !!(props.interactionsLocked || props.anyMutationBusy));
 
 defineEmits<{
   (e: 'change-status', payload: { id: string; status: ProductionStatus }): void;

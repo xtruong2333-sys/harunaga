@@ -787,4 +787,508 @@ describe('Bắt Bài Đối Thủ — Giai Đoạn 9: Tiến Độ Sản Xuất 
       expect(allContent.toLowerCase()).not.toContain('phần trăm hoàn thành');
     });
   });
+
+  // ==========================================
+  // 7. WAVE 3.13: Final Interaction & Semantics Hardening
+  // ==========================================
+  describe('7. WAVE 3.13: Final Interaction & Semantics Hardening', () => {
+    // 1. Static AppIcon names audit
+    it('mọi AppIcon name tĩnh trong Production page và components đều có implementation thật trong AppIcon.vue', () => {
+      const appIconFile = path.resolve(__dirname, '../src/components/ui/AppIcon.vue');
+      const appIconContent = fs.readFileSync(appIconFile, 'utf-8');
+      const supportedMatches = appIconContent.matchAll(/name === '([a-z0-9-]+)'/g);
+      const supportedNames = new Set<string>();
+      for (const m of supportedMatches) {
+        supportedNames.add(m[1]);
+      }
+
+      const filesToCheck = [
+        path.resolve(__dirname, '../src/pages/ProductionPage.vue'),
+        ...fs.readdirSync(path.resolve(__dirname, '../src/components/production'))
+          .filter(f => f.endsWith('.vue'))
+          .map(f => path.resolve(__dirname, '../src/components/production', f))
+      ];
+
+      for (const file of filesToCheck) {
+        const content = fs.readFileSync(file, 'utf-8');
+        const iconNameMatches = content.matchAll(/<AppIcon[^>]*\bname="([a-z0-9-]+)"/g);
+        for (const m of iconNameMatches) {
+          const iconName = m[1];
+          expect(supportedNames.has(iconName), `Unsupported AppIcon name "${iconName}" found in ${path.basename(file)}`).toBe(true);
+        }
+      }
+    });
+
+    // 2. Block mutation during load & prevent load overwriting mutation
+    it('khóa mutation controls khi đang load, không cho mutation bắt đầu và enable lại sau khi load xong', async () => {
+      const { default: ProductionPage } = await import('../src/pages/ProductionPage.vue');
+
+      setStoredAccessKey('valid-key');
+      let resolveFetch: (val: any) => void;
+      const fetchPromise = new Promise(r => { resolveFetch = r; });
+
+      const fetchSpy = vi.spyOn(productionService, 'fetchProductionItems').mockReturnValue(fetchPromise as any);
+      const changeSpy = vi.spyOn(productionService, 'changeProductionStatus');
+
+      try {
+        const wrapper = mount(ProductionPage, {
+          global: {
+            plugins: [router],
+            stubs: { 'router-link': { template: '<a><slot /></a>' } },
+          },
+        });
+
+        // Initially loading is true
+        await wrapper.vm.$nextTick();
+        expect((wrapper.vm as any).loading).toBe(true);
+        expect((wrapper.vm as any).interactionsLocked).toBe(true);
+
+        // Refresh button should be disabled
+        const refreshBtn = wrapper.find('button[title="Tải lại danh sách tiến độ"]');
+        expect(refreshBtn.attributes('disabled')).toBeDefined();
+
+        // Attempting to change status programmatically during load should be ignored
+        await (wrapper.vm as any).handleChangeStatus({ id: 'prod-1', status: 'script' });
+        expect(changeSpy).not.toHaveBeenCalled();
+
+        // Now resolve fetch
+        resolveFetch!([sampleItems[0]]);
+        await flushPromises();
+
+        expect((wrapper.vm as any).loading).toBe(false);
+        expect((wrapper.vm as any).interactionsLocked).toBe(false);
+        expect(refreshBtn.attributes('disabled')).toBeUndefined();
+
+        // After resolve, mutation works
+        changeSpy.mockResolvedValueOnce({ ...sampleItems[0], status: 'script' });
+        await (wrapper.vm as any).handleChangeStatus({ id: 'prod-1', status: 'script' });
+        await flushPromises();
+
+        expect(changeSpy).toHaveBeenCalledWith('prod-1', 'script', 'valid-key');
+      } finally {
+        fetchSpy.mockRestore();
+        changeSpy.mockRestore();
+      }
+    });
+
+    // 3. Access modal lock: modal open locks mutation and refresh, cancel unlocks
+    it('khi access modal mở thì khóa toàn bộ mutation và refresh; cancel sẽ mở khóa', async () => {
+      const { default: ProductionPage } = await import('../src/pages/ProductionPage.vue');
+      const { default: AccessKeyPromptModal } = await import('../src/components/ui/AccessKeyPromptModal.vue');
+
+      clearStoredAccessKey();
+      const fetchSpy = vi.spyOn(productionService, 'fetchProductionItems').mockResolvedValue([sampleItems[0]]);
+      const archiveSpy = vi.spyOn(productionService, 'archiveProductionItem');
+
+      try {
+        const wrapper = mount(ProductionPage, {
+          global: {
+            plugins: [router],
+            stubs: { 'router-link': { template: '<a><slot /></a>' } },
+          },
+        });
+        await flushPromises();
+
+        // Trigger action that requires key
+        await (wrapper.vm as any).handleArchive('prod-1');
+        await flushPromises();
+
+        expect((wrapper.vm as any).showAccessKeyModal).toBe(true);
+        expect((wrapper.vm as any).interactionsLocked).toBe(true);
+
+        // Attempting second action while modal is open should be blocked
+        await (wrapper.vm as any).handleRestore('prod-1');
+        await (wrapper.vm as any).loadItems();
+        // Archive was NOT executed yet, only pending
+        expect(archiveSpy).not.toHaveBeenCalled();
+
+        // Cancel modal
+        const modal = wrapper.findComponent(AccessKeyPromptModal);
+        modal.vm.$emit('update:modelValue', false);
+        await flushPromises();
+
+        expect((wrapper.vm as any).showAccessKeyModal).toBe(false);
+        expect((wrapper.vm as any).interactionsLocked).toBe(false);
+      } finally {
+        fetchSpy.mockRestore();
+        archiveSpy.mockRestore();
+      }
+    });
+
+    // 4. Invalid key error test: AccessKeyRequiredError message retained in modal
+    it('mã truy cập sai ném AccessKeyRequiredError, modal mở lại với initialError đúng message thật', async () => {
+      const { default: ProductionPage } = await import('../src/pages/ProductionPage.vue');
+      const { default: AccessKeyPromptModal } = await import('../src/components/ui/AccessKeyPromptModal.vue');
+
+      setStoredAccessKey('invalid-key');
+      const fetchSpy = vi.spyOn(productionService, 'fetchProductionItems').mockResolvedValue([sampleItems[0]]);
+      const changeSpy = vi.spyOn(productionService, 'changeProductionStatus').mockRejectedValue(
+        new AccessKeyRequiredError('Mã truy cập không chính xác hoặc đã hết hạn.')
+      );
+
+      try {
+        const wrapper = mount(ProductionPage, {
+          global: {
+            plugins: [router],
+            stubs: { 'router-link': { template: '<a><slot /></a>' } },
+          },
+        });
+        await flushPromises();
+
+        // Trigger status change
+        await (wrapper.vm as any).handleChangeStatus({ id: 'prod-1', status: 'script' });
+        await flushPromises();
+
+        const modal = wrapper.findComponent(AccessKeyPromptModal);
+        expect(modal.props('modelValue')).toBe(true);
+        expect(modal.props('initialError')).toBe('Mã truy cập không chính xác hoặc đã hết hạn.');
+      } finally {
+        fetchSpy.mockRestore();
+        changeSpy.mockRestore();
+      }
+    });
+
+    // 5. Status failure test
+    it('changeProductionStatus thất bại thì item giữ nguyên status cũ, toast lỗi xuất hiện và busy state được giải phóng', async () => {
+      const { default: ProductionPage } = await import('../src/pages/ProductionPage.vue');
+
+      setStoredAccessKey('valid-key');
+      const fetchSpy = vi.spyOn(productionService, 'fetchProductionItems').mockResolvedValue([{ ...sampleItems[0], status: 'idea' }]);
+      const changeSpy = vi.spyOn(productionService, 'changeProductionStatus').mockRejectedValue(
+        new Error('Lỗi cập nhật máy chủ')
+      );
+
+      try {
+        const wrapper = mount(ProductionPage, {
+          global: {
+            plugins: [router],
+            stubs: { 'router-link': { template: '<a><slot /></a>' } },
+          },
+        });
+        await flushPromises();
+
+        await (wrapper.vm as any).handleChangeStatus({ id: 'prod-1', status: 'script' });
+        await flushPromises();
+
+        // Item status remains 'idea'
+        expect((wrapper.vm as any).items[0].status).toBe('idea');
+        // Busy state released
+        expect((wrapper.vm as any).busyItemIds.has('prod-1')).toBe(false);
+        expect((wrapper.vm as any).isAnyMutationBusy).toBe(false);
+        // Error toast shown
+        expect(wrapper.text()).toContain('Lỗi cập nhật máy chủ');
+      } finally {
+        fetchSpy.mockRestore();
+        changeSpy.mockRestore();
+      }
+    });
+
+    // 6. Double mutation test
+    it('mutation item A đang pending thì cuộc gọi thứ 2 cho item A hoặc item B bị khóa, chỉ 1 call tới service', async () => {
+      const { default: ProductionPage } = await import('../src/pages/ProductionPage.vue');
+
+      setStoredAccessKey('valid-key');
+      let resolveA: (val: any) => void;
+      const promiseA = new Promise(r => { resolveA = r; });
+
+      const fetchSpy = vi.spyOn(productionService, 'fetchProductionItems').mockResolvedValue([
+        { ...sampleItems[0], id: 'item-A' },
+        { ...sampleItems[0], id: 'item-B' },
+      ]);
+      const changeSpy = vi.spyOn(productionService, 'changeProductionStatus')
+        .mockReturnValueOnce(promiseA as any);
+
+      try {
+        const wrapper = mount(ProductionPage, {
+          global: {
+            plugins: [router],
+            stubs: { 'router-link': { template: '<a><slot /></a>' } },
+          },
+        });
+        await flushPromises();
+
+        // Trigger mutation on item-A (starts pending)
+        const mut1 = (wrapper.vm as any).handleChangeStatus({ id: 'item-A', status: 'script' });
+        expect((wrapper.vm as any).busyItemIds.has('item-A')).toBe(true);
+        expect((wrapper.vm as any).interactionsLocked).toBe(true);
+
+        // Attempt second mutation on item-A
+        await (wrapper.vm as any).handleChangeStatus({ id: 'item-A', status: 'thumbnail' });
+        // Attempt mutation on item-B
+        await (wrapper.vm as any).handleChangeStatus({ id: 'item-B', status: 'production' });
+
+        expect(changeSpy).toHaveBeenCalledTimes(1);
+
+        // Resolve item-A
+        resolveA!({ ...sampleItems[0], id: 'item-A', status: 'script' });
+        await mut1;
+        await flushPromises();
+
+        expect((wrapper.vm as any).busyItemIds.has('item-A')).toBe(false);
+        expect((wrapper.vm as any).interactionsLocked).toBe(false);
+
+        // Now item-B can be mutated
+        changeSpy.mockResolvedValueOnce({ ...sampleItems[0], id: 'item-B', status: 'production' });
+        await (wrapper.vm as any).handleChangeStatus({ id: 'item-B', status: 'production' });
+        await flushPromises();
+
+        expect(changeSpy).toHaveBeenCalledTimes(2);
+      } finally {
+        fetchSpy.mockRestore();
+        changeSpy.mockRestore();
+      }
+    });
+
+    // 7. View mode tests: A. garbage localStorage fallback; B. filter preservation during switch
+    it('view mode fallback về board khi localStorage có giá trị rác, giữ nguyên filters khi switch view', async () => {
+      const { default: ProductionPage } = await import('../src/pages/ProductionPage.vue');
+
+      localStorage.setItem(PRODUCTION_VIEW_MODE_STORAGE_KEY, 'corrupted_garbage_mode');
+      const fetchSpy = vi.spyOn(productionService, 'fetchProductionItems').mockResolvedValue(sampleItems);
+
+      try {
+        const wrapper = mount(ProductionPage, {
+          global: {
+            plugins: [router],
+            stubs: { 'router-link': { template: '<a><slot /></a>' } },
+          },
+        });
+        await flushPromises();
+
+        // A. Fallback to board
+        expect((wrapper.vm as any).viewMode).toBe('board');
+
+        // B. Set filters
+        (wrapper.vm as any).filterState.searchQuery = 'game 2d';
+        (wrapper.vm as any).filterState.priority = 'high';
+        (wrapper.vm as any).filterState.status = 'idea';
+        (wrapper.vm as any).filterState.sortBy = 'priority_desc';
+
+        expect(fetchSpy).toHaveBeenCalledTimes(1);
+
+        // Switch board -> list -> board
+        (wrapper.vm as any).setViewMode('list');
+        await flushPromises();
+        expect((wrapper.vm as any).viewMode).toBe('list');
+
+        (wrapper.vm as any).setViewMode('board');
+        await flushPromises();
+        expect((wrapper.vm as any).viewMode).toBe('board');
+
+        // Assert filters unchanged
+        expect((wrapper.vm as any).filterState.searchQuery).toBe('game 2d');
+        expect((wrapper.vm as any).filterState.priority).toBe('high');
+        expect((wrapper.vm as any).filterState.status).toBe('idea');
+        expect((wrapper.vm as any).filterState.sortBy).toBe('priority_desc');
+
+        // fetchProductionItems not called again
+        expect(fetchSpy).toHaveBeenCalledTimes(1);
+      } finally {
+        fetchSpy.mockRestore();
+      }
+    });
+
+    // 8. Archive / Restore success uses exact server response
+    it('archive và restore cập nhật local state dựa trên response chính xác từ server', async () => {
+      const { default: ProductionPage } = await import('../src/pages/ProductionPage.vue');
+
+      setStoredAccessKey('valid-key');
+      const serverArchivedItem: ProductionItem = {
+        ...sampleItems[0],
+        status: 'archived',
+        updatedAt: '2026-09-18T12:00:00.000Z',
+      };
+      const serverRestoredItem: ProductionItem = {
+        ...sampleItems[0],
+        status: 'idea',
+        updatedAt: '2026-09-18T12:05:00.000Z',
+      };
+
+      const fetchSpy = vi.spyOn(productionService, 'fetchProductionItems').mockResolvedValue([sampleItems[0]]);
+      const archiveSpy = vi.spyOn(productionService, 'archiveProductionItem').mockResolvedValue(serverArchivedItem);
+      const restoreSpy = vi.spyOn(productionService, 'restoreProductionItem').mockResolvedValue(serverRestoredItem);
+
+      try {
+        const wrapper = mount(ProductionPage, {
+          global: {
+            plugins: [router],
+            stubs: { 'router-link': { template: '<a><slot /></a>' } },
+          },
+        });
+        await flushPromises();
+
+        // Archive
+        await (wrapper.vm as any).handleArchive('prod-1');
+        await flushPromises();
+
+        expect(archiveSpy).toHaveBeenCalledWith('prod-1', 'valid-key');
+        expect((wrapper.vm as any).items[0].status).toBe('archived');
+        expect((wrapper.vm as any).items[0].updatedAt).toBe('2026-09-18T12:00:00.000Z');
+
+        // Restore
+        await (wrapper.vm as any).handleRestore('prod-1');
+        await flushPromises();
+
+        expect(restoreSpy).toHaveBeenCalledWith('prod-1', 'valid-key');
+        expect((wrapper.vm as any).items[0].status).toBe('idea');
+        expect((wrapper.vm as any).items[0].updatedAt).toBe('2026-09-18T12:05:00.000Z');
+      } finally {
+        fetchSpy.mockRestore();
+        archiveSpy.mockRestore();
+        restoreSpy.mockRestore();
+      }
+    });
+
+    // 9. Delete failure test
+    it('deleteProductionItem thất bại thì item không bị xóa, toast lỗi factual và busy state được release', async () => {
+      const { default: ProductionPage } = await import('../src/pages/ProductionPage.vue');
+
+      setStoredAccessKey('valid-key');
+      const fetchSpy = vi.spyOn(productionService, 'fetchProductionItems').mockResolvedValue([sampleItems[0]]);
+      const deleteSpy = vi.spyOn(productionService, 'deleteProductionItem').mockRejectedValue(
+        new Error('Không thể xóa mục do ràng buộc máy chủ.')
+      );
+
+      try {
+        const wrapper = mount(ProductionPage, {
+          global: {
+            plugins: [router],
+            stubs: { 'router-link': { template: '<a><slot /></a>' } },
+          },
+        });
+        await flushPromises();
+
+        (wrapper.vm as any).openDeleteModal(sampleItems[0]);
+        await flushPromises();
+
+        expect((wrapper.vm as any).showDeleteModal).toBe(true);
+
+        await (wrapper.vm as any).handleConfirmDelete();
+        await flushPromises();
+
+        // Item still exists
+        expect((wrapper.vm as any).items.length).toBe(1);
+        expect((wrapper.vm as any).busyItemIds.has('prod-1')).toBe(false);
+        expect((wrapper.vm as any).isDeleting).toBe(false);
+        expect(wrapper.text()).toContain('Không thể xóa mục do ràng buộc máy chủ.');
+      } finally {
+        fetchSpy.mockRestore();
+        deleteSpy.mockRestore();
+      }
+    });
+
+    // 10. URL null render test
+    it('sourceVideo.url null thì render title nguồn factual và không render thẻ <a> với href null', async () => {
+      const { default: ProductionCard } = await import('../src/components/production/ProductionCard.vue');
+
+      const nullUrlItem: ProductionItem = {
+        ...sampleItems[0],
+        sourceVideo: {
+          ...sampleItems[0].sourceVideo!,
+          title: 'Video Gốc Không Link URL',
+          url: null,
+        },
+      };
+
+      const wrapper = mount(ProductionCard, {
+        props: {
+          item: nullUrlItem,
+          isBusy: false,
+          anyMutationBusy: false,
+        },
+        global: {
+          stubs: {
+            'router-link': { template: '<a><slot /></a>' },
+          },
+        },
+      });
+
+      expect(wrapper.text()).toContain('Video Gốc Không Link URL');
+      // No link to source video
+      const sourceLinks = wrapper.findAll('a.source-video-link');
+      expect(sourceLinks.length).toBe(0);
+      expect(wrapper.find('.source-video-static').text()).toBe('Video Gốc Không Link URL');
+      expect(wrapper.html()).not.toContain('href="null"');
+    });
+
+    // 11. Published URL null test
+    it('status published có publishedAt nhưng publishedUrl null thì render Đã xuất bản và ngày nhưng không có link', async () => {
+      const { default: ProductionCard } = await import('../src/components/production/ProductionCard.vue');
+
+      const publishedItem: ProductionItem = {
+        ...sampleItems[0],
+        status: 'published',
+        publishedAt: '2026-09-18T10:00:00.000Z',
+        publishedUrl: null,
+      };
+
+      const wrapper = mount(ProductionCard, {
+        props: {
+          item: publishedItem,
+          isBusy: false,
+          anyMutationBusy: false,
+        },
+        global: {
+          stubs: {
+            'router-link': { template: '<a><slot /></a>' },
+          },
+        },
+      });
+
+      expect(wrapper.text()).toContain('Đã xuất bản');
+      expect(wrapper.find('.published-date').exists()).toBe(true);
+      expect(wrapper.find('a.published-link-btn').exists()).toBe(false);
+      expect(wrapper.text()).not.toContain('Xem bài đăng');
+    });
+
+    // 12. Edit clear test
+    it('edit modal cho phép xóa trắng 3 trường và emit payload với chuỗi rỗng thay vì undefined', async () => {
+      const { default: ProductionEditModal } = await import('../src/components/production/ProductionEditModal.vue');
+
+      const initialItem: ProductionItem = {
+        ...sampleItems[0],
+        workingTitle: 'Old Working Title',
+        notes: 'Old Notes Description',
+        publishedUrl: 'https://example.com/old-video',
+        priority: 'high',
+      };
+
+      const wrapper = mount(ProductionEditModal, {
+        props: {
+          modelValue: true,
+          item: initialItem,
+          isSaving: false,
+          modalError: null,
+        },
+        global: {
+          stubs: {
+            Teleport: true,
+          },
+        },
+      });
+
+      // Clear all 3 inputs
+      const titleInput = wrapper.find('#edit-working-title');
+      await titleInput.setValue('');
+
+      const notesTextarea = wrapper.find('#edit-notes');
+      await notesTextarea.setValue('');
+
+      const urlInput = wrapper.find('#edit-published-url');
+      await urlInput.setValue('');
+
+      // Submit
+      await wrapper.find('form.edit-form').trigger('submit.prevent');
+
+      const saveEmits = wrapper.emitted('save');
+      expect(saveEmits).toBeDefined();
+      expect(saveEmits![0][0]).toEqual({
+        id: 'prod-1',
+        workingTitle: '',
+        notes: '',
+        priority: 'high',
+        publishedUrl: '',
+      });
+    });
+  });
 });

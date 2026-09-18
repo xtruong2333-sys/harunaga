@@ -7,7 +7,7 @@
   >
     <div v-if="item" class="delete-confirmation-content">
       <div class="delete-icon-wrap">
-        <AppIcon name="trash-2" :size="28" class="trash-icon" />
+        <AppIcon name="x" :size="28" class="trash-icon" />
       </div>
 
       <div class="delete-message">
@@ -21,7 +21,7 @@
           </span>
         </div>
         <p class="delete-safe-note">
-          <AppIcon name="info" :size="14" />
+          <AppIcon name="alert" :size="14" />
           <span>Video nguồn đối thủ không bị xóa.</span>
         </p>
       </div>

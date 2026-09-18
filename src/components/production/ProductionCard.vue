@@ -25,7 +25,7 @@
         class="card-thumb"
       />
       <div v-else class="source-missing-placeholder">
-        <AppIcon name="alert-triangle" :size="22" class="missing-icon" />
+        <AppIcon name="alert" :size="22" class="missing-icon" />
         <span class="missing-text">Video nguồn không còn trong hệ thống.</span>
       </div>
 
@@ -65,7 +65,7 @@
           :title="item.sourceVideo.title"
         >
           <span>{{ item.sourceVideo.title }}</span>
-          <AppIcon name="external-link" :size="11" class="ext-icon" />
+          <AppIcon name="external" :size="11" class="ext-icon" />
         </a>
         <span v-else class="source-video-static" :title="item.sourceVideo.title">
           {{ item.sourceVideo.title }}
@@ -95,7 +95,7 @@
           title="Mở video đã xuất bản"
         >
           <span>Xem bài đăng</span>
-          <AppIcon name="external-link" :size="12" />
+          <AppIcon name="external" :size="12" />
         </a>
       </div>
     </div>
@@ -109,7 +109,7 @@
           :id="`stage-select-${item.id}`"
           :value="item.status"
           class="stage-select-control"
-          :disabled="isBusy || anyMutationBusy"
+          :disabled="isControlsDisabled"
           @change="onStageChange"
         >
           <option v-for="(label, key) in STATUS_LABELS" :key="key" :value="key">
@@ -125,10 +125,10 @@
           type="button"
           class="action-btn edit-btn"
           title="Chỉnh sửa chi tiết"
-          :disabled="isBusy || anyMutationBusy"
+          :disabled="isControlsDisabled"
           @click="$emit('edit', item)"
         >
-          <AppIcon name="edit-3" :size="14" />
+          <AppIcon name="settings" :size="14" />
         </button>
 
         <!-- Archive or Restore Button -->
@@ -137,17 +137,17 @@
           type="button"
           class="action-btn restore-btn"
           title="Khôi phục về Ý tưởng"
-          :disabled="isBusy || anyMutationBusy"
+          :disabled="isControlsDisabled"
           @click="$emit('restore', item.id)"
         >
-          <AppIcon name="rotate-ccw" :size="14" />
+          <AppIcon name="restore" :size="14" />
         </button>
         <button
           v-else
           type="button"
           class="action-btn archive-btn"
           title="Lưu trữ mục này"
-          :disabled="isBusy || anyMutationBusy"
+          :disabled="isControlsDisabled"
           @click="$emit('archive', item.id)"
         >
           <AppIcon name="archive" :size="14" />
@@ -158,10 +158,10 @@
           type="button"
           class="action-btn delete-btn"
           title="Xóa khỏi Tiến Độ Sản Xuất"
-          :disabled="isBusy || anyMutationBusy"
+          :disabled="isControlsDisabled"
           @click="$emit('delete', item)"
         >
-          <AppIcon name="trash-2" :size="14" />
+          <AppIcon name="x" :size="14" />
         </button>
       </div>
     </div>
@@ -179,8 +179,13 @@ import AppIcon from '@/components/ui/AppIcon.vue';
 const props = defineProps<{
   item: ProductionItem;
   isBusy: boolean;
-  anyMutationBusy: boolean;
+  anyMutationBusy?: boolean;
+  interactionsLocked?: boolean;
 }>();
+
+const isControlsDisabled = computed(() => {
+  return props.isBusy || !!props.interactionsLocked || !!props.anyMutationBusy;
+});
 
 const emit = defineEmits<{
   (e: 'change-status', payload: { id: string; status: ProductionStatus }): void;
@@ -264,6 +269,11 @@ function onStageChange(event: Event) {
   font-weight: 600;
   color: #2563eb;
   z-index: 10;
+}
+
+:global([data-theme='dark']) .card-busy-overlay {
+  background: rgba(15, 23, 42, 0.85);
+  color: #60a5fa;
 }
 
 .card-thumb-wrap {
@@ -559,6 +569,9 @@ function onStageChange(event: Event) {
   }
   .production-card:hover .card-thumb {
     transform: none !important;
+  }
+  .spin-anim {
+    animation: none !important;
   }
 }
 </style>
