@@ -1,0 +1,351 @@
+/* BẮT BÀI ĐỐI THỦ — Readability Hotfix
+   Loaded after main.css + wave22.css.
+   Goal: improve legibility across desktop/mobile without scaling the app layout.
+*/
+
+:root {
+  --readability-body: 15px;
+  --readability-ui: 13.5px;
+  --readability-small: 12px;
+  --readability-micro: 11.5px;
+  --readability-line: 1.55;
+}
+
+html {
+  font-size: 16px;
+  text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-size: var(--readability-body) !important;
+  line-height: var(--readability-line) !important;
+  text-rendering: optimizeLegibility;
+}
+
+/* Stronger secondary text contrast */
+[data-theme="light"] {
+  --text-secondary: #3F4F63;
+  --text-muted: #56657A;
+  --border-subtle: rgba(15, 40, 60, 0.12);
+  --border-line: rgba(15, 60, 90, 0.11);
+}
+
+[data-theme="dark"] {
+  --text-secondary: #A8B5C5;
+  --text-muted: #7F90A6;
+}
+
+/* Form controls and actions should never look like micro-copy */
+button,
+input,
+select,
+textarea {
+  font-size: var(--readability-ui) !important;
+  line-height: 1.4;
+}
+
+.btn,
+.btn-sm,
+.mode-btn,
+.retry-btn {
+  font-size: 13.5px !important;
+}
+
+/* App shell */
+.brand-name {
+  font-size: 14.5px !important;
+  line-height: 1.25 !important;
+}
+
+.brand-tagline {
+  font-size: 11.5px !important;
+  line-height: 1.35 !important;
+}
+
+.nav-group-title {
+  font-size: 11.5px !important;
+  line-height: 1.3 !important;
+  letter-spacing: 0.055em !important;
+}
+
+.sidebar-item,
+.rail-item,
+.item-title {
+  font-size: 14px !important;
+}
+
+.item-title {
+  line-height: 1.3 !important;
+}
+
+.item-hint {
+  font-size: 11.5px !important;
+  line-height: 1.35 !important;
+}
+
+.workspace-eyebrow {
+  font-size: 11.5px !important;
+  line-height: 1.25 !important;
+  letter-spacing: 0.07em !important;
+}
+
+.workspace-title {
+  font-size: 18px !important;
+  line-height: 1.25 !important;
+}
+
+.workspace-mode-badge {
+  font-size: 11.5px !important;
+  letter-spacing: 0.035em !important;
+}
+
+/* Shared page hierarchy */
+.page-kicker,
+.section-kicker,
+.hero-kicker,
+.card-kicker,
+.marker-tag,
+.dock-title {
+  font-size: 11.5px !important;
+  line-height: 1.3 !important;
+  letter-spacing: 0.055em !important;
+}
+
+.page-title {
+  line-height: 1.2 !important;
+}
+
+.page-description,
+.hero-description,
+.empty-desc,
+.error-message,
+.marker-subtext {
+  font-size: 14px !important;
+  line-height: 1.55 !important;
+}
+
+.section-title {
+  font-size: 19px !important;
+  line-height: 1.25 !important;
+}
+
+.section-link {
+  font-size: 13.5px !important;
+  line-height: 1.35 !important;
+}
+
+/* Cards need breathing room — fixes the cramped Overview screenshot */
+.section-container {
+  padding: 18px 20px;
+}
+
+/* Common labels / captions across Wave 3 components */
+.kpi-label,
+.metric-label,
+.summary-label,
+.stat-label,
+.cell-lbl,
+.t-box-lbl,
+.tel-lbl,
+.cfg-lbl,
+.fact-lbl,
+.mb-label,
+.a-pill-lbl,
+.count-label,
+.filter-label,
+.toolbar-label {
+  font-size: 11.5px !important;
+  line-height: 1.35 !important;
+  letter-spacing: 0.035em !important;
+}
+
+.kpi-sub,
+.metric-subtext,
+.metric-sub,
+.summary-sub,
+.stat-sub,
+.cell-sub,
+.t-box-sub,
+.timeline-metrics-text {
+  font-size: 12px !important;
+  line-height: 1.4 !important;
+}
+
+.kpi-val {
+  font-size: 23px !important;
+  line-height: 1.15 !important;
+}
+
+/* Badges/statuses should remain compact but readable */
+.badge,
+.status-badge,
+.status-pill,
+.trigger-pill,
+.trigger-tag,
+.status-tag,
+.fresh-pill,
+.active-badge {
+  font-size: 11.5px !important;
+  line-height: 1.25 !important;
+}
+
+
+/* Cross-page microcopy found during full readability audit */
+.concept-badge,
+.wireframe-tag,
+.field-label,
+.scan-time-sub,
+.metric-hint,
+.table-handle,
+.threshold-sub,
+.missing-text,
+.priority-badge,
+.stage-label,
+.sm-label,
+.alert-v-channel,
+.source-tag,
+.error-header,
+.video-id,
+.metric-unit,
+.badge-threshold,
+.badge-alert-tag,
+.header-eyebrow,
+.header-divider,
+.live-text {
+  font-size: 12px !important;
+  line-height: 1.4 !important;
+}
+
+.wireframe-note,
+.error-pre {
+  font-size: 12px !important;
+  line-height: 1.5 !important;
+}
+
+.max-badge,
+.vph-tag,
+.badge-status {
+  font-size: 11.5px !important;
+  line-height: 1.3 !important;
+}
+
+.btn-toggle-error {
+  font-size: 12.5px !important;
+}
+
+/* Compact avatar initials can stay small, but not below a readable floor */
+.avatar-fallback,
+.row-avatar-fallback {
+  font-size: 11.5px !important;
+}
+
+/* Overview-specific density fixes */
+.hero-subline {
+  font-size: 15px !important;
+  line-height: 1.4 !important;
+}
+
+.telemetry-info {
+  font-size: 13.5px !important;
+  line-height: 1.4 !important;
+}
+
+.t-box-val {
+  font-size: 17px !important;
+}
+
+.timeline-time {
+  font-size: 12.5px !important;
+  line-height: 1.35 !important;
+}
+
+.timeline-summary {
+  font-size: 13.5px !important;
+  line-height: 1.45 !important;
+}
+
+.timeline-error {
+  font-size: 12px !important;
+  line-height: 1.4 !important;
+}
+
+.competitor-name,
+.channel-name,
+.video-title,
+.card-title {
+  line-height: 1.35 !important;
+}
+
+/* Tables across the app */
+table {
+  font-size: 13.5px !important;
+}
+
+table th {
+  font-size: 11.75px !important;
+  line-height: 1.35 !important;
+  letter-spacing: 0.035em !important;
+}
+
+table td {
+  font-size: 13.5px !important;
+  line-height: 1.45 !important;
+}
+
+table th,
+table td {
+  padding-top: 11px !important;
+  padding-bottom: 11px !important;
+}
+
+/* Common table implementations with explicit classes */
+.scan-table,
+.data-table,
+.alert-table,
+.comparison-table,
+.production-table {
+  font-size: 13.5px !important;
+}
+
+/* Avoid washed-out microcopy in light mode */
+[data-theme="light"] .item-hint,
+[data-theme="light"] .kpi-sub,
+[data-theme="light"] .metric-subtext,
+[data-theme="light"] .metric-sub,
+[data-theme="light"] .t-box-sub,
+[data-theme="light"] .timeline-metrics-text,
+[data-theme="light"] .marker-subtext {
+  color: #5A687B !important;
+}
+
+/* Mobile: keep hierarchy readable without making controls oversized */
+@media (max-width: 768px) {
+  :root {
+    --readability-body: 14.5px;
+    --readability-ui: 13.5px;
+  }
+
+  .section-container {
+    padding: 16px;
+  }
+
+  .section-title {
+    font-size: 18px !important;
+  }
+
+  table {
+    font-size: 13px !important;
+  }
+
+  table td {
+    font-size: 13px !important;
+  }
+}
+
+/* Respect motion accessibility; readability layer adds no animation. */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    text-rendering: optimizeLegibility;
+  }
+}
