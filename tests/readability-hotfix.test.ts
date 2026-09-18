@@ -32,6 +32,22 @@ describe('Readability typography hotfix', () => {
     expect(css).toMatch(/\.kpi-sub[\s\S]*font-size:\s*12px\s*!important/);
   });
 
+  it('covers cross-page microcopy found in the audit', () => {
+    for (const selector of [
+      '.wireframe-note',
+      '.field-label',
+      '.threshold-sub',
+      '.priority-badge',
+      '.stage-label',
+      '.source-tag',
+      '.video-id',
+      '.badge-threshold',
+      '.header-eyebrow',
+    ]) {
+      expect(css).toContain(selector);
+    }
+  });
+
   it('makes tables readable at desktop density', () => {
     expect(css).toMatch(/table\s*\{[\s\S]*font-size:\s*13\.5px\s*!important/);
     expect(css).toMatch(/table th\s*\{[\s\S]*font-size:\s*11\.75px\s*!important/);
