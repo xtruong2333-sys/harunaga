@@ -47,7 +47,7 @@
             {{ featuredVideo.isOverThreshold ? 'VƯỢT NGƯỠNG' : 'ĐANG TĂNG' }}
           </span>
 
-          <span class="rank-tag">#1 ĐỘT PHÁ</span>
+          <span class="rank-tag">#1 VPH CAO NHẤT</span>
         </div>
 
         <div class="featured-details">

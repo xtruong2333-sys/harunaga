@@ -1,12 +1,16 @@
 <template>
   <div ref="containerRef" class="overview-intelligence-core" aria-hidden="true">
     <canvas ref="canvasRef" class="core-canvas"></canvas>
-    <div class="core-ambient-glow"></div>
+    <div
+      class="core-ambient-glow"
+      :class="{ 'is-scanning-glow': scanStatus === 'running' }"
+      :style="glowStyle"
+    ></div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
+import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue';
 import * as THREE from 'three';
 
 const props = withDefaults(
@@ -31,7 +35,9 @@ let renderer: any = null;
 let scene: any = null;
 let camera: any = null;
 let animId: number | null = null;
+let clock: any = null;
 let resizeObserver: ResizeObserver | null = null;
+let themeObserver: MutationObserver | null = null;
 let isPaused = false;
 
 // Three objects
@@ -50,15 +56,78 @@ function checkTheme() {
   }
 }
 
+// Reactive Ambient Glow Style driven by maxVph & scanStatus
+const glowStyle = computed(() => {
+  const maxVphVal = props.maxVph || 0;
+  const vphFactor = maxVphVal > 0 ? Math.min(1.5, 0.9 + Math.log10(Math.max(10, maxVphVal)) * 0.12) : 1.0;
+  const isScanning = props.scanStatus === 'running';
+
+  const scale = (isScanning ? 1.3 : 1.0) * vphFactor;
+  const opacity = (isScanning ? 0.95 : 0.75) * (maxVphVal > 5000 ? 1.15 : 1.0);
+
+  return {
+    transform: `scale(${scale.toFixed(2)})`,
+    opacity: Math.min(1, opacity).toFixed(2),
+  };
+});
+
+function rebuildSignalNodes() {
+  if (!coreGroup) return;
+
+  if (signalPoints) {
+    coreGroup.remove(signalPoints);
+    if (signalPoints.geometry) signalPoints.geometry.dispose();
+    if (signalPoints.material) signalPoints.material.dispose();
+    signalPoints = null;
+  }
+
+  const baseChannels = props.activeChannels || 1;
+  const rising = props.risingVideos || 0;
+  const pointCount = Math.max(16, Math.min(120, Math.round(baseChannels * 3 + rising * 6)));
+  const pointPositions: number[] = [];
+
+  for (let i = 0; i < pointCount; i++) {
+    const u = Math.random();
+    const v = Math.random();
+    const theta = u * 2.0 * Math.PI;
+    const phi = Math.acos(2.0 * v - 1.0);
+    const r = 1.35 + Math.random() * 0.75;
+    const x = r * Math.sin(phi) * Math.cos(theta);
+    const y = r * Math.sin(phi) * Math.sin(theta);
+    const z = r * Math.cos(phi);
+    pointPositions.push(x, y, z);
+  }
+
+  const pointsGeo = new THREE.BufferGeometry();
+  pointsGeo.setAttribute('position', new THREE.Float32BufferAttribute(pointPositions, 3));
+
+  const cyanColor = isDark ? 0x67e8f9 : 0x0ea5e9;
+  const baseSize = 0.055 + Math.min(rising, 15) * 0.003;
+  const pointOpacity = Math.min(0.95, (isDark ? 0.7 : 0.6) + Math.min(rising, 10) * 0.035);
+
+  const pointsMat = new THREE.PointsMaterial({
+    color: cyanColor,
+    size: baseSize,
+    transparent: true,
+    opacity: pointOpacity,
+  });
+
+  signalPoints = new THREE.Points(pointsGeo, pointsMat);
+  coreGroup.add(signalPoints);
+}
+
 function updateMaterials() {
   checkTheme();
   const primaryColor = isDark ? 0x38bdf8 : 0x2563eb;
   const cyanColor = isDark ? 0x67e8f9 : 0x0ea5e9;
   const solidColor = isDark ? 0x090e18 : 0xf0f7ff;
 
+  const maxVphVal = props.maxVph || 0;
+  const vphBoost = maxVphVal > 0 ? Math.min(1.5, 1.0 + Math.log10(Math.max(10, maxVphVal)) * 0.1) : 1.0;
+
   if (wireMesh && wireMesh.material) {
     wireMesh.material.color.setHex(cyanColor);
-    wireMesh.material.opacity = isDark ? 0.45 : 0.35;
+    wireMesh.material.opacity = Math.min(0.85, (isDark ? 0.45 : 0.35) * vphBoost);
   }
 
   if (solidMesh && solidMesh.material) {
@@ -68,17 +137,76 @@ function updateMaterials() {
 
   if (ringMesh1 && ringMesh1.material) {
     ringMesh1.material.color.setHex(primaryColor);
-    ringMesh1.material.opacity = isDark ? 0.5 : 0.4;
+    ringMesh1.material.opacity = isDark ? 0.55 : 0.45;
   }
 
   if (ringMesh2 && ringMesh2.material) {
     ringMesh2.material.color.setHex(cyanColor);
-    ringMesh2.material.opacity = isDark ? 0.35 : 0.25;
+    ringMesh2.material.opacity = isDark ? 0.4 : 0.3;
   }
 
   if (signalPoints && signalPoints.material) {
     signalPoints.material.color.setHex(cyanColor);
-    signalPoints.material.opacity = isDark ? 0.85 : 0.75;
+    const rising = props.risingVideos || 0;
+    signalPoints.material.size = 0.055 + Math.min(rising, 15) * 0.003;
+    signalPoints.material.opacity = Math.min(0.95, (isDark ? 0.7 : 0.6) + Math.min(rising, 10) * 0.035);
+  }
+}
+
+function startAnimationLoop() {
+  if (animId !== null || isPaused || !renderer || !scene || !camera) return;
+  if (!clock) clock = new THREE.Clock();
+  else if (typeof clock.start === 'function') clock.start();
+
+  const prefersReducedMotion = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const animate = () => {
+    if (isPaused) {
+      animId = null;
+      return;
+    }
+    animId = requestAnimationFrame(animate);
+
+    const delta = clock.getDelta();
+    const isScanning = props.scanStatus === 'running';
+    const speedMult = prefersReducedMotion ? 0.1 : (isScanning ? 2.2 : 1.0);
+
+    if (coreGroup) {
+      coreGroup.rotation.y += delta * 0.28 * speedMult;
+      coreGroup.rotation.x += delta * 0.14 * speedMult;
+    }
+
+    if (ringMesh1) {
+      ringMesh1.rotation.z -= delta * 0.35 * speedMult;
+    }
+    if (ringMesh2) {
+      ringMesh2.rotation.z += delta * 0.22 * speedMult;
+    }
+
+    // Dynamic pulse of signal nodes based on scan status & rising videos
+    if (signalPoints && signalPoints.material) {
+      const time = clock.getElapsedTime();
+      const pulseRate = isScanning ? 4.5 : 2.0;
+      const pulse = (Math.sin(time * pulseRate) + 1) / 2;
+      const baseSize = 0.055 + Math.min(props.risingVideos || 0, 15) * 0.003;
+      signalPoints.material.size = baseSize + pulse * (isScanning ? 0.025 : 0.012);
+    }
+
+    if (renderer && scene && camera) {
+      renderer.render(scene, camera);
+    }
+  };
+
+  animId = requestAnimationFrame(animate);
+}
+
+function stopAnimationLoop() {
+  if (animId !== null && typeof cancelAnimationFrame !== 'undefined') {
+    cancelAnimationFrame(animId);
+    animId = null;
+  }
+  if (clock && typeof clock.stop === 'function') {
+    clock.stop();
   }
 }
 
@@ -140,7 +268,7 @@ function initThree() {
     const ringMat1 = new THREE.LineBasicMaterial({
       color: isDark ? 0x38bdf8 : 0x2563eb,
       transparent: true,
-      opacity: isDark ? 0.5 : 0.4,
+      opacity: isDark ? 0.55 : 0.45,
     });
     ringMesh1 = new THREE.LineLoop(ringGeo1, ringMat1);
     ringMesh1.rotation.x = Math.PI / 3;
@@ -158,67 +286,18 @@ function initThree() {
     const ringMat2 = new THREE.LineBasicMaterial({
       color: isDark ? 0x67e8f9 : 0x0ea5e9,
       transparent: true,
-      opacity: isDark ? 0.35 : 0.25,
+      opacity: isDark ? 0.4 : 0.3,
     });
     ringMesh2 = new THREE.LineLoop(ringGeo2, ringMat2);
     ringMesh2.rotation.x = -Math.PI / 4;
     ringMesh2.rotation.z = Math.PI / 4;
     coreGroup.add(ringMesh2);
 
-    // 5. Signal Nodes Particles (based on activeChannels + risingVideos)
-    const pointCount = Math.max(16, Math.min(60, (props.activeChannels || 10) * 3 + (props.risingVideos || 0) * 4));
-    const pointPositions: number[] = [];
-    for (let i = 0; i < pointCount; i++) {
-      const u = Math.random();
-      const v = Math.random();
-      const theta = u * 2.0 * Math.PI;
-      const phi = Math.acos(2.0 * v - 1.0);
-      const r = 1.35 + Math.random() * 0.7;
-      const x = r * Math.sin(phi) * Math.cos(theta);
-      const y = r * Math.sin(phi) * Math.sin(theta);
-      const z = r * Math.cos(phi);
-      pointPositions.push(x, y, z);
-    }
-    const pointsGeo = new THREE.BufferGeometry();
-    pointsGeo.setAttribute('position', new THREE.Float32BufferAttribute(pointPositions, 3));
-    const pointsMat = new THREE.PointsMaterial({
-      color: isDark ? 0x67e8f9 : 0x0ea5e9,
-      size: 0.06,
-      transparent: true,
-      opacity: isDark ? 0.85 : 0.75,
-    });
-    signalPoints = new THREE.Points(pointsGeo, pointsMat);
-    coreGroup.add(signalPoints);
+    // 5. Signal Nodes (Reactive)
+    rebuildSignalNodes();
 
-    // Animation Loop
-    let clock = new THREE.Clock();
-    const prefersReducedMotion = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-    const animate = () => {
-      if (isPaused) return;
-      animId = requestAnimationFrame(animate);
-
-      const delta = clock.getDelta();
-      const speedMult = prefersReducedMotion ? 0.1 : (props.scanStatus === 'running' ? 1.8 : 1.0);
-
-      if (coreGroup) {
-        coreGroup.rotation.y += delta * 0.25 * speedMult;
-        coreGroup.rotation.x += delta * 0.12 * speedMult;
-      }
-
-      if (ringMesh1) {
-        ringMesh1.rotation.z -= delta * 0.3 * speedMult;
-      }
-      if (ringMesh2) {
-        ringMesh2.rotation.z += delta * 0.2 * speedMult;
-      }
-
-      if (renderer && scene && camera) {
-        renderer.render(scene, camera);
-      }
-    };
-
-    animate();
+    // Start clean animation loop
+    startAnimationLoop();
 
     // Resize Observer
     if (typeof ResizeObserver !== 'undefined') {
@@ -244,17 +323,24 @@ function initThree() {
 function handleVisibility() {
   if (typeof document !== 'undefined' && document.hidden) {
     isPaused = true;
+    stopAnimationLoop();
   } else {
     isPaused = false;
-    if (renderer && scene && camera && !animId) {
-      initThree();
-    }
+    startAnimationLoop();
   }
 }
 
-// Watch data props to adjust rotation and points
+// Full reactivity watcher: rebuild nodes and update materials / glows
 watch(
-  () => [props.activeChannels, props.risingVideos, props.maxVph, props.scanStatus],
+  () => [props.activeChannels, props.risingVideos],
+  () => {
+    rebuildSignalNodes();
+    updateMaterials();
+  }
+);
+
+watch(
+  () => [props.maxVph, props.scanStatus],
   () => {
     updateMaterials();
   }
@@ -266,10 +352,10 @@ onMounted(() => {
     document.addEventListener('visibilitychange', handleVisibility);
 
     // Watch for theme attribute changes
-    const observer = new MutationObserver(() => {
+    themeObserver = new MutationObserver(() => {
       updateMaterials();
     });
-    observer.observe(document.documentElement, {
+    themeObserver.observe(document.documentElement, {
       attributes: true,
       attributeFilter: ['data-theme'],
     });
@@ -277,11 +363,18 @@ onMounted(() => {
 });
 
 onBeforeUnmount(() => {
-  if (animId && typeof cancelAnimationFrame !== 'undefined') cancelAnimationFrame(animId);
+  stopAnimationLoop();
   if (typeof document !== 'undefined') {
     document.removeEventListener('visibilitychange', handleVisibility);
   }
-  if (resizeObserver) resizeObserver.disconnect();
+  if (resizeObserver) {
+    resizeObserver.disconnect();
+    resizeObserver = null;
+  }
+  if (themeObserver) {
+    themeObserver.disconnect();
+    themeObserver = null;
+  }
 
   if (renderer) {
     renderer.dispose();
@@ -338,20 +431,35 @@ onBeforeUnmount(() => {
   width: 180px;
   height: 180px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(37, 99, 235, 0.15) 0%, rgba(14, 165, 233, 0.05) 50%, transparent 70%);
+  background: radial-gradient(circle, rgba(37, 99, 235, 0.16) 0%, rgba(14, 165, 233, 0.06) 50%, transparent 70%);
   filter: blur(20px);
   pointer-events: none;
   z-index: 0;
+  transition: transform 0.5s ease, opacity 0.5s ease;
   animation: pulse-glow 6s ease-in-out infinite alternate;
 }
 
+.core-ambient-glow.is-scanning-glow {
+  background: radial-gradient(circle, rgba(37, 99, 235, 0.28) 0%, rgba(14, 165, 233, 0.15) 50%, transparent 75%);
+  animation: pulse-glow-fast 2s ease-in-out infinite alternate;
+}
+
 :root[data-theme="dark"] .core-ambient-glow {
-  background: radial-gradient(circle, rgba(56, 189, 248, 0.18) 0%, rgba(37, 99, 235, 0.08) 50%, transparent 70%);
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.2) 0%, rgba(37, 99, 235, 0.09) 50%, transparent 70%);
+}
+
+:root[data-theme="dark"] .core-ambient-glow.is-scanning-glow {
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.32) 0%, rgba(14, 165, 233, 0.18) 50%, transparent 75%);
 }
 
 @keyframes pulse-glow {
   0% { transform: scale(0.85); opacity: 0.6; }
   100% { transform: scale(1.15); opacity: 0.9; }
+}
+
+@keyframes pulse-glow-fast {
+  0% { transform: scale(0.95); opacity: 0.75; }
+  100% { transform: scale(1.3); opacity: 1; }
 }
 
 @media (prefers-reduced-motion: reduce) {

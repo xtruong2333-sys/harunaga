@@ -19,6 +19,7 @@ describe('Wave 3.1 YouTube Intelligence Command Center Components', () => {
           totalVideos: 3450,
           risingVideos: 18,
           maxVph: 12500,
+          loading: false,
         },
       });
 
@@ -32,13 +33,28 @@ describe('Wave 3.1 YouTube Intelligence Command Center Components', () => {
       expect(wrapper.text()).toContain((12500).toLocaleString('vi-VN'));
     });
 
-    it('1.2 Handles null or 0 values gracefully', () => {
+    it('1.2 Handles loading state with skeleton placeholders', () => {
       const wrapper = mount(OverviewMetricCluster, {
         props: {
           activeChannels: 0,
           totalVideos: 0,
           risingVideos: 0,
           maxVph: null,
+          loading: true,
+        },
+      });
+
+      expect(wrapper.findAll('.kpi-skeleton').length).toBe(4);
+    });
+
+    it('1.3 Handles null or 0 values gracefully when not loading', () => {
+      const wrapper = mount(OverviewMetricCluster, {
+        props: {
+          activeChannels: 0,
+          totalVideos: 0,
+          risingVideos: 0,
+          maxVph: null,
+          loading: false,
         },
       });
 
@@ -114,6 +130,17 @@ describe('Wave 3.1 YouTube Intelligence Command Center Components', () => {
 
       expect(wrapper.text()).toContain('Đang quét dữ liệu');
       expect(wrapper.find('.pulse-dot').exists()).toBe(true);
+    });
+
+    it('2.3 Displays synchronizing label when loading prop is true', () => {
+      const wrapper = mount(OverviewHero, {
+        props: {
+          summary: null,
+          loading: true,
+        },
+      });
+
+      expect(wrapper.text()).toContain('Đang đồng bộ dữ liệu...');
     });
   });
 
@@ -203,7 +230,7 @@ describe('Wave 3.1 YouTube Intelligence Command Center Components', () => {
       },
     ];
 
-    it('4.1 Renders featured breakout video and secondary opportunity list', () => {
+    it('4.1 Renders neutral #1 VPH CAO NHẤT rank tag and secondary list', () => {
       const wrapper = mount(OverviewOpportunityFeed, {
         props: {
           videos: mockVideos,
@@ -220,6 +247,7 @@ describe('Wave 3.1 YouTube Intelligence Command Center Components', () => {
       expect(wrapper.text()).toContain('Cách làm video triệu view 2026');
       expect(wrapper.text()).toContain('Tech Master VN');
       expect(wrapper.text()).toContain((4500).toLocaleString('vi-VN'));
+      expect(wrapper.text()).toContain('#1 VPH CAO NHẤT');
       expect(wrapper.text()).toContain('VƯỢT NGƯỠNG');
       expect(wrapper.text()).toContain((1200).toLocaleString('vi-VN'));
 
@@ -318,7 +346,7 @@ describe('Wave 3.1 YouTube Intelligence Command Center Components', () => {
       expect(wrapper.text()).toContain('2');
     });
 
-    it('6.2 Renders data health telemetry in OverviewDataHealth', () => {
+    it('6.2 Renders data health telemetry and Xem chi tiết link in OverviewDataHealth', () => {
       const mockScan: DashboardScanRun = {
         id: 'run-1',
         triggerSource: 'manual',
@@ -348,9 +376,29 @@ describe('Wave 3.1 YouTube Intelligence Command Center Components', () => {
       });
 
       expect(wrapper.text()).toContain('Thành công');
+      expect(wrapper.text()).toContain('Xem chi tiết');
+      expect(wrapper.text()).toContain('Kích hoạt thủ công');
       expect(wrapper.text()).toContain('10 / 10 kênh');
       expect(wrapper.text()).toContain('320 video');
       expect(wrapper.text()).toContain('320 snapshot');
+    });
+
+    it('6.3 Shows "Chưa có dữ liệu" when latestScan is null in OverviewDataHealth', () => {
+      const wrapper = mount(OverviewDataHealth, {
+        props: {
+          latestScan: null,
+        },
+        global: {
+          stubs: {
+            RouterLink: {
+              template: '<a><slot /></a>',
+            },
+          },
+        },
+      });
+
+      expect(wrapper.text()).toContain('Chưa có dữ liệu');
+      expect(wrapper.text()).not.toContain('Kích hoạt thủ công');
     });
   });
 

@@ -2,7 +2,8 @@
   <div class="overview-metric-cluster">
     <!-- 1. Kênh theo dõi -->
     <div class="kpi-item">
-      <div class="kpi-val mono">{{ activeChannels }}</div>
+      <div v-if="loading" class="kpi-skeleton"></div>
+      <div v-else class="kpi-val mono">{{ activeChannels }}</div>
       <div class="kpi-label">KÊNH ĐANG THEO DÕI</div>
       <div class="kpi-sub">Đang quét định kỳ</div>
     </div>
@@ -11,7 +12,8 @@
 
     <!-- 2. Tổng video -->
     <div class="kpi-item">
-      <div class="kpi-val mono">{{ formatNumber(totalVideos) }}</div>
+      <div v-if="loading" class="kpi-skeleton"></div>
+      <div v-else class="kpi-val mono">{{ formatNumber(totalVideos) }}</div>
       <div class="kpi-label">TỔNG VIDEO</div>
       <div class="kpi-sub">Lưu trong cơ sở dữ liệu</div>
     </div>
@@ -20,7 +22,8 @@
 
     <!-- 3. Đang tăng -->
     <div class="kpi-item is-rising">
-      <div class="kpi-val mono text-accent">{{ risingVideos }}</div>
+      <div v-if="loading" class="kpi-skeleton"></div>
+      <div v-else class="kpi-val mono text-accent">{{ risingVideos }}</div>
       <div class="kpi-label">ĐANG TĂNG</div>
       <div class="kpi-sub">VPH đo được > 0</div>
     </div>
@@ -29,7 +32,8 @@
 
     <!-- 4. Max VPH -->
     <div class="kpi-item is-max-vph">
-      <div class="kpi-val mono text-positive">
+      <div v-if="loading" class="kpi-skeleton"></div>
+      <div v-else class="kpi-val mono text-positive">
         {{ maxVph !== null && maxVph > 0 ? `${formatNumber(Math.round(maxVph))} VPH` : '—' }}
       </div>
       <div class="kpi-label">MAX VPH</div>
@@ -39,12 +43,18 @@
 </template>
 
 <script setup lang="ts">
-defineProps<{
-  activeChannels: number;
-  totalVideos: number;
-  risingVideos: number;
-  maxVph: number | null;
-}>();
+withDefaults(
+  defineProps<{
+    activeChannels: number;
+    totalVideos: number;
+    risingVideos: number;
+    maxVph: number | null;
+    loading?: boolean;
+  }>(),
+  {
+    loading: false,
+  }
+);
 
 function formatNumber(num: number): string {
   if (num === null || num === undefined) return '0';
@@ -58,99 +68,92 @@ function formatNumber(num: number): string {
   align-items: center;
   background: var(--surface, #FFFFFF);
   border: 1px solid var(--border, #E3EBF3);
-  border-radius: 14px;
-  padding: 16px 20px;
-  box-shadow: var(--shadow-sm, 0 4px 14px rgba(30, 60, 90, 0.05));
-  gap: 0;
-  width: 100%;
-}
-
-[data-theme="light"] .overview-metric-cluster {
-  background: rgba(255, 255, 255, 0.9);
-  border-color: #E2E8F0;
-}
-
-[data-theme="dark"] .overview-metric-cluster {
-  background: rgba(10, 17, 29, 0.72);
-  border-color: rgba(125, 211, 252, 0.12);
+  border-radius: var(--radius-md, 8px);
+  padding: 0.875rem 1rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
 }
 
 .kpi-item {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 3px;
-  padding: 0 16px;
+  align-items: center;
+  text-align: center;
+  padding: 0 0.5rem;
 }
 
-.kpi-item:first-child {
-  padding-left: 4px;
+.kpi-skeleton {
+  width: 48px;
+  height: 24px;
+  border-radius: 4px;
+  background: var(--border, #E3EBF3);
+  margin-bottom: 0.25rem;
+  animation: pulse-skeleton 1.5s ease-in-out infinite alternate;
 }
 
-.kpi-item:last-child {
-  padding-right: 4px;
+@keyframes pulse-skeleton {
+  0% { opacity: 0.4; }
+  100% { opacity: 0.85; }
 }
 
 .kpi-val {
-  font-size: clamp(20px, 2.2vw, 26px);
-  font-weight: 750;
-  color: var(--text-primary);
+  font-size: 1.375rem;
+  font-weight: 700;
   line-height: 1.1;
+  color: var(--text-primary, #0F172A);
   letter-spacing: -0.02em;
 }
 
+.text-accent {
+  color: var(--brand-primary, #2563EB) !important;
+}
+
+.text-positive {
+  color: var(--color-success-text, #059669) !important;
+}
+
 .kpi-label {
-  font-size: 10.5px;
+  font-size: 0.6875rem;
   font-weight: 700;
-  letter-spacing: 0.06em;
-  color: var(--text-muted);
-  text-transform: uppercase;
+  color: var(--text-tertiary, #64748B);
+  letter-spacing: 0.04em;
+  margin-top: 0.25rem;
 }
 
 .kpi-sub {
-  font-size: 10px;
-  color: var(--text-muted);
-  white-space: nowrap;
+  font-size: 0.625rem;
+  color: var(--text-muted, #94A3B8);
+  margin-top: 0.125rem;
 }
 
 .kpi-divider {
   width: 1px;
-  height: 38px;
+  height: 36px;
   background: var(--border, #E3EBF3);
-}
-
-[data-theme="dark"] .kpi-divider {
-  background: rgba(255, 255, 255, 0.08);
-}
-
-.text-accent {
-  color: var(--primary, #2563EB);
-}
-
-[data-theme="dark"] .text-accent {
-  color: #38BDF8;
-}
-
-.text-positive {
-  color: #059669;
-}
-
-[data-theme="dark"] .text-positive {
-  color: #34D399;
+  flex-shrink: 0;
 }
 
 @media (max-width: 768px) {
   .overview-metric-cluster {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-    padding: 16px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+    padding: 0.75rem;
   }
+
   .kpi-divider {
     display: none;
   }
+
   .kpi-item {
-    padding: 0;
+    align-items: flex-start;
+    text-align: left;
+    padding: 0.25rem 0.5rem;
+    border-bottom: 1px dashed var(--border, #E3EBF3);
+  }
+
+  .kpi-item:nth-last-child(-n+2) {
+    border-bottom: none;
   }
 }
 </style>
