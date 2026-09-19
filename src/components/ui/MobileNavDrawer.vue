@@ -172,41 +172,28 @@ onUnmounted(() => {
   position: fixed;
   inset: 0;
   z-index: 9999;
-  background-color: rgba(15, 31, 53, 0.45);
-  backdrop-filter: blur(6px);
   display: flex;
-}
-
-[data-theme="dark"] .drawer-backdrop {
-  background-color: rgba(3, 7, 13, 0.75);
+  background: rgba(5,12,24,.56);
+  backdrop-filter: blur(7px);
 }
 
 .drawer-panel {
-  width: 290px;
-  max-width: 85vw;
+  width: 300px;
+  max-width: 88vw;
   height: 100%;
-  background-color: var(--surface, #FFFFFF);
-  border-right: 1px solid var(--border, #E3EBF3);
   display: flex;
   flex-direction: column;
-  box-shadow: var(--shadow-lg, 0 20px 55px rgba(30, 60, 90, 0.12));
-}
-
-[data-theme="dark"] .drawer-panel {
-  background-color: #090E18;
-  border-color: rgba(125, 211, 252, 0.12);
+  background: linear-gradient(180deg, #0B1323 0%, #0D1728 58%, #0A1220 100%);
+  border-right: 1px solid rgba(148,163,184,.14);
+  box-shadow: 18px 0 42px rgba(4,11,22,.26);
 }
 
 .drawer-header {
-  padding: 16px 18px;
+  padding: 16px 16px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid var(--border, #E3EBF3);
-}
-
-[data-theme="dark"] .drawer-header {
-  border-color: rgba(125, 211, 252, 0.10);
+  border-bottom: 1px solid rgba(148,163,184,.13);
 }
 
 .brand {
@@ -216,32 +203,21 @@ onUnmounted(() => {
 }
 
 .brand-logo-mark {
-  width: 32px;
-  height: 32px;
-  border-radius: 9px;
-  background: radial-gradient(circle at 35% 28%, rgba(37, 99, 235, 0.15), rgba(14, 165, 233, 0.06) 60%, rgba(255, 255, 255, 0.9) 100%);
-  border: 1px solid rgba(37, 99, 235, 0.20);
+  width: 36px;
+  height: 36px;
+  border-radius: 11px;
+  background: linear-gradient(145deg, rgba(59,130,246,.25), rgba(37,99,235,.08));
+  border: 1px solid rgba(96,165,250,.32);
   display: grid;
   place-items: center;
-  flex-shrink: 0;
-}
-
-[data-theme="dark"] .brand-logo-mark {
-  background: radial-gradient(circle at 35% 28%, rgba(103, 232, 249, 0.28), rgba(14, 165, 233, 0.06) 60%, rgba(3, 7, 18, 0.2) 100%);
-  border-color: rgba(103, 232, 249, 0.24);
 }
 
 .brand-core {
   width: 9px;
   height: 9px;
   border-radius: 50%;
-  background: var(--primary, #2563EB);
-  box-shadow: 0 0 8px var(--primary, #2563EB);
-}
-
-[data-theme="dark"] .brand-core {
-  background: #38BDF8;
-  box-shadow: 0 0 8px #38BDF8;
+  background: #60A5FA;
+  box-shadow: 0 0 10px rgba(96,165,250,.85);
 }
 
 .brand-text {
@@ -250,131 +226,114 @@ onUnmounted(() => {
 }
 
 .brand-title {
+  color: #F6F9FC;
   font-size: 13.5px;
-  font-weight: 750;
-  color: var(--text-primary);
-  letter-spacing: -0.01em;
+  font-weight: 760;
+  letter-spacing: -.01em;
 }
 
 .brand-subtitle {
-  font-size: 10px;
-  color: var(--text-muted);
+  color: #8297AF;
+  font-size: 10.5px;
 }
 
 .close-btn {
-  background: transparent;
-  border: 1px solid var(--border, #E3EBF3);
-  color: var(--text-secondary);
-  width: 30px;
-  height: 30px;
-  border-radius: 8px;
-  cursor: pointer;
+  width: 34px;
+  height: 34px;
   display: grid;
   place-items: center;
-  transition: all 0.15s ease;
+  padding: 0;
+  border-radius: 10px;
+  border: 1px solid rgba(148,163,184,.16);
+  background: rgba(255,255,255,.05);
+  color: #A9B9CA;
+  cursor: pointer;
 }
 
 .close-btn:hover {
-  color: var(--text-primary);
-  background-color: var(--surface-hover, #F3F7FB);
+  color: #FFF;
+  background: rgba(255,255,255,.09);
 }
 
 .drawer-nav {
   flex: 1;
   overflow-y: auto;
-  padding: 16px 12px;
+  padding: 18px 12px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 18px;
 }
 
 .drawer-group {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 4px;
 }
 
 .drawer-group-title {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: var(--text-muted);
-  padding: 0 10px 4px;
+  padding: 0 10px 6px;
+  color: #647A93;
+  font-size: 10.5px;
+  font-weight: 750;
+  letter-spacing: .09em;
   text-transform: uppercase;
 }
 
 .drawer-group-items {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
 }
 
 .drawer-nav-item {
+  min-height: 44px;
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 9px 12px;
-  border-radius: 8px;
-  color: var(--text-secondary);
-  font-size: 13px;
-  font-weight: 500;
+  padding: 9px 11px;
+  border-radius: 11px;
+  color: #AEBCCD;
+  font-size: 13.5px;
+  font-weight: 600;
   text-decoration: none;
   border: 1px solid transparent;
-  transition: all 0.15s ease;
+  transition: background .15s ease, color .15s ease, border-color .15s ease;
 }
 
 .drawer-nav-item:hover {
-  color: var(--primary, #2563EB);
-  background-color: var(--surface-hover, #F3F7FB);
+  color: #F4F8FC;
+  background: rgba(255,255,255,.055);
+  border-color: rgba(148,163,184,.10);
 }
 
 .drawer-nav-item-active {
-  color: #1D4ED8;
-  background: #EFF6FF;
-  border-color: #BFDBFE;
-  font-weight: 600;
-}
-
-[data-theme="dark"] .drawer-nav-item:hover {
-  color: #38BDF8;
-  background-color: rgba(14, 165, 233, 0.08);
-}
-
-[data-theme="dark"] .drawer-nav-item-active {
-  color: #38BDF8;
-  background: rgba(14, 165, 233, 0.14);
-  border-color: rgba(56, 189, 248, 0.3);
+  color: #FFF;
+  background: linear-gradient(135deg, rgba(37,99,235,.96), rgba(29,78,216,.88));
+  border-color: rgba(96,165,250,.45);
+  box-shadow: 0 8px 20px rgba(37,99,235,.22);
 }
 
 .drawer-footer {
   padding: 14px 18px;
-  border-top: 1px solid var(--border, #E3EBF3);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-[data-theme="dark"] .drawer-footer {
-  border-color: rgba(125, 211, 252, 0.10);
+  border-top: 1px solid rgba(148,163,184,.12);
 }
 
 .footer-brand {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text-muted);
-  letter-spacing: 0.04em;
+  color: #71859E;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: .08em;
   text-transform: uppercase;
 }
 
-/* Transitions */
 .drawer-fade-enter-active,
 .drawer-fade-leave-active {
-  transition: opacity 0.25s ease;
+  transition: opacity .22s ease;
 }
 
 .drawer-fade-enter-active .drawer-panel,
 .drawer-fade-leave-active .drawer-panel {
-  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform .22s cubic-bezier(.16,1,.3,1);
 }
 
 .drawer-fade-enter-from,
