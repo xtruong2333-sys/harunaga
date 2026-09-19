@@ -5,6 +5,11 @@
         v-for="item in items"
         :key="item.id"
         class="list-item-row"
+        role="button"
+        tabindex="0"
+        :aria-label="`Mở hồ sơ sản xuất: ${item.workingTitle || item.sourceVideo?.title || 'Chưa đặt tiêu đề'}`"
+        @click="onRowClick($event, item)"
+        @keydown.enter.prevent="$emit('open', item)"
         :class="[
           `status-${item.status}`,
           `priority-${item.priority}`,
@@ -79,6 +84,21 @@
             {{ item.notes }}
           </p>
 
+          <div class="workspace-meta-row">
+            <span v-if="item.taskTotalCount > 0" class="workspace-meta-chip">
+              <AppIcon name="clipboard-list" :size="11" />
+              Checklist {{ item.taskCompletedCount }}/{{ item.taskTotalCount }}
+            </span>
+            <span v-if="item.assigneeLabel" class="workspace-meta-chip">
+              <AppIcon name="users" :size="11" />
+              {{ item.assigneeLabel }}
+            </span>
+            <span v-if="dueState(item)" class="workspace-meta-chip" :class="`due-${dueState(item)?.tone}`">
+              <AppIcon name="clock" :size="11" />
+              {{ dueState(item)?.label }}
+            </span>
+          </div>
+
           <!-- Published Info if Published -->
           <div v-if="item.status === 'published'" class="published-row-band">
             <span class="pub-badge">
@@ -109,6 +129,7 @@
             :value="item.status"
             class="list-stage-select"
             :disabled="isItemDisabled(item.id)"
+            @click.stop
             @change="onStageChange($event, item)"
           >
             <option v-for="(label, key) in STATUS_LABELS" :key="key" :value="key">
@@ -124,7 +145,7 @@
             class="btn-action edit"
             title="Chỉnh sửa chi tiết"
             :disabled="isItemDisabled(item.id)"
-            @click="$emit('edit', item)"
+            @click.stop="$emit('edit', item)"
           >
             <AppIcon name="settings" :size="15" />
           </button>
@@ -135,7 +156,7 @@
             class="btn-action restore"
             title="Khôi phục về Ý tưởng"
             :disabled="isItemDisabled(item.id)"
-            @click="$emit('restore', item.id)"
+            @click.stop="$emit('restore', item.id)"
           >
             <AppIcon name="restore" :size="15" />
           </button>
@@ -145,7 +166,7 @@
             class="btn-action archive"
             title="Lưu trữ mục này"
             :disabled="isItemDisabled(item.id)"
-            @click="$emit('archive', item.id)"
+            @click.stop="$emit('archive', item.id)"
           >
             <AppIcon name="archive" :size="15" />
           </button>
@@ -155,7 +176,7 @@
             class="btn-action delete"
             title="Xóa khỏi Tiến Độ Sản Xuất"
             :disabled="isItemDisabled(item.id)"
-            @click="$emit('delete', item)"
+            @click.stop="$emit('delete', item)"
           >
             <AppIcon name="x" :size="15" />
           </button>
@@ -185,6 +206,7 @@ function isItemDisabled(id: string): boolean {
 
 const emit = defineEmits<{
   (e: 'change-status', payload: { id: string; status: ProductionStatus }): void;
+  (e: 'open', item: ProductionItem): void;
   (e: 'edit', item: ProductionItem): void;
   (e: 'archive', id: string): void;
   (e: 'restore', id: string): void;
@@ -193,6 +215,17 @@ const emit = defineEmits<{
 
 function formatRelativeTime(iso: string | null): string {
   return productionService.formatRelativeTime(iso);
+}
+
+function dueState(item: ProductionItem) {
+  return productionService.formatDueState(item.dueAt);
+}
+
+function onRowClick(event: MouseEvent, item: ProductionItem) {
+  if (isItemDisabled(item.id)) return;
+  const target = event.target as HTMLElement | null;
+  if (target?.closest('a,button,select,input,textarea,label')) return;
+  emit('open', item);
 }
 
 function formatExactDate(iso: string | null): string {
@@ -418,6 +451,29 @@ function onStageChange(event: Event, item: ProductionItem) {
   border-radius: 6px;
   margin: 0;
 }
+
+.workspace-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.workspace-meta-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 7px;
+  border-radius: 999px;
+  background: var(--bg-inset, #f1f5f9);
+  color: var(--text-secondary, #64748b);
+  font-size: 0.6875rem;
+  font-weight: 650;
+}
+
+.due-warning { background: #fff1cc; color: #9a5b00; }
+.due-danger { background: #fde5e5; color: #b42323; }
+.due-success { background: #def5e9; color: #087a57; }
 
 .published-row-band {
   display: flex;
