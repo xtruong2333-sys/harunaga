@@ -1,8 +1,6 @@
 // src/services/production-service.ts
-// Nguồn dữ liệu duy nhất cho Tiến Độ Sản Xuất
-// Thao tác SELECT đọc trực tiếp từ Supabase RLS public
-// Mọi thao tác GHI (create, update, change_status, archive, restore, delete)
-// đi qua Edge Function 'manage-production-items' với APP_WRITE_ACCESS_KEY.
+// Nguồn dữ liệu duy nhất cho Tiến Độ Sản Xuất / Production Workspace 2.0.
+// SELECT đọc qua RLS public. Mọi WRITE đi qua manage-production-items + APP_WRITE_ACCESS_KEY.
 
 import { getSupabase, isSupabaseConfigured, parseEdgeFunctionError } from './supabase';
 import {
@@ -16,30 +14,33 @@ import type {
   ProductionItem,
   ProductionCreateInput,
   ProductionUpdateInput,
+  ProductionWorkspaceUpdateInput,
   ProductionStatus,
   ProductionPriority,
   ProductionFilterState,
   ProductionStats,
+  ProductionWorkspace,
+  ProductionTask,
+  ProductionTaskCreateInput,
+  ProductionTaskUpdateInput,
+  ProductionAsset,
+  ProductionAssetCreateInput,
+  ProductionNote,
+  ProductionNoteCreateInput,
+  ProductionNoteUpdateInput,
+  ProductionActivity,
+  ProductionTemplate,
 } from '@/types/production';
 
 export { getStoredAccessKey, setStoredAccessKey, clearStoredAccessKey, AccessKeyRequiredError };
 
-/**
- * Chuẩn hóa URL video nguồn.
- * Nếu có dbUrl hợp lệ -> dùng dbUrl.
- * Nếu dbUrl null nhưng youtubeVideoId hợp lệ -> tạo URL youtube.
- * Không có cả hai -> null.
- * Tuyệt đối không tạo URL chứa chuỗi 'null' hay 'undefined'.
- */
 export function normalizeSourceVideoUrl(
   dbUrl: string | null | undefined,
   youtubeVideoId: string | null | undefined
 ): string | null {
   if (dbUrl && typeof dbUrl === 'string' && dbUrl.trim().length > 0) {
     const trimmed = dbUrl.trim();
-    if (trimmed !== 'null' && trimmed !== 'undefined') {
-      return trimmed;
-    }
+    if (trimmed !== 'null' && trimmed !== 'undefined') return trimmed;
   }
   if (youtubeVideoId && typeof youtubeVideoId === 'string' && youtubeVideoId.trim().length > 0) {
     const cleanId = youtubeVideoId.trim();
@@ -50,20 +51,13 @@ export function normalizeSourceVideoUrl(
   return null;
 }
 
-/**
- * Suy ra URL thumbnail của video nguồn.
- * Ưu tiên dbThumbnailUrl, nếu không có thì suy ra từ youtubeVideoId hợp lệ.
- * Tuyệt đối không dùng Unsplash, stock image hoặc URL chứa 'null'/'undefined'.
- */
 export function deriveProductionThumbnailUrl(
   dbThumbnailUrl: string | null | undefined,
   youtubeVideoId: string | null | undefined
 ): string | null {
   if (dbThumbnailUrl && typeof dbThumbnailUrl === 'string' && dbThumbnailUrl.trim().length > 0) {
     const trimmed = dbThumbnailUrl.trim();
-    if (trimmed !== 'null' && trimmed !== 'undefined') {
-      return trimmed;
-    }
+    if (trimmed !== 'null' && trimmed !== 'undefined') return trimmed;
   }
   if (youtubeVideoId && typeof youtubeVideoId === 'string' && youtubeVideoId.trim().length > 0) {
     const cleanId = youtubeVideoId.trim();
@@ -77,7 +71,6 @@ export function deriveProductionThumbnailUrl(
 function mapDbRowToItem(row: any): ProductionItem {
   const video = row.videos;
   const channel = video?.channels;
-
   const rawYtId = video?.youtube_video_id && typeof video.youtube_video_id === 'string'
     ? video.youtube_video_id.trim()
     : null;
@@ -94,6 +87,10 @@ function mapDbRowToItem(row: any): ProductionItem {
     updatedAt: row.updated_at,
     publishedUrl: row.published_url,
     publishedAt: row.published_at,
+    dueAt: row.due_at ?? null,
+    startedAt: row.started_at ?? null,
+    assigneeLabel: row.assignee_label ?? null,
+    templateKey: row.template_key ?? null,
     sourceVideo: video
       ? {
           id: video.id,
@@ -109,81 +106,144 @@ function mapDbRowToItem(row: any): ProductionItem {
   };
 }
 
+function mapTask(row: any): ProductionTask {
+  return {
+    id: row.id,
+    productionItemId: row.production_item_id,
+    stage: row.stage,
+    title: row.title,
+    isCompleted: !!row.is_completed,
+    sortOrder: Number(row.sort_order || 0),
+    completedAt: row.completed_at ?? null,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
+function mapAsset(row: any): ProductionAsset {
+  return {
+    id: row.id,
+    productionItemId: row.production_item_id,
+    assetType: row.asset_type,
+    label: row.label,
+    url: row.url,
+    notes: row.notes ?? null,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
+function mapNote(row: any): ProductionNote {
+  return {
+    id: row.id,
+    productionItemId: row.production_item_id,
+    stage: row.stage ?? null,
+    category: row.category,
+    body: row.body,
+    isPinned: !!row.is_pinned,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
+function mapActivity(row: any): ProductionActivity {
+  return {
+    id: row.id,
+    productionItemId: row.production_item_id,
+    eventType: row.event_type,
+    message: row.message,
+    stageFrom: row.stage_from ?? null,
+    stageTo: row.stage_to ?? null,
+    metadata: row.metadata || {},
+    createdAt: row.created_at,
+  };
+}
+
+function mapTemplate(row: any): ProductionTemplate {
+  return {
+    id: row.id,
+    templateKey: row.template_key,
+    name: row.name,
+    description: row.description ?? null,
+    checklist: Array.isArray(row.checklist) ? row.checklist : [],
+    isSystem: !!row.is_system,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+}
+
+function ensureSupabase() {
+  if (!isSupabaseConfigured()) {
+    throw new Error('Chưa kết nối cơ sở dữ liệu Supabase.');
+  }
+  const supabase = getSupabase();
+  if (!supabase) {
+    throw new Error('Chưa kết nối cơ sở dữ liệu Supabase.');
+  }
+  return supabase;
+}
+
+function throwQueryError(error: any, fallback: string): never {
+  console.error(fallback, error);
+  throw new Error(error?.message || fallback);
+}
+
 export const productionService = {
-  /**
-   * Lấy danh sách toàn bộ các mục sản xuất từ Supabase database
-   */
   async fetchProductionItems(): Promise<ProductionItem[]> {
-    if (!isSupabaseConfigured()) {
-      throw new Error('Chưa kết nối cơ sở dữ liệu Supabase.');
-    }
-
-    const supabase = getSupabase();
-    if (!supabase) {
-      throw new Error('Chưa kết nối cơ sở dữ liệu Supabase.');
-    }
-
+    const supabase = ensureSupabase();
     const { data, error } = await supabase
       .from('production_items')
       .select('*, videos(id, title, youtube_video_id, url, thumbnail_url, channel_id, channels(name, handle, avatar_url))')
       .order('updated_at', { ascending: false });
 
-    if (error) {
-      console.error('Lỗi khi tải production_items:', error);
-      throw new Error(error.message || 'Không thể tải Tiến Độ Sản Xuất.');
-    }
-
-    if (!data) return [];
-
-    return data.map(mapDbRowToItem);
+    if (error) throwQueryError(error, 'Không thể tải Tiến Độ Sản Xuất.');
+    return (data || []).map(mapDbRowToItem);
   },
 
-  /**
-   * Kiểm tra xem videoId đã có mục trong production_items chưa
-   */
   async checkVideoInProduction(videoId: string): Promise<string | null> {
-    if (!isSupabaseConfigured()) {
-      throw new Error('Chưa kết nối cơ sở dữ liệu Supabase.');
-    }
-    const supabase = getSupabase();
-    if (!supabase) {
-      throw new Error('Chưa kết nối cơ sở dữ liệu Supabase.');
-    }
-
+    const supabase = ensureSupabase();
     const { data, error } = await supabase
       .from('production_items')
       .select('id')
       .eq('source_video_id', videoId)
       .maybeSingle();
 
-    if (error) {
-      console.error('Lỗi khi kiểm tra video trong production:', error);
-      throw new Error(error.message || 'Lỗi khi kiểm tra video trong Tiến Độ Sản Xuất.');
-    }
-
+    if (error) throwQueryError(error, 'Lỗi khi kiểm tra video trong Tiến Độ Sản Xuất.');
     return data?.id || null;
   },
 
-  /**
-   * Gọi Edge Function manage-production-items
-   */
+  async fetchProductionWorkspace(itemId: string): Promise<ProductionWorkspace> {
+    const supabase = ensureSupabase();
+    const [tasksRes, assetsRes, notesRes, activityRes, templatesRes] = await Promise.all([
+      supabase.from('production_tasks').select('*').eq('production_item_id', itemId).order('stage').order('sort_order'),
+      supabase.from('production_assets').select('*').eq('production_item_id', itemId).order('created_at', { ascending: false }),
+      supabase.from('production_notes').select('*').eq('production_item_id', itemId).order('is_pinned', { ascending: false }).order('created_at', { ascending: false }),
+      supabase.from('production_activity').select('*').eq('production_item_id', itemId).order('created_at', { ascending: false }).limit(100),
+      supabase.from('production_templates').select('*').order('is_system', { ascending: false }).order('name'),
+    ]);
+
+    if (tasksRes.error) throwQueryError(tasksRes.error, 'Không thể tải checklist sản xuất.');
+    if (assetsRes.error) throwQueryError(assetsRes.error, 'Không thể tải tài sản sản xuất.');
+    if (notesRes.error) throwQueryError(notesRes.error, 'Không thể tải ghi chú sản xuất.');
+    if (activityRes.error) throwQueryError(activityRes.error, 'Không thể tải lịch sử sản xuất.');
+    if (templatesRes.error) throwQueryError(templatesRes.error, 'Không thể tải template sản xuất.');
+
+    return {
+      tasks: (tasksRes.data || []).map(mapTask),
+      assets: (assetsRes.data || []).map(mapAsset),
+      notes: (notesRes.data || []).map(mapNote),
+      activity: (activityRes.data || []).map(mapActivity),
+      templates: (templatesRes.data || []).map(mapTemplate),
+    };
+  },
+
   async _invokeProductionEdge(action: string, payload: any, explicitKey?: string): Promise<any> {
     const accessKey = explicitKey || getStoredAccessKey();
-    if (!accessKey) {
-      throw new AccessKeyRequiredError();
-    }
+    if (!accessKey) throw new AccessKeyRequiredError();
 
-    if (!isSupabaseConfigured()) {
-      throw new Error('Chưa kết nối cơ sở dữ liệu Supabase.');
-    }
-
-    const supabase = getSupabase()!;
+    const supabase = ensureSupabase();
     const { data, error } = await supabase.functions.invoke('manage-production-items', {
-      body: {
-        accessKey,
-        action,
-        payload,
-      },
+      body: { accessKey, action, payload },
     });
 
     if (error) {
@@ -207,61 +267,95 @@ export const productionService = {
     return data;
   },
 
-  /**
-   * Đưa video đối thủ vào danh sách sản xuất
-   */
   async createProductionItem(input: ProductionCreateInput, explicitKey?: string): Promise<ProductionItem> {
     const res = await this._invokeProductionEdge('create', input, explicitKey);
     return mapDbRowToItem(res.item);
   },
 
-  /**
-   * Cập nhật thông tin mục sản xuất
-   */
   async updateProductionItem(input: ProductionUpdateInput, explicitKey?: string): Promise<ProductionItem> {
     const res = await this._invokeProductionEdge('update', input, explicitKey);
     return mapDbRowToItem(res.item);
   },
 
-  /**
-   * Đổi trạng thái mục sản xuất
-   */
-  async changeProductionStatus(
-    id: string,
-    status: ProductionStatus,
-    explicitKey?: string
-  ): Promise<ProductionItem> {
+  async updateProductionWorkspace(input: ProductionWorkspaceUpdateInput, explicitKey?: string): Promise<ProductionItem> {
+    const res = await this._invokeProductionEdge('update_workspace', input, explicitKey);
+    return mapDbRowToItem(res.item);
+  },
+
+  async changeProductionStatus(id: string, status: ProductionStatus, explicitKey?: string): Promise<ProductionItem> {
     const res = await this._invokeProductionEdge('change_status', { id, status }, explicitKey);
     return mapDbRowToItem(res.item);
   },
 
-  /**
-   * Lưu trữ mục sản xuất (status = 'archived')
-   */
   async archiveProductionItem(id: string, explicitKey?: string): Promise<ProductionItem> {
     const res = await this._invokeProductionEdge('archive', { id }, explicitKey);
     return mapDbRowToItem(res.item);
   },
 
-  /**
-   * Khôi phục mục đã lưu trữ về Ý tưởng (status = 'idea')
-   */
   async restoreProductionItem(id: string, explicitKey?: string): Promise<ProductionItem> {
     const res = await this._invokeProductionEdge('restore', { id }, explicitKey);
     return mapDbRowToItem(res.item);
   },
 
-  /**
-   * Xóa vĩnh viễn mục sản xuất khỏi bảng production_items
-   */
   async deleteProductionItem(id: string, explicitKey?: string): Promise<string> {
     const res = await this._invokeProductionEdge('delete', { id }, explicitKey);
     return res.deletedId;
   },
 
-  /**
-   * Tính toán 4 chỉ số thống kê tóm tắt
-   */
+  async createTask(input: ProductionTaskCreateInput, explicitKey?: string): Promise<ProductionTask> {
+    const res = await this._invokeProductionEdge('create_task', input, explicitKey);
+    return mapTask(res.task);
+  },
+
+  async updateTask(input: ProductionTaskUpdateInput, explicitKey?: string): Promise<ProductionTask> {
+    const res = await this._invokeProductionEdge('update_task', input, explicitKey);
+    return mapTask(res.task);
+  },
+
+  async deleteTask(id: string, explicitKey?: string): Promise<string> {
+    const res = await this._invokeProductionEdge('delete_task', { id }, explicitKey);
+    return res.deletedId;
+  },
+
+  async applyTemplate(productionItemId: string, templateKey: string, explicitKey?: string): Promise<void> {
+    await this._invokeProductionEdge('apply_template', { productionItemId, templateKey }, explicitKey);
+  },
+
+  async createAsset(input: ProductionAssetCreateInput, explicitKey?: string): Promise<ProductionAsset> {
+    const res = await this._invokeProductionEdge('create_asset', input, explicitKey);
+    return mapAsset(res.asset);
+  },
+
+  async deleteAsset(id: string, explicitKey?: string): Promise<string> {
+    const res = await this._invokeProductionEdge('delete_asset', { id }, explicitKey);
+    return res.deletedId;
+  },
+
+  async createNote(input: ProductionNoteCreateInput, explicitKey?: string): Promise<ProductionNote> {
+    const res = await this._invokeProductionEdge('create_note', input, explicitKey);
+    return mapNote(res.note);
+  },
+
+  async updateNote(input: ProductionNoteUpdateInput, explicitKey?: string): Promise<ProductionNote> {
+    const res = await this._invokeProductionEdge('update_note', input, explicitKey);
+    return mapNote(res.note);
+  },
+
+  async deleteNote(id: string, explicitKey?: string): Promise<string> {
+    const res = await this._invokeProductionEdge('delete_note', { id }, explicitKey);
+    return res.deletedId;
+  },
+
+  computeTaskProgress(tasks: ProductionTask[]): { completed: number; total: number; percent: number } {
+    const total = tasks.length;
+    const completed = tasks.filter(task => task.isCompleted).length;
+    return {
+      completed,
+      total,
+      percent: total === 0 ? 0 : Math.round((completed / total) * 100),
+    };
+  },
+
   computeSummaryStats(items: ProductionItem[]): ProductionStats {
     let activeCount = 0;
     let ideaCount = 0;
@@ -269,52 +363,24 @@ export const productionService = {
     let publishedCount = 0;
 
     for (const item of items) {
-      if (item.status !== 'published' && item.status !== 'archived') {
-        activeCount++;
-      }
-      if (item.status === 'idea') {
-        ideaCount++;
-      }
-      if (item.status === 'production' || item.status === 'editing') {
-        inProductionCount++;
-      }
-      if (item.status === 'published') {
-        publishedCount++;
-      }
+      if (item.status !== 'published' && item.status !== 'archived') activeCount++;
+      if (item.status === 'idea') ideaCount++;
+      if (item.status === 'production' || item.status === 'editing') inProductionCount++;
+      if (item.status === 'published') publishedCount++;
     }
 
     const nonArchivedCount = items.filter(item => item.status !== 'archived').length;
-
-    return {
-      activeCount,
-      nonArchivedCount,
-      totalActive: activeCount,
-      ideaCount,
-      inProductionCount,
-      publishedCount,
-    };
+    return { activeCount, nonArchivedCount, totalActive: activeCount, ideaCount, inProductionCount, publishedCount };
   },
 
-  /**
-   * Lọc và sắp xếp các mục sản xuất theo filter state
-   */
   filterAndSortItems(items: ProductionItem[], filter: ProductionFilterState): ProductionItem[] {
     let result = [...items];
 
-    // 1. Lọc theo trạng thái
-    if (filter.status !== 'all') {
-      result = result.filter(item => item.status === filter.status);
-    } else {
-      // Mặc định tab 'Tất cả' hoặc Kanban board không hiển thị archived
-      result = result.filter(item => item.status !== 'archived');
-    }
+    if (filter.status !== 'all') result = result.filter(item => item.status === filter.status);
+    else result = result.filter(item => item.status !== 'archived');
 
-    // 2. Lọc theo mức ưu tiên
-    if (filter.priority !== 'all') {
-      result = result.filter(item => item.priority === filter.priority);
-    }
+    if (filter.priority !== 'all') result = result.filter(item => item.priority === filter.priority);
 
-    // 3. Tìm kiếm theo tiêu đề dự kiến, tiêu đề video gốc hoặc tên kênh
     if (filter.searchQuery.trim()) {
       const q = filter.searchQuery.trim().toLowerCase();
       result = result.filter(item => {
@@ -325,13 +391,7 @@ export const productionService = {
       });
     }
 
-    // 4. Sắp xếp
-    const priorityWeight: Record<ProductionPriority, number> = {
-      high: 3,
-      normal: 2,
-      low: 1,
-    };
-
+    const priorityWeight: Record<ProductionPriority, number> = { high: 3, normal: 2, low: 1 };
     result.sort((a, b) => {
       if (filter.sortBy === 'priority_desc') {
         const diff = priorityWeight[b.priority] - priorityWeight[a.priority];
@@ -341,16 +401,12 @@ export const productionService = {
       if (filter.sortBy === 'created_desc') {
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       }
-      // default: updated_desc
       return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
     });
 
     return result;
   },
 
-  /**
-   * Định dạng thời gian tương đối
-   */
   formatRelativeTime(isoDate: string | null): string {
     if (!isoDate) return '—';
     try {
@@ -360,7 +416,6 @@ export const productionService = {
       const diffMinutes = Math.floor(diffMs / 60000);
       const diffHours = Math.floor(diffMinutes / 60);
       const diffDays = Math.floor(diffHours / 24);
-
       if (diffMinutes < 1) return 'Vừa xong';
       if (diffMinutes < 60) return `${diffMinutes} phút trước`;
       if (diffHours < 24) return `${diffHours} giờ trước`;
@@ -369,5 +424,17 @@ export const productionService = {
     } catch {
       return isoDate;
     }
+  },
+
+  formatDueState(isoDate: string | null): { label: string; tone: 'neutral' | 'warning' | 'danger' | 'success' } | null {
+    if (!isoDate) return null;
+    const due = new Date(isoDate);
+    if (Number.isNaN(due.getTime())) return null;
+    const diff = due.getTime() - Date.now();
+    const days = Math.ceil(diff / 86400000);
+    if (days < 0) return { label: `Quá hạn ${Math.abs(days)} ngày`, tone: 'danger' };
+    if (days === 0) return { label: 'Đến hạn hôm nay', tone: 'warning' };
+    if (days <= 2) return { label: `Còn ${days} ngày`, tone: 'warning' };
+    return { label: `Còn ${days} ngày`, tone: 'neutral' };
   },
 };
