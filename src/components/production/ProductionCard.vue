@@ -6,6 +6,11 @@
       `status-${item.status}`,
       { 'is-busy': isBusy }
     ]"
+    role="button"
+    tabindex="0"
+    :aria-label="`Mở hồ sơ sản xuất: ${displayTitle}`"
+    @click="onCardClick"
+    @keydown.enter.prevent="$emit('open', item)"
   >
     <!-- Busy Loading Overlay -->
     <div v-if="isBusy" class="card-busy-overlay" aria-live="polite">
@@ -77,6 +82,25 @@
         {{ item.notes }}
       </p>
 
+      <div class="workspace-meta-row">
+        <span v-if="item.taskTotalCount > 0" class="workspace-meta-chip checklist-chip">
+          <AppIcon name="clipboard-list" :size="11" />
+          {{ item.taskCompletedCount }}/{{ item.taskTotalCount }}
+        </span>
+        <span v-if="item.assigneeLabel" class="workspace-meta-chip">
+          <AppIcon name="users" :size="11" />
+          {{ item.assigneeLabel }}
+        </span>
+        <span v-if="dueState" class="workspace-meta-chip" :class="`due-${dueState.tone}`">
+          <AppIcon name="clock" :size="11" />
+          {{ dueState.label }}
+        </span>
+      </div>
+
+      <div v-if="item.taskTotalCount > 0" class="card-progress-track" :title="`Checklist ${progressPercent}%`">
+        <div class="card-progress-fill" :style="{ width: progressPercent + '%' }"></div>
+      </div>
+
       <!-- Published Info Band -->
       <div v-if="item.status === 'published'" class="published-info-band">
         <div class="published-tag">
@@ -110,6 +134,7 @@
           :value="item.status"
           class="stage-select-control"
           :disabled="isControlsDisabled"
+          @click.stop
           @change="onStageChange"
         >
           <option v-for="(label, key) in STATUS_LABELS" :key="key" :value="key">
@@ -126,7 +151,7 @@
           class="action-btn edit-btn"
           title="Chỉnh sửa chi tiết"
           :disabled="isControlsDisabled"
-          @click="$emit('edit', item)"
+          @click.stop="$emit('edit', item)"
         >
           <AppIcon name="settings" :size="14" />
         </button>
@@ -138,7 +163,7 @@
           class="action-btn restore-btn"
           title="Khôi phục về Ý tưởng"
           :disabled="isControlsDisabled"
-          @click="$emit('restore', item.id)"
+          @click.stop="$emit('restore', item.id)"
         >
           <AppIcon name="restore" :size="14" />
         </button>
@@ -148,7 +173,7 @@
           class="action-btn archive-btn"
           title="Lưu trữ mục này"
           :disabled="isControlsDisabled"
-          @click="$emit('archive', item.id)"
+          @click.stop="$emit('archive', item.id)"
         >
           <AppIcon name="archive" :size="14" />
         </button>
@@ -159,7 +184,7 @@
           class="action-btn delete-btn"
           title="Xóa khỏi Tiến Độ Sản Xuất"
           :disabled="isControlsDisabled"
-          @click="$emit('delete', item)"
+          @click.stop="$emit('delete', item)"
         >
           <AppIcon name="x" :size="14" />
         </button>
@@ -189,6 +214,7 @@ const isControlsDisabled = computed(() => {
 
 const emit = defineEmits<{
   (e: 'change-status', payload: { id: string; status: ProductionStatus }): void;
+  (e: 'open', item: ProductionItem): void;
   (e: 'edit', item: ProductionItem): void;
   (e: 'archive', id: string): void;
   (e: 'restore', id: string): void;
@@ -198,6 +224,19 @@ const emit = defineEmits<{
 const displayTitle = computed(() => {
   return props.item.workingTitle || props.item.sourceVideo?.title || 'Chưa đặt tiêu đề';
 });
+
+const dueState = computed(() => productionService.formatDueState(props.item.dueAt));
+const progressPercent = computed(() => {
+  if (!props.item.taskTotalCount) return 0;
+  return Math.round((props.item.taskCompletedCount / props.item.taskTotalCount) * 100);
+});
+
+function onCardClick(event: MouseEvent) {
+  if (isControlsDisabled.value) return;
+  const target = event.target as HTMLElement | null;
+  if (target?.closest('a,button,select,input,textarea,label')) return;
+  emit('open', props.item);
+}
 
 function formatRelativeTime(iso: string | null): string {
   return productionService.formatRelativeTime(iso);
@@ -446,6 +485,43 @@ function onStageChange(event: Event) {
   background: var(--bg-inset, #f8fafc);
   padding: 6px 8px;
   border-radius: 6px;
+}
+
+.workspace-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.workspace-meta-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 6px;
+  border-radius: 999px;
+  background: var(--bg-inset, #f1f5f9);
+  color: var(--text-secondary, #64748b);
+  font-size: 0.6875rem;
+  font-weight: 650;
+}
+
+.checklist-chip { color: #1769e8; background: #eaf2ff; }
+.due-warning { color: #9a5b00; background: #fff1cc; }
+.due-danger { color: #b42323; background: #fde5e5; }
+.due-success { color: #087a57; background: #def5e9; }
+
+.card-progress-track {
+  height: 5px;
+  border-radius: 999px;
+  background: #e6edf4;
+  overflow: hidden;
+}
+
+.card-progress-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #1769e8, #16a36f);
 }
 
 .published-info-band {
