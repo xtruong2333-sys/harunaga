@@ -1,0 +1,296 @@
+/* BẮT BÀI ĐỐI THỦ — Global Clarity Hotfix
+   Loaded last, after Wave/Readability styles.
+   Purpose: remove washed-out light-mode surfaces across every primary route
+   without changing layout, data logic, dark-mode semantics, or motion.
+*/
+
+[data-theme="light"] {
+  --bg-page: #EAF1F7;
+  --bg-main: #EAF1F7;
+  --bg-page-secondary: #E3ECF4;
+  --bg-inset: #E8EFF6;
+  --surface: #FFFFFF;
+  --surface-muted: #EEF3F8;
+  --surface-hover: #E8F0F7;
+
+  --text-primary: #102033;
+  --text-secondary: #34495F;
+  --text-muted: #596B7F;
+
+  --border: #C7D6E4;
+  --border-strong: #AFC2D3;
+  --border-subtle: rgba(41, 67, 92, 0.18);
+  --border-line: rgba(41, 67, 92, 0.16);
+
+  --primary-soft: #DFEAFF;
+  --success-soft: #DDF6E9;
+  --warning-soft: #FFF0C7;
+  --danger-soft: #FDE6E6;
+
+  --shadow-sm: 0 6px 18px rgba(35, 65, 95, 0.09), 0 1px 3px rgba(35, 65, 95, 0.05);
+  --shadow-md: 0 12px 30px rgba(35, 65, 95, 0.13), 0 2px 6px rgba(35, 65, 95, 0.06);
+  --card-shadow: 0 7px 20px rgba(35, 65, 95, 0.10), 0 1px 3px rgba(35, 65, 95, 0.05);
+  --table-header-bg: #E5EDF5;
+}
+
+[data-theme="light"] body {
+  background-color: #EAF1F7 !important;
+}
+
+/* Solid light-mode surfaces: remove the milky glass look globally. */
+[data-theme="light"] .surface-card,
+[data-theme="light"] .interactive-card,
+[data-theme="light"] .stat-card,
+[data-theme="light"] .system-status-card,
+[data-theme="light"] .section-container,
+[data-theme="light"] .panel-card,
+[data-theme="light"] .empty-card,
+[data-theme="light"] .table-card {
+  background: #FFFFFF !important;
+  border-color: #C7D6E4 !important;
+  box-shadow: var(--shadow-sm) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+[data-theme="light"] .surface-card:hover,
+[data-theme="light"] .interactive-card:hover,
+[data-theme="light"] .stat-card:hover,
+[data-theme="light"] .panel-card:hover,
+[data-theme="light"] .table-card:hover {
+  border-color: #AFC2D3 !important;
+  box-shadow: var(--shadow-md) !important;
+}
+
+/* Common secondary surfaces across Overview, Channels, Radar, Data Health,
+   Production, Publishing, Reports and detail pages. */
+[data-theme="light"] .telemetry-card,
+[data-theme="light"] .telemetry-box,
+[data-theme="light"] .summary-card,
+[data-theme="light"] .summary-metric-card,
+[data-theme="light"] .fact-card,
+[data-theme="light"] .ops-card,
+[data-theme="light"] .compact-channel-row,
+[data-theme="light"] .pipeline-row,
+[data-theme="light"] .health-row,
+[data-theme="light"] .channel-row,
+[data-theme="light"] .metric-box,
+[data-theme="light"] .signal-card,
+[data-theme="light"] .status-card {
+  background: #F1F6FA !important;
+  border-color: #D0DDE8 !important;
+}
+
+[data-theme="light"] .telemetry-card:hover,
+[data-theme="light"] .summary-card:hover,
+[data-theme="light"] .fact-card:hover,
+[data-theme="light"] .ops-card:hover,
+[data-theme="light"] .compact-channel-row:hover,
+[data-theme="light"] .channel-row:hover {
+  background: #EAF2F8 !important;
+  border-color: #B9CCDC !important;
+}
+
+/* Shared text hierarchy. These classes are heavily reused throughout the app. */
+[data-theme="light"] .text-primary {
+  color: #102033 !important;
+}
+
+[data-theme="light"] .text-secondary,
+[data-theme="light"] .page-description,
+[data-theme="light"] .telemetry-label,
+[data-theme="light"] .results-count,
+[data-theme="light"] .channel-link,
+[data-theme="light"] .ops-card-title,
+[data-theme="light"] .error-box-label {
+  color: #40556B !important;
+}
+
+[data-theme="light"] .text-muted,
+[data-theme="light"] .item-hint,
+[data-theme="light"] .metric-sub,
+[data-theme="light"] .metric-subtext,
+[data-theme="light"] .summary-sub,
+[data-theme="light"] .stat-sub,
+[data-theme="light"] .card-sub,
+[data-theme="light"] .card-subtext,
+[data-theme="light"] .sub-caption,
+[data-theme="light"] .fact-sub,
+[data-theme="light"] .compact-meta,
+[data-theme="light"] .ch-latest,
+[data-theme="light"] .ops-card-desc,
+[data-theme="light"] .refresh-error-detail,
+[data-theme="light"] .meta-label,
+[data-theme="light"] .scan-time-sub,
+[data-theme="light"] .timeline-metrics-text {
+  color: #607286 !important;
+}
+
+/* Page-specific classes that were still using pale hard-coded colors. */
+[data-theme="light"] .channel-comparison-page .empty-desc,
+[data-theme="light"] .channel-comparison-page .fact-label,
+[data-theme="light"] .publishing-schedule-page .timezone-badge,
+[data-theme="light"] .data-health-observatory .last-fetched-meta,
+[data-theme="light"] .data-health-observatory .error-box-label,
+[data-theme="light"] .alert-history-page .results-count,
+[data-theme="light"] .video-investigation-workspace .top-nav-bar,
+[data-theme="light"] .growth-videos-workspace .results-count,
+[data-theme="light"] .opportunity-intelligence-workspace .results-count,
+[data-theme="light"] .recent-videos-workspace .results-count {
+  color: #40556B !important;
+}
+
+/* Pale utility panels on high-traffic pages. */
+[data-theme="light"] .data-health-observatory .last-fetched-meta,
+[data-theme="light"] .data-health-observatory .modal-meta-row,
+[data-theme="light"] .publishing-schedule-page .timezone-badge,
+[data-theme="light"] .channel-comparison-page .empty-selection-card,
+[data-theme="light"] .channel-comparison-page .fact-card,
+[data-theme="light"] .alert-history-page .btn-refresh,
+[data-theme="light"] .alert-history-page .btn-load-more {
+  background: #F0F5FA !important;
+  border-color: #C8D7E4 !important;
+  box-shadow: 0 2px 7px rgba(35, 65, 95, 0.05);
+}
+
+/* Tables: higher contrast header, row boundaries, and hover state. */
+[data-theme="light"] table {
+  background: #FFFFFF;
+}
+
+[data-theme="light"] table th,
+[data-theme="light"] .scan-table th,
+[data-theme="light"] .ops-table th,
+[data-theme="light"] .channel-table th,
+[data-theme="light"] .video-table th,
+[data-theme="light"] .growth-table th,
+[data-theme="light"] .opportunity-table th,
+[data-theme="light"] .comparison-table th,
+[data-theme="light"] .production-table th {
+  background: #E5EDF5 !important;
+  color: #3D5268 !important;
+  border-bottom-color: #B9CADA !important;
+}
+
+[data-theme="light"] table td {
+  color: #213449 !important;
+  border-bottom-color: #D3DFE9 !important;
+}
+
+[data-theme="light"] table tbody tr:hover td {
+  background: #EDF4F9 !important;
+}
+
+/* Filters / controls were often disappearing into white surfaces. */
+[data-theme="light"] input,
+[data-theme="light"] select,
+[data-theme="light"] textarea,
+[data-theme="light"] .form-input,
+[data-theme="light"] .form-select,
+[data-theme="light"] .form-textarea,
+[data-theme="light"] .search-box,
+[data-theme="light"] .filter-dock,
+[data-theme="light"] .range-switch-group {
+  background-color: #F7FAFC !important;
+  border-color: #C5D5E3 !important;
+  color: #1C3046 !important;
+}
+
+[data-theme="light"] input:focus,
+[data-theme="light"] select:focus,
+[data-theme="light"] textarea:focus,
+[data-theme="light"] .form-input:focus,
+[data-theme="light"] .form-select:focus,
+[data-theme="light"] .form-textarea:focus {
+  border-color: #6FA0E8 !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.10);
+}
+
+/* Buttons: secondary actions need a clearer boundary. */
+[data-theme="light"] .btn-secondary {
+  background: #F8FBFD !important;
+  border-color: #BFCFDD !important;
+  color: #2B4056 !important;
+  box-shadow: 0 2px 6px rgba(35, 65, 95, 0.05);
+}
+
+[data-theme="light"] .btn-secondary:hover:not(:disabled) {
+  background: #EDF4F9 !important;
+  border-color: #9EB7CA !important;
+  color: #102033 !important;
+}
+
+/* Status chips: pastel, but not washed out. */
+[data-theme="light"] .badge-active,
+[data-theme="light"] .status-success,
+[data-theme="light"] .pill-success,
+[data-theme="light"] .badge-success {
+  background: #D8F3E5 !important;
+  border-color: #9CDEBE !important;
+  color: #046C4E !important;
+}
+
+[data-theme="light"] .badge-paused,
+[data-theme="light"] .status-warning,
+[data-theme="light"] .pill-warning,
+[data-theme="light"] .badge-warning {
+  background: #FFEDBE !important;
+  border-color: #F2CC68 !important;
+  color: #955500 !important;
+}
+
+[data-theme="light"] .status-danger,
+[data-theme="light"] .pill-danger,
+[data-theme="light"] .badge-danger,
+[data-theme="light"] .pill-failed {
+  background: #FADDDD !important;
+  border-color: #EEAAAA !important;
+  color: #B91C1C !important;
+}
+
+[data-theme="light"] .status-info,
+[data-theme="light"] .pill-info,
+[data-theme="light"] .badge-info,
+[data-theme="light"] .trigger-schedule,
+[data-theme="light"] .ch-vph-badge {
+  background: #DDE9FF !important;
+  border-color: #AEC6F4 !important;
+  color: #1E4DB7 !important;
+}
+
+/* Sidebar/menu active state should be clearly distinct from passive entries. */
+[data-theme="light"] .sidebar-item {
+  color: #34495F;
+}
+
+[data-theme="light"] .sidebar-item--active,
+[data-theme="light"] .rail-item--active {
+  background: #E2ECFA !important;
+  border-color: #B8CCEA !important;
+  color: #1849A9 !important;
+}
+
+[data-theme="light"] .sidebar-item:hover:not(.sidebar-item--active) {
+  background: #EEF4F9 !important;
+}
+
+/* Top-level page headings should remain crisp after all surface changes. */
+[data-theme="light"] .page-title,
+[data-theme="light"] .section-title,
+[data-theme="light"] .workspace-title {
+  color: #0D1F32 !important;
+}
+
+[data-theme="light"] .page-kicker,
+[data-theme="light"] .section-kicker {
+  color: #1D5DD7 !important;
+}
+
+/* Dark mode already has enough depth; only reinforce card boundaries slightly. */
+[data-theme="dark"] .surface-card,
+[data-theme="dark"] .interactive-card,
+[data-theme="dark"] .section-container,
+[data-theme="dark"] .panel-card,
+[data-theme="dark"] .table-card {
+  border-color: rgba(125, 211, 252, 0.17) !important;
+}
