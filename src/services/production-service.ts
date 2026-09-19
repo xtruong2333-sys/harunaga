@@ -428,7 +428,7 @@ export const productionService = {
     }
   },
 
-  formatDueState(isoDate: string | null): { label: string; tone: 'neutral' | 'warning' | 'danger' | 'success' } | null {
+  formatDueState(isoDate: string | null | undefined): { label: string; tone: 'neutral' | 'warning' | 'danger' | 'success' } | null {
     if (!isoDate) return null;
     const due = new Date(isoDate);
     if (Number.isNaN(due.getTime())) return null;
