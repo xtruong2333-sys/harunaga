@@ -9,7 +9,7 @@
         tabindex="0"
         :aria-label="`Mở hồ sơ sản xuất: ${item.workingTitle || item.sourceVideo?.title || 'Chưa đặt tiêu đề'}`"
         @click="onRowClick($event, item)"
-        @keydown.enter.prevent="$emit('open', item)"
+        @keydown.enter.self.prevent="$emit('open', item)"
         :class="[
           `status-${item.status}`,
           `priority-${item.priority}`,
