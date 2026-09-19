@@ -408,7 +408,16 @@ async function handleWorkspaceSave(input: ProductionWorkspaceUpdateInput) {
 
 async function handleApplyTemplate(payload: { productionItemId: string; templateKey: string }) {
   await runWorkspaceMutation(
-    key => productionService.applyTemplate(payload.productionItemId, payload.templateKey, key),
+    async (key) => {
+      await productionService.applyTemplate(payload.productionItemId, payload.templateKey, key);
+      const idx = items.value.findIndex(item => item.id === payload.productionItemId);
+      if (idx !== -1) {
+        items.value[idx] = {
+          ...items.value[idx],
+          templateKey: payload.templateKey,
+        };
+      }
+    },
     'Đã áp dụng template checklist.'
   );
 }
