@@ -58,20 +58,19 @@ withDefaults(
 <style scoped>
 .signal-metric-card {
   position: relative;
-  background: var(--bg-surface);
-  border: 1px solid var(--border-subtle);
-  border-radius: 12px;
-  padding: 16px 18px;
-  backdrop-filter: blur(12px);
-  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 17px 18px;
+  transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
   overflow: hidden;
-  box-shadow: var(--card-shadow);
+  box-shadow: var(--shadow-sm);
 }
 
 .signal-metric-card:hover {
   transform: translateY(-2px);
   border-color: var(--border-strong);
-  box-shadow: var(--card-shadow-hover, 0 8px 24px -6px rgba(0, 0, 0, 0.5));
+  box-shadow: var(--shadow-md);
 }
 
 .card-inner {
@@ -80,18 +79,21 @@ withDefaults(
 }
 
 .is-focal {
-  background: var(--bg-surface-elevated);
-  border-color: var(--border-strong);
-  box-shadow: 0 0 20px -5px var(--accent-glow, rgba(56, 189, 248, 0.15));
+  border-color: #B9CCF3;
+  background: linear-gradient(180deg, #FFFFFF 0%, #F6F9FF 100%);
+}
+
+[data-theme="dark"] .is-focal {
+  background: linear-gradient(180deg, #132033 0%, #0F1A2B 100%);
 }
 
 .card-glow {
   position: absolute;
-  top: -20px;
-  right: -20px;
-  width: 90px;
-  height: 90px;
-  background: radial-gradient(circle, var(--accent-glow, rgba(56, 189, 248, 0.25)) 0%, transparent 70%);
+  right: -25px;
+  top: -34px;
+  width: 110px;
+  height: 110px;
+  background: radial-gradient(circle, rgba(37,99,235,.12), transparent 68%);
   pointer-events: none;
 }
 
@@ -100,85 +102,79 @@ withDefaults(
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  margin-bottom: 8px;
+  margin-bottom: 9px;
 }
 
 .metric-label {
-  font-size: 12px;
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: 700;
   color: var(--text-secondary);
-  letter-spacing: 0.02em;
+  letter-spacing: .035em;
 }
 
 .metric-icon {
-  color: var(--text-muted);
+  color: #5E7BA0;
 }
 
 .metric-value-wrap {
   display: flex;
   align-items: baseline;
   gap: 6px;
-  line-height: 1.1;
+  line-height: 1.05;
   font-variant-numeric: tabular-nums;
 }
 
 .metric-main-value {
-  font-size: 24px;
-  font-weight: 700;
+  font-size: 25px;
+  font-weight: 780;
+  letter-spacing: -.03em;
   color: var(--text-primary);
 }
 
 .is-focal .metric-main-value {
-  color: var(--accent);
-  text-shadow: 0 0 12px var(--accent-glow, rgba(56, 189, 248, 0.3));
+  color: var(--primary);
+  text-shadow: none;
 }
 
 .variant-positive .metric-main-value {
-  color: var(--status-active, #34d399);
+  color: #087A57;
 }
 
 .variant-warning .metric-main-value {
-  color: var(--status-paused, #fbbf24);
+  color: #A45A00;
 }
 
 .variant-muted .metric-main-value {
-  color: var(--text-muted);
+  color: var(--text-secondary);
 }
 
 .metric-unit {
-  font-size: 12px;
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: 700;
   color: var(--text-muted);
   text-transform: uppercase;
 }
 
-.is-focal .metric-unit {
-  color: var(--accent);
-  opacity: 0.8;
-}
-
 .metric-subtext {
-  font-size: 11px;
+  font-size: 11.5px;
   color: var(--text-muted);
-  margin-top: 6px;
+  margin-top: 7px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .loading-pulse {
-  color: #64748b;
+  color: var(--text-muted);
   animation: pulse 1s infinite;
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 0.4; }
+  0%, 100% { opacity: .4; }
   50% { opacity: 1; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .signal-metric-card:hover {
-    transform: none;
-  }
+  .signal-metric-card:hover { transform: none; }
 }
 </style>
