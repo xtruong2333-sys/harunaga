@@ -1,0 +1,51 @@
+name: Deploy Production V2 Backend
+
+on:
+  push:
+    branches:
+      - deploy/production-v2-backend
+    paths:
+      - 'supabase/migrations/20260919000007_production_workspace_v2.sql'
+      - 'supabase/functions/manage-production-items/**'
+      - '.github/workflows/deploy-production-v2-backend.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  deploy-backend:
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+      SUPABASE_PROJECT_REF: nptmwbljkwzjlirclxnv
+    steps:
+      - name: Checkout Production V2
+        uses: actions/checkout@v4
+
+      - name: Validate Supabase deployment secrets
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$SUPABASE_ACCESS_TOKEN" || (echo "SUPABASE_ACCESS_TOKEN is missing" && exit 1)
+          test -n "$SUPABASE_DB_PASSWORD" || (echo "SUPABASE_DB_PASSWORD is missing" && exit 1)
+
+      - name: Install Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Link production project
+        run: supabase link --project-ref "$SUPABASE_PROJECT_REF" --password "$SUPABASE_DB_PASSWORD"
+
+      - name: Apply Production Workspace V2 migration
+        run: supabase db push --linked --password "$SUPABASE_DB_PASSWORD"
+
+      - name: Deploy manage-production-items
+        run: supabase functions deploy manage-production-items --project-ref "$SUPABASE_PROJECT_REF"
+
+      - name: Verify remote migrations
+        run: supabase migration list --linked --password "$SUPABASE_DB_PASSWORD"
+
+      - name: Verify edge function exists
+        run: supabase functions list --project-ref "$SUPABASE_PROJECT_REF"
