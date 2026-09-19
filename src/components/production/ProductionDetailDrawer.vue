@@ -291,6 +291,57 @@
               </template>
             </div>
 
+            <div v-else-if="activeTab === 'ai'" class="drawer-panel-stack">
+              <section class="drawer-section ai-focus-card">
+                <div class="section-heading">
+                  <div>
+                    <h3>Trợ lý theo giai đoạn</h3>
+                    <p>Gợi ý thao tác theo đúng stage hiện tại, không tự thay đổi dữ liệu của bạn.</p>
+                  </div>
+                </div>
+                <div class="ai-stage-focus">
+                  <span class="ai-stage-chip">{{ STATUS_LABELS[form.status] }}</span>
+                  <h4>{{ stageFocus.title }}</h4>
+                  <ul>
+                    <li v-for="point in stageFocus.points" :key="point">{{ point }}</li>
+                  </ul>
+                </div>
+              </section>
+
+              <section class="drawer-section">
+                <div class="section-heading">
+                  <div>
+                    <h3>Mở video nguồn trong AI Studio</h3>
+                    <p>AI Studio sẽ nhận đúng video nguồn bằng query hiện có của hệ thống.</p>
+                  </div>
+                </div>
+                <router-link
+                  v-if="item.sourceVideoId"
+                  class="btn btn-primary ai-studio-link"
+                  :to="{ path: '/tro-ly-noi-dung', query: { video: item.sourceVideoId } }"
+                >
+                  <AppIcon name="sparkles" :size="15" />
+                  Mở trong AI Studio
+                  <AppIcon name="arrow-right" :size="14" />
+                </router-link>
+                <div v-else class="empty-block">Video nguồn không còn ID để mở trực tiếp trong AI Studio.</div>
+              </section>
+
+              <section class="drawer-section">
+                <div class="section-heading">
+                  <div>
+                    <h3>Đưa kết quả AI về dự án</h3>
+                    <p>Hiện tại hãy lưu kết quả AI vào Working Title, Ghi chú hoặc Tài sản. Không có đồng bộ giả nếu AI Studio chưa trả dữ liệu trực tiếp về Drawer.</p>
+                  </div>
+                </div>
+                <div class="ai-return-grid">
+                  <div><strong>Tiêu đề</strong><span>Dán title đã chọn vào “Tiêu đề đang làm”.</span></div>
+                  <div><strong>Thumbnail</strong><span>Lưu link ảnh/Drive ở tab Tài Sản.</span></div>
+                  <div><strong>Hook / Script</strong><span>Ghi vào Ghi Chú hoặc asset loại Kịch bản.</span></div>
+                </div>
+              </section>
+            </div>
+
             <div v-else-if="activeTab === 'notes'" class="drawer-panel-stack">
               <WorkspaceError v-if="workspaceError" :message="workspaceError" @retry="$emit('refresh-workspace')" />
               <template v-else>
@@ -444,7 +495,7 @@ const emit = defineEmits<{
   (e: 'delete-note', id: string): void;
 }>();
 
-type DrawerTab = 'overview' | 'checklist' | 'assets' | 'notes' | 'activity';
+type DrawerTab = 'overview' | 'checklist' | 'assets' | 'ai' | 'notes' | 'activity';
 
 const activeTab = ref<DrawerTab>('overview');
 const selectedTemplateKey = ref('');
@@ -474,10 +525,25 @@ const currentStageIndex = computed(() => ACTIVE_WORKFLOW_STATUSES.indexOf(form.s
 const dueState = computed(() => productionService.formatDueState(localToIso(form.dueAt) || null));
 const progress = computed(() => productionService.computeTaskProgress(props.workspace?.tasks || []));
 
+const stageFocus = computed(() => {
+  const map: Record<ProductionStatus, { title: string; points: string[] }> = {
+    idea: { title: 'Chốt góc nội dung trước khi đi sâu', points: ['Xác định điều mới so với video nguồn', 'Chốt đối tượng xem và kết quả cuối video', 'Ghi một hook sơ bộ'] },
+    research: { title: 'Nghiên cứu thứ làm video nguồn hiệu quả', points: ['Phân tích hook và nhịp giữ người xem', 'Tìm phần có thể remake khác biệt', 'Lưu reference quan trọng vào Tài Sản'] },
+    script: { title: 'Biến nghiên cứu thành flow quay được', points: ['Chốt hook 5 giây đầu', 'Viết outline theo cảnh/thao tác', 'Chốt CTA và câu kết'] },
+    thumbnail: { title: 'Thumbnail phải truyền ý tưởng trong một ánh nhìn', points: ['Tạo ít nhất 2 concept khác nhau', 'Kiểm tra thumbnail ở kích thước mobile', 'Đối chiếu title ↔ thumbnail không lặp ý'] },
+    production: { title: 'Quay đủ để editor không phải đoán', points: ['Kiểm tra đạo cụ và shot list', 'Quay footage chính + B-roll', 'Đánh dấu shot cần quay lại ngay'] },
+    editing: { title: 'Tập trung retention và độ rõ', points: ['Rough cut bỏ đoạn thừa', 'Âm thanh/subtitle rõ', 'Kiểm tra final export trước đăng'] },
+    published: { title: 'Khóa hồ sơ và lưu đầu ra thật', points: ['Lưu Published URL', 'Xác nhận thumbnail/title cuối', 'Ghim ghi chú bài học cho lần sau'] },
+    archived: { title: 'Hồ sơ đang lưu trữ', points: ['Khôi phục về Ý tưởng nếu muốn tiếp tục', 'Giữ assets/notes làm tư liệu tham khảo'] },
+  };
+  return map[form.status];
+});
+
 const tabs = computed(() => [
   { id: 'overview' as const, label: 'Tổng Quan' },
   { id: 'checklist' as const, label: 'Checklist', count: props.workspace?.tasks.length || 0 },
   { id: 'assets' as const, label: 'Tài Sản', count: props.workspace?.assets.length || 0 },
+  { id: 'ai' as const, label: 'AI Studio' },
   { id: 'notes' as const, label: 'Ghi Chú', count: props.workspace?.notes.length || 0 },
   { id: 'activity' as const, label: 'Lịch Sử', count: props.workspace?.activity.length || 0 },
 ]);
@@ -664,9 +730,10 @@ watch(() => props.item?.updatedAt, () => {
 .asset-form{margin-bottom:10px}.form-action-row{display:flex;justify-content:flex-end;margin-top:10px}.asset-list{display:flex;flex-direction:column;gap:8px}.asset-row{display:flex;align-items:flex-start;gap:10px;padding:10px;border:1px solid #e1eaf2;background:#f8fbff;border-radius:9px}.asset-icon{width:34px;height:34px;border-radius:8px;background:#eaf2ff;color:#1769e8;display:grid;place-items:center;flex:0 0 auto}.asset-info{flex:1;min-width:0}.asset-top{display:flex;align-items:center;gap:7px}.asset-top strong{font-size:12px}.asset-top span{font-size:9.5px;padding:2px 5px;border-radius:999px;background:#eef3f8;color:var(--text-muted)}.asset-info p{font-size:11px;margin:4px 0;color:var(--text-muted)}.asset-info a{font-size:10.5px;color:#1769e8;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pin-option{display:inline-flex;align-items:center;gap:7px;font-size:11.5px;color:var(--text-secondary);margin-top:8px}.note-list-section{display:flex;flex-direction:column;gap:9px}.note-card{padding:11px;border:1px solid #e1eaf2;border-radius:9px;background:#fff}.note-card.pinned{border-color:#b8cff2;background:#f7fbff}.note-head{display:flex;justify-content:space-between;gap:10px;font-size:10px;color:var(--text-muted)}.note-tags{display:flex;gap:5px;flex-wrap:wrap}.note-tags span{padding:2px 6px;border-radius:999px;background:#eef3f8}.note-tags .pin-chip{background:#eaf2ff;color:#145dce}.note-card p{font-size:12.5px;line-height:1.5;color:var(--text-secondary);white-space:pre-wrap}.note-actions{display:flex;gap:8px;justify-content:flex-end}.note-actions button{border:0;background:transparent;color:#1769e8;font-size:11px;cursor:pointer}.note-actions .danger-link{color:#c53030}
 .activity-list{display:flex;flex-direction:column}.activity-row{display:flex;gap:10px;position:relative;padding:0 0 14px}.activity-row:not(:last-child)::after{content:"";position:absolute;left:5px;top:13px;bottom:0;width:1px;background:#dce6ef}.activity-dot{width:11px;height:11px;margin-top:3px;border-radius:50%;background:#1769e8;box-shadow:0 0 0 3px #eaf2ff;flex:0 0 auto;z-index:1}.activity-copy{display:flex;flex-direction:column;gap:2px}.activity-copy strong{font-size:11.5px;color:var(--text-secondary)}.activity-copy span{font-size:10px;color:var(--text-muted)}
+.ai-stage-focus{padding:14px;border-radius:10px;background:linear-gradient(135deg,#f6f9ff,#eef5ff);border:1px solid #d8e5f5}.ai-stage-chip{display:inline-flex;padding:3px 7px;border-radius:999px;background:#1769e8;color:#fff;font-size:10px;font-weight:750}.ai-stage-focus h4{margin:10px 0 7px;font-size:14px}.ai-stage-focus ul{margin:0;padding-left:18px;color:var(--text-secondary);font-size:12px;line-height:1.65}.ai-studio-link{text-decoration:none;display:inline-flex;align-items:center;gap:7px}.ai-return-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.ai-return-grid>div{padding:10px;border-radius:9px;background:#f8fbff;border:1px solid #e1eaf2;display:flex;flex-direction:column;gap:4px}.ai-return-grid strong{font-size:11.5px}.ai-return-grid span{font-size:10.5px;color:var(--text-muted);line-height:1.4}
 .workspace-error{padding:20px;border:1px solid #efc4c4;background:#fff3f3;border-radius:11px;color:#9f1d1d}.workspace-error p{font-size:12px}.workspace-loading{text-align:center;color:var(--text-muted);font-size:12px;padding:10px}
 .drawer-footer{padding:11px 14px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px;background:#fff}.footer-nav,.footer-save{display:flex;gap:8px}
 .drawer-fade-enter-active,.drawer-fade-leave-active{transition:opacity .18s ease}.drawer-fade-enter-active .production-detail-drawer,.drawer-fade-leave-active .production-detail-drawer{transition:transform .2s cubic-bezier(.16,1,.3,1)}.drawer-fade-enter-from,.drawer-fade-leave-to{opacity:0}.drawer-fade-enter-from .production-detail-drawer,.drawer-fade-leave-to .production-detail-drawer{transform:translateX(100%)}
-@media(max-width:760px){.production-detail-drawer{width:100vw}.drawer-thumb{width:90px;flex-basis:90px}.stage-timeline{overflow-x:auto;grid-template-columns:repeat(7,92px)}.form-grid{grid-template-columns:1fr}.span-2{grid-column:span 1}.source-facts{grid-template-columns:1fr}.inline-form{grid-template-columns:1fr}.template-row{grid-template-columns:1fr}.drawer-footer{align-items:stretch;flex-direction:column}.footer-nav,.footer-save{display:grid;grid-template-columns:1fr 1fr}}
+@media(max-width:760px){.ai-return-grid{grid-template-columns:1fr}.production-detail-drawer{width:100vw}.drawer-thumb{width:90px;flex-basis:90px}.stage-timeline{overflow-x:auto;grid-template-columns:repeat(7,92px)}.form-grid{grid-template-columns:1fr}.span-2{grid-column:span 1}.source-facts{grid-template-columns:1fr}.inline-form{grid-template-columns:1fr}.template-row{grid-template-columns:1fr}.drawer-footer{align-items:stretch;flex-direction:column}.footer-nav,.footer-save{display:grid;grid-template-columns:1fr 1fr}}
 @media(prefers-reduced-motion:reduce){.drawer-fade-enter-active,.drawer-fade-leave-active,.drawer-fade-enter-active .production-detail-drawer,.drawer-fade-leave-active .production-detail-drawer,.progress-fill{transition:none!important}}
 </style>
