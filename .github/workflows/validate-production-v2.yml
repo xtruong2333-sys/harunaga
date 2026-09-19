@@ -1,0 +1,40 @@
+name: Validate Production Workspace V2
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'src/components/production/**'
+      - 'src/pages/ProductionPage.vue'
+      - 'src/services/production-service.ts'
+      - 'src/types/production.ts'
+      - 'supabase/functions/manage-production-items/**'
+      - 'supabase/migrations/20260919000007_production_workspace_v2.sql'
+      - 'tests/production-workspace-v2.test.ts'
+      - 'tests/production-workflow.test.ts'
+      - '.github/workflows/validate-production-v2.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: 'npm'
+      - name: Install
+        run: npm ci
+      - name: Test
+        run: npm test
+      - name: Build
+        env:
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ vars.VITE_SUPABASE_PUBLISHABLE_KEY }}
+        run: npm run build
