@@ -622,7 +622,6 @@ function submitCore() {
     status: form.status,
     dueAt: localToIso(form.dueAt),
     assigneeLabel: form.assigneeLabel,
-    templateKey: selectedTemplateKey.value,
   });
 }
 
