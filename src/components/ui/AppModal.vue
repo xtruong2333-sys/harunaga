@@ -59,31 +59,28 @@ function handleBackdrop() {
 <style scoped>
 .modal-backdrop {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(3, 7, 18, 0.75);
-  backdrop-filter: blur(4px);
+  inset: 0;
+  background: rgba(5,12,24,.54);
+  backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 16px;
+  padding: 18px;
   z-index: 999;
 }
 
 .modal-container {
   width: 100%;
-  background-color: var(--bg-surface);
+  background: var(--surface);
   border: 1px solid var(--border-strong);
-  border-radius: 12px;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+  border-radius: 18px;
+  box-shadow: 0 26px 70px rgba(4,11,22,.28);
   overflow: hidden;
 }
 
 .modal-header {
-  padding: 20px 24px;
-  border-bottom: 1px solid var(--border-subtle);
+  padding: 20px 22px;
+  border-bottom: 1px solid var(--border);
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -91,8 +88,9 @@ function handleBackdrop() {
 }
 
 .modal-title {
+  margin: 0;
   font-size: 18px;
-  font-weight: 600;
+  font-weight: 740;
   color: var(--text-primary);
 }
 
@@ -100,44 +98,48 @@ function handleBackdrop() {
   font-size: 13px;
   color: var(--text-secondary);
   margin-top: 4px;
+  line-height: 1.45;
 }
 
 .modal-close-btn {
-  background: transparent;
-  border: none;
+  width: 34px;
+  height: 34px;
+  background: var(--surface-muted);
+  border: 1px solid var(--border);
   color: var(--text-secondary);
   cursor: pointer;
-  padding: 4px;
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  padding: 0;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
 }
+
 .modal-close-btn:hover {
   color: var(--text-primary);
-  background-color: var(--bg-surface-hover);
+  background: var(--surface-hover);
 }
 
 .modal-body {
-  padding: 24px;
+  padding: 22px;
   max-height: calc(85vh - 140px);
   overflow-y: auto;
 }
 
 .modal-footer {
-  padding: 16px 24px;
-  border-top: 1px solid var(--border-subtle);
-  background-color: var(--bg-surface-elevated);
+  padding: 15px 22px;
+  border-top: 1px solid var(--border);
+  background: var(--surface-muted);
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 12px;
+  gap: 10px;
 }
 
 .modal-fade-enter-active,
 .modal-fade-leave-active {
-  transition: opacity 0.2s ease;
+  transition: opacity .18s ease;
 }
+
 .modal-fade-enter-from,
 .modal-fade-leave-to {
   opacity: 0;
