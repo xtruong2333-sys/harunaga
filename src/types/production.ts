@@ -73,6 +73,8 @@ export interface ProductionItem {
   startedAt: string | null;
   assigneeLabel: string | null;
   templateKey: string | null;
+  taskCompletedCount: number;
+  taskTotalCount: number;
   sourceVideo: ProductionSourceVideo | null;
 }
 
