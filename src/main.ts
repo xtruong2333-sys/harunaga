@@ -5,6 +5,7 @@ import App from '@/App.vue';
 import '@/styles/main.css';
 import '@/styles/wave22.css';
 import '@/styles/readability-hotfix.css';
+import '@/styles/global-clarity-hotfix.css';
 
 const app = createApp(App);
 
