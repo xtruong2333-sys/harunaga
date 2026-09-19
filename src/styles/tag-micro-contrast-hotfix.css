@@ -1,0 +1,272 @@
+/* BẮT BÀI ĐỐI THỦ — Tag & Micro Contrast Hotfix
+   Loaded last after the global clarity layer.
+   Scope: small badges/tags/chips/status pills and micro-meta text.
+   No layout scaling, no business logic changes.
+*/
+
+[data-theme="light"] {
+  --chip-blue-bg: #DCE9FF;
+  --chip-blue-border: #AFC8F5;
+  --chip-blue-text: #1748A6;
+
+  --chip-green-bg: #D8F2E4;
+  --chip-green-border: #9DDDBD;
+  --chip-green-text: #056B4D;
+
+  --chip-amber-bg: #FFEAB0;
+  --chip-amber-border: #EBC760;
+  --chip-amber-text: #8A4D00;
+
+  --chip-red-bg: #F9DCDC;
+  --chip-red-border: #EAA7A7;
+  --chip-red-text: #AF1D1D;
+
+  --chip-slate-bg: #E4EBF2;
+  --chip-slate-border: #BCCBDA;
+  --chip-slate-text: #405469;
+}
+
+/* Base compact badge — clearer than the old near-white pastel. */
+[data-theme="light"] .badge {
+  background: var(--chip-slate-bg);
+  border: 1px solid var(--chip-slate-border);
+  color: var(--chip-slate-text);
+  font-weight: 650;
+}
+
+/* Blue/info/accent family */
+[data-theme="light"] .badge-accent,
+[data-theme="light"] .badge-info,
+[data-theme="light"] .status-info,
+[data-theme="light"] .pill-info,
+[data-theme="light"] .trigger-schedule,
+[data-theme="light"] .trigger-tag,
+[data-theme="light"] .trigger-pill,
+[data-theme="light"] .source-tag,
+[data-theme="light"] .ch-vph-badge,
+[data-theme="light"] .ch-count-badge,
+[data-theme="light"] .max-badge,
+[data-theme="light"] .vph-tag,
+[data-theme="light"] .scope-pill,
+[data-theme="light"] .timezone-badge,
+[data-theme="light"] .ops-card-badge:not(.is-attention) {
+  background: var(--chip-blue-bg) !important;
+  border-color: var(--chip-blue-border) !important;
+  color: var(--chip-blue-text) !important;
+}
+
+/* Success family */
+[data-theme="light"] .badge-active,
+[data-theme="light"] .badge-success,
+[data-theme="light"] .status-success,
+[data-theme="light"] .pill-success,
+[data-theme="light"] .status-sent,
+[data-theme="light"] .fresh-pill,
+[data-theme="light"] .active-badge {
+  background: var(--chip-green-bg) !important;
+  border-color: var(--chip-green-border) !important;
+  color: var(--chip-green-text) !important;
+}
+
+/* Warning / pending family */
+[data-theme="light"] .badge-paused,
+[data-theme="light"] .badge-warning,
+[data-theme="light"] .status-warning,
+[data-theme="light"] .pill-warning,
+[data-theme="light"] .status-pending,
+[data-theme="light"] .status-sending,
+[data-theme="light"] .priority-badge.priority-high,
+[data-theme="light"] .ops-card-badge.is-attention {
+  background: var(--chip-amber-bg) !important;
+  border-color: var(--chip-amber-border) !important;
+  color: var(--chip-amber-text) !important;
+}
+
+/* Error / failed family */
+[data-theme="light"] .badge-danger,
+[data-theme="light"] .status-danger,
+[data-theme="light"] .pill-danger,
+[data-theme="light"] .pill-failed,
+[data-theme="light"] .status-failed,
+[data-theme="light"] .badge-alert-tag {
+  background: var(--chip-red-bg) !important;
+  border-color: var(--chip-red-border) !important;
+  color: var(--chip-red-text) !important;
+}
+
+/* Neutral/archive family */
+[data-theme="light"] .badge-archived,
+[data-theme="light"] .badge-neutral,
+[data-theme="light"] .status-neutral,
+[data-theme="light"] .priority-badge,
+[data-theme="light"] .stage-label,
+[data-theme="light"] .badge-status,
+[data-theme="light"] .badge-trigger {
+  background: var(--chip-slate-bg) !important;
+  border-color: var(--chip-slate-border) !important;
+  color: var(--chip-slate-text) !important;
+}
+
+/* Small labels that looked almost disabled in screenshots. */
+[data-theme="light"] .briefing-badge,
+[data-theme="light"] .marker-tag,
+[data-theme="light"] .wireframe-tag,
+[data-theme="light"] .concept-badge,
+[data-theme="light"] .badge-threshold,
+[data-theme="light"] .header-eyebrow,
+[data-theme="light"] .dock-title,
+[data-theme="light"] .filter-label,
+[data-theme="light"] .toolbar-label {
+  color: #2457B8 !important;
+  font-weight: 700 !important;
+}
+
+/* Micro metadata: channel name, timing, counts, VPH context. */
+[data-theme="light"] .briefing-timestamp,
+[data-theme="light"] .compact-channel,
+[data-theme="light"] .compact-meta,
+[data-theme="light"] .timeline-time,
+[data-theme="light"] .timeline-metrics-text,
+[data-theme="light"] .scan-time-sub,
+[data-theme="light"] .metric-sub,
+[data-theme="light"] .metric-subtext,
+[data-theme="light"] .summary-sub,
+[data-theme="light"] .stat-sub,
+[data-theme="light"] .card-sub,
+[data-theme="light"] .card-subtext,
+[data-theme="light"] .fact-sub,
+[data-theme="light"] .t-box-sub,
+[data-theme="light"] .item-hint,
+[data-theme="light"] .video-id,
+[data-theme="light"] .alert-v-channel {
+  color: #52667C !important;
+}
+
+/* Tiny labels above values should read like labels, not disabled text. */
+[data-theme="light"] .metric-label,
+[data-theme="light"] .summary-label,
+[data-theme="light"] .stat-label,
+[data-theme="light"] .fact-label,
+[data-theme="light"] .t-box-lbl,
+[data-theme="light"] .tel-lbl,
+[data-theme="light"] .cfg-lbl,
+[data-theme="light"] .cell-lbl,
+[data-theme="light"] .mb-label,
+[data-theme="light"] .a-pill-lbl,
+[data-theme="light"] .count-label,
+[data-theme="light"] .rail-label,
+[data-theme="light"] .card-title {
+  color: #3B5269 !important;
+  font-weight: 700 !important;
+}
+
+/* Stronger numeric/semantic micro-values. */
+[data-theme="light"] .vph-highlight,
+[data-theme="light"] .text-positive,
+[data-theme="light"] .text-delta {
+  color: #047857 !important;
+}
+
+[data-theme="light"] .text-warning,
+[data-theme="light"] .text-threshold {
+  color: #A45A00 !important;
+}
+
+[data-theme="light"] .text-danger,
+[data-theme="light"] .text-rose {
+  color: #B42323 !important;
+}
+
+[data-theme="light"] .text-accent {
+  color: #1D5BC3 !important;
+}
+
+/* Timestamp / info bars should be crisp enough to look intentional. */
+[data-theme="light"] .timestamp-bar,
+[data-theme="light"] .last-fetched-meta {
+  background: #EDF3F8 !important;
+  border-color: #C2D2DF !important;
+  color: #455B71 !important;
+}
+
+[data-theme="light"] .timestamp-bar strong,
+[data-theme="light"] .last-fetched-meta strong {
+  color: #172B40 !important;
+}
+
+/* Icon tint tiles inside summary rails/cards. */
+[data-theme="light"] .rail-icon-wrap,
+[data-theme="light"] .metric-icon-wrap {
+  border: 1px solid rgba(65, 91, 116, 0.10);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+}
+
+[data-theme="light"] .rail-icon-wrap.is-blue,
+[data-theme="light"] .metric-icon-wrap.icon-candidates {
+  background: #DDE9FF !important;
+  color: #1D4ED8 !important;
+}
+
+[data-theme="light"] .rail-icon-wrap.is-emerald,
+[data-theme="light"] .metric-icon-wrap.icon-threshold {
+  background: #D8F2E4 !important;
+  color: #047857 !important;
+}
+
+[data-theme="light"] .rail-icon-wrap.is-amber {
+  background: #FFEAB0 !important;
+  color: #A45A00 !important;
+}
+
+[data-theme="light"] .rail-icon-wrap.is-indigo,
+[data-theme="light"] .metric-icon-wrap.icon-vph {
+  background: #E4E2FF !important;
+  color: #4F46E5 !important;
+}
+
+[data-theme="light"] .rail-icon-wrap.is-cyan,
+[data-theme="light"] .metric-icon-wrap.icon-fresh {
+  background: #D9F2F7 !important;
+  color: #087C96 !important;
+}
+
+[data-theme="light"] .rail-icon-wrap.is-rose {
+  background: #F9DCE5 !important;
+  color: #BE244D !important;
+}
+
+/* Report compact rows from the screenshot: make metadata and channel names clearer. */
+[data-theme="light"] .report-page .compact-channel .channel-link {
+  color: #455B71 !important;
+  font-weight: 600 !important;
+}
+
+[data-theme="light"] .report-page .compact-meta {
+  color: #52667C !important;
+}
+
+[data-theme="light"] .report-page .compact-title {
+  color: #1B3046 !important;
+  font-weight: 650 !important;
+}
+
+/* Chips should not become translucent on hover/focus. */
+[data-theme="light"] .badge:hover,
+[data-theme="light"] .status-pill:hover,
+[data-theme="light"] .trigger-pill:hover,
+[data-theme="light"] .trigger-tag:hover,
+[data-theme="light"] .fresh-pill:hover {
+  filter: saturate(1.05);
+}
+
+/* Dark mode: preserve the current palette, only make micro-meta slightly clearer. */
+[data-theme="dark"] .briefing-timestamp,
+[data-theme="dark"] .compact-channel,
+[data-theme="dark"] .compact-meta,
+[data-theme="dark"] .timeline-time,
+[data-theme="dark"] .metric-sub,
+[data-theme="dark"] .summary-sub,
+[data-theme="dark"] .card-subtext,
+[data-theme="dark"] .item-hint {
+  color: #A6B4C5 !important;
+}
