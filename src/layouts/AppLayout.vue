@@ -96,9 +96,8 @@
       <div class="workspace-context">
         <div class="workspace-eyebrow">
           <span class="signal-dot"></span>
-          INTELLIGENCE OS
+          BẮT BÀI ĐỐI THỦ · INTELLIGENCE OS
         </div>
-        <div class="workspace-title">{{ currentTitle }}</div>
       </div>
 
       <div class="workspace-actions">
@@ -151,8 +150,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
+import { ref, onMounted } from 'vue';
 import AppIcon from '@/components/ui/AppIcon.vue';
 import ThemeToggle from '@/components/ui/ThemeToggle.vue';
 import MobileNavDrawer from '@/components/ui/MobileNavDrawer.vue';
@@ -172,7 +170,6 @@ interface NavGroup {
 
 const mobileDrawerOpen = ref(false);
 const sidebarCollapsed = ref(false);
-const route = useRoute();
 
 const activeTooltip = ref<{
   label: string;
@@ -258,10 +255,6 @@ onMounted(() => {
   }
 });
 
-const currentTitle = computed(() => {
-  const title = typeof route.meta.title === 'string' ? route.meta.title : 'Bắt Bài Đối Thủ';
-  return title.replace(' — Bắt Bài Đối Thủ', '');
-});
 </script>
 
 <style scoped>
@@ -662,8 +655,7 @@ const currentTitle = computed(() => {
 
 .workspace-context {
   display: flex;
-  flex-direction: column;
-  gap: 2px;
+  align-items: center;
 }
 
 .workspace-eyebrow {
@@ -686,13 +678,6 @@ const currentTitle = computed(() => {
   height: 6px;
   border-radius: 50%;
   background: currentColor;
-}
-
-.workspace-title {
-  font-size: 17px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: var(--text-primary);
 }
 
 .workspace-actions {
