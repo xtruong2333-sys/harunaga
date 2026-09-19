@@ -571,7 +571,7 @@ function serializeForm() {
   });
 }
 
-function toLocalDateTime(iso: string | null): string {
+function toLocalDateTime(iso: string | null | undefined): string {
   if (!iso) return '';
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return '';
