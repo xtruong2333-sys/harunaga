@@ -404,7 +404,6 @@ import {
   ACTIVE_WORKFLOW_STATUSES,
   ASSET_TYPE_LABELS,
   NOTE_CATEGORY_LABELS,
-  PRIORITY_LABELS,
   STATUS_LABELS,
 } from '@/types/production';
 
@@ -472,7 +471,7 @@ const newNote = reactive({
 
 const displayTitle = computed(() => form.workingTitle || props.item?.sourceVideo?.title || 'Chưa đặt tiêu đề');
 const currentStageIndex = computed(() => ACTIVE_WORKFLOW_STATUSES.indexOf(form.status as ActiveProductionStatus));
-const dueState = computed(() => productionService.formatDueState(props.item?.dueAt || null));
+const dueState = computed(() => productionService.formatDueState(localToIso(form.dueAt) || null));
 const progress = computed(() => productionService.computeTaskProgress(props.workspace?.tasks || []));
 
 const tabs = computed(() => [
@@ -640,9 +639,9 @@ watch(() => props.item?.id, () => {
   newTask.stage = props.item?.status && props.item.status !== 'archived' ? props.item.status as ActiveProductionStatus : 'idea';
 }, { immediate: true });
 
-watch(() => props.item, () => {
-  if (!dirty.value) populateForm();
-}, { deep: true });
+watch(() => props.item?.updatedAt, () => {
+  populateForm();
+});
 </script>
 
 <style scoped>
