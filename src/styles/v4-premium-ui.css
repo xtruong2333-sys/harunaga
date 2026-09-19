@@ -110,7 +110,6 @@ body {
     linear-gradient(180deg, #F8FAFD 0%, #F3F6FA 42%, #F3F6FA 100%) !important;
 }
 
-[data-theme="light"] .intelligence-field :deep(canvas),
 [data-theme="light"] .intelligence-field canvas {
   opacity: .10 !important;
   filter: none !important;
