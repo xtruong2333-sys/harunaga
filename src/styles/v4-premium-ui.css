@@ -1283,3 +1283,560 @@ table tbody tr:hover td {
     display: none !important;
   }
 }
+
+
+/* ==========================================================================
+   V4 LIGHT FINAL — approved direction
+   ========================================================================== */
+:root {
+  --v4-sidebar: 220px;
+  --v4-sidebar-collapsed: 68px;
+  --v4-topbar: 52px;
+  --v4-content-max: 1600px;
+
+  --v4-bg: #F5F9FD;
+  --v4-surface: #FFFFFF;
+  --v4-surface-2: #F8FBFF;
+  --v4-surface-3: #EEF5FC;
+  --v4-border: #D7E3EF;
+  --v4-border-strong: #BED1E3;
+  --v4-text: #10233F;
+  --v4-text-2: #49627D;
+  --v4-text-3: #7A8DA3;
+  --v4-blue: #1769E8;
+  --v4-blue-2: #0F56C8;
+  --v4-blue-soft: #EAF2FF;
+  --v4-green: #16A36F;
+  --v4-amber: #D48200;
+  --v4-red: #D64545;
+  --v4-shadow-sm: 0 2px 8px rgba(44, 82, 120, .055);
+  --v4-shadow-md: 0 10px 28px rgba(44, 82, 120, .10);
+  --v4-radius: 13px;
+  --v4-radius-sm: 9px;
+}
+
+[data-theme="light"] {
+  --bg-page: #F5F9FD;
+  --bg-main: #F5F9FD;
+  --surface: #FFFFFF;
+  --surface-muted: #F8FBFF;
+  --surface-hover: #EEF5FC;
+  --bg-inset: #EEF5FC;
+  --text-primary: #10233F;
+  --text-secondary: #49627D;
+  --text-muted: #7A8DA3;
+  --border: #D7E3EF;
+  --border-strong: #BED1E3;
+  --primary: #1769E8;
+  --primary-hover: #0F56C8;
+  --primary-soft: #EAF2FF;
+  --shadow-sm: 0 2px 8px rgba(44, 82, 120, .055);
+  --shadow-md: 0 10px 28px rgba(44, 82, 120, .10);
+  --card-shadow: 0 2px 8px rgba(44, 82, 120, .055);
+}
+
+[data-theme="light"] body {
+  background:
+    linear-gradient(180deg, rgba(236,246,255,.82) 0, rgba(245,249,253,.95) 180px, #F5F9FD 420px) !important;
+}
+
+/* Light app shell */
+[data-theme="light"] .app-sidebar,
+[data-theme="light"] .command-rail {
+  background: rgba(255,255,255,.985) !important;
+  border-right: 1px solid #D6E4F1 !important;
+  box-shadow: 6px 0 24px rgba(72, 102, 134, .06) !important;
+}
+
+[data-theme="light"] .sidebar-header {
+  border-bottom-color: #E4EDF5 !important;
+}
+
+[data-theme="light"] .brand-logo-mark {
+  background: linear-gradient(145deg, #EDF5FF, #DDEBFF) !important;
+  border-color: #BBD2F5 !important;
+  box-shadow: 0 3px 10px rgba(23,105,232,.12) !important;
+}
+
+[data-theme="light"] .rail-brand__core {
+  background: #1769E8 !important;
+  box-shadow: 0 0 10px rgba(23,105,232,.45) !important;
+}
+
+[data-theme="light"] .rail-brand__pulse {
+  border-color: rgba(23,105,232,.35) !important;
+}
+
+[data-theme="light"] .brand-name {
+  color: #10233F !important;
+}
+
+[data-theme="light"] .brand-tagline {
+  color: #71849A !important;
+}
+
+[data-theme="light"] .sidebar-collapse-btn {
+  background: #F5F9FD !important;
+  color: #5F7893 !important;
+  border-color: #D3E1ED !important;
+}
+
+[data-theme="light"] .sidebar-collapse-btn:hover {
+  background: #EAF2FF !important;
+  color: #1769E8 !important;
+  border-color: #B9D0F2 !important;
+}
+
+[data-theme="light"] .nav-group-title {
+  color: #7D8EA2 !important;
+}
+
+[data-theme="light"] .sidebar-item,
+[data-theme="light"] .rail-item {
+  color: #4D637A !important;
+  background: transparent !important;
+}
+
+[data-theme="light"] .sidebar-item:hover,
+[data-theme="light"] .rail-item:hover {
+  color: #123865 !important;
+  background: #F3F7FC !important;
+  border-color: #E1EAF3 !important;
+}
+
+[data-theme="light"] .sidebar-item--active,
+[data-theme="light"] .rail-item--active {
+  color: #145DCE !important;
+  background: #EAF2FF !important;
+  border-color: #BAD1F4 !important;
+  box-shadow: inset 3px 0 0 #1769E8, 0 2px 8px rgba(23,105,232,.06) !important;
+}
+
+[data-theme="light"] .item-hint {
+  color: #8192A5 !important;
+}
+
+[data-theme="light"] .sidebar-item--active .item-hint {
+  color: #5D79A0 !important;
+}
+
+[data-theme="light"] .sidebar-footer {
+  background: #FBFDFF !important;
+  border-top-color: #E4EDF5 !important;
+}
+
+/* Airy topbar */
+[data-theme="light"] .workspace-topbar {
+  background: rgba(255,255,255,.92) !important;
+  border-bottom-color: #DCE7F1 !important;
+  box-shadow: 0 2px 10px rgba(59,88,118,.035) !important;
+  backdrop-filter: blur(14px) saturate(1.08) !important;
+}
+
+[data-theme="light"] .workspace-eyebrow {
+  color: #41617F !important;
+}
+
+[data-theme="light"] .workspace-mode-badge {
+  background: #F6FAFE !important;
+  color: #526B84 !important;
+  border-color: #D4E2EE !important;
+}
+
+/* Main content spacing */
+.main-content {
+  padding: 24px 26px 42px !important;
+}
+
+.main-content__inner {
+  max-width: 1600px !important;
+}
+
+/* Cleaner header, closer to approved light reference */
+.page-header {
+  padding: 0 0 6px !important;
+  margin-bottom: 2px !important;
+}
+
+.page-header-text {
+  gap: 5px !important;
+}
+
+.page-kicker {
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+  color: #4C87DF !important;
+  font-size: 10.5px !important;
+  font-weight: 760 !important;
+  letter-spacing: .075em !important;
+}
+
+.page-title {
+  font-size: clamp(25px, 2.15vw, 31px) !important;
+  color: #10233F !important;
+  letter-spacing: -.03em !important;
+}
+
+.page-description {
+  color: #6D8095 !important;
+  font-size: 13.5px !important;
+}
+
+/* Approved light cards: white, crisp, subtle */
+.surface-card,
+.interactive-card,
+.stat-card,
+.system-status-card,
+.section-container,
+.panel-card,
+.table-card,
+.empty-card,
+.signal-metric-card,
+.filter-bar,
+.filter-dock {
+  background: #FFFFFF !important;
+  border: 1px solid #D9E5F0 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 2px 9px rgba(56, 89, 123, .05) !important;
+}
+
+.surface-card:hover,
+.interactive-card:hover,
+.stat-card:hover,
+.signal-metric-card:hover {
+  border-color: #BDD1E4 !important;
+  box-shadow: 0 8px 24px rgba(56, 89, 123, .09) !important;
+}
+
+.section-container,
+.panel-card,
+.table-card {
+  padding: 18px !important;
+}
+
+.section-title {
+  color: #17304D !important;
+  font-size: 17px !important;
+}
+
+.section-kicker,
+.marker-tag {
+  color: #4C87DF !important;
+}
+
+.telemetry-card,
+.telemetry-box,
+.summary-card,
+.summary-metric-card,
+.fact-card,
+.metric-box,
+.signal-card,
+.status-card,
+.rail-item {
+  background: #F8FBFF !important;
+  border: 1px solid #DDE7F0 !important;
+  border-radius: 11px !important;
+}
+
+.metric-label,
+.summary-label,
+.stat-label,
+.fact-label,
+.t-box-lbl,
+.tel-lbl,
+.cfg-lbl,
+.cell-lbl,
+.mb-label,
+.a-pill-lbl,
+.count-label,
+.rail-label {
+  color: #617891 !important;
+}
+
+.metric-main-value,
+.kpi-val,
+.stat-val,
+.rail-value,
+.t-box-val {
+  color: #132B47 !important;
+}
+
+/* More vivid but still light CTA */
+.btn-primary {
+  background: #1769E8 !important;
+  border-color: #1769E8 !important;
+  box-shadow: 0 5px 12px rgba(23,105,232,.18) !important;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #0F56C8 !important;
+  border-color: #0F56C8 !important;
+}
+
+.btn-secondary,
+.btn-refresh,
+.refresh-btn,
+.btn-load-more,
+.btn-back,
+.btn-return {
+  background: #FFFFFF !important;
+  border-color: #CFDEEB !important;
+  color: #49627D !important;
+}
+
+.btn-secondary:hover:not(:disabled),
+.btn-refresh:hover:not(:disabled),
+.refresh-btn:hover:not(:disabled),
+.btn-load-more:hover:not(:disabled),
+.btn-back:hover:not(:disabled),
+.btn-return:hover:not(:disabled) {
+  background: #F4F8FC !important;
+  border-color: #B8CCDD !important;
+  color: #183B61 !important;
+}
+
+input,
+select,
+textarea,
+.search-input,
+.form-input,
+.form-select,
+.form-textarea {
+  background: #FBFDFF !important;
+  color: #193451 !important;
+  border-color: #D2E0EB !important;
+}
+
+input:focus,
+select:focus,
+textarea:focus,
+.search-input:focus,
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+  background: #FFFFFF !important;
+  border-color: #82AEEF !important;
+}
+
+.view-mode-switcher,
+.range-switch-group {
+  background: #EFF5FB !important;
+  border-color: #D7E3EE !important;
+}
+
+.mode-btn.is-active,
+.range-btn.active {
+  background: #FFFFFF !important;
+  color: #1769E8 !important;
+}
+
+/* Compact readable chips */
+[data-theme="light"] .badge-accent,
+[data-theme="light"] .badge-info,
+[data-theme="light"] .status-info,
+[data-theme="light"] .trigger-pill,
+[data-theme="light"] .trigger-tag,
+[data-theme="light"] .source-tag,
+[data-theme="light"] .timezone-badge {
+  background: #EAF2FF !important;
+  color: #145DCE !important;
+  border-color: #C3D6F6 !important;
+}
+
+[data-theme="light"] .badge-success,
+[data-theme="light"] .status-success,
+[data-theme="light"] .fresh-pill,
+[data-theme="light"] .active-badge {
+  background: #E3F7EE !important;
+  color: #07805B !important;
+  border-color: #BDE8D3 !important;
+}
+
+[data-theme="light"] .badge-warning,
+[data-theme="light"] .status-warning {
+  background: #FFF4D8 !important;
+  color: #A56400 !important;
+  border-color: #F2D99A !important;
+}
+
+[data-theme="light"] .badge-danger,
+[data-theme="light"] .status-danger,
+[data-theme="light"] .status-failed {
+  background: #FDE9E9 !important;
+  color: #C53E3E !important;
+  border-color: #F2C5C5 !important;
+}
+
+/* Bright tables */
+table {
+  background: #FFFFFF !important;
+}
+
+table th {
+  background: #F3F7FB !important;
+  color: #526B84 !important;
+  border-bottom-color: #C8D8E6 !important;
+}
+
+table td {
+  color: #233E5B !important;
+  border-bottom-color: #E2EAF2 !important;
+}
+
+table tbody tr:hover td {
+  background: #F7FBFF !important;
+}
+
+/* Final light route composition */
+.overview-page .overview-hero {
+  background:
+    linear-gradient(120deg, #FFFFFF 0%, #FFFFFF 67%, #EEF5FF 100%) !important;
+  border-color: #D7E5F2 !important;
+  box-shadow: 0 5px 18px rgba(57,91,126,.07) !important;
+}
+
+.overview-page .hero-title {
+  color: #10233F !important;
+}
+
+.overview-page .hero-right {
+  opacity: .32 !important;
+}
+
+.channels-page .channel-summary-strip .strip-item,
+.report-page .summary-rail .rail-item,
+.growth-videos-workspace .summary-card,
+.opportunity-intelligence-workspace .summary-metric-item,
+.data-health-observatory .telemetry-card,
+.production-page .summary-metric-card {
+  background: #FFFFFF !important;
+  border-color: #D9E5F0 !important;
+  box-shadow: 0 2px 9px rgba(56,89,123,.05) !important;
+}
+
+.channels-page .pill-btn {
+  background: #F4F8FC !important;
+  border-color: #D5E2EE !important;
+  color: #587088 !important;
+}
+
+.channels-page .pill-btn.is-active {
+  background: #1769E8 !important;
+  border-color: #1769E8 !important;
+  color: #FFFFFF !important;
+}
+
+.report-page .summary-rail .rail-item:hover,
+.growth-videos-workspace .summary-card:hover,
+.data-health-observatory .telemetry-card:hover {
+  background: #F8FBFF !important;
+}
+
+.channel-row,
+.compact-channel-row,
+.pipeline-row,
+.health-row,
+.top-video-card,
+.channel-summary-item {
+  background: #FFFFFF !important;
+  border-color: #D9E5F0 !important;
+}
+
+.channel-row:hover,
+.compact-channel-row:hover,
+.top-video-card:hover,
+.channel-summary-item:hover {
+  background: #F8FBFF !important;
+}
+
+/* Light mobile drawer */
+[data-theme="light"] .drawer-panel {
+  background: #FFFFFF !important;
+  border-right-color: #D7E3EF !important;
+  box-shadow: 18px 0 42px rgba(57, 88, 119, .14) !important;
+}
+
+[data-theme="light"] .drawer-header {
+  border-bottom-color: #E3ECF4 !important;
+}
+
+[data-theme="light"] .drawer-panel .brand-logo-mark {
+  background: linear-gradient(145deg, #EDF5FF, #DDEBFF) !important;
+  border-color: #BBD2F5 !important;
+}
+
+[data-theme="light"] .drawer-panel .brand-core {
+  background: #1769E8 !important;
+  box-shadow: 0 0 8px rgba(23,105,232,.35) !important;
+}
+
+[data-theme="light"] .drawer-panel .brand-title {
+  color: #10233F !important;
+}
+
+[data-theme="light"] .drawer-panel .brand-subtitle {
+  color: #71849A !important;
+}
+
+[data-theme="light"] .drawer-panel .close-btn {
+  background: #F5F9FD !important;
+  color: #607991 !important;
+  border-color: #D4E1EC !important;
+}
+
+[data-theme="light"] .drawer-panel .drawer-group-title {
+  color: #7D8EA2 !important;
+}
+
+[data-theme="light"] .drawer-panel .drawer-nav-item {
+  color: #4D637A !important;
+}
+
+[data-theme="light"] .drawer-panel .drawer-nav-item:hover {
+  color: #183B61 !important;
+  background: #F3F7FC !important;
+  border-color: #E1EAF3 !important;
+}
+
+[data-theme="light"] .drawer-panel .drawer-nav-item-active {
+  color: #145DCE !important;
+  background: #EAF2FF !important;
+  border-color: #BAD1F4 !important;
+  box-shadow: inset 3px 0 0 #1769E8 !important;
+}
+
+[data-theme="light"] .drawer-panel .drawer-footer {
+  border-top-color: #E4EDF5 !important;
+}
+
+[data-theme="light"] .drawer-panel .footer-brand {
+  color: #8394A7 !important;
+}
+
+/* Mobile header */
+[data-theme="light"] .mobile-topbar {
+  background: rgba(255,255,255,.96) !important;
+  border-bottom-color: #DCE7F1 !important;
+  box-shadow: 0 4px 14px rgba(58, 89, 120, .06) !important;
+}
+
+@media (max-width: 1024px) {
+  .main-content,
+  .content-collapsed {
+    padding: 18px 14px 34px !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .page-title {
+    font-size: 24px !important;
+  }
+
+  .section-container,
+  .panel-card,
+  .table-card {
+    padding: 15px !important;
+  }
+}
