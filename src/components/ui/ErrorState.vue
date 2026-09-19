@@ -57,17 +57,17 @@ defineEmits<{
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 14px 18px;
-  border-radius: 10px;
-  background: var(--danger-soft, #FEF2F2);
-  border: 1px solid #FECACA;
-  color: #B91C1C;
+  padding: 15px 17px;
+  border-radius: 13px;
+  background: #FEF1F1;
+  border: 1px solid #F1C4C4;
+  color: #B42323;
   flex-wrap: wrap;
 }
 
 [data-theme="dark"] .error-state-box {
-  background: rgba(239, 68, 68, 0.12);
-  border-color: rgba(239, 68, 68, 0.3);
+  background: rgba(239,68,68,.10);
+  border-color: rgba(248,113,113,.24);
   color: #FCA5A5;
 }
 
@@ -80,10 +80,14 @@ defineEmits<{
 }
 
 .error-icon-box {
+  width: 36px;
+  height: 36px;
   display: grid;
   place-items: center;
   flex-shrink: 0;
-  color: #EF4444;
+  color: #C53030;
+  background: rgba(255,255,255,.55);
+  border-radius: 10px;
 }
 
 .error-info {
@@ -94,18 +98,18 @@ defineEmits<{
 
 .error-title {
   font-size: 13.5px;
-  font-weight: 700;
-  color: #991B1B;
+  font-weight: 740;
+  color: #9F1D1D;
 }
 
 [data-theme="dark"] .error-title {
-  color: #F87171;
+  color: #FCA5A5;
 }
 
 .error-message {
   font-size: 12.5px;
   color: inherit;
-  line-height: 1.4;
+  line-height: 1.45;
 }
 
 .error-actions {
@@ -115,19 +119,8 @@ defineEmits<{
 }
 
 .retry-btn {
-  background: #FFFFFF;
-  border-color: #FCA5A5;
-  color: #991B1B;
-}
-
-.retry-btn:hover {
-  background: #FFF1F2;
-  border-color: #EF4444;
-}
-
-[data-theme="dark"] .retry-btn {
-  background: rgba(239, 68, 68, 0.2);
-  border-color: rgba(239, 68, 68, 0.4);
-  color: #FCA5A5;
+  background: #FFF;
+  border-color: #EAB1B1;
+  color: #9F1D1D;
 }
 </style>

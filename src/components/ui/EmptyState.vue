@@ -57,57 +57,59 @@ defineEmits<{
 
 <style scoped>
 .empty-state-card {
-  padding: 48px 24px;
+  min-height: 260px;
+  padding: 44px 24px;
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 16px;
-  border-radius: 14px;
-  background: var(--surface, #FFFFFF);
-  border: 1px solid var(--border, #E3EBF3);
+  justify-content: center;
+  gap: 15px;
+  border-radius: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
 }
 
 .empty-icon-box {
-  width: 64px;
-  height: 64px;
-  border-radius: 18px;
+  width: 60px;
+  height: 60px;
+  border-radius: 16px;
   display: grid;
   place-items: center;
-  background: var(--primary-soft, #EFF6FF);
-  color: var(--primary, #2563EB);
-  border: 1px solid #DBEAFE;
+  background: var(--primary-soft);
+  color: var(--primary);
+  border: 1px solid #C6D7FA;
 }
 
 [data-theme="dark"] .empty-icon-box {
-  background: rgba(14, 165, 233, 0.12);
-  color: #38BDF8;
-  border-color: rgba(56, 189, 248, 0.25);
+  border-color: rgba(96,165,250,.24);
 }
 
 .empty-content {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  max-width: 440px;
+  max-width: 460px;
 }
 
 .empty-title {
-  font-size: 16px;
-  font-weight: 700;
+  font-size: 17px;
+  font-weight: 740;
   color: var(--text-primary);
 }
 
 .empty-desc {
-  font-size: 13px;
+  margin: 0;
+  font-size: 13.5px;
   color: var(--text-secondary);
-  line-height: 1.5;
+  line-height: 1.55;
 }
 
 .empty-actions {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-top: 4px;
+  gap: 9px;
+  margin-top: 3px;
 }
 </style>

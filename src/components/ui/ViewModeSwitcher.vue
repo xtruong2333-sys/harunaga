@@ -85,20 +85,10 @@ onMounted(() => {
   display: inline-flex;
   align-items: center;
   padding: 3px;
-  background: var(--bg-inset, #EEF4F8);
-  border: 1px solid var(--border, #E3EBF3);
-  border-radius: 9px;
+  background: var(--surface-hover);
+  border: 1px solid var(--border);
+  border-radius: 11px;
   gap: 2px;
-}
-
-[data-theme="light"] .view-mode-switcher {
-  background: #EEF4F8;
-  border-color: #E2E8F0;
-}
-
-[data-theme="dark"] .view-mode-switcher {
-  background: rgba(8, 14, 24, 0.75);
-  border-color: rgba(125, 211, 252, 0.12);
 }
 
 .mode-btn {
@@ -110,50 +100,41 @@ onMounted(() => {
   background: transparent;
   color: var(--text-secondary);
   font-size: 12.5px;
-  font-weight: 500;
-  border-radius: 6px;
+  font-weight: 600;
+  border-radius: 8px;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all .15s ease;
   white-space: nowrap;
 }
 
 .size-sm .mode-btn {
-  padding: 4px 8px;
-  min-height: 26px;
+  padding: 5px 8px;
+  min-height: 28px;
 }
 
 .size-md .mode-btn {
-  padding: 6px 12px;
+  padding: 6px 11px;
   min-height: 32px;
 }
 
 .mode-btn:hover:not(.is-active) {
   color: var(--text-primary);
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(255,255,255,.55);
 }
 
 [data-theme="dark"] .mode-btn:hover:not(.is-active) {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255,255,255,.04);
 }
 
 .mode-btn.is-active {
-  background: var(--surface, #FFFFFF);
-  color: var(--primary, #2563EB);
-  border-color: var(--border, #E3EBF3);
-  font-weight: 600;
-  box-shadow: 0 1px 4px rgba(30, 60, 90, 0.06);
-}
-
-[data-theme="dark"] .mode-btn.is-active {
-  background: rgba(20, 32, 54, 0.85);
-  color: #38BDF8;
-  border-color: rgba(56, 189, 248, 0.3);
-  box-shadow: 0 0 12px rgba(56, 189, 248, 0.12);
+  background: var(--surface);
+  color: var(--primary);
+  border-color: var(--border);
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(15,31,53,.07);
 }
 
 @media (max-width: 640px) {
-  .mode-label {
-    display: none;
-  }
+  .mode-label { display: none; }
 }
 </style>

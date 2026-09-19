@@ -283,55 +283,56 @@ onBeforeUnmount(() => {
   pointer-events: none;
   overflow: hidden;
   background:
-    radial-gradient(circle at 78% 18%, rgba(14, 165, 233, 0.10), transparent 27%),
-    radial-gradient(circle at 18% 76%, rgba(59, 130, 246, 0.06), transparent 34%);
-  transition: background 0.3s ease;
+    radial-gradient(circle at 82% 8%, rgba(37,99,235,.08), transparent 28%),
+    linear-gradient(180deg, #F8FAFD 0%, #F3F6FA 44%, #F3F6FA 100%);
 }
 
 .intelligence-field :deep(canvas) {
   width: 100%;
   height: 100%;
-  opacity: 0.95;
-  filter: saturate(1.08);
-  transition: opacity 0.3s ease;
+  opacity: .22;
+  filter: saturate(.85);
 }
 
 .intelligence-field__vignette {
   position: absolute;
   inset: 0;
-  background:
-    linear-gradient(90deg, rgba(5, 7, 13, 0.72) 0%, rgba(5, 7, 13, 0.24) 32%, rgba(5, 7, 13, 0.08) 66%, rgba(5, 7, 13, 0.32) 100%),
-    radial-gradient(ellipse at center, transparent 30%, rgba(2, 4, 8, 0.54) 100%);
-  transition: background 0.3s ease;
+  background: linear-gradient(180deg, rgba(243,246,250,.12), rgba(243,246,250,.58));
 }
 
 [data-theme="light"] .intelligence-field {
-  background:
-    radial-gradient(circle at 80% 20%, rgba(56, 189, 248, 0.08), transparent 30%),
-    radial-gradient(circle at 15% 75%, rgba(99, 102, 241, 0.03), transparent 35%);
-  opacity: 1;
+  opacity: .32;
 }
 
 [data-theme="light"] .intelligence-field :deep(canvas) {
-  opacity: 0.85;
+  opacity: .10;
 }
 
 [data-theme="light"] .intelligence-field__vignette {
+  background: linear-gradient(180deg, rgba(243,246,250,.18), rgba(243,246,250,.72));
+}
+
+[data-theme="dark"] .intelligence-field {
   background:
-    linear-gradient(90deg, rgba(245, 248, 252, 0.75) 0%, rgba(245, 248, 252, 0.25) 32%, rgba(245, 248, 252, 0.06) 66%, rgba(245, 248, 252, 0.35) 100%),
-    radial-gradient(ellipse at center, transparent 40%, rgba(235, 242, 250, 0.5) 100%);
+    radial-gradient(circle at 78% 12%, rgba(59,130,246,.10), transparent 30%),
+    #09111F;
+  opacity: .5;
+}
+
+[data-theme="dark"] .intelligence-field :deep(canvas) {
+  opacity: .32;
+  filter: saturate(.95);
+}
+
+[data-theme="dark"] .intelligence-field__vignette {
+  background: radial-gradient(ellipse at center, transparent 34%, rgba(9,17,31,.64) 100%);
 }
 
 @media (max-width: 900px) {
-  .intelligence-field {
-    opacity: 0.6;
-  }
+  .intelligence-field { opacity: .18; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .intelligence-field :deep(canvas) {
-    opacity: 0.42;
-  }
+  .intelligence-field :deep(canvas) { opacity: .06; }
 }
 </style>
-

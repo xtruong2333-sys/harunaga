@@ -22,7 +22,7 @@ defineProps<{
 .technical-section-marker {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 11px;
   margin-bottom: 12px;
   user-select: none;
 }
@@ -30,57 +30,33 @@ defineProps<{
 .marker-tag {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  gap: 5px;
   font-size: 10.5px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
+  font-weight: 760;
+  letter-spacing: .07em;
   text-transform: uppercase;
 }
 
 .marker-index {
-  color: var(--accent);
-  opacity: 0.9;
+  color: var(--primary);
 }
 
 .marker-sep {
   color: var(--text-muted);
-  opacity: 0.6;
 }
 
 .marker-title {
   color: var(--text-secondary);
-  letter-spacing: 0.1em;
 }
 
 .marker-subtext {
   font-size: 11px;
   color: var(--text-muted);
-  font-family: inherit;
-  letter-spacing: 0.02em;
 }
 
 .marker-signal-line {
   flex: 1;
   height: 1px;
-  background: linear-gradient(
-    90deg,
-    rgba(56, 189, 248, 0.25) 0%,
-    rgba(56, 189, 248, 0.08) 50%,
-    transparent 100%
-  );
-  position: relative;
-}
-
-.marker-signal-line::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: -1.5px;
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  background-color: var(--accent);
-  opacity: 0.6;
+  background: linear-gradient(90deg, rgba(37,99,235,.22), rgba(37,99,235,.06), transparent);
 }
 </style>
