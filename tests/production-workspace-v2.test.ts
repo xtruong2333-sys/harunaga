@@ -185,8 +185,8 @@ describe('Production Workspace 2.0', () => {
       priority: 'normal',
       status: 'thumbnail',
       assigneeLabel: 'Trường',
-      templateKey: 'diy_remake',
     });
+    expect(save![0][0]).not.toHaveProperty('templateKey');
   });
 
   it('Drawer checklist hiển thị progress thật 1/2 = 50%', async () => {
@@ -235,7 +235,12 @@ describe('Production Workspace 2.0', () => {
     });
 
     await wrapper.find('article.production-card').trigger('click');
-    expect(wrapper.emitted('open')).toBeDefined();
+    expect(wrapper.emitted('open')).toHaveLength(1);
+
+    const editButton = wrapper.find('.action-btn.edit-btn');
+    await editButton.trigger('keydown', { key: 'Enter' });
+    expect(wrapper.emitted('open')).toHaveLength(1);
+
     expect(wrapper.find('.stage-select-control').exists()).toBe(true);
     expect(wrapper.find('.action-btn.edit-btn').exists()).toBe(true);
     expect(wrapper.text()).toContain('1/2');
@@ -250,6 +255,7 @@ describe('Production Workspace 2.0', () => {
     expect(page).toContain('runWorkspaceMutation(');
     expect(page).toContain('productionService.updateProductionWorkspace');
     expect(page).toContain('productionService.applyTemplate');
+    expect(page).toContain('templateKey: payload.templateKey');
   });
 
   it('AI tab dùng deep-link video nguồn thật mà AI Studio hiện hỗ trợ', () => {
