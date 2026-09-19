@@ -548,3 +548,170 @@ table td {
   border-color: rgba(125, 211, 252, 0.14) !important;
   background-color: rgba(18, 30, 48, 0.72) !important;
 }
+
+
+/* ==========================================================================
+   Report Clarity Hotfix
+   The report page uses many muted labels and translucent/light surfaces.
+   In light mode that made the whole report look washed-out / foggy.
+   Scope is intentionally limited to .report-page.
+   ========================================================================== */
+[data-theme="light"] .report-page {
+  color: #17263A;
+}
+
+[data-theme="light"] .report-page .page-title,
+[data-theme="light"] .report-page .section-title,
+[data-theme="light"] .report-page .sub-title,
+[data-theme="light"] .report-page .briefing-text,
+[data-theme="light"] .report-page .compact-title,
+[data-theme="light"] .report-page .ch-name,
+[data-theme="light"] .report-page .ops-alert-title,
+[data-theme="light"] .report-page .rail-value {
+  color: #102033 !important;
+}
+
+[data-theme="light"] .report-page .page-description,
+[data-theme="light"] .report-page .timestamp-bar,
+[data-theme="light"] .report-page .rail-label,
+[data-theme="light"] .report-page .ops-card-title,
+[data-theme="light"] .report-page .channel-link {
+  color: #41546A !important;
+}
+
+[data-theme="light"] .report-page .text-muted,
+[data-theme="light"] .report-page .sub-caption,
+[data-theme="light"] .report-page .briefing-timestamp,
+[data-theme="light"] .report-page .compact-meta,
+[data-theme="light"] .report-page .ch-latest,
+[data-theme="light"] .report-page .ops-card-desc,
+[data-theme="light"] .report-page .rail-sub {
+  color: #66768A !important;
+}
+
+/* Remove the milky glass treatment on report cards in light mode. */
+[data-theme="light"] .report-page .surface-card,
+[data-theme="light"] .report-page .section-container,
+[data-theme="light"] .report-page .panel-card,
+[data-theme="light"] .report-page .table-card,
+[data-theme="light"] .report-page .summary-rail,
+[data-theme="light"] .report-page .briefing-card,
+[data-theme="light"] .report-page .sub-section,
+[data-theme="light"] .report-page .timestamp-bar {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  background: #FFFFFF !important;
+  border-color: #C9D8E6 !important;
+  box-shadow: 0 6px 18px rgba(35, 65, 95, 0.09), 0 1px 3px rgba(35, 65, 95, 0.06) !important;
+}
+
+/* Main report summary rail: stronger separation between each metric. */
+[data-theme="light"] .report-page .summary-rail {
+  border-color: #C3D4E3 !important;
+}
+
+[data-theme="light"] .report-page .summary-rail .rail-item {
+  background: #F2F6FA !important;
+  border-right-color: #D1DDE8 !important;
+}
+
+[data-theme="light"] .report-page .summary-rail .rail-item:hover {
+  background: #EBF2F8 !important;
+}
+
+/* Executive briefing card */
+[data-theme="light"] .report-page .briefing-card {
+  border-left-color: #2563EB !important;
+  box-shadow: 0 6px 18px rgba(37, 99, 235, 0.08), 0 1px 3px rgba(35, 65, 95, 0.06) !important;
+}
+
+[data-theme="light"] .report-page .briefing-badge,
+[data-theme="light"] .report-page .page-kicker {
+  color: #1D4ED8 !important;
+}
+
+/* Sections should look solid, not translucent. */
+[data-theme="light"] .report-page .sub-section {
+  background: #FFFFFF !important;
+  border-color: #CBD9E6 !important;
+}
+
+[data-theme="light"] .report-page .compact-channel-row,
+[data-theme="light"] .report-page .ops-card {
+  background: #EDF3F8 !important;
+  border: 1px solid #D6E1EB !important;
+}
+
+[data-theme="light"] .report-page .compact-channel-row:hover,
+[data-theme="light"] .report-page .ops-card:hover {
+  background: #E7EFF7 !important;
+  border-color: #BFD0DF !important;
+}
+
+/* Video rows need stronger title/meta separation. */
+[data-theme="light"] .report-page .compact-video-item {
+  padding: 7px 8px;
+  border-radius: 9px;
+  border: 1px solid transparent;
+}
+
+[data-theme="light"] .report-page .compact-video-item:hover {
+  background: #F2F6FA;
+  border-color: #D6E1EB;
+}
+
+[data-theme="light"] .report-page .compact-channel {
+  color: #52647A !important;
+}
+
+[data-theme="light"] .report-page .vph-highlight {
+  color: #047857 !important;
+}
+
+/* Timestamp control was visually disappearing into the page. */
+[data-theme="light"] .report-page .timestamp-bar {
+  color: #4A5C70 !important;
+}
+
+[data-theme="light"] .report-page .timestamp-bar strong {
+  color: #17263A !important;
+}
+
+/* Report operation tables */
+[data-theme="light"] .report-page table {
+  background: #FFFFFF;
+}
+
+[data-theme="light"] .report-page table th {
+  background: #E6EEF6 !important;
+  color: #3E5268 !important;
+  border-bottom-color: #BFCFDE !important;
+}
+
+[data-theme="light"] .report-page table td {
+  color: #213349 !important;
+  border-bottom-color: #D7E2EC !important;
+}
+
+[data-theme="light"] .report-page table tbody tr:hover td {
+  background: #EEF4F9 !important;
+}
+
+/* Keep report status/icon chips colorful enough to read without neon intensity. */
+[data-theme="light"] .report-page .ch-count-badge,
+[data-theme="light"] .report-page .ops-card-badge {
+  background: #E4EDFF !important;
+  color: #1D4ED8 !important;
+  border-color: #BFD1F8 !important;
+}
+
+/* Dark mode remains glassy by design; only improve muted text slightly. */
+[data-theme="dark"] .report-page .text-muted,
+[data-theme="dark"] .report-page .sub-caption,
+[data-theme="dark"] .report-page .briefing-timestamp,
+[data-theme="dark"] .report-page .compact-meta,
+[data-theme="dark"] .report-page .ch-latest,
+[data-theme="dark"] .report-page .ops-card-desc,
+[data-theme="dark"] .report-page .rail-sub {
+  color: #94A3B8 !important;
+}
