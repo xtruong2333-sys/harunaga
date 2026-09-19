@@ -10,7 +10,7 @@
     tabindex="0"
     :aria-label="`Mở hồ sơ sản xuất: ${displayTitle}`"
     @click="onCardClick"
-    @keydown.enter.prevent="$emit('open', item)"
+    @keydown.enter.self.prevent="$emit('open', item)"
   >
     <!-- Busy Loading Overlay -->
     <div v-if="isBusy" class="card-busy-overlay" aria-live="polite">
