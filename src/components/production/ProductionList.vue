@@ -85,9 +85,9 @@
           </p>
 
           <div class="workspace-meta-row">
-            <span v-if="item.taskTotalCount > 0" class="workspace-meta-chip">
+            <span v-if="(item.taskTotalCount || 0) > 0" class="workspace-meta-chip">
               <AppIcon name="clipboard-list" :size="11" />
-              Checklist {{ item.taskCompletedCount }}/{{ item.taskTotalCount }}
+              Checklist {{ item.taskCompletedCount || 0 }}/{{ item.taskTotalCount || 0 }}
             </span>
             <span v-if="item.assigneeLabel" class="workspace-meta-chip">
               <AppIcon name="users" :size="11" />
