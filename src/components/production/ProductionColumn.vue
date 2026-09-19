@@ -25,6 +25,7 @@
           :any-mutation-busy="isLocked"
           :interactions-locked="isLocked"
           @change-status="$emit('change-status', $event)"
+          @open="$emit('open', $event)"
           @edit="$emit('edit', $event)"
           @archive="$emit('archive', $event)"
           @restore="$emit('restore', $event)"
@@ -54,6 +55,7 @@ const isLocked = computed(() => !!(props.interactionsLocked || props.anyMutation
 
 defineEmits<{
   (e: 'change-status', payload: { id: string; status: ProductionStatus }): void;
+  (e: 'open', item: ProductionItem): void;
   (e: 'edit', item: ProductionItem): void;
   (e: 'archive', id: string): void;
   (e: 'restore', id: string): void;
