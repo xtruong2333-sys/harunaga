@@ -721,7 +721,8 @@ onMounted(() => {
   padding: 6px 12px;
   border-radius: 8px;
   white-space: nowrap;
-  box-shadow: 0 8px 24px rgba(15, 31, 53, 0.25);
+  border: 1px solid #D2E0EB;
+  box-shadow: 0 10px 28px rgba(57, 88, 119, 0.14);
   z-index: 99999;
   display: flex;
   flex-direction: column;
@@ -744,7 +745,7 @@ onMounted(() => {
   transform: translateY(-50%);
   border-width: 5px;
   border-style: solid;
-  border-color: transparent #0F1F35 transparent transparent;
+  border-color: transparent #FFFFFF transparent transparent;
 }
 
 [data-theme="dark"] .sidebar-portal-tooltip::before {
