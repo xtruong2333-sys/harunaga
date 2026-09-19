@@ -44,18 +44,22 @@ describe('V1.1 Light Theme & Wide Desktop Hotfix Contract Tests', () => {
     });
   });
 
-  describe('2. Fluid Layout in AppLayout.vue', () => {
+  describe('2. Fluid Layout in V4 App Shell', () => {
     const layoutPath = resolve(rootDir, 'src/layouts/AppLayout.vue');
     const layout = readFileSync(layoutPath, 'utf-8');
+    const v4Path = resolve(rootDir, 'src/styles/v4-premium-ui.css');
+    const v4 = readFileSync(v4Path, 'utf-8');
 
-    it('2.1 AppLayout .main-content không bị giới hạn cứng 1400px', () => {
+    it('2.1 V4 không quay lại giới hạn cứng 1400px và dùng workspace max 1600px', () => {
       expect(layout).not.toContain('max-width: 1400px;');
-      expect(layout).toContain('max-width: none;');
+      expect(v4).toContain('--v4-content-max: 1600px;');
+      expect(v4).toContain('max-width: var(--v4-content-max) !important;');
     });
 
-    it('2.2 AppLayout .main-content sử dụng fluid width và clamp padding', () => {
-      expect(layout).toContain('width: calc(100% - 260px);');
-      expect(layout).toContain('padding: clamp(20px, 2vw, 32px);');
+    it('2.2 V4 main-content dùng fluid width theo sidebar token và spacing light-final', () => {
+      expect(v4).toContain('--v4-sidebar: 220px;');
+      expect(v4).toContain('width: calc(100% - var(--v4-sidebar)) !important;');
+      expect(v4).toContain('padding: 24px 26px 42px !important;');
     });
   });
 
