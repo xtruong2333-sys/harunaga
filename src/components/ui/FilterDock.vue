@@ -34,21 +34,18 @@ withDefaults(
 
 <style scoped>
 .filter-dock {
-  background: var(--bg-surface);
-  border-top: 1px solid var(--border-strong);
-  border-bottom: 1px solid var(--border-strong);
-  border-left: 1px solid var(--border-line);
-  border-right: 1px solid var(--border-line);
-  border-radius: 6px;
-  padding: 14px 18px;
-  margin-bottom: 24px;
-  box-shadow: var(--card-shadow);
-  transition: border-color 0.2s ease, background-color 0.2s ease;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 14px 16px;
+  margin-bottom: 0;
+  box-shadow: var(--shadow-sm);
+  transition: border-color .15s ease, box-shadow .15s ease;
 }
 
 .dock-active {
-  border-top-color: var(--accent);
-  border-bottom-color: var(--accent);
+  border-color: #A8C2F5;
+  box-shadow: 0 0 0 3px rgba(37,99,235,.06), var(--shadow-sm);
 }
 
 .dock-header {
@@ -56,22 +53,22 @@ withDefaults(
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 12px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid var(--border-line);
+  margin-bottom: 11px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
 }
 
-.dock-title-wrap {
+.dock-title-wrap,
+.dock-header-actions {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 9px;
 }
 
 .dock-title {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
+  font-weight: 760;
+  letter-spacing: .07em;
   text-transform: uppercase;
   color: var(--text-secondary);
 }
@@ -80,25 +77,21 @@ withDefaults(
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 11px;
-  color: var(--accent);
-  background: var(--accent-subtle);
-  padding: 2px 8px;
-  border-radius: 3px;
-  border: 1px solid var(--border-subtle);
+  min-height: 24px;
+  font-size: 10.8px;
+  font-weight: 700;
+  color: #1D4ED8;
+  background: #E7EFFF;
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px solid #C5D6FA;
 }
 
 .active-dot {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
-  background: var(--accent);
-  box-shadow: 0 0 6px var(--accent);
-}
-
-.dock-header-actions {
-  display: flex;
-  align-items: center;
+  background: #2563EB;
 }
 
 .dock-body {
