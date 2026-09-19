@@ -15,17 +15,35 @@ describe('V4 premium workspace redesign', () => {
     expect(v4).toBeGreaterThan(oldTagLayer);
   });
 
-  it('defines the new shell and surface tokens', () => {
+  it('defines the approved light-first shell and surface tokens', () => {
+    const lightFinal = css.split('V4 LIGHT FINAL — approved direction')[1] || '';
+
     for (const token of [
-      '--v4-sidebar: 236px',
-      '--v4-bg: #F3F6FA',
+      '--v4-sidebar: 220px',
+      '--v4-bg: #F5F9FD',
       '--v4-surface: #FFFFFF',
-      '--v4-text: #132238',
-      '--v4-blue: #2563EB',
-      '--v4-radius: 16px',
+      '--v4-text: #10233F',
+      '--v4-blue: #1769E8',
+      '--v4-radius: 13px',
     ]) {
-      expect(css).toContain(token);
+      expect(lightFinal).toContain(token);
     }
+  });
+
+  it('uses a light sidebar in light mode and keeps dark mode optional', () => {
+    const lightFinal = css.split('V4 LIGHT FINAL — approved direction')[1] || '';
+    expect(lightFinal).toContain('[data-theme="light"] .app-sidebar');
+    expect(lightFinal).toContain('background: rgba(255,255,255,.985) !important');
+    expect(lightFinal).toContain('[data-theme="light"] .sidebar-item--active');
+    expect(lightFinal).toContain('background: #EAF2FF !important');
+    expect(css).toContain('[data-theme="dark"]');
+  });
+
+  it('uses clean white cards and restrained shadows in the approved light mode', () => {
+    const lightFinal = css.split('V4 LIGHT FINAL — approved direction')[1] || '';
+    expect(lightFinal).toContain('background: #FFFFFF !important');
+    expect(lightFinal).toContain('box-shadow: 0 2px 9px rgba(56, 89, 123, .05) !important');
+    expect(lightFinal).toContain('background: #F3F7FB !important');
   });
 
   it('covers every primary page workspace', () => {
