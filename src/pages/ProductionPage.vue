@@ -88,6 +88,7 @@
         :any-mutation-busy="interactionsLocked"
         :interactions-locked="interactionsLocked"
         @change-status="handleChangeStatus"
+        @open="openDetailDrawer"
         @edit="openEditModal"
         @archive="handleArchive"
         @restore="handleRestore"
@@ -102,6 +103,7 @@
         :any-mutation-busy="interactionsLocked"
         :interactions-locked="interactionsLocked"
         @change-status="handleChangeStatus"
+        @open="openDetailDrawer"
         @edit="openEditModal"
         @archive="handleArchive"
         @restore="handleRestore"
@@ -109,7 +111,29 @@
       />
     </main>
 
-    <!-- 5. Edit Modal -->
+    <!-- 5. Production Workspace 2.0 Detail Drawer -->
+    <ProductionDetailDrawer
+      v-model="showDetailDrawer"
+      :item="selectedDetailItem"
+      :workspace="detailWorkspace"
+      :workspace-loading="detailWorkspaceLoading"
+      :workspace-error="detailWorkspaceError"
+      :saving="isSavingWorkspace"
+      :mutation-busy="selectedDetailItemBusy || showAccessKeyModal"
+      @refresh-workspace="loadDetailWorkspace"
+      @save="handleWorkspaceSave"
+      @apply-template="handleApplyTemplate"
+      @create-task="handleCreateTask"
+      @update-task="handleUpdateTask"
+      @delete-task="handleDeleteTask"
+      @create-asset="handleCreateAsset"
+      @delete-asset="handleDeleteAsset"
+      @create-note="handleCreateNote"
+      @update-note="handleUpdateNote"
+      @delete-note="handleDeleteNote"
+    />
+
+    <!-- 6. Legacy Quick Edit Modal -->
     <ProductionEditModal
       v-model="showEditModal"
       :item="editingItem"
@@ -118,7 +142,7 @@
       @save="handleSaveEdit"
     />
 
-    <!-- 6. Delete Confirmation Modal -->
+    <!-- 7. Delete Confirmation Modal -->
     <ProductionDeleteModal
       v-model="showDeleteModal"
       :item="deletingItem"
@@ -126,7 +150,7 @@
       @confirm="handleConfirmDelete"
     />
 
-    <!-- 7. Access Key Prompt Modal -->
+    <!-- 8. Access Key Prompt Modal -->
     <AccessKeyPromptModal
       :model-value="showAccessKeyModal"
       :initial-error="accessKeyError"
@@ -134,7 +158,7 @@
       @confirmed="onAccessKeyConfirmed"
     />
 
-    <!-- 8. Unified Toast Banner -->
+    <!-- 9. Unified Toast Banner -->
     <div
       v-if="toast"
       class="production-toast-banner"
@@ -162,6 +186,7 @@ import ProductionBoard from '@/components/production/ProductionBoard.vue';
 import ProductionList from '@/components/production/ProductionList.vue';
 import ProductionEditModal from '@/components/production/ProductionEditModal.vue';
 import ProductionDeleteModal from '@/components/production/ProductionDeleteModal.vue';
+import ProductionDetailDrawer from '@/components/production/ProductionDetailDrawer.vue';
 
 import {
   productionService,
@@ -175,6 +200,12 @@ import type {
   ProductionStatus,
   ProductionViewMode,
   ProductionUpdateInput,
+  ProductionWorkspaceUpdateInput,
+  ProductionWorkspace,
+  ProductionTaskCreateInput,
+  ProductionTaskUpdateInput,
+  ProductionAssetCreateInput,
+  ProductionNoteCreateInput,
 } from '@/types/production';
 import { STATUS_LABELS, PRODUCTION_VIEW_MODE_STORAGE_KEY } from '@/types/production';
 
@@ -275,6 +306,145 @@ const statusCounts = computed(() => {
 const filteredItems = computed(() => {
   return productionService.filterAndSortItems(items.value, filterState.value);
 });
+
+/* Production Workspace 2.0 detail drawer */
+const showDetailDrawer = ref(false);
+const selectedDetailItemId = ref<string | null>(null);
+const detailWorkspace = ref<ProductionWorkspace | null>(null);
+const detailWorkspaceLoading = ref(false);
+const detailWorkspaceError = ref<string | null>(null);
+const isSavingWorkspace = ref(false);
+let detailWorkspaceRequestId = 0;
+
+const selectedDetailItem = computed(() => {
+  if (!selectedDetailItemId.value) return null;
+  return items.value.find(item => item.id === selectedDetailItemId.value) || null;
+});
+
+const selectedDetailItemBusy = computed(() =>
+  !!selectedDetailItemId.value && busyItemIds.value.has(selectedDetailItemId.value)
+);
+
+async function openDetailDrawer(item: ProductionItem) {
+  if (interactionsLocked.value) return;
+  selectedDetailItemId.value = item.id;
+  detailWorkspace.value = null;
+  detailWorkspaceError.value = null;
+  showDetailDrawer.value = true;
+  await loadDetailWorkspace();
+}
+
+async function loadDetailWorkspace() {
+  const itemId = selectedDetailItemId.value;
+  if (!itemId) return;
+
+  const requestId = ++detailWorkspaceRequestId;
+  detailWorkspaceLoading.value = true;
+  detailWorkspaceError.value = null;
+
+  try {
+    const workspace = await productionService.fetchProductionWorkspace(itemId);
+    if (requestId !== detailWorkspaceRequestId || selectedDetailItemId.value !== itemId) return;
+    detailWorkspace.value = workspace;
+
+    const idx = items.value.findIndex(item => item.id === itemId);
+    if (idx !== -1) {
+      const completed = workspace.tasks.filter(task => task.isCompleted).length;
+      items.value[idx] = {
+        ...items.value[idx],
+        taskCompletedCount: completed,
+        taskTotalCount: workspace.tasks.length,
+      };
+    }
+  } catch (err: any) {
+    if (requestId !== detailWorkspaceRequestId) return;
+    detailWorkspaceError.value = err.message || 'Không thể tải Production Workspace.';
+  } finally {
+    if (requestId === detailWorkspaceRequestId) detailWorkspaceLoading.value = false;
+  }
+}
+
+async function runWorkspaceMutation(
+  action: (key: string) => Promise<void>,
+  successMessage?: string
+) {
+  const itemId = selectedDetailItemId.value;
+  if (!itemId || interactionsLocked.value) return;
+
+  await executeWithAccessKey(
+    async (key) => {
+      await action(key);
+      await loadDetailWorkspace();
+      if (successMessage) showToast(successMessage, 'success');
+    },
+    [itemId]
+  );
+}
+
+async function handleWorkspaceSave(input: ProductionWorkspaceUpdateInput) {
+  if (interactionsLocked.value || isSavingWorkspace.value) return;
+  isSavingWorkspace.value = true;
+
+  await executeWithAccessKey(
+    async (key) => {
+      const updated = await productionService.updateProductionWorkspace(input, key);
+      const idx = items.value.findIndex(item => item.id === input.id);
+      if (idx !== -1) {
+        updated.taskCompletedCount = items.value[idx].taskCompletedCount;
+        updated.taskTotalCount = items.value[idx].taskTotalCount;
+        items.value[idx] = updated;
+      }
+      await loadDetailWorkspace();
+      showToast('Đã lưu hồ sơ sản xuất.', 'success');
+    },
+    [input.id],
+    (err) => {
+      showToast(err.message || 'Không thể lưu hồ sơ sản xuất.', 'error');
+    }
+  );
+
+  isSavingWorkspace.value = false;
+}
+
+async function handleApplyTemplate(payload: { productionItemId: string; templateKey: string }) {
+  await runWorkspaceMutation(
+    key => productionService.applyTemplate(payload.productionItemId, payload.templateKey, key),
+    'Đã áp dụng template checklist.'
+  );
+}
+
+async function handleCreateTask(input: ProductionTaskCreateInput) {
+  await runWorkspaceMutation(key => productionService.createTask(input, key).then(() => undefined), 'Đã thêm checklist.');
+}
+
+async function handleUpdateTask(input: ProductionTaskUpdateInput) {
+  await runWorkspaceMutation(key => productionService.updateTask(input, key).then(() => undefined));
+}
+
+async function handleDeleteTask(id: string) {
+  await runWorkspaceMutation(key => productionService.deleteTask(id, key).then(() => undefined), 'Đã xóa checklist.');
+}
+
+async function handleCreateAsset(input: ProductionAssetCreateInput) {
+  await runWorkspaceMutation(key => productionService.createAsset(input, key).then(() => undefined), 'Đã thêm tài sản.');
+}
+
+async function handleDeleteAsset(id: string) {
+  await runWorkspaceMutation(key => productionService.deleteAsset(id, key).then(() => undefined), 'Đã xóa tài sản.');
+}
+
+async function handleCreateNote(input: ProductionNoteCreateInput) {
+  await runWorkspaceMutation(key => productionService.createNote(input, key).then(() => undefined), 'Đã thêm ghi chú.');
+}
+
+async function handleUpdateNote(input: { id: string; isPinned: boolean }) {
+  await runWorkspaceMutation(key => productionService.updateNote(input, key).then(() => undefined));
+}
+
+async function handleDeleteNote(id: string) {
+  await runWorkspaceMutation(key => productionService.deleteNote(id, key).then(() => undefined), 'Đã xóa ghi chú.');
+}
+
 
 // Toast notification state
 type ToastType = 'success' | 'error';
@@ -513,6 +683,11 @@ async function handleConfirmDelete() {
       await productionService.deleteProductionItem(id, key);
       // Remove item only after server succeeds!
       items.value = items.value.filter(i => i.id !== id);
+      if (selectedDetailItemId.value === id) {
+        showDetailDrawer.value = false;
+        selectedDetailItemId.value = null;
+        detailWorkspace.value = null;
+      }
       showDeleteModal.value = false;
       deletingItem.value = null;
       showToast('Đã xóa mục khỏi Tiến Độ Sản Xuất.', 'success');
