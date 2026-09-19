@@ -69,12 +69,12 @@ export interface ProductionItem {
   updatedAt: string;
   publishedUrl: string | null;
   publishedAt: string | null;
-  dueAt: string | null;
-  startedAt: string | null;
-  assigneeLabel: string | null;
-  templateKey: string | null;
-  taskCompletedCount: number;
-  taskTotalCount: number;
+  dueAt?: string | null;
+  startedAt?: string | null;
+  assigneeLabel?: string | null;
+  templateKey?: string | null;
+  taskCompletedCount?: number;
+  taskTotalCount?: number;
   sourceVideo: ProductionSourceVideo | null;
 }
 
