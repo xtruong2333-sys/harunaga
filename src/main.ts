@@ -7,6 +7,7 @@ import '@/styles/wave22.css';
 import '@/styles/readability-hotfix.css';
 import '@/styles/global-clarity-hotfix.css';
 import '@/styles/tag-micro-contrast-hotfix.css';
+import '@/styles/v4-premium-ui.css';
 
 const app = createApp(App);
 
