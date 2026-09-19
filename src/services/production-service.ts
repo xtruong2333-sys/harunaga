@@ -91,6 +91,8 @@ function mapDbRowToItem(row: any): ProductionItem {
     startedAt: row.started_at ?? null,
     assigneeLabel: row.assignee_label ?? null,
     templateKey: row.template_key ?? null,
+    taskCompletedCount: Array.isArray(row.production_tasks) ? row.production_tasks.filter((task: any) => !!task.is_completed).length : 0,
+    taskTotalCount: Array.isArray(row.production_tasks) ? row.production_tasks.length : 0,
     sourceVideo: video
       ? {
           id: video.id,
@@ -193,7 +195,7 @@ export const productionService = {
     const supabase = ensureSupabase();
     const { data, error } = await supabase
       .from('production_items')
-      .select('*, videos(id, title, youtube_video_id, url, thumbnail_url, channel_id, channels(name, handle, avatar_url))')
+      .select('*, production_tasks(is_completed), videos(id, title, youtube_video_id, url, thumbnail_url, channel_id, channels(name, handle, avatar_url))')
       .order('updated_at', { ascending: false });
 
     if (error) throwQueryError(error, 'Không thể tải Tiến Độ Sản Xuất.');
