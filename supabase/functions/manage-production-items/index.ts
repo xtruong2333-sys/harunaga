@@ -31,7 +31,7 @@ const VALID_NOTE_CATEGORIES = [
 ];
 
 const ITEM_SELECT =
-  "*, videos(id, title, youtube_video_id, url, thumbnail_url, channels(name, handle, avatar_url))";
+  "*, production_tasks(is_completed), videos(id, title, youtube_video_id, url, thumbnail_url, channels(name, handle, avatar_url))";
 
 function json(body: any, status = 200) {
   return new Response(JSON.stringify(body), {
