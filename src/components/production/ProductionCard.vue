@@ -83,9 +83,9 @@
       </p>
 
       <div class="workspace-meta-row">
-        <span v-if="item.taskTotalCount > 0" class="workspace-meta-chip checklist-chip">
+        <span v-if="(item.taskTotalCount || 0) > 0" class="workspace-meta-chip checklist-chip">
           <AppIcon name="clipboard-list" :size="11" />
-          {{ item.taskCompletedCount }}/{{ item.taskTotalCount }}
+          {{ item.taskCompletedCount || 0 }}/{{ item.taskTotalCount || 0 }}
         </span>
         <span v-if="item.assigneeLabel" class="workspace-meta-chip">
           <AppIcon name="users" :size="11" />
@@ -97,7 +97,7 @@
         </span>
       </div>
 
-      <div v-if="item.taskTotalCount > 0" class="card-progress-track" :title="`Checklist ${progressPercent}%`">
+      <div v-if="(item.taskTotalCount || 0) > 0" class="card-progress-track" :title="`Checklist ${progressPercent}%`">
         <div class="card-progress-fill" :style="{ width: progressPercent + '%' }"></div>
       </div>
 
@@ -227,8 +227,10 @@ const displayTitle = computed(() => {
 
 const dueState = computed(() => productionService.formatDueState(props.item.dueAt));
 const progressPercent = computed(() => {
-  if (!props.item.taskTotalCount) return 0;
-  return Math.round((props.item.taskCompletedCount / props.item.taskTotalCount) * 100);
+  const total = props.item.taskTotalCount || 0;
+  const completed = props.item.taskCompletedCount || 0;
+  if (!total) return 0;
+  return Math.round((completed / total) * 100);
 });
 
 function onCardClick(event: MouseEvent) {
